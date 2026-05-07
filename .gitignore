@@ -1,3 +1,5 @@
+# Project-specific
+AGENTS.md
 # Dependencies
 node_modules/
 .pnp/
@@ -17,7 +19,6 @@ out/
 .env.test.local
 .env.production.local
 # Prisma
-prisma/migrations/
 prisma/sqlite-query-engine-*
 prisma/query-engine-*
 prisma/engines/
