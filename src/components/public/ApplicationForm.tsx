@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useApplicationStore } from "@/lib/store/useApplicationStore";
-import { applicationSchema, type ApplicationData } from "@/schemas/application";
+import { Loader2, Upload } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { submitJobApplication } from "@/server/services/applications";
+import { type JobApplicationInput, jobApplicationSchema } from "@/schemas/application";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -16,87 +15,86 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 interface ApplicationFormProps {
   jobSlug: string;
 }
 
-const resolver = zodResolver(applicationSchema);
-
 export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
-  const {
-    formData,
-    isLoading,
-    error,
-    lastSaved,
-    updateField,
-    saveDraft,
-    submitApplication,
-    loadApplication,
-    clearForm,
-    resetError,
-  } = useApplicationStore();
+  const [isPending, startTransition] = useTransition();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
-  const form = useForm<ApplicationData>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: resolver as any,
+  const form = useForm<JobApplicationInput>({
+    resolver: zodResolver(jobApplicationSchema),
     defaultValues: {
+      email: "",
       firstName: "",
       lastName: "",
-      email: "",
       phone: "",
-      customFields: [],
-      resumeUrl: "",
-      status: "draft",
-      jobSlug,
     },
-    mode: "onBlur",
   });
 
-  useEffect(() => {
-    loadApplication(jobSlug);
-  }, [jobSlug, loadApplication]);
+  const handleSubmit = form.handleSubmit((values) => {
+    setServerError(null);
+    setSuccessMessage(null);
+    setWarningMessage(null);
 
-  useEffect(() => {
-    form.reset(formData);
-  }, [formData, form]);
+    const formData = new FormData();
+    formData.set("jobSlug", jobSlug);
+    formData.set("firstName", values.firstName);
+    formData.set("lastName", values.lastName);
+    formData.set("email", values.email);
+    formData.set("phone", values.phone);
+    formData.set("resumeFile", values.resumeFile);
 
-  const handleFieldChange = useCallback(
-    (name: keyof ApplicationData, value: string) => {
-      updateField(name, value);
-    },
-    [updateField],
-  );
+    startTransition(async () => {
+      const result = await submitJobApplication(formData);
 
-  const handleSaveDraft = useCallback(async () => {
-    await saveDraft(jobSlug);
-  }, [saveDraft, jobSlug]);
+      if (!result.success) {
+        setServerError(result.error ?? "Could not submit your application.");
+        return;
+      }
 
-  const onSubmit = useCallback(async () => {
-    await submitApplication(jobSlug);
-  }, [submitApplication, jobSlug]);
+      form.reset();
+      setSuccessMessage("Application submitted successfully.");
+      setWarningMessage(result.warning ?? null);
+    });
+  });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Submit your application</h1>
+    <div className="rounded-3xl border border-border/70 bg-background/95 p-6 shadow-sm sm:p-8">
+      <div className="mb-6 space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight">Apply for this role</h2>
         <p className="text-sm text-muted-foreground">
-          Your progress is saved automatically. You can return later to finish.
+          Submit your details and resume. We will send a confirmation email once your
+          application is received.
         </p>
       </div>
 
-      {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
-          <button onClick={resetError} className="ml-2 underline">
-            Dismiss
-          </button>
+      {serverError ? (
+        <div className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {serverError}
         </div>
-      )}
+      ) : null}
+
+      {successMessage ? (
+        <div className="mb-4 rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {successMessage}
+        </div>
+      ) : null}
+
+      {warningMessage ? (
+        <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          {warningMessage}
+        </div>
+      ) : null}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="grid gap-5 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="firstName"
@@ -104,14 +102,7 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
                 <FormItem>
                   <FormLabel>First name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Jane"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        handleFieldChange("firstName", e.target.value);
-                      }}
-                    />
+                    <Input placeholder="Jane" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,14 +115,7 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
                 <FormItem>
                   <FormLabel>Last name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Doe"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        handleFieldChange("lastName", e.target.value);
-                      }}
-                    />
+                    <Input placeholder="Doe" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,15 +130,7 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="jane@company.com"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFieldChange("email", e.target.value);
-                    }}
-                  />
+                  <Input type="email" placeholder="jane@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -166,44 +142,49 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone (optional)</FormLabel>
+                <FormLabel>Phone</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="+1 555 123 4567"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleFieldChange("phone", e.target.value);
-                    }}
-                  />
+                  <Input placeholder="+1 555 123 4567" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-            <div className="flex items-center gap-3">
-              <Button type="button" variant="outline" onClick={handleSaveDraft} disabled={isLoading}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Save draft
-              </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={() => clearForm(jobSlug)}>
-                Clear
-              </Button>
-            </div>
-            <div className="flex items-center gap-3">
-              {lastSaved && (
-                <span className="text-xs text-muted-foreground">
-                  Saved {lastSaved.toLocaleTimeString()}
-                </span>
-              )}
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Submit application
-              </Button>
-            </div>
-          </div>
+          <FormField
+            control={form.control}
+            name="resumeFile"
+            render={({ field: { onChange, value, ...field } }) => (
+              <FormItem>
+                <FormLabel>Resume</FormLabel>
+                <FormControl>
+                  <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-5">
+                    <Input
+                      {...field}
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(event) => {
+                        onChange(event.target.files?.[0]);
+                      }}
+                    />
+                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Upload className="h-3.5 w-3.5" />
+                      PDF, DOC, or DOCX up to 5 MB
+                    </div>
+                    {value instanceof File ? (
+                      <div className="mt-2 text-xs text-foreground">{value.name}</div>
+                    ) : null}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button className="w-full sm:w-auto" type="submit" disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Submit application
+          </Button>
         </form>
       </Form>
     </div>

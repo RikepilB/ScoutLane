@@ -1,6 +1,6 @@
 {
   "name": "ScoutLane",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
   "features": {
     "ghcr.io/devcontainers/features/postgres:1": {
       "version": "16"
@@ -8,16 +8,23 @@
     "ghcr.io/devcontainers-extra/features/pnpm:2": {}
   },
   "containerEnv": {
-    "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/scoutlane",
+    "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/scoutlane?schema=public",
+    "DIRECT_URL": "postgresql://postgres:postgres@localhost:5432/scoutlane?schema=public",
     "NEXT_PUBLIC_APP_URL": "http://localhost:3000",
     "AUTH_SECRET": "dev-auth-secret-change-in-production"
   },
-  "postCreateCommand": "cp -n .env.example .env 2>/dev/null; pnpm install; pnpm prisma generate",
-  "postStartCommand": "pnpm prisma migrate deploy 2>/dev/null; pnpm db:seed 2>/dev/null",
+  "postCreateCommand": "cp -n .env.example .env || true && pnpm install --no-frozen-lockfile && pnpm prisma generate",
+  "postStartCommand": "pnpm prisma migrate deploy || pnpm prisma migrate dev --name init && pnpm db:seed",
   "forwardPorts": [3000, 5432],
   "portsAttributes": {
-    "3000": { "label": "Next.js", "onAutoForward": "openBrowser" },
-    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
+    "3000": {
+      "label": "Next.js",
+      "onAutoForward": "openBrowser"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
   },
   "customizations": {
     "vscode": {
@@ -26,13 +33,7 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "Prisma.prisma"
-      ],
-      "settings": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "typescript.enablePromptUseWorkspaceTsdk": true,
-        "typescript.tsdk": "node_modules/typescript/lib"
-      }
+      ]
     }
   }
 }

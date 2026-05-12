@@ -3,7 +3,6 @@ AGENTS.md
 # Dependencies
 node_modules/
 .pnp/
-pnpm-lock.yaml
 yarn.lock
 bun.lockb
 # Next.js
@@ -48,6 +47,15 @@ coverage/
 test-results/
 .vitest/
 .eslintcache
+# Agent / tooling
+.agents/
+.claude/
+skills-lock.json
+
+# Test artifacts
+testsprite_tests/
+app-screenshot.png
+scoutlane-fixed.png
 # Misc
 tmp/
 temp/
