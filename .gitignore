@@ -1,5 +1,9 @@
 # Project-specific
 AGENTS.md
+CLAUDE.md
+PLAN.md
+PROGRESS-REPORT.md
+NEXT-STEPS.md
 # Dependencies
 node_modules/
 .pnp/
