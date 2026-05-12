@@ -1,34 +1,58 @@
 import Link from "next/link";
+import { ArrowUpRight, Briefcase, FileEdit, UserPlus, Users } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 
-const sectionOrder = ["active", "draft", "closed"] as const;
+export const dynamic = "force-dynamic";
+
+interface StatCardProps {
+  label: string;
+  value: number;
+  hint?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  accent: "sky" | "amber" | "emerald" | "violet";
+}
+
+const accentMap: Record<StatCardProps["accent"], string> = {
+  sky: "bg-sky-50 text-sky-700",
+  amber: "bg-amber-50 text-amber-700",
+  emerald: "bg-emerald-50 text-emerald-700",
+  violet: "bg-violet-50 text-violet-700",
+};
+
+function StatCard({ label, value, hint, icon: Icon, accent }: StatCardProps) {
+  return (
+    <article className="flex items-start gap-4 rounded-3xl border border-border/70 bg-card p-5 shadow-sm">
+      <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentMap[accent]}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="flex-1">
+        <div className="text-sm text-muted-foreground">{label}</div>
+        <div className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{value}</div>
+        {hint ? <div className="mt-1 text-xs text-muted-foreground">{hint}</div> : null}
+      </div>
+    </article>
+  );
+}
 
 export default async function AdminDashboardPage() {
   const jobs = await prisma.job.findMany({
-    include: {
-      _count: {
-        select: {
-          applicants: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+    include: { _count: { select: { applicants: true } } },
+    orderBy: { createdAt: "desc" },
   });
 
-  const groupedJobs = sectionOrder.map((status) => ({
-    status,
-    jobs: jobs.filter((job) => getJobStatus(job) === status),
-  }));
+  const activeJobs = jobs.filter((j) => getJobStatus(j) === "active");
+  const draftJobs = jobs.filter((j) => getJobStatus(j) === "draft");
+  const totalApplicants = jobs.reduce((sum, j) => sum + j._count.applicants, 0);
 
-  const activeJobs = groupedJobs.find((group) => group.status === "active")?.jobs ?? [];
-  const activeApplicantCount = activeJobs.reduce((sum, job) => sum + job._count.applicants, 0);
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const newApplicantsThisWeek = await prisma.applicant.count({
+    where: { createdAt: { gte: oneWeekAgo } },
+  });
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="flex-1 bg-background">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
         <section className="rounded-[2rem] border border-border/70 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8 text-white shadow-sm">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -38,78 +62,68 @@ export default async function AdminDashboardPage() {
               </p>
               <h1 className="text-4xl font-semibold tracking-tight">Admin dashboard</h1>
               <p className="max-w-2xl text-sm text-slate-300">
-                Review jobs by status, monitor current applicant volume, and jump straight
-                into creating the next role.
+                Quick snapshot of hiring activity. Open the Jobs list to manage roles and review
+                applicants by stage.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:min-w-80">
-              <div className="rounded-2xl bg-white/8 p-4">
-                <div className="text-sm text-slate-300">Active jobs</div>
-                <div className="mt-2 text-3xl font-semibold">{activeJobs.length}</div>
-              </div>
-              <div className="rounded-2xl bg-white/8 p-4">
-                <div className="text-sm text-slate-300">Applicants in active roles</div>
-                <div className="mt-2 text-3xl font-semibold">{activeApplicantCount}</div>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="secondary">
+                <Link href="/admin/jobs">View jobs</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/admin/jobs/new">Create job</Link>
+              </Button>
             </div>
           </div>
         </section>
 
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">Job workspaces</h2>
-            <p className="text-sm text-muted-foreground">
-              Each job keeps its own applicant flow and analytics context.
-            </p>
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Active jobs"
+            value={activeJobs.length}
+            hint="Published and open to applicants"
+            icon={Briefcase}
+            accent="emerald"
+          />
+          <StatCard
+            label="Draft jobs"
+            value={draftJobs.length}
+            hint="Saved but not yet published"
+            icon={FileEdit}
+            accent="amber"
+          />
+          <StatCard
+            label="Total applicants"
+            value={totalApplicants}
+            hint={`Across all ${jobs.length} jobs`}
+            icon={Users}
+            accent="sky"
+          />
+          <StatCard
+            label="New this week"
+            value={newApplicantsThisWeek}
+            hint="Applicants in the last 7 days"
+            icon={UserPlus}
+            accent="violet"
+          />
+        </section>
+
+        <section className="rounded-3xl border border-dashed border-border bg-muted/30 p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold tracking-tight">Manage all jobs</h2>
+              <p className="text-sm text-muted-foreground">
+                Filter by status, review applicant counts, and jump into the public page.
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/admin/jobs" className="inline-flex items-center gap-1">
+                Open jobs list <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
-
-          <Button asChild>
-            <Link href="/admin/jobs/new">Create job</Link>
-          </Button>
-        </div>
-
-        <div className="grid gap-6">
-          {groupedJobs.map((group) => (
-            <section key={group.status} className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold capitalize">{group.status}</h3>
-                <span className="text-sm text-muted-foreground">{group.jobs.length} jobs</span>
-              </div>
-
-              {group.jobs.length ? (
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {group.jobs.map((job) => (
-                    <article
-                      key={job.id}
-                      className="rounded-3xl border border-border/70 bg-card p-5 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <h4 className="text-lg font-semibold tracking-tight">{job.title}</h4>
-                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium capitalize text-muted-foreground">
-                          {group.status}
-                        </span>
-                      </div>
-                      <p className="mt-3 line-clamp-4 text-sm leading-6 text-muted-foreground">
-                        {job.description || "No job description added yet."}
-                      </p>
-                      <div className="mt-5 flex items-center justify-between text-sm text-muted-foreground">
-                        <span>{job._count.applicants} applicants</span>
-                        <Link className="font-medium text-primary" href={`/careers/${job.slug}`}>
-                          Public page
-                        </Link>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-3xl border border-dashed border-border bg-muted/20 p-6 text-sm text-muted-foreground">
-                  No {group.status} jobs yet.
-                </div>
-              )}
-            </section>
-          ))}
-        </div>
+        </section>
       </div>
     </main>
   );
