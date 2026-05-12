@@ -3,6 +3,7 @@ AGENTS.md
 # Dependencies
 node_modules/
 .pnp/
+package-lock.json
 yarn.lock
 bun.lockb
 # Next.js
@@ -51,6 +52,7 @@ test-results/
 .agents/
 .claude/
 skills-lock.json
+opencode.json
 
 # Test artifacts
 testsprite_tests/
