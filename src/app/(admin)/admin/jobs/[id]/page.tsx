@@ -5,16 +5,11 @@ import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 
 interface OverviewPageProps {
   params: Promise<{ id: string }>;
 }
-
-const statusStyles: Record<string, string> = {
-  active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  draft: "bg-amber-50 text-amber-700 ring-amber-200",
-  closed: "bg-slate-100 text-slate-600 ring-slate-200",
-};
 
 export default async function JobOverviewPage({ params }: OverviewPageProps) {
   const { id } = await params;
@@ -52,14 +47,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
             <div>
               <div className="flex items-center gap-3">
                 <h2 className="text-2xl font-semibold tracking-tight">{job.title}</h2>
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset",
-                    statusStyles[status],
-                  )}
-                >
-                  {status}
-                </span>
+                <StatusBadge status={status} />
               </div>
               <p className="mt-1 text-sm text-muted-foreground">/{job.slug}</p>
             </div>

@@ -2,21 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { Search, ChevronDown } from "lucide-react";
+import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 
 interface ApplicantsPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ search?: string; status?: string; sort?: string }>;
 }
-
-const statusColors: Record<string, string> = {
-  NEW: "bg-indigo-50 text-indigo-700",
-  REVIEWING: "bg-amber-50 text-amber-700",
-  SHORTLISTED: "bg-sky-50 text-sky-700",
-  INTERVIEW: "bg-blue-50 text-blue-700",
-  OFFERED: "bg-emerald-50 text-emerald-700",
-  REJECTED: "bg-red-50 text-red-700",
-  WITHDRAWN: "bg-slate-100 text-slate-600",
-};
 
 export default async function ApplicantsListPage({ params, searchParams }: ApplicantsPageProps) {
   const { id } = await params;
@@ -125,13 +116,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
                   </td>
                   <td className="px-5 py-4 text-muted-foreground">{a.email ?? "—"}</td>
                   <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        statusColors[a.status] || "bg-slate-100 text-slate-700"
-                      }`}
-                    >
-                      {a.status}
-                    </span>
+                    <ApplicantStatusBadge status={a.status} />
                   </td>
                   <td className="px-5 py-4">
                     {a.score ? (

@@ -5,6 +5,8 @@ import { getJobStatus } from "@/lib/jobs";
 import type { JobStatus } from "@/schemas/job";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+import { EmptyState } from "@/components/admin/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +18,6 @@ const filters: { value: FilterValue; label: string }[] = [
   { value: "draft", label: "Draft" },
   { value: "closed", label: "Closed" },
 ];
-
-const statusStyles: Record<JobStatus, string> = {
-  active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  draft: "bg-amber-50 text-amber-700 ring-amber-200",
-  closed: "bg-slate-100 text-slate-600 ring-slate-200",
-};
 
 function parseFilter(value: string | undefined): FilterValue {
   if (value === "active" || value === "draft" || value === "closed") return value;
@@ -104,18 +100,11 @@ export default async function JobsListPage({ searchParams }: PageProps) {
         </div>
 
         {visible.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border bg-muted/20 p-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              {filter === "all"
-                ? "No jobs yet. Create your first role to get started."
-                : `No ${filter} jobs.`}
-            </p>
-            {filter === "all" ? (
-              <Button asChild className="mt-4">
-                <Link href="/admin/jobs/new">Create your first job</Link>
-              </Button>
-            ) : null}
-          </div>
+          <EmptyState
+            message={filter === "all" ? "No jobs yet. Create your first role to get started." : `No ${filter} jobs.`}
+            actionLabel={filter === "all" ? "Create your first job" : undefined}
+            actionHref={filter === "all" ? "/admin/jobs/new" : undefined}
+          />
         ) : (
           <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
             <table className="w-full text-sm">
@@ -140,14 +129,7 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span
-                        className={cn(
-                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset",
-                          statusStyles[job.status],
-                        )}
-                      >
-                        {job.status}
-                      </span>
+                      <StatusBadge status={job.status} />
                     </td>
                     <td className="px-5 py-4 text-slate-700">{job._count.applicants}</td>
                     <td className="px-5 py-4 text-slate-700">

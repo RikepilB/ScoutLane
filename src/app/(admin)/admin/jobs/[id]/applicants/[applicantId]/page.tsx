@@ -3,20 +3,11 @@ import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { ArrowLeft, ExternalLink, Mail, Phone, FileText } from "lucide-react";
 import { ApplicantActions } from "./_components/ApplicantActions";
+import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
 }
-
-const statusColors: Record<string, string> = {
-  NEW: "bg-indigo-50 text-indigo-700 ring-indigo-200",
-  REVIEWING: "bg-amber-50 text-amber-700 ring-amber-200",
-  SHORTLISTED: "bg-sky-50 text-sky-700 ring-sky-200",
-  INTERVIEW: "bg-blue-50 text-blue-700 ring-blue-200",
-  OFFERED: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  REJECTED: "bg-red-50 text-red-700 ring-red-200",
-  WITHDRAWN: "bg-slate-100 text-slate-600 ring-slate-200",
-};
 
 export default async function ApplicantDetailPage({ params }: ApplicantDetailPageProps) {
   const { id: jobId, applicantId } = await params;
@@ -85,13 +76,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
             </div>
 
             <div className="flex items-center gap-3">
-              <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium capitalize ring-1 ring-inset ${
-                  statusColors[applicant.status] || "bg-slate-100 text-slate-700"
-                }`}
-              >
-                {applicant.status}
-              </span>
+              <ApplicantStatusBadge status={applicant.status} />
               {applicant.score && (
                 <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
                   Score: {applicant.score}
