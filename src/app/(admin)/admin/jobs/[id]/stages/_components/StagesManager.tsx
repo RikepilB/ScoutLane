@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createStage, updateStage, deleteStage } from "@/server/services/pipeline";
+import { createStage, updateStage, deleteStage } from "@/server/services/pipeline/stages";
 import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
 
 interface Stage {

@@ -2,44 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
-import type { ApplicationStatus } from "@/generated/prisma/enums";
-import { z } from "zod";
-
-export async function getPipelineData(jobId: string) {
-  const stages = await prisma.pipelineStage.findMany({
-    where: { jobId },
-    orderBy: { order: "asc" },
-  });
-
-  const applicants = await prisma.applicant.findMany({
-    where: { jobId },
-    orderBy: { createdAt: "desc" },
-    include: { job: { select: { title: true } } },
-  });
-
-  const grouped = stages.map((stage) => {
-    const status = stage.name.toUpperCase() as ApplicationStatus;
-    return {
-      ...stage,
-      applicants: applicants.filter((a) => a.status === status),
-    };
-  });
-
-  return grouped;
-}
-
-export async function moveApplicant(applicantId: string, newStatus: string) {
-  const valid = z.enum(["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"]).safeParse(newStatus);
-  if (!valid.success) return { success: false, error: "Invalid status" };
-
-  await prisma.applicant.update({
-    where: { id: applicantId },
-    data: { status: valid.data },
-  });
-
-  revalidatePath("/admin/jobs/[id]/pipeline");
-  return { success: true };
-}
 
 export async function createStage(jobId: string, name: string, color?: string) {
   const maxOrder = await prisma.pipelineStage.findFirst({

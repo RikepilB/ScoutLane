@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { createJob } from "@/server/services/jobs";
+import { createJob } from "@/server/services/jobs/create";
 import { jobCreationSchema, jobStatusValues } from "@/schemas/job";
 
 type FormValues = z.input<typeof jobCreationSchema>;
