@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
-import { sendApplicationConfirmationEmail } from "@/lib/email";
-import { canAcceptApplications } from "@/lib/jobs";
-import { uploadResumeFile } from "@/lib/storage";
+import { sendApplicationConfirmationEmail } from "@/lib/email/send";
+import { canAcceptApplications } from "@/lib/jobs/status";
+import { uploadResumeFile } from "@/lib/storage/upload";
 import { jobApplicationSubmissionSchema } from "@/schemas/application";
 
 export interface ApplicationActionResult {

@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
+import { getGeminiClient } from "./client";
 
 export const parsedResumeSchema = z.object({
   summary: z.string().default("Structured parsing stub output"),
@@ -40,9 +40,9 @@ export async function parseResumeWithGemini(resumeText: string): Promise<ParsedR
     };
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const client = getGeminiClient();
 
-  if (!apiKey) {
+  if (!client) {
     return {
       summary: "Gemini stub skipped because GEMINI_API_KEY is not configured.",
       fullName: null,
@@ -54,7 +54,6 @@ export async function parseResumeWithGemini(resumeText: string): Promise<ParsedR
     };
   }
 
-  const client = new GoogleGenerativeAI(apiKey);
   const model = client.getGenerativeModel({
     model: "gemini-2.5-flash",
     generationConfig: {

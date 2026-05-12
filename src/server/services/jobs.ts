@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
-import { getJobPersistence } from "@/lib/jobs";
+import { getJobPersistence } from "@/lib/jobs/status";
 import { buildJobSlug } from "@/lib/slug";
 import { jobCreationSchema } from "@/schemas/job";
 

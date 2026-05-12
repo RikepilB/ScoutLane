@@ -1,14 +1,4 @@
-import { Resend } from "resend";
-
-function getRequiredEnv(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`${name} is not configured`);
-  }
-
-  return value;
-}
+import { getResendClient, getRequiredEnv } from "./client";
 
 function escapeHtml(value: string): string {
   return value
@@ -17,10 +7,6 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
-
-function getResendClient(): Resend {
-  return new Resend(getRequiredEnv("RESEND_API_KEY"));
 }
 
 export interface ApplicationConfirmationEmailInput {
