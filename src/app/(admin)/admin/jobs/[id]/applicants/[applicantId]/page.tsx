@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { ArrowLeft, ExternalLink, Mail, Phone, FileText } from "lucide-react";
-import { ApplicantActions } from "../[applicantId]_components/ApplicantActions";
+import { ApplicantActions } from "./_components/ApplicantActions";
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
