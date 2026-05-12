@@ -1,15 +1,63 @@
-import NextAuth from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/db/prisma";
+import Credentials from "next-auth/providers/credentials";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma) as ReturnType<typeof PrismaAdapter>,
-  providers: [Google],
-  session: {
-    strategy: "database",
-  },
+export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER";
+
+export default {
+  providers: [
+    Google,
+    ...(process.env.NODE_ENV === "development"
+      ? [
+          Credentials({
+            id: "dev",
+            name: "Dev Login",
+            credentials: {
+              email: {
+                label: "Email",
+                type: "email",
+                placeholder: "admin@scoutlane.local",
+              },
+            },
+            async authorize(credentials) {
+              if (!credentials?.email) return null;
+              const email = (credentials.email as string).toLowerCase().trim();
+              return {
+                id: "dev-user-id",
+                email,
+                name: email.split("@")[0] || "Dev User",
+                role: "ADMIN" as const,
+              };
+            },
+          }),
+        ]
+      : []),
+  ],
   pages: {
-    signIn: "/api/auth/signin",
+    signIn: "/signin",
   },
-});
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+  },
+  callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.role = (user as { role?: AdminRole }).role ?? "RECRUITER";
+        token.userId = user.id;
+      }
+      if (trigger === "update" && session?.role) {
+        token.role = session.role as AdminRole;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = (token.userId as string) ?? session.user.id;
+        session.user.role = (token.role as AdminRole) ?? "RECRUITER";
+      }
+      return session;
+    },
+  },
+} satisfies NextAuthConfig;
