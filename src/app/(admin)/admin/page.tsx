@@ -3,6 +3,7 @@ import { ArrowUpRight, Briefcase, FileEdit, UserPlus, Users } from "lucide-react
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
+import { StageDistributionChart, ApplicantTrendChart } from "@/components/dashboard/Charts";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,30 @@ export default async function AdminDashboardPage() {
   const newApplicantsThisWeek = await prisma.applicant.count({
     where: { createdAt: { gte: oneWeekAgo } },
   });
+
+  const stageDistribution = await prisma.applicant.groupBy({
+    by: ["status"],
+    _count: { id: true },
+    orderBy: { _count: { id: "desc" } },
+  });
+
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  const dailyCounts = await prisma.applicant.findMany({
+    where: { createdAt: { gte: fourteenDaysAgo } },
+    select: { createdAt: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const dailyMap = new Map<string, number>();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    dailyMap.set(d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), 0);
+  }
+  for (const a of dailyCounts) {
+    const key = a.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    dailyMap.set(key, (dailyMap.get(key) ?? 0) + 1);
+  }
+  const applicantTrend = Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count }));
 
   return (
     <main className="flex-1 bg-background">
@@ -107,6 +132,13 @@ export default async function AdminDashboardPage() {
             icon={UserPlus}
             accent="violet"
           />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <StageDistributionChart
+            data={stageDistribution.map((s) => ({ status: s.status, count: s._count.id }))}
+          />
+          <ApplicantTrendChart data={applicantTrend} />
         </section>
 
         <section className="rounded-3xl border border-dashed border-border bg-muted/30 p-6">

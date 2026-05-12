@@ -105,8 +105,9 @@ model Job {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  applicants Applicant[]
-  stages     PipelineStage[]
+  customFields Json?
+  applicants   Applicant[]
+  stages       PipelineStage[]
 }
 
 model JobTemplate {
@@ -141,6 +142,7 @@ model Applicant {
   status    ApplicationStatus @default(NEW)
   score     Float?
   notes     String?
+  data      Json?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }

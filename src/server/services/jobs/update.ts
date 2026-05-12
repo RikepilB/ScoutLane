@@ -22,3 +22,15 @@ export async function updateJob(id: string, data: UpdateJobInput) {
   revalidatePath(`/admin/jobs/${id}`);
   return { success: true };
 }
+
+export async function saveCustomFields(jobId: string, customFields: any[]) {
+  const session = await auth();
+  if (!session?.user?.email) return { success: false, error: "Not authenticated" };
+
+  await prisma.job.update({
+    where: { id: jobId },
+    data: { customFields },
+  });
+  revalidatePath(`/admin/jobs/${jobId}/form`);
+  return { success: true };
+}
