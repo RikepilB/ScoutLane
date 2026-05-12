@@ -1,13 +1,53 @@
-import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
+import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
-const prisma = new PrismaClient();
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+
+const pipelineStages = [
+  "Applied",
+  "Screening",
+  "Assessment",
+  "Interview",
+  "Offer",
+  "Hired",
+  "Rejected",
+];
+
+const jobsData = [
+  {
+    title: "Senior Frontend Engineer",
+    slug: "senior-frontend-engineer-demo",
+    description:
+      "Lead the frontend experience for a modern recruitment platform built with Next.js, TypeScript, and a deeply data-driven admin dashboard.",
+    published: true,
+    archived: false,
+  },
+  {
+    title: "Backend Platform Engineer",
+    slug: "backend-platform-engineer-demo",
+    description:
+      "Design resilient APIs, asynchronous resume-processing workflows, and internal tooling that powers the hiring pipeline.",
+    published: true,
+    archived: false,
+  },
+  {
+    title: "Product Designer",
+    slug: "product-designer-demo",
+    description:
+      "Shape the public application experience and the internal recruiting workspace used by hiring managers every day.",
+    published: false,
+    archived: true,
+  },
+];
 
 async function main() {
-  console.log("🌱 Seeding ScoutLane...");
+  console.log("Seeding ScoutLane review data...");
 
-  // ── Organization ──────────────────────────────────────────────────────────
-  const org = await prisma.organization.upsert({
+  const organization = await prisma.organization.upsert({
     where: { slug: "acme-corp" },
     update: {},
     create: {
@@ -15,170 +55,115 @@ async function main() {
       slug: "acme-corp",
     },
   });
-  console.log(`  ✔ Organization: ${org.name}`);
 
-  // ── Admin User ────────────────────────────────────────────────────────────
   const adminEmail = process.env.INITIAL_ADMIN_EMAIL ?? "admin@scoutlane.local";
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
-    create: {
-      name: "Admin User",
-      email: adminEmail,
+    update: {
+      organizationId: organization.id,
       role: "ADMIN",
-      organizationId: org.id,
+    },
+    create: {
+      email: adminEmail,
+      name: "Admin User",
+      organizationId: organization.id,
+      role: "ADMIN",
     },
   });
-  console.log(`  ✔ Admin: ${admin.email}`);
 
-  // ── Recruiter User ────────────────────────────────────────────────────────
   const recruiter = await prisma.user.upsert({
     where: { email: "recruiter@scoutlane.local" },
-    update: {},
-    create: {
-      name: "Sarah Recruiter",
-      email: "recruiter@scoutlane.local",
+    update: {
+      organizationId: organization.id,
       role: "RECRUITER",
-      organizationId: org.id,
+    },
+    create: {
+      email: "recruiter@scoutlane.local",
+      name: "Maya Recruiter",
+      organizationId: organization.id,
+      role: "RECRUITER",
     },
   });
-  console.log(`  ✔ Recruiter: ${recruiter.email}`);
 
-  // ── Jobs ──────────────────────────────────────────────────────────────────
-  const jobsData = [
-    {
-      title: "Senior Frontend Engineer",
-      slug: "senior-frontend-engineer",
-      description:
-        "We are looking for a senior frontend engineer to lead our web application team. You will work with React, TypeScript, and Next.js to build world-class user interfaces.",
-      location: "San Francisco, CA (Remote)",
-      type: "Full-time",
-      salary: "$150k - $200k",
-    },
-    {
-      title: "Backend Platform Engineer",
-      slug: "backend-platform-engineer",
-      description:
-        "Join our platform team to build scalable APIs and microservices. Experience with Node.js, PostgreSQL, and cloud infrastructure is required.",
-      location: "New York, NY (Hybrid)",
-      type: "Full-time",
-      salary: "$140k - $190k",
-    },
-    {
-      title: "Product Designer",
-      slug: "product-designer",
-      description:
-        "Design delightful experiences for our recruitment platform. You will own the end-to-end design process from user research to high-fidelity mockups.",
-      location: "Remote (US)",
-      type: "Full-time",
-      salary: "$120k - $160k",
-    },
-    {
-      title: "DevOps Engineer (Contract)",
-      slug: "devops-engineer-contract",
-      description:
-        "Help us scale our infrastructure. Experience with AWS, Kubernetes, Terraform, and CI/CD pipelines is required. 6-month contract with possibility of extension.",
-      location: "Remote",
-      type: "Contract",
-      salary: "$100 - $150 / hr",
-    },
-    {
-      title: "Machine Learning Intern",
-      slug: "ml-intern",
-      description:
-        "Work on cutting-edge ML models for resume parsing and candidate matching. Ideal for current MS/PhD students in CS, ML, or related fields.",
-      location: "San Francisco, CA",
-      type: "Internship",
-      salary: "$8,000 / mo",
-    },
-  ];
+  await prisma.pipelineStage.deleteMany();
+  await prisma.applicant.deleteMany();
 
   const jobs = [];
-  for (const jobData of jobsData) {
+
+  for (const [index, jobData] of jobsData.entries()) {
     const job = await prisma.job.upsert({
       where: { slug: jobData.slug },
-      update: {},
+      update: {
+        ...jobData,
+        organizationId: organization.id,
+        createdById: recruiter.id,
+      },
       create: {
         ...jobData,
-        published: true,
-        organizationId: org.id,
+        organizationId: organization.id,
         createdById: recruiter.id,
       },
     });
+
     jobs.push(job);
-    console.log(`  ✔ Job: ${job.title}`);
-  }
 
-  // ── Pipeline Stages for each job ──────────────────────────────────────────
-  const stageNames = ["New", "Screening", "Interview", "Offer", "Hired"];
-  const stageColors = ["#6366f1", "#f59e0b", "#3b82f6", "#10b981", "#8b5cf6"];
+    await prisma.pipelineStage.createMany({
+      data: pipelineStages.map((name, stageIndex) => ({
+        jobId: job.id,
+        name,
+        order: stageIndex,
+        color: ["#0f172a", "#0369a1", "#7c3aed", "#f59e0b", "#16a34a", "#15803d", "#b91c1c"][
+          stageIndex
+        ],
+      })),
+    });
 
-  for (const job of jobs) {
-    for (let i = 0; i < stageNames.length; i++) {
-      await prisma.pipelineStage.upsert({
-        where: { id: `${job.id}-stage-${i}` },
-        update: {},
-        create: {
-          id: `${job.id}-stage-${i}`,
-          jobId: job.id,
-          name: stageNames[i],
-          order: i,
-          color: stageColors[i],
-        },
-      });
-    }
-    console.log(`  ✔ Pipeline stages for: ${job.title}`);
-  }
-
-  // ── Sample Applicants ─────────────────────────────────────────────────────
-  const candidateNames = [
-    "Alice Johnson",
-    "Bob Williams",
-    "Carol Martinez",
-    "David Brown",
-    "Eva Garcia",
-    "Frank Miller",
-    "Grace Davis",
-    "Henry Rodriguez",
-  ];
-
-  for (const job of jobs.slice(0, 3)) {
-    for (let i = 0; i < candidateNames.length; i++) {
-      const statuses = [
-        "NEW",
-        "REVIEWING",
-        "SHORTLISTED",
-        "INTERVIEW",
-        "OFFERED",
-        "REJECTED",
-        "WITHDRAWN",
-      ] as const;
+    for (let applicantIndex = 0; applicantIndex < 10; applicantIndex += 1) {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const createdAt = faker.date.recent({ days: 45 });
 
       await prisma.applicant.create({
         data: {
           jobId: job.id,
-          name: candidateNames[i],
-          email: faker.internet.email(),
-          phone: faker.phone.number(),
-          status: statuses[i % statuses.length],
-          score: Math.round((Math.random() * 40 + 60) * 10) / 10,
+          name: `${firstName} ${lastName}`,
+          email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+          phone: faker.phone.number("+1 ##########"),
+          resumeUrl: `https://storage.googleapis.com/demo-bucket/resumes/${job.slug}-${index}-${applicantIndex}.pdf`,
+          status: [
+            "NEW",
+            "REVIEWING",
+            "SHORTLISTED",
+            "INTERVIEW",
+            "OFFERED",
+            "REJECTED",
+            "WITHDRAWN",
+          ][applicantIndex % 7] as
+            | "NEW"
+            | "REVIEWING"
+            | "SHORTLISTED"
+            | "INTERVIEW"
+            | "OFFERED"
+            | "REJECTED"
+            | "WITHDRAWN",
+          score: faker.number.float({ min: 62, max: 98, fractionDigits: 1 }),
           notes: faker.lorem.sentence(),
+          createdAt,
         },
       });
     }
-    console.log(`  ✔ ${candidateNames.length} applicants for: ${job.title}`);
   }
 
-  console.log("\n✅ Seeding complete!");
-  console.log(`   Organization: ${org.name}`);
-  console.log(`   Jobs: ${jobs.length}`);
-  console.log(`   Users: 2 (admin + recruiter)`);
-  console.log(`   Applicants: ${candidateNames.length * 3}`);
+  console.log(`Organization: ${organization.name}`);
+  console.log(`Admin: ${admin.email}`);
+  console.log(`Recruiter: ${recruiter.email}`);
+  console.log(`Jobs seeded: ${jobs.length}`);
+  console.log("Applicants seeded: 30");
 }
 
 main()
-  .catch((e) => {
-    console.error("❌ Seed failed:", e);
+  .catch((error) => {
+    console.error("Seed failed:", error);
     process.exit(1);
   })
   .finally(async () => {
