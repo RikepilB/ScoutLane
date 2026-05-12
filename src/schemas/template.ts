@@ -1,0 +1,37 @@
+import { z } from "zod";
+
+const optionalShortString = (max: number, label: string) =>
+  z
+    .string()
+    .max(max, `${label} must be ${max} characters or fewer`)
+    .optional()
+    .or(z.literal("").transform(() => undefined));
+
+export const templateSchema = z.object({
+  name: z
+    .string()
+    .min(3, "Template name must be at least 3 characters")
+    .max(120, "Template name must be 120 characters or fewer"),
+  description: optionalShortString(280, "Template description"),
+  title: z
+    .string()
+    .min(3, "Default job title must be at least 3 characters")
+    .max(120, "Default job title must be 120 characters or fewer"),
+  jobDescription: z
+    .string()
+    .max(12000, "Job description must be 12000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  location: optionalShortString(120, "Location"),
+  type: optionalShortString(60, "Type"),
+  salary: optionalShortString(60, "Salary"),
+  stageNames: z
+    .array(z.string().trim().min(1).max(60))
+    .min(1, "Add at least one pipeline stage")
+    .max(12, "Templates can include up to 12 stages"),
+  questions: z
+    .array(z.string().trim().min(1).max(240))
+    .max(12, "Templates can include up to 12 screening questions"),
+});
+
+export type TemplateInput = z.infer<typeof templateSchema>;
