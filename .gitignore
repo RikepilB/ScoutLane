@@ -48,6 +48,15 @@ coverage/
 test-results/
 .vitest/
 .eslintcache
+# Agent / tooling
+.agents/
+.claude/
+skills-lock.json
+
+# Test artifacts
+testsprite_tests/
+app-screenshot.png
+scoutlane-fixed.png
 # Misc
 tmp/
 temp/
