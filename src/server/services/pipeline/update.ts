@@ -3,11 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { dispatchWebhook } from "@/lib/webhook";
+import { requireSession } from "@/server/services/_lib/validate-session";
 import { z } from "zod";
 
+const validStatuses = z.enum(["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"]);
+
 export async function moveApplicant(applicantId: string, newStatus: string) {
-  const valid = z.enum(["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"]).safeParse(newStatus);
+  const user = await requireSession();
+  const valid = validStatuses.safeParse(newStatus);
   if (!valid.success) return { success: false, error: "Invalid status" };
+
+  const existing = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { job: { select: { organizationId: true, title: true } } },
+  });
+  if (!existing || existing.job.organizationId !== user.organizationId) {
+    return { success: false, error: "Applicant not found" };
+  }
 
   const applicant = await prisma.applicant.update({
     where: { id: applicantId },

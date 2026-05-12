@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
+import { requireSession } from "@/server/services/_lib/validate-session";
 
 interface GetApplicantsParams {
   jobId: string;
@@ -11,7 +12,9 @@ interface GetApplicantsParams {
 }
 
 export async function getApplicants({ jobId, search, status, sortBy = "createdAt", sortOrder = "desc" }: GetApplicantsParams) {
-  const where: any = { jobId };
+  const user = await requireSession();
+
+  const where: any = { jobId, job: { organizationId: user.organizationId } };
 
   if (search) {
     where.OR = [
@@ -36,15 +39,24 @@ export async function getApplicants({ jobId, search, status, sortBy = "createdAt
 }
 
 export async function getApplicantDetail(applicantId: string) {
-  return prisma.applicant.findUnique({
+  const user = await requireSession();
+
+  const applicant = await prisma.applicant.findUnique({
     where: { id: applicantId },
     include: {
       job: {
         select: {
           title: true,
           slug: true,
+          organizationId: true,
         },
       },
     },
   });
+
+  if (!applicant || applicant.job.organizationId !== user.organizationId) {
+    return null;
+  }
+
+  return applicant;
 }
