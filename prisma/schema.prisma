@@ -30,8 +30,9 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users User[]
-  jobs  Job[]
+  users     User[]
+  jobs      Job[]
+  templates JobTemplate[]
 }
 
 model User {
@@ -49,6 +50,7 @@ model User {
   accounts    Account[]
   sessions    Session[]
   jobsCreated Job[]
+  templatesCreated JobTemplate[]
 }
 
 model Account {
@@ -105,6 +107,27 @@ model Job {
 
   applicants Applicant[]
   stages     PipelineStage[]
+}
+
+model JobTemplate {
+  id             String        @id @default(cuid())
+  name           String
+  description    String?
+  title          String
+  jobDescription String?
+  location       String?
+  type           String?
+  salary         String?
+  stageNames     String[]
+  questions      Json?
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdById    String?
+  createdBy      User?         @relation(fields: [createdById], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId])
 }
 
 model Applicant {

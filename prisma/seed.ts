@@ -128,7 +128,7 @@ async function main() {
           jobId: job.id,
           name: `${firstName} ${lastName}`,
           email: faker.internet.email({ firstName, lastName }).toLowerCase(),
-          phone: faker.phone.number("+1 ##########"),
+          phone: faker.phone.number({ style: "international" }),
           resumeUrl: `https://storage.googleapis.com/demo-bucket/resumes/${job.slug}-${index}-${applicantIndex}.pdf`,
           status: [
             "NEW",
