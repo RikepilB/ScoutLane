@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { updateApplicantStatus } from "@/server/services/applicants";
+import { updateApplicantStatus } from "@/server/services/applicants/update";
 
 const statuses = ["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"] as const;
 

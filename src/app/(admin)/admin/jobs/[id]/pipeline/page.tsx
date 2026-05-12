@@ -13,7 +13,7 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useRouter } from "next/navigation";
-import { moveApplicant } from "@/server/services/pipeline";
+import { moveApplicant } from "@/server/services/pipeline/update";
 
 interface Applicant {
   id: string;

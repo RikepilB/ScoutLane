@@ -24,44 +24,6 @@ export interface JobActionResult {
   success: boolean;
 }
 
-export interface UpdateJobInput {
-  title?: string;
-  description?: string;
-  location?: string;
-  type?: string;
-  salary?: string;
-  published?: boolean;
-  archived?: boolean;
-}
-
-export async function getJob(id: string) {
-  return prisma.job.findUnique({
-    where: { id },
-    include: {
-      _count: { select: { applicants: true } },
-      stages: { orderBy: { order: "asc" } },
-    },
-  });
-}
-
-export async function updateJob(id: string, data: UpdateJobInput) {
-  const session = await auth();
-  if (!session?.user?.email) return { success: false, error: "Not authenticated" };
-
-  await prisma.job.update({ where: { id }, data });
-  revalidatePath(`/admin/jobs/${id}`);
-  return { success: true };
-}
-
-export async function deleteJob(id: string): Promise<JobActionResult> {
-  const session = await auth();
-  if (!session?.user?.email) return { success: false, error: "Not authenticated" };
-
-  await prisma.job.delete({ where: { id } });
-  revalidatePath("/admin/jobs");
-  return { success: true };
-}
-
 export async function createJob(formData: FormData): Promise<JobActionResult> {
   const parsed = jobCreationSchema.safeParse({
     title: formData.get("title"),
