@@ -3,7 +3,6 @@ AGENTS.md
 # Dependencies
 node_modules/
 .pnp/
-pnpm-lock.yaml
 yarn.lock
 bun.lockb
 # Next.js
