@@ -31,6 +31,15 @@ export default async function JobApplicationPage({ params }: Props) {
   const { slug } = await params;
   const job = await prisma.job.findUnique({
     where: { slug },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+      published: true,
+      archived: true,
+      customFields: true,
+    },
   });
 
   if (!job) {
@@ -38,6 +47,13 @@ export default async function JobApplicationPage({ params }: Props) {
   }
 
   const status = getJobStatus(job);
+
+  const customFields = (job.customFields ?? []) as Array<{
+    id: string;
+    label: string;
+    type: "text" | "textarea" | "select" | "file";
+    required: boolean;
+  }>;
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_38%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)]">
@@ -72,7 +88,7 @@ export default async function JobApplicationPage({ params }: Props) {
 
         <div className="lg:pt-10">
           {status === "active" ? (
-            <ApplicationForm jobSlug={slug} />
+            <ApplicationForm jobSlug={slug} customFields={customFields} />
           ) : (
             <div className="rounded-3xl border border-border/70 bg-white p-8 shadow-sm">
               <h2 className="text-xl font-semibold tracking-tight">Applications unavailable</h2>

@@ -46,26 +46,35 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
   const upload = await uploadResumeFile(resumeFile);
   const applicantName = `${firstName} ${lastName}`.trim();
 
-  try {
-    await prisma.applicant.create({
-      data: {
-        jobId: job.id,
-        name: applicantName,
-        email,
-        phone,
-        resumeUrl: upload.url,
-        status: "NEW",
-      },
-    });
-  } catch (error: any) {
-    if (error?.code === "P2002") {
-      return {
-        success: false,
-        error: "An application with this email already exists for this position.",
-      };
-    }
-    throw error;
+  const existingApplicant = await prisma.applicant.findFirst({
+    where: { jobId: job.id, email },
+    select: { id: true },
+  });
+
+  if (existingApplicant) {
+    return {
+      success: false,
+      error: "An application with this email already exists for this position.",
+    };
   }
+
+  let customFields: Record<string, string> = {};
+  try {
+    const raw = formData.get("customFields");
+    if (typeof raw === "string") customFields = JSON.parse(raw);
+  } catch {}
+
+  await prisma.applicant.create({
+    data: {
+      jobId: job.id,
+      name: applicantName,
+      email,
+      phone,
+      resumeUrl: upload.url,
+      status: "NEW",
+      data: Object.keys(customFields).length > 0 ? { customFields } : undefined,
+    },
+  });
 
   let warning: string | undefined;
 

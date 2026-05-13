@@ -17,15 +17,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-interface ApplicationFormProps {
-  jobSlug: string;
+interface CustomField {
+  id: string;
+  label: string;
+  type: "text" | "textarea" | "select" | "file";
+  required: boolean;
 }
 
-export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
+interface ApplicationFormProps {
+  jobSlug: string;
+  customFields?: CustomField[];
+}
+
+export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormProps) {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
+  const [customValues, setCustomValues] = useState<Record<string, string>>({});
 
   const form = useForm<JobApplicationInput>({
     resolver: zodResolver(jobApplicationSchema),
@@ -36,6 +45,10 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
       phone: "",
     },
   });
+
+  function updateCustomValue(id: string, value: string) {
+    setCustomValues((prev) => ({ ...prev, [id]: value }));
+  }
 
   const handleSubmit = form.handleSubmit((values) => {
     setServerError(null);
@@ -49,6 +62,7 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
     formData.set("email", values.email);
     formData.set("phone", values.phone);
     formData.set("resumeFile", values.resumeFile);
+    formData.set("customFields", JSON.stringify(customValues));
 
     startTransition(async () => {
       const result = await submitJobApplication(formData);
@@ -59,6 +73,7 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
       }
 
       form.reset();
+      setCustomValues({});
       setSuccessMessage("Application submitted successfully.");
       setWarningMessage(result.warning ?? null);
     });
@@ -180,6 +195,40 @@ export function ApplicationForm({ jobSlug }: ApplicationFormProps) {
               </FormItem>
             )}
           />
+
+          {customFields.map((field) => (
+            <div key={field.id}>
+              <label className="mb-1 block text-sm font-medium text-foreground">
+                {field.label}
+                {field.required && <span className="text-destructive ml-1">*</span>}
+              </label>
+              {field.type === "textarea" ? (
+                <textarea
+                  value={customValues[field.id] ?? ""}
+                  onChange={(e) => updateCustomValue(field.id, e.target.value)}
+                  rows={4}
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                />
+              ) : field.type === "select" ? (
+                <select
+                  value={customValues[field.id] ?? ""}
+                  onChange={(e) => updateCustomValue(field.id, e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+                >
+                  <option value="">Select...</option>
+                </select>
+              ) : (
+                <input
+                  type={field.type === "file" ? "file" : "text"}
+                  value={field.type !== "file" ? (customValues[field.id] ?? "") : undefined}
+                  onChange={(e) => updateCustomValue(field.id, e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                />
+              )}
+            </div>
+          ))}
 
           <Button className="w-full sm:w-auto" type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
