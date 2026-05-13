@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
-import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench } from "lucide-react";
+import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2 } from "lucide-react";
 import { ApplicantActions } from "./_components/ApplicantActions";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 import { NotesSection } from "./_components/NotesSection";
+import { RetryParsingButton } from "./_components/RetryParsingButton";
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
@@ -92,13 +93,29 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
                   Score: {applicant.score}
                 </span>
               )}
+              {applicant.parsingStatus && applicant.parsingStatus !== "COMPLETED" && (
+                <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
+                  applicant.parsingStatus === "PARSING"
+                    ? "bg-amber-50 text-amber-700"
+                    : applicant.parsingStatus === "FAILED"
+                      ? "bg-red-50 text-red-700"
+                      : "bg-slate-100 text-slate-600"
+                }`}>
+                  {applicant.parsingStatus === "PARSING" && <Loader2 className="h-3 w-3 animate-spin" />}
+                  {applicant.parsingStatus === "FAILED" && <RefreshCw className="h-3 w-3" />}
+                  Resume: {applicant.parsingStatus.charAt(0) + applicant.parsingStatus.slice(1).toLowerCase()}
+                </span>
+              )}
               <span className="text-xs text-muted-foreground">
                 Applied {new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(applicant.createdAt)}
               </span>
             </div>
           </div>
 
-          <ApplicantActions applicantId={applicant.id} currentStatus={applicant.status} jobId={jobId} />
+          <div className="flex items-start gap-3">
+            <ApplicantActions applicantId={applicant.id} currentStatus={applicant.status} jobId={jobId} />
+            <RetryParsingButton applicantId={applicant.id} status={applicant.parsingStatus ?? null} />
+          </div>
         </div>
       </div>
 

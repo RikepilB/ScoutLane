@@ -13,6 +13,50 @@ export interface ApplicationActionResult {
   warning?: string;
 }
 
+async function parseResumeBackground(applicantId: string, resumeUrl: string) {
+  try {
+    await prisma.applicant.update({
+      where: { id: applicantId },
+      data: { parsingStatus: "PARSING" },
+    });
+
+    const response = await fetch(resumeUrl);
+    const buffer = await response.arrayBuffer();
+    const text = new TextDecoder("utf-8").decode(buffer);
+
+    const { parseResumeWithGemini } = await import("@/lib/llm/resume");
+    const parsed = await parseResumeWithGemini(text.slice(0, 10000));
+
+    await prisma.applicant.update({
+      where: { id: applicantId },
+      data: {
+        parsedData: parsed,
+        parsingStatus: "COMPLETED",
+        data: {
+          education: parsed.education.map((e) => ({
+            institution: e.institution,
+            degree: e.degree,
+            field: e.fieldOfStudy,
+            graduationYear: e.graduationYear,
+          })),
+          work: parsed.workHistory.map((w) => ({
+            company: w.company,
+            title: w.jobTitle,
+            duration: w.duration,
+          })),
+          skills: parsed.skills,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Resume parsing failed:", error);
+    await prisma.applicant.update({
+      where: { id: applicantId },
+      data: { parsingStatus: "FAILED" },
+    }).catch(() => {});
+  }
+}
+
 export async function submitJobApplication(formData: FormData): Promise<ApplicationActionResult> {
   const parsed = jobApplicationSubmissionSchema.safeParse({
     firstName: formData.get("firstName"),
@@ -64,7 +108,7 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     if (typeof raw === "string") customFields = JSON.parse(raw);
   } catch {}
 
-  await prisma.applicant.create({
+  const applicant = await prisma.applicant.create({
     data: {
       jobId: job.id,
       name: applicantName,
@@ -72,9 +116,14 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
       phone,
       resumeUrl: upload.url,
       status: "NEW",
+      parsingStatus: "PENDING",
       data: Object.keys(customFields).length > 0 ? { customFields } : undefined,
     },
   });
+
+  parseResumeBackground(applicant.id, upload.url).catch((e) =>
+    console.error("Background parse failed:", e),
+  );
 
   let warning: string | undefined;
 
