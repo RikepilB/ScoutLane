@@ -11,6 +11,15 @@ const storageEnvSchema = z.object({
 
 let cachedStorage: Storage | null = null;
 
+function isStorageConfigured(): boolean {
+  return !!(
+    process.env.GCS_BUCKET &&
+    process.env.GCS_CLIENT_EMAIL &&
+    process.env.GCS_PRIVATE_KEY &&
+    process.env.GCS_PROJECT_ID
+  );
+}
+
 function getStorageConfig() {
   return storageEnvSchema.parse({
     GCS_BUCKET: process.env.GCS_BUCKET,
@@ -43,4 +52,4 @@ function getBucket() {
   return getStorageClient().bucket(getStorageConfig().GCS_BUCKET);
 }
 
-export { storageEnvSchema, cachedStorage, getStorageConfig, getStorageClient, getBucket };
+export { storageEnvSchema, cachedStorage, getStorageConfig, getStorageClient, getBucket, isStorageConfigured };

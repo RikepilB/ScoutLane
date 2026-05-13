@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { slugify } from "@/lib/slug";
-import { getStorageConfig, getBucket } from "./client";
+import { isStorageConfigured, getStorageConfig, getBucket } from "./client";
 
 function buildObjectName(filename: string, prefix: string): string {
   const cleanName = slugify(filename.replace(/\.[^.]+$/, "")) || "resume";
@@ -39,6 +39,16 @@ export async function uploadFileBuffer({
   filename,
   prefix = "resumes",
 }: UploadBufferInput): Promise<UploadedFileResult> {
+  if (!isStorageConfigured()) {
+    const objectName = buildObjectName(filename, prefix);
+    return {
+      bucket: "local-dev",
+      contentType,
+      objectName,
+      url: `/api/resumes/${objectName}`,
+    };
+  }
+
   const config = getStorageConfig();
   const objectName = buildObjectName(filename, prefix);
   const file = getBucket().file(objectName);

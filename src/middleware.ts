@@ -13,6 +13,7 @@ export default auth((req) => {
   const isPublic =
     pathname === "/" ||
     pathname === "/signin" ||
+    pathname === "/access-denied" ||
     pathname === "/api/health" ||
     pathname === "/careers" ||
     pathname.startsWith("/careers/") ||
