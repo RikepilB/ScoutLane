@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, ExternalLink, LogIn, ShieldCheck } from "lucide-react";
+import { ArrowRight, ExternalLink, LogIn, ShieldCheck, Briefcase, Users, BarChart3 } from "lucide-react";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { Button } from "@/components/ui/button";
+import { VideoHero } from "@/components/VideoHero";
 
 export const dynamic = "force-dynamic";
 
@@ -41,71 +42,64 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_45%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)]">
-      <div className="mx-auto w-full max-w-5xl px-6 py-12">
-        <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-bold text-white">
-              SL
-            </span>
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-slate-950">ScoutLane</h1>
-              <p className="text-sm text-muted-foreground">AI-powered recruitment platform</p>
+    <>
+      <VideoHero videoSrc="https://cdn.pixabay.com/video/2024/09/29/234468_large.mp4">
+        <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6">
+          <header className="flex items-center justify-between pt-6">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-sm font-bold text-white backdrop-blur-sm">
+                SL
+              </span>
+              <span className="text-lg font-semibold tracking-tight text-white">ScoutLane</span>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            {session?.user ? (
-              <>
-                <div className="hidden text-right sm:block">
-                  <div className="text-sm font-medium text-slate-900">{session.user.email}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Role: <span className="font-medium">{session.user.role ?? "—"}</span>
-                  </div>
-                </div>
-                <Button asChild>
-                  <Link href="/admin">Go to admin</Link>
-                </Button>
-              </>
-            ) : (
-              <Button asChild>
-                <Link href="/signin" className="inline-flex items-center gap-1">
-                  <LogIn className="h-4 w-4" />
-                  Sign in
-                </Link>
-              </Button>
-            )}
-          </div>
-        </header>
-
-        <section className="mb-10 rounded-[2rem] border border-border/70 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8 text-white shadow-sm">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.24em] text-sky-200/80">Welcome</p>
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Run hiring from one workspace
-              </h2>
-              <p className="max-w-2xl text-sm text-slate-300">
-                Admins post jobs, share a public link, and review applicants. Candidates apply
-                without an account. Use the page map below to jump anywhere.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex items-center gap-2">
               {session?.user ? (
                 <Button asChild variant="secondary">
-                  <Link href="/admin/jobs">Manage jobs</Link>
+                  <Link href="/admin">Go to admin</Link>
                 </Button>
               ) : (
-                <Button asChild variant="secondary">
+                <Button asChild>
                   <Link href="/signin" className="inline-flex items-center gap-1">
-                    <ShieldCheck className="h-4 w-4" />
-                    Dev Login
+                    <LogIn className="h-4 w-4" />
+                    Sign in
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </header>
+
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <h1 className="max-w-4xl text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[0.95] drop-shadow-[0_4px_40px_rgba(0,0,0,0.3)]">
+              AI-Powered
+              <br />
+              <span className="bg-gradient-to-r from-sky-200 via-white to-sky-100 bg-clip-text text-transparent">
+                Recruitment Platform
+              </span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 drop-shadow-[0_2px_20px_rgba(0,0,0,0.2)]">
+              Post jobs, generate custom application forms, parse resumes with AI, and move candidates through a configurable pipeline — all from one workspace.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              {session?.user ? (
+                <Button asChild size="lg">
+                  <Link href="/admin/jobs" className="inline-flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Manage jobs
+                  </Link>
+                </Button>
+              ) : (
+                <Button asChild size="lg">
+                  <Link href="/signin" className="inline-flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5" />
+                    Get started
                   </Link>
                 </Button>
               )}
               {jobs[0] ? (
-                <Button asChild>
-                  <Link href={`/careers/${jobs[0].slug}`} className="inline-flex items-center gap-1">
+                <Button asChild variant="secondary" size="lg">
+                  <Link href={`/careers/${jobs[0].slug}`} className="inline-flex items-center gap-2">
+                    <Users className="h-5 w-5" />
                     See a public job
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -113,8 +107,26 @@ export default async function Home() {
               ) : null}
             </div>
           </div>
-        </section>
+        </div>
+      </VideoHero>
 
+      <section className="border-b border-border/70 bg-muted/20">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-16 sm:grid-cols-3">
+          {[
+            { icon: Briefcase, title: "Job management", desc: "Create jobs with custom forms, templates, and pipeline stages" },
+            { icon: BarChart3, title: "AI analytics", desc: "Resume parsing with Gemini, charts, and applicant insights" },
+            { icon: Users, title: "Pipeline", desc: "Drag-and-drop Kanban board, stage transitions, and admin notes" },
+          ].map((feature) => (
+            <div key={feature.title} className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+              <feature.icon className="h-8 w-8 text-sky-600" />
+              <h3 className="mt-4 text-base font-semibold text-slate-900">{feature.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="mx-auto w-full max-w-5xl px-6 py-12">
         <section className="mb-10">
           <h3 className="mb-3 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
             Page map
@@ -171,6 +183,6 @@ export default async function Home() {
           </section>
         ) : null}
       </div>
-    </main>
+    </>
   );
 }
