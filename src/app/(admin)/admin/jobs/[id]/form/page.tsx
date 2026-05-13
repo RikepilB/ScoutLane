@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Trash2, GripVertical, Save } from "lucide-react";
+import { saveCustomFields } from "@/server/services/jobs/update";
 
 interface CustomField {
   id: string;
@@ -11,29 +12,78 @@ interface CustomField {
   required: boolean;
 }
 
-export default function FormBuilderPage({ params }: { params: Promise<{ id: string }> }) {
+interface FormBuilderPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function FormBuilderPage({ params }: FormBuilderPageProps) {
   const router = useRouter();
+  const [jobId, setJobId] = useState<string | null>(null);
   const [fields, setFields] = useState<CustomField[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    params.then((p) => {
+      setJobId(p.id);
+      fetch(`/api/admin/jobs/${p.id}/form`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.customFields) setFields(data.customFields);
+        })
+        .catch(() => {});
+    });
+  }, [params]);
 
   function addField() {
     const id = crypto.randomUUID();
     setFields([...fields, { id, label: "", type: "text", required: false }]);
+    setDirty(true);
   }
 
   function removeField(id: string) {
     setFields(fields.filter((f) => f.id !== id));
+    setDirty(true);
   }
 
   function updateField(id: string, data: Partial<CustomField>) {
     setFields(fields.map((f) => (f.id === id ? { ...f, ...data } : f)));
+    setDirty(true);
+  }
+
+  async function handleSave() {
+    if (!jobId) return;
+    setSaving(true);
+    await saveCustomFields(jobId, fields);
+    setDirty(false);
+    setSaving(false);
+    router.refresh();
   }
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-base font-semibold tracking-tight text-slate-900">Application form fields</h3>
+          <p className="text-sm text-muted-foreground">
+            Configure which fields appear on the public job application page.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || !dirty}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+        >
+          <Save className="h-4 w-4" />
+          {saving ? "Saving..." : "Save"}
+        </button>
+      </div>
+
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-slate-900">Default fields</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          These standard fields are always included in the application form.
+          Always included in the application form.
         </p>
         <ul className="mt-4 space-y-2">
           {["First Name", "Last Name", "Email", "Phone", "Resume (file upload)"].map((f) => (
@@ -51,13 +101,13 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
           <div>
             <h3 className="text-sm font-semibold text-slate-900">Custom fields</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Add job-specific questions (e.g. portfolio link, years of experience).
+              Job-specific questions for applicants.
             </p>
           </div>
           <button
             type="button"
             onClick={addField}
-            className="inline-flex items-center gap-1 rounded-lg bg-slate-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             <Plus className="h-4 w-4" />
             Add field

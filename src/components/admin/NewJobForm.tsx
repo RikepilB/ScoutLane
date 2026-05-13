@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { createJob } from "@/server/services/jobs/create";
 import { jobCreationSchema, jobStatusValues } from "@/schemas/job";
+import { slugify } from "@/lib/slug/slugify";
 
 type FormValues = z.input<typeof jobCreationSchema>;
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,19 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
     },
   });
 
+  const watchedTitle = form.watch("title");
+
+  function autoFillSlug(title: string) {
+    const current = form.getValues("slug");
+    if (!current || current === slugify(form.getValues("title")).slice(0, 60)) {
+      form.setValue("slug", slugify(title).slice(0, 60));
+    }
+  }
+
+  useEffect(() => {
+    autoFillSlug(watchedTitle);
+  }, [watchedTitle]);
+
   const handleSubmit = form.handleSubmit((values) => {
     setError(null);
 
@@ -57,6 +71,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
     if (values.type) formData.set("type", values.type);
     if (values.salary) formData.set("salary", values.salary);
     if (values.templateId) formData.set("templateId", values.templateId);
+    if (values.slug) formData.set("slug", values.slug);
 
     startTransition(async () => {
       const result = await createJob(formData);
@@ -148,6 +163,20 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL slug</FormLabel>
+                <FormControl>
+                  <Input placeholder="senior-frontend-engineer" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField

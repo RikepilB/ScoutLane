@@ -1,7 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
+import { canAcceptApplications } from "@/lib/jobs/status";
 
 export const dynamic = "force-dynamic";
+
+const publicApplicationSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .max(64, "First name too long")
+    .regex(/^[a-zA-ZÀ-ÿ\-' ]+$/, "First name contains invalid characters"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .max(64, "Last name too long")
+    .regex(/^[a-zA-ZÀ-ÿ\-' ]+$/, "Last name contains invalid characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Invalid email address")
+    .max(320, "Email too long"),
+  phone: z
+    .string()
+    .min(7, "Phone number is required")
+    .max(20, "Phone too long")
+    .regex(/^[+\d\s\-()]*$/, "Invalid phone format"),
+});
 
 export async function POST(
   request: NextRequest,
@@ -9,29 +34,58 @@ export async function POST(
 ) {
   try {
     const { slug } = await params;
+
     const body = await request.json();
+    const parsed = publicApplicationSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: parsed.error.issues[0]?.message ?? "Invalid application data" },
+        { status: 400 },
+      );
+    }
 
     const job = await prisma.job.findUnique({ where: { slug } });
     if (!job) {
       return NextResponse.json({ success: false, error: "Job not found" }, { status: 404 });
     }
 
-    const { firstName, lastName, email, phone, resumeUrl, status } = body;
-    const name = `${firstName} ${lastName}`.trim();
+    if (!canAcceptApplications(job)) {
+      return NextResponse.json({ success: false, error: "This position is not accepting applications." }, { status: 400 });
+    }
+
+    const existingApplicant = await prisma.applicant.findFirst({
+      where: { jobId: job.id, email: parsed.data.email },
+      select: { id: true },
+    });
+
+    if (existingApplicant) {
+      return NextResponse.json(
+        { success: false, error: "An application with this email already exists for this position." },
+        { status: 409 },
+      );
+    }
+
+    if (body.resumeUrl) {
+      return NextResponse.json(
+        { success: false, error: "Direct resume URL upload is not supported. Please upload a file." },
+        { status: 400 },
+      );
+    }
+
+    const applicantName = `${parsed.data.firstName} ${parsed.data.lastName}`.trim();
 
     const applicant = await prisma.applicant.create({
       data: {
         jobId: job.id,
-        name,
-        email,
-        phone,
-        resumeUrl: resumeUrl || null,
-        status: body._draft ? "NEW" : "NEW",
+        name: applicantName,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        status: "NEW",
       },
     });
 
     return NextResponse.json(
-      { success: true, applicant: { id: applicant.id, name: applicant.name, email: applicant.email, status: applicant.status } },
+      { success: true, applicant: { id: applicant.id, status: applicant.status } },
       { status: 201 },
     );
   } catch (error) {
@@ -57,6 +111,7 @@ export async function GET(
     if (applicationId) {
       const applicant = await prisma.applicant.findUnique({
         where: { id: applicationId },
+        select: { id: true, jobId: true, status: true },
       });
 
       if (!applicant || applicant.jobId !== job.id) {
@@ -66,13 +121,8 @@ export async function GET(
       return NextResponse.json({
         success: true,
         data: {
-          firstName: applicant.name.split(" ")[0] || "",
-          lastName: applicant.name.split(" ").slice(1).join(" ") || "",
-          email: applicant.email || "",
-          phone: applicant.phone || "",
-          resumeUrl: applicant.resumeUrl || "",
-          customFields: [],
-          status: "submitted",
+          id: applicant.id,
+          status: applicant.status,
           jobSlug: slug,
         },
       });

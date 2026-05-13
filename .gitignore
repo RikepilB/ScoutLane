@@ -1,8 +1,13 @@
 # Project-specific
 AGENTS.md
+CLAUDE.md
+PLAN.md
+PROGRESS-REPORT.md
+NEXT-STEPS.md
 # Dependencies
 node_modules/
 .pnp/
+package-lock.json
 yarn.lock
 bun.lockb
 # Next.js
@@ -51,6 +56,7 @@ test-results/
 .agents/
 .claude/
 skills-lock.json
+opencode.json
 
 # Test artifacts
 testsprite_tests/
@@ -64,3 +70,5 @@ temp/
 .export/
 .expo/
 .webpack-cache/
+
+.vercel

@@ -18,14 +18,12 @@ export async function getCurrentUserWithOrganization() {
 
   if (user.organizationId) return user;
 
-  const fallbackOrganization =
-    (await prisma.organization.findFirst()) ??
-    (await prisma.organization.create({
-      data: {
-        name: "ScoutLane",
-        slug: "scoutlane",
-      },
-    }));
+  const fallbackOrganization = await prisma.organization.create({
+    data: {
+      name: "ScoutLane",
+      slug: `scoutlane-${user.id.slice(0, 8)}`,
+    },
+  });
 
   return prisma.user.update({
     where: { id: user.id },

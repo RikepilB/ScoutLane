@@ -8,13 +8,13 @@ import { buildJobSlug } from "@/lib/slug";
 import { jobCreationSchema } from "@/schemas/job";
 
 const defaultStages = [
-  "Applied",
-  "Screening",
-  "Assessment",
+  "New",
+  "Reviewing",
+  "Shortlisted",
   "Interview",
-  "Offer",
-  "Hired",
+  "Offered",
   "Rejected",
+  "Withdrawn",
 ];
 
 export interface JobActionResult {
@@ -60,12 +60,11 @@ export async function createJob(formData: FormData): Promise<JobActionResult> {
 
   const organizationId =
     currentUser.organizationId ??
-    (await prisma.organization.findFirst({ select: { id: true } }))?.id ??
     (
       await prisma.organization.create({
         data: {
           name: "ScoutLane",
-          slug: "scoutlane",
+          slug: `scoutlane-${currentUser.id.slice(0, 8)}`,
         },
         select: { id: true },
       })
@@ -91,7 +90,7 @@ export async function createJob(formData: FormData): Promise<JobActionResult> {
       location: parsed.data.location,
       type: parsed.data.type,
       salary: parsed.data.salary,
-      slug: buildJobSlug(parsed.data.title),
+      slug: parsed.data.slug ?? buildJobSlug(parsed.data.title),
       organizationId,
       createdById: currentUser.id,
       published: persistence.published,

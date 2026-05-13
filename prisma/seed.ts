@@ -44,6 +44,49 @@ const jobsData = [
   },
 ];
 
+const institutions = [
+  "MIT", "Stanford University", "UC Berkeley", "Carnegie Mellon",
+  "University of Washington", "Georgia Tech", "University of Michigan",
+  "Caltech", "Cornell University", "University of Illinois Urbana-Champaign",
+];
+
+const programs = [
+  "Computer Science", "Software Engineering", "Data Science",
+  "Electrical Engineering", "Information Systems", "Computer Engineering",
+  "Mathematics", "Physics", "Business Administration",
+];
+
+const companies = [
+  "Google", "Meta", "Amazon", "Microsoft", "Apple",
+  "Stripe", "Airbnb", "Uber", "Spotify", "Netflix",
+];
+
+const skills = [
+  "TypeScript", "React", "Next.js", "Node.js", "Python",
+  "PostgreSQL", "Prisma", "GraphQL", "Docker", "AWS",
+  "Kubernetes", "CI/CD", "Terraform", "Redis", "Kafka",
+];
+
+function generateParsedData() {
+  const education = [
+    {
+      institution: faker.helpers.arrayElement(institutions),
+      degree: faker.helpers.arrayElement(["Bachelor's", "Master's", "PhD"]),
+      field: faker.helpers.arrayElement(programs),
+      graduationYear: faker.number.int({ min: 2018, max: 2026 }),
+    },
+  ];
+  const workCount = faker.number.int({ min: 1, max: 3 });
+  const work = Array.from({ length: workCount }, (_, i) => ({
+    company: faker.helpers.arrayElement(companies),
+    title: faker.person.jobTitle(),
+    duration: `${faker.number.int({ min: 6, max: 48 })} months`,
+    startDate: `${2020 - i}-0${faker.number.int({ min: 1, max: 9 })}`,
+  }));
+  const applicantSkills = faker.helpers.arrayElements(skills, faker.number.int({ min: 3, max: 8 }));
+  return { education, work, skills: applicantSkills };
+}
+
 async function main() {
   console.log("Seeding ScoutLane review data...");
 
@@ -122,6 +165,7 @@ async function main() {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const createdAt = faker.date.recent({ days: 45 });
+      const parsed = generateParsedData();
 
       await prisma.applicant.create({
         data: {
@@ -148,6 +192,7 @@ async function main() {
             | "WITHDRAWN",
           score: faker.number.float({ min: 62, max: 98, fractionDigits: 1 }),
           notes: faker.lorem.sentence(),
+          data: parsed,
           createdAt,
         },
       });

@@ -12,6 +12,17 @@ jobs:
   checks:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: scoutlane
+          POSTGRES_PASSWORD: scoutlane
+          POSTGRES_DB: scoutlane
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,11 +35,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
 
       - name: Lint
         run: pnpm lint
@@ -37,4 +51,12 @@ jobs:
         run: pnpm typecheck
 
       - name: Test
-        run: pnpm test -- --run
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://scoutlane:scoutlane@localhost:5432/scoutlane
+          DIRECT_URL: postgresql://scoutlane:scoutlane@localhost:5432/scoutlane
+          AUTH_SECRET: ci-test-secret-not-for-production
+          NEXT_PUBLIC_APP_URL: http://localhost:3000

@@ -1,15 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
+import { requireSession } from "@/server/services/_lib/validate-session";
 import type { JobActionResult } from "./create";
 
 export async function deleteJob(id: string): Promise<JobActionResult> {
-  const session = await auth();
-  if (!session?.user?.email) return { success: false, error: "Not authenticated" };
+  const user = await requireSession();
 
-  await prisma.job.delete({ where: { id } });
+  const result = await prisma.job.deleteMany({
+    where: { id, organizationId: user.organizationId },
+  });
+
+  if (result.count === 0) return { success: false, error: "Job not found" };
+
   revalidatePath("/admin/jobs");
   return { success: true };
 }

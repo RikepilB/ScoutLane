@@ -10,6 +10,7 @@ const tabs = [
   { label: "Stages", href: "/stages" },
   { label: "Form", href: "/form" },
   { label: "Applicants", href: "/applicants" },
+  { label: "Integrations", href: "/integrations" },
 ];
 
 export function JobTabs({ jobId }: { jobId: string }) {

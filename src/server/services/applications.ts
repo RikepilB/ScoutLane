@@ -43,11 +43,11 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     return { success: false, error: "This position is not accepting applications." };
   }
 
+  const upload = await uploadResumeFile(resumeFile);
+  const applicantName = `${firstName} ${lastName}`.trim();
+
   const existingApplicant = await prisma.applicant.findFirst({
-    where: {
-      jobId: job.id,
-      email,
-    },
+    where: { jobId: job.id, email },
     select: { id: true },
   });
 
@@ -58,8 +58,11 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     };
   }
 
-  const upload = await uploadResumeFile(resumeFile);
-  const applicantName = `${firstName} ${lastName}`.trim();
+  let customFields: Record<string, string> = {};
+  try {
+    const raw = formData.get("customFields");
+    if (typeof raw === "string") customFields = JSON.parse(raw);
+  } catch {}
 
   await prisma.applicant.create({
     data: {
@@ -69,6 +72,7 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
       phone,
       resumeUrl: upload.url,
       status: "NEW",
+      data: Object.keys(customFields).length > 0 ? { customFields } : undefined,
     },
   });
 
