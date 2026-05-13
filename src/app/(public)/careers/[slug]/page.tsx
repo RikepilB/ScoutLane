@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Home } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -57,7 +59,15 @@ export default async function JobApplicationPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_38%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-6 py-12 lg:grid-cols-[1.1fr_0.9fr]">
+      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-4 text-sm">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+            <Home className="h-4 w-4" />
+            Home
+          </Link>
+        </div>
+      </nav>
+      <div className="mx-auto grid w-full max-w-6xl gap-8 px-6 pb-12 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="space-y-6">
           <div className="space-y-4">
             <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-sky-700">
