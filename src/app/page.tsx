@@ -43,7 +43,7 @@ export default async function Home() {
 
   return (
     <>
-      <VideoHero videoSrc="https://cdn.pixabay.com/video/2024/09/29/234468_large.mp4">
+      <VideoHero>
         <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6">
           <header className="flex items-center justify-between pt-6">
             <div className="flex items-center gap-3">

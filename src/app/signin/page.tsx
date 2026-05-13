@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 function SignInContent() {
   const searchParams = useSearchParams();
@@ -19,17 +20,8 @@ function SignInContent() {
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden w-1/2 lg:block">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover"
-        >
-          <source src="https://cdn.pixabay.com/video/2024/09/29/234468_large.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />
-        <div className="absolute bottom-16 left-12 max-w-md">
+        <AnimatedBackground />
+        <div className="absolute bottom-16 left-12 z-10 max-w-md">
           <h1 className="text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
             ScoutLane
           </h1>

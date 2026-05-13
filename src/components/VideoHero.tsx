@@ -1,45 +1,44 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatedBackground } from "./AnimatedBackground";
 
 interface VideoHeroProps {
-  videoSrc: string;
+  videoSrc?: string;
   posterSrc?: string;
-  overlay?: boolean;
   children: React.ReactNode;
 }
 
-export function VideoHero({ videoSrc, posterSrc, overlay = true, children }: VideoHeroProps) {
+export function VideoHero({ videoSrc, posterSrc, children }: VideoHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+    if (videoRef.current && videoSrc) {
+      videoRef.current.play().catch(() => setVideoFailed(true));
     }
-  }, []);
+  }, [videoSrc]);
 
   return (
     <div className="relative flex min-h-screen w-full items-center overflow-hidden">
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster={posterSrc}
-        onLoadedData={() => setLoaded(true)}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${loaded ? "opacity-100" : "opacity-0"}`}
-      >
-        <source src={videoSrc} type="video/mp4" />
-      </video>
-
-      {!loaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800" />
-      )}
-
-      {overlay && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/80" />
+      {videoSrc && !videoFailed ? (
+        <>
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={posterSrc}
+            onError={() => setVideoFailed(true)}
+            className="absolute inset-0 h-full w-full object-cover"
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/80" />
+        </>
+      ) : (
+        <AnimatedBackground />
       )}
 
       <div className="relative z-10 w-full">{children}</div>
