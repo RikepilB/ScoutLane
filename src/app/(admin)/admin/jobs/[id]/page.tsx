@@ -6,6 +6,7 @@ import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { JobStatusActions } from "@/components/admin/JobStatusActions";
 
 interface OverviewPageProps {
   params: Promise<{ id: string }>;
@@ -81,6 +82,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
           </div>
 
           <div className="flex shrink-0 gap-2">
+            <JobStatusActions jobId={id} status={status} />
             <Button variant="outline" asChild>
               <Link href={`/careers/${job.slug}`} target="_blank" className="inline-flex items-center gap-1">
                 <ExternalLink className="h-4 w-4" />
