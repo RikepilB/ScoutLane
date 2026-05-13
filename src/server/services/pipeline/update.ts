@@ -15,7 +15,7 @@ export async function moveApplicant(applicantId: string, newStatus: string) {
 
   const existing = await prisma.applicant.findUnique({
     where: { id: applicantId },
-    select: { job: { select: { organizationId: true, title: true } } },
+    select: { status: true, jobId: true, job: { select: { organizationId: true, title: true } } },
   });
   if (!existing || existing.job.organizationId !== user.organizationId) {
     return { success: false, error: "Applicant not found" };
@@ -25,6 +25,16 @@ export async function moveApplicant(applicantId: string, newStatus: string) {
     where: { id: applicantId },
     data: { status: valid.data },
     include: { job: { select: { title: true } } },
+  });
+
+  await prisma.stageTransition.create({
+    data: {
+      applicantId,
+      jobId: existing.jobId,
+      fromStage: existing.status,
+      toStage: valid.data,
+      changedById: user.id,
+    },
   });
 
   const webhooks = await prisma.webhook.findMany({

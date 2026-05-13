@@ -23,6 +23,13 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
+enum ParsingStatus {
+  PENDING
+  PARSING
+  COMPLETED
+  FAILED
+}
+
 model Organization {
   id        String   @id @default(cuid())
   name      String
@@ -47,10 +54,11 @@ model User {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  accounts    Account[]
-  sessions    Session[]
-  jobsCreated Job[]
+  accounts         Account[]
+  sessions         Session[]
+  jobsCreated      Job[]
   templatesCreated JobTemplate[]
+  stageTransitions StageTransition[]
 }
 
 model Account {
@@ -105,9 +113,11 @@ model Job {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  customFields Json?
-  applicants   Applicant[]
-  stages       PipelineStage[]
+  customFields     Json?
+  applicants       Applicant[]
+  stages           PipelineStage[]
+  integrations     JobIntegration[]
+  stageTransitions StageTransition[]
 }
 
 model JobTemplate {
@@ -132,21 +142,23 @@ model JobTemplate {
 }
 
 model Applicant {
-  id        String            @id @default(cuid())
-  jobId     String
-  job       Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  name      String
-  email     String?
-  phone     String?
-  resumeUrl String?
-  status    ApplicationStatus @default(NEW)
-  score     Float?
-  notes     String?
-  data      Json?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id            String            @id @default(cuid())
+  jobId         String
+  job           Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name          String
+  email         String?
+  phone         String?
+  resumeUrl     String?
+  status        ApplicationStatus @default(NEW)
+  score         Float?
+  notes         String?
+  data          Json?
+  parsedData    Json?
+  parsingStatus ParsingStatus?    @default(PENDING)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
-  @@unique([jobId, email])
+  transitions StageTransition[]
 }
 
 model PipelineStage {
@@ -158,6 +170,21 @@ model PipelineStage {
   color     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  integration JobIntegration?
+}
+
+model StageTransition {
+  id          String    @id @default(cuid())
+  applicantId String
+  applicant   Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  jobId       String
+  fromStage   String?
+  toStage     String
+  changedById String?
+  changedBy   User?     @relation(fields: [changedById], references: [id])
+  createdAt   DateTime  @default(now())
+  job         Job       @relation(fields: [jobId], references: [id])
 }
 
 model Webhook {
@@ -169,7 +196,27 @@ model Webhook {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  logs WebhookLog[]
+  logs        IntegrationLog[]
+  webhookLogs WebhookLog[]
+}
+
+model JobIntegration {
+  id               String        @id @default(cuid())
+  jobId            String
+  job              Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  stageId          String        @unique
+  stage            PipelineStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  endpointUrl      String
+  apiKey           String
+  includeQuestions Boolean       @default(false)
+  active           Boolean       @default(true)
+  lastSuccessAt    DateTime?
+  lastFailureAt    DateTime?
+  failureCount     Int           @default(0)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  logs IntegrationLog[]
 }
 
 model WebhookLog {
@@ -181,4 +228,17 @@ model WebhookLog {
   request   String?
   response  String?
   createdAt DateTime @default(now())
+}
+
+model IntegrationLog {
+  id            String         @id @default(cuid())
+  integrationId String
+  integration   JobIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  event         String
+  status        Int
+  requestBody   String?
+  responseBody  String?
+  createdAt     DateTime       @default(now())
+  webhook       Webhook?       @relation(fields: [webhookId], references: [id])
+  webhookId     String?
 }
