@@ -5,6 +5,7 @@ import { getJobStatus } from "@/lib/jobs";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { JobTabs } from "./_components/JobTabs";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 const statusStyles: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
@@ -19,8 +20,10 @@ interface LayoutProps {
 
 export default async function JobDetailLayout({ children, params }: LayoutProps) {
   const { id } = await params;
-  const job = await prisma.job.findUnique({
-    where: { id },
+  const user = await getCurrentUserWithOrganization();
+
+  const job = await prisma.job.findFirst({
+    where: { id, organizationId: user?.organizationId ?? undefined },
     include: { _count: { select: { applicants: true } } },
   });
 

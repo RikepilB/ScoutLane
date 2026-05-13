@@ -43,34 +43,29 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     return { success: false, error: "This position is not accepting applications." };
   }
 
-  const existingApplicant = await prisma.applicant.findFirst({
-    where: {
-      jobId: job.id,
-      email,
-    },
-    select: { id: true },
-  });
-
-  if (existingApplicant) {
-    return {
-      success: false,
-      error: "An application with this email already exists for this position.",
-    };
-  }
-
   const upload = await uploadResumeFile(resumeFile);
   const applicantName = `${firstName} ${lastName}`.trim();
 
-  await prisma.applicant.create({
-    data: {
-      jobId: job.id,
-      name: applicantName,
-      email,
-      phone,
-      resumeUrl: upload.url,
-      status: "NEW",
-    },
-  });
+  try {
+    await prisma.applicant.create({
+      data: {
+        jobId: job.id,
+        name: applicantName,
+        email,
+        phone,
+        resumeUrl: upload.url,
+        status: "NEW",
+      },
+    });
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      return {
+        success: false,
+        error: "An application with this email already exists for this position.",
+      };
+    }
+    throw error;
+  }
 
   let warning: string | undefined;
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { slugify } from "@/lib/slug";
 
 export const jobStatusValues = ["draft", "active", "closed"] as const;
 
@@ -25,6 +26,13 @@ export const jobCreationSchema = z.object({
   salary: optionalShortString(60, "Salary"),
   status: jobStatusSchema.default("draft"),
   templateId: optionalShortString(120, "Template"),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens")
+    .min(3, "Slug must be at least 3 characters")
+    .max(80, "Slug must be 80 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
 });
 
 export type JobCreationInput = z.infer<typeof jobCreationSchema>;

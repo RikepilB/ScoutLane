@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +41,16 @@ export default async function JobsListPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const filter = parseFilter(params.status);
 
-  const jobs = await prisma.job.findMany({
-    include: { _count: { select: { applicants: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const user = await getCurrentUserWithOrganization();
+  const organizationId = user?.organizationId;
+
+  const jobs = organizationId
+    ? await prisma.job.findMany({
+        where: { organizationId },
+        include: { _count: { select: { applicants: true } } },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
 
   const withStatus = jobs.map((job) => ({ ...job, status: getJobStatus(job) }));
   const visible = filter === "all" ? withStatus : withStatus.filter((j) => j.status === filter);

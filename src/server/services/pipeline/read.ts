@@ -21,14 +21,28 @@ export async function getPipelineData(jobId: string) {
   const applicants = await prisma.applicant.findMany({
     where: { jobId },
     orderBy: { createdAt: "desc" },
-    include: { job: { select: { title: true } } },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      score: true,
+      status: true,
+      createdAt: true,
+      data: true,
+      job: { select: { title: true } },
+    },
+  });
+
+  const mapped = applicants.map((a) => {
+    const d = (a.data ?? {}) as { institution?: string; program?: string };
+    return { ...a, institution: d.institution ?? null, program: d.program ?? null };
   });
 
   const grouped = stages.map((stage) => {
     const status = stage.name.toUpperCase() as ApplicationStatus;
     return {
       ...stage,
-      applicants: applicants.filter((a) => a.status === status),
+      applicants: mapped.filter((a) => a.status === status),
     };
   });
 

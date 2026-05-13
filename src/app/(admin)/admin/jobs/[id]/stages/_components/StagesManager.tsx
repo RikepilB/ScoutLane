@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -95,6 +95,10 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
   const router = useRouter();
   const [stages, setStages] = useState(initialStages);
   const [newName, setNewName] = useState("");
+
+  useEffect(() => {
+    setStages(initialStages);
+  }, [initialStages]);
   const [newColor, setNewColor] = useState("#6366f1");
   const [editingId, setEditingId] = useState<string | null>(null);
 

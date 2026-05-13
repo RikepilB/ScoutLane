@@ -26,7 +26,7 @@ export default auth((req) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  if (pathname.startsWith("/admin") && role !== "ADMIN") {
+  if ((pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) && role !== "ADMIN") {
     const deniedUrl = new URL("/access-denied", req.url);
     return NextResponse.redirect(deniedUrl);
   }

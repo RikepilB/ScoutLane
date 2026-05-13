@@ -145,6 +145,8 @@ model Applicant {
   data      Json?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+
+  @@unique([jobId, email])
 }
 
 model PipelineStage {

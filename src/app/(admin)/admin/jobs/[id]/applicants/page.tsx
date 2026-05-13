@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import { Search, ChevronDown } from "lucide-react";
+import { Search } from "lucide-react";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
+import { ApplicationStatus } from "@/generated/prisma/enums";
 
 interface ApplicantsPageProps {
   params: Promise<{ id: string }>;
@@ -25,13 +26,18 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     ];
   }
 
-  if (filters.status && filters.status !== "all") {
+  const validStatuses = Object.values(ApplicationStatus) as string[];
+  if (filters.status && filters.status !== "all" && validStatuses.includes(filters.status)) {
     where.status = filters.status;
   }
 
-  const orderBy: any = {};
+  const allowedSortFields = ["createdAt", "name", "email", "score", "status"];
+  const allowedSortDirs = ["asc", "desc"];
   const [sortField, sortDir] = (filters.sort || "createdAt-desc").split("-");
-  orderBy[sortField || "createdAt"] = sortDir || "desc";
+  const safeField = allowedSortFields.includes(sortField) ? sortField : "createdAt";
+  const safeDir = allowedSortDirs.includes(sortDir) ? sortDir : "desc";
+  const orderBy: any = {};
+  orderBy[safeField] = safeDir;
 
   const applicants = await prisma.applicant.findMany({
     where,
