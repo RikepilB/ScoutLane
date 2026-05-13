@@ -159,6 +159,8 @@ model Applicant {
   updatedAt     DateTime          @updatedAt
 
   transitions StageTransition[]
+
+  @@unique([jobId, email])
 }
 
 model PipelineStage {

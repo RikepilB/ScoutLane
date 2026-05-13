@@ -1,9 +1,10 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
-import { ArrowLeft, ExternalLink, Mail, Phone, FileText } from "lucide-react";
+import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench } from "lucide-react";
 import { ApplicantActions } from "./_components/ApplicantActions";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
+import { NotesSection } from "./_components/NotesSection";
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
@@ -12,18 +13,27 @@ interface ApplicantDetailPageProps {
 export default async function ApplicantDetailPage({ params }: ApplicantDetailPageProps) {
   const { id: jobId, applicantId } = await params;
 
-  const [applicant, job] = await Promise.all([
-    prisma.applicant.findUnique({
-      where: { id: applicantId },
-    }),
-    prisma.job.findUnique({
-      where: { id: jobId },
-      select: { title: true, slug: true },
-    }),
-  ]);
+  const applicant = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    include: {
+      job: { select: { title: true, slug: true } },
+      transitions: {
+        orderBy: { createdAt: "desc" },
+        include: { changedBy: { select: { name: true } } },
+      },
+    },
+  });
 
-  if (!applicant || !job) notFound();
+  if (!applicant) notFound();
   if (applicant.jobId !== jobId) notFound();
+
+  const parsedData = (applicant.data ?? {}) as {
+    education?: { institution: string; degree: string; field: string; graduationYear: number }[];
+    work?: { company: string; title: string; duration: string }[];
+    skills?: string[];
+  };
+
+  const notes = (applicant.notes ?? "");
 
   return (
     <div className="space-y-6">
@@ -41,7 +51,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
             <div>
               <h2 className="text-2xl font-semibold tracking-tight">{applicant.name}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Applied for {job.title}
+                Applied for {applicant.job.title}
               </p>
             </div>
 
@@ -69,7 +79,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-primary hover:underline"
                   >
-                    View resume <ExternalLink className="h-3 w-3" />
+                    View resume <FileText className="h-3 w-3" />
                   </a>
                 </div>
               )}
@@ -92,12 +102,120 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Notes</h3>
-        <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-          {applicant.notes || "No notes recorded for this applicant."}
-        </p>
+      {applicant.resumeUrl && (
+        <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-900">Resume preview</h3>
+          <div className="mt-3 h-96 w-full overflow-hidden rounded-xl border border-border/60">
+            <iframe
+              src={applicant.resumeUrl}
+              className="h-full w-full"
+              title="Resume preview"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
+            Education
+          </h3>
+          {parsedData.education && parsedData.education.length > 0 ? (
+            <div className="mt-3 space-y-3">
+              {parsedData.education.map((edu, i) => (
+                <div key={i} className="rounded-xl border border-border/50 bg-muted/20 p-3">
+                  <div className="font-medium text-sm">{edu.institution}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {edu.degree} in {edu.field} · {edu.graduationYear}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">No education data available.</p>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Building className="h-4 w-4 text-muted-foreground" />
+            Work experience
+          </h3>
+          {parsedData.work && parsedData.work.length > 0 ? (
+            <div className="mt-3 space-y-3">
+              {parsedData.work.map((w, i) => (
+                <div key={i} className="rounded-xl border border-border/50 bg-muted/20 p-3">
+                  <div className="font-medium text-sm">{w.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {w.company} · {w.duration}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">No work experience data available.</p>
+          )}
+        </div>
       </div>
+
+      {parsedData.skills && parsedData.skills.length > 0 && (
+        <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Wrench className="h-4 w-4 text-muted-foreground" />
+            Skills
+          </h3>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {parsedData.skills.map((skill, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-900">Activity timeline</h3>
+        <div className="mt-3 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100">
+              <div className="h-2 w-2 rounded-full bg-indigo-500" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-900">Application submitted</p>
+              <p className="text-xs text-muted-foreground">
+                {new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(applicant.createdAt)}
+              </p>
+            </div>
+          </div>
+          {applicant.transitions.map((t) => (
+            <div key={t.id} className="flex items-start gap-3">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100">
+                <div className="h-2 w-2 rounded-full bg-sky-500" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-900">
+                  Moved from <span className="font-medium">{t.fromStage}</span> to{" "}
+                  <span className="font-medium">{t.toStage}</span>
+                  {t.changedBy?.name && <span> by {t.changedBy.name}</span>}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(t.createdAt)}
+                </p>
+              </div>
+            </div>
+          ))}
+          {applicant.transitions.length === 0 && (
+            <p className="text-sm text-muted-foreground">No stage changes yet.</p>
+          )}
+        </div>
+      </div>
+
+      <NotesSection applicantId={applicant.id} initialNotes={notes} />
     </div>
   );
 }
