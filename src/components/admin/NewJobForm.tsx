@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { createJob } from "@/server/services/jobs/create";
 import { jobCreationSchema, jobStatusValues } from "@/schemas/job";
-import { slugify } from "@/lib/slug";
+import { slugify } from "@/lib/slug/slugify";
 
 type FormValues = z.input<typeof jobCreationSchema>;
 import { Button } from "@/components/ui/button";

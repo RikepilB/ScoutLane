@@ -70,3 +70,5 @@ temp/
 .export/
 .expo/
 .webpack-cache/
+
+.vercel
