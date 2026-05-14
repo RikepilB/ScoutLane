@@ -4,6 +4,9 @@ import authConfig from "@/lib/auth/auth.config";
 
 const { auth } = NextAuth(authConfig);
 
+/** Roles that may use the internal workspace (`/admin`, `/api/admin`). */
+const WORKSPACE_ROLES = new Set(["ADMIN", "RECRUITER", "HIRING_MANAGER"]);
+
 const PUBLIC_FILES = new Set([
   "/robots.txt",
   "/sitemap.xml",
@@ -37,7 +40,10 @@ export default auth((req) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  if ((pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) && role !== "ADMIN") {
+  if (
+    (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) &&
+    !WORKSPACE_ROLES.has(role ?? "")
+  ) {
     const deniedUrl = new URL("/access-denied", req.url);
     return NextResponse.redirect(deniedUrl);
   }

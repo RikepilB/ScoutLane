@@ -1,9 +1,10 @@
-import { Building2, ShieldCheck, Users } from "lucide-react";
+import { Building2, ShieldCheck, UserCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import {
+  updateMyProfile,
   updateOrganizationSettings,
   updateTeamMemberRole,
 } from "@/server/services/settings";
@@ -28,6 +29,13 @@ export default async function SettingsPage() {
     : [];
 
   const canManage = user?.role === "ADMIN";
+
+  async function updateProfileAction(formData: FormData) {
+    "use server";
+
+    await updateMyProfile(formData);
+  }
+
   async function updateOrganizationAction(formData: FormData) {
     "use server";
 
@@ -49,9 +57,42 @@ export default async function SettingsPage() {
             Organization settings
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage workspace identity and team access for ScoutLane admins.
+            Admins manage workspace identity and team roles. Everyone can update their own profile.
           </p>
         </header>
+
+        <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700">
+              <UserCircle className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-base font-semibold tracking-tight">Your profile</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Display name and phone for your account ({user?.email}). Sign-in email is managed by
+                your identity provider.
+              </p>
+            </div>
+          </div>
+
+          <form action={updateProfileAction} className="mt-6 grid gap-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <label className="space-y-2 text-sm font-medium">
+              Name
+              <Input name="name" defaultValue={user?.name ?? ""} />
+            </label>
+            <label className="space-y-2 text-sm font-medium">
+              Phone
+              <Input
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                placeholder="Optional"
+                defaultValue={user?.phone ?? ""}
+              />
+            </label>
+            <Button type="submit">Save profile</Button>
+          </form>
+        </section>
 
         <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
           <div className="flex items-start gap-4">
@@ -125,24 +166,29 @@ export default async function SettingsPage() {
                       <div className="mt-0.5 text-xs text-muted-foreground">{member.email}</div>
                     </td>
                     <td className="px-5 py-4 text-slate-700">
-                      <form action={updateRoleAction} className="flex items-center gap-2">
-                        <input type="hidden" name="userId" value={member.id} />
-                        <select
-                          name="role"
-                          defaultValue={member.role}
-                          disabled={!canManage}
-                          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                        >
-                          {Object.entries(roleLabels).map(([value, label]) => (
-                            <option key={value} value={value}>
-                              {label}
-                            </option>
-                          ))}
-                        </select>
-                        <Button type="submit" variant="outline" size="sm" disabled={!canManage}>
-                          Update
-                        </Button>
-                      </form>
+                      {canManage ? (
+                        <form action={updateRoleAction} className="flex items-center gap-2">
+                          <input type="hidden" name="userId" value={member.id} />
+                          <select
+                            name="role"
+                            defaultValue={member.role}
+                            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                          >
+                            {Object.entries(roleLabels).map(([value, label]) => (
+                              <option key={value} value={value}>
+                                {label}
+                              </option>
+                            ))}
+                          </select>
+                          <Button type="submit" variant="outline" size="sm">
+                            Update
+                          </Button>
+                        </form>
+                      ) : (
+                        <span className="font-medium text-slate-800">
+                          {roleLabels[member.role] ?? member.role}
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-4 text-muted-foreground">
                       {member.role === "ADMIN" ? "Full workspace control" : "Hiring workflow"}
@@ -163,7 +209,8 @@ export default async function SettingsPage() {
 
           {!canManage ? (
             <p className="mt-4 text-sm text-muted-foreground">
-              Admin role is required to change organization settings or team roles.
+              Only admins can change organization workspace fields or assign roles. Ask an admin if
+              you need a role change.
             </p>
           ) : null}
         </section>

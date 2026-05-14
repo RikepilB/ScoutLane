@@ -80,7 +80,8 @@ function SignInContent() {
               </button>
             </div>
             <p className="mt-2 text-xs text-slate-500">
-              Dev bypass — enter any email to sign in as ADMIN
+              Dev bypass — unknown emails become ADMIN for local testing; if your email matches a seed
+              or database user (e.g. recruiter@scoutlane.local), sign-in uses that account&apos;s role.
             </p>
           </div>
 
