@@ -51,7 +51,12 @@ export async function createTemplate() {
       title: "New role",
       jobDescription: "",
       stageNames: defaultTemplateStages,
-      questions: [],
+      questions: [
+        "Tell us about yourself and your background.",
+        "Describe a challenging technical problem you have solved recently.",
+        "Why are you interested in this role?",
+        "What are you hoping to learn next?",
+      ],
       organizationId: user.organizationId,
       createdById: user.id,
     },

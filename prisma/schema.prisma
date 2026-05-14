@@ -59,6 +59,7 @@ model User {
   jobsCreated      Job[]
   templatesCreated JobTemplate[]
   stageTransitions StageTransition[]
+  applicantNotes   ApplicantNote[]
 }
 
 model Account {
@@ -113,11 +114,14 @@ model Job {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  customFields     Json?
-  applicants       Applicant[]
-  stages           PipelineStage[]
-  integrations     JobIntegration[]
-  stageTransitions StageTransition[]
+  /// Snapshot from applied template at job creation — used for integration assessment payloads
+  assessmentTitle     String?
+  assessmentQuestions Json?
+  customFields        Json?
+  applicants          Applicant[]
+  stages              PipelineStage[]
+  integrations        JobIntegration[]
+  stageTransitions    StageTransition[]
 }
 
 model JobTemplate {
@@ -162,10 +166,24 @@ model Applicant {
   updatedAt          DateTime          @updatedAt
 
   transitions StageTransition[]
+  noteEntries ApplicantNote[]
 
   @@unique([jobId, email])
   @@index([jobId, pipelineStageId])
   @@index([jobId, createdAt])
+}
+
+model ApplicantNote {
+  id          String    @id @default(cuid())
+  applicantId String
+  applicant   Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  authorId    String?
+  author      User?     @relation(fields: [authorId], references: [id])
+  body        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([applicantId])
 }
 
 model PipelineStage {
@@ -239,14 +257,18 @@ model WebhookLog {
 }
 
 model IntegrationLog {
-  id            String         @id @default(cuid())
-  integrationId String
-  integration   JobIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
-  event         String
-  status        Int
-  requestBody   String?
-  responseBody  String?
-  createdAt     DateTime       @default(now())
-  webhook       Webhook?       @relation(fields: [webhookId], references: [id])
-  webhookId     String?
+  id                  String         @id @default(cuid())
+  integrationId       String
+  integration         JobIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  event               String
+  status              Int
+  requestBody         String?
+  responseBody        String?
+  createdAt           DateTime       @default(now())
+  webhook             Webhook?       @relation(fields: [webhookId], references: [id])
+  webhookId           String?
+  /// Links outbound dispatch to a pipeline transition for tracing and idempotency checks
+  stageTransitionId   String?
+
+  @@index([integrationId, stageTransitionId])
 }

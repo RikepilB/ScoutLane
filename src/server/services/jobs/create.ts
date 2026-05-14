@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { getJobPersistence } from "@/lib/jobs/status";
+import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { buildJobSlug } from "@/lib/slug";
 import { jobCreationSchema } from "@/schemas/job";
 
@@ -77,11 +78,13 @@ export async function createJob(formData: FormData): Promise<JobActionResult> {
           id: parsed.data.templateId,
           organizationId,
         },
-        select: { stageNames: true },
+        select: { stageNames: true, name: true, questions: true },
       })
     : null;
 
   const stageNames = template?.stageNames.length ? template.stageNames : defaultStages;
+  const assessmentQuestions = normalizeAssessmentQuestions(template?.questions ?? null);
+  const assessmentTitle = template?.name ?? null;
 
   const createdJob = await prisma.job.create({
     data: {
@@ -95,6 +98,8 @@ export async function createJob(formData: FormData): Promise<JobActionResult> {
       createdById: currentUser.id,
       published: persistence.published,
       archived: persistence.archived,
+      assessmentTitle: assessmentQuestions.length ? assessmentTitle : undefined,
+      assessmentQuestions: assessmentQuestions.length ? assessmentQuestions : undefined,
       stages: {
         create: stageNames.map((name, index) => ({
           name,

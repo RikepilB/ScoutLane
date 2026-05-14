@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { dispatchWebhook } from "@/lib/webhook";
 import { requireSession } from "@/server/services/_lib/validate-session";
 import type { ApplicationStatus } from "@/generated/prisma/enums";
@@ -34,7 +35,14 @@ export async function moveApplicant(applicantId: string, newStageId: string) {
       pipelineStageId: true,
       status: true,
       jobId: true,
-      job: { select: { organizationId: true, title: true } },
+      job: {
+        select: {
+          organizationId: true,
+          title: true,
+          assessmentTitle: true,
+          assessmentQuestions: true,
+        },
+      },
     },
   });
   if (!existing || existing.job.organizationId !== user.organizationId) {
@@ -73,7 +81,7 @@ export async function moveApplicant(applicantId: string, newStageId: string) {
     include: { job: { select: { title: true } } },
   });
 
-  await prisma.stageTransition.create({
+  const transition = await prisma.stageTransition.create({
     data: {
       applicantId,
       jobId: existing.jobId,
@@ -118,70 +126,77 @@ export async function moveApplicant(applicantId: string, newStageId: string) {
     };
 
     if (integration.includeQuestions) {
-      const template = await prisma.jobTemplate.findFirst({
-        where: { organizationId: user.organizationId },
-        select: { name: true, questions: true },
-      });
-      if (template?.questions) {
+      const questions = normalizeAssessmentQuestions(existing.job.assessmentQuestions);
+      if (questions.length > 0) {
         payload.assessment = {
-          title: template.name,
+          title: existing.job.assessmentTitle ?? applicant.job.title,
           description: "Please answer each question concisely.",
-          questions: template.questions as Array<{
-            text: string;
-            maxDurationSeconds?: number;
-            maxAttempts?: number;
-          }>,
+          questions,
         };
       }
     }
 
-    try {
-      const response = await fetch(integration.endpointUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
-        },
-        body: JSON.stringify(payload),
-      });
+    const duplicateSuccess = await prisma.integrationLog.findFirst({
+      where: {
+        integrationId: integration.id,
+        stageTransitionId: transition.id,
+        event: "stage_transition",
+        status: { gte: 200, lt: 300 },
+      },
+    });
 
-      await prisma.integrationLog.create({
-        data: {
-          integrationId: integration.id,
-          event: "stage_transition",
-          status: response.status,
-          requestBody: JSON.stringify(payload).slice(0, 10000),
-          responseBody:
-            (await response.text().catch(() => null))?.slice(0, 10000) ?? null,
-        },
-      });
-
-      if (response.ok) {
-        await prisma.jobIntegration.update({
-          where: { id: integration.id },
-          data: { lastSuccessAt: new Date(), failureCount: 0 },
+    if (!duplicateSuccess) {
+      try {
+        const response = await fetch(integration.endpointUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
+          },
+          body: JSON.stringify(payload),
         });
-      } else {
+
+        const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;
+
+        await prisma.integrationLog.create({
+          data: {
+            integrationId: integration.id,
+            event: "stage_transition",
+            status: response.status,
+            requestBody: JSON.stringify(payload).slice(0, 10000),
+            responseBody: responseText,
+            stageTransitionId: transition.id,
+          },
+        });
+
+        if (response.ok) {
+          await prisma.jobIntegration.update({
+            where: { id: integration.id },
+            data: { lastSuccessAt: new Date(), failureCount: 0 },
+          });
+        } else {
+          await prisma.jobIntegration.update({
+            where: { id: integration.id },
+            data: { lastFailureAt: new Date(), failureCount: { increment: 1 } },
+          });
+        }
+      } catch {
+        await prisma.integrationLog.create({
+          data: {
+            integrationId: integration.id,
+            event: "stage_transition",
+            status: 0,
+            requestBody: JSON.stringify(payload).slice(0, 10000),
+            responseBody: "Network error",
+            stageTransitionId: transition.id,
+          },
+        });
+
         await prisma.jobIntegration.update({
           where: { id: integration.id },
           data: { lastFailureAt: new Date(), failureCount: { increment: 1 } },
         });
       }
-    } catch {
-      await prisma.integrationLog.create({
-        data: {
-          integrationId: integration.id,
-          event: "stage_transition",
-          status: 0,
-          requestBody: JSON.stringify(payload).slice(0, 10000),
-          responseBody: "Network error",
-        },
-      });
-
-      await prisma.jobIntegration.update({
-        where: { id: integration.id },
-        data: { lastFailureAt: new Date(), failureCount: { increment: 1 } },
-      });
     }
   }
 

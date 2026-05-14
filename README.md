@@ -117,10 +117,12 @@ Visit **http://localhost:3000** — go to `/signin` and enter any email to log i
 
 ## 📖 User Guide
 
+HTTP API reference: [docs/API.md](docs/API.md).
+
 ### For Candidates
 
-1. Browse published jobs on the **landing page**
-2. Click any job to view details (description, location, salary, type)
+1. Open the **direct job link** you received (for example `/careers/your-role-slug`)
+2. Review the job details (description, location, salary, type)
 3. Click "Apply now" and fill in the application form
 4. Upload your resume (PDF, DOC, or DOCX, max 5MB)
 5. Submit — you'll receive a **confirmation email** instantly
@@ -137,7 +139,7 @@ Create, edit, publish, archive, and manage all job postings. Filter by status (A
 Kanban board for visual stage management. Drag applicant cards between columns to update their status. Every transition is logged with a timestamp and user.
 
 #### Applicants (`/admin/jobs/[id]/applicants`)
-Search by name/email, filter by status or institution, group by institution. Click any applicant to view their full profile with AI-parsed resume data, activity timeline, and admin notes.
+Search across parsed resume fields, filter by pipeline stage / institution / degree / date range / skills, sort, group, and export CSV. Click any applicant to view their full profile with AI-parsed resume data, activity timeline, structured JSON editing, and threaded admin notes.
 
 #### Templates (`/admin/templates`)
 Create reusable templates with job defaults, pipeline stages, markdown job descriptions, and structured screening questions. Use templates when creating new jobs — they're copied at creation time.
@@ -185,6 +187,13 @@ src/
 - Server Components by default; `"use client"` only for interactivity
 - Conventional commits (`feat:`, `fix:`, `chore:`, etc.)
 - shadcn/ui primitives under `src/components/ui/`
+
+## Architecture overview (take-home alignment)
+
+- **Template → job snapshot:** When a job is created with a template, pipeline stage names and **assessment questions** are copied onto the `Job` (`assessmentTitle`, `assessmentQuestions`). Outbound integrations read from the job snapshot (not a live template pointer).
+- **Resume parsing:** Uploads are stored in GCS (or dev URL). Parsing extracts text from **PDF/DOCX** server-side, then calls Gemini asynchronously; progress is tracked via `parsingStatus`.
+- **Pipeline source of truth:** Applicant Kanban + job analytics use `pipelineStageId`. Legacy `ApplicationStatus` is still updated for compatibility, but the admin UX is stage-first.
+- **Integrations:** Stage transitions enqueue outbound POSTs; failures are logged and do not roll back the stage move. `POST ...?action=test|retry` supports demos and manual recovery.
 
 ---
 

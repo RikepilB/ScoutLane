@@ -38,7 +38,10 @@ export async function GET(_request: Request, { params }: RouteProps) {
     applicants: applicants
       .filter((a) => (a.pipelineStageId ? a.pipelineStageId === stage.id : stage.id === firstStageId))
       .map((a) => {
-        const d = (a.data ?? {}) as { institution?: string; program?: string };
+        const d = (a.data ?? {}) as {
+          education?: Array<{ institution?: string; field?: string }>;
+        };
+        const firstEdu = d.education?.[0];
         return {
           id: a.id,
           name: a.name,
@@ -47,8 +50,8 @@ export async function GET(_request: Request, { params }: RouteProps) {
           status: a.status,
           createdAt: a.createdAt.toISOString(),
           lastStageChangeAt: a.lastStageChangeAt.toISOString(),
-          institution: d.institution ?? null,
-          program: d.program ?? null,
+          institution: firstEdu?.institution ?? null,
+          program: firstEdu?.field ?? null,
         };
       }),
   }));
