@@ -108,15 +108,23 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     if (typeof raw === "string") customFields = JSON.parse(raw);
   } catch {}
 
+  const firstStage = await prisma.pipelineStage.findFirst({
+    where: { jobId: job.id },
+    orderBy: { order: "asc" },
+    select: { id: true },
+  });
+
   const applicant = await prisma.applicant.create({
     data: {
       jobId: job.id,
+      pipelineStageId: firstStage?.id ?? null,
       name: applicantName,
       email,
       phone,
       resumeUrl: upload.url,
       status: "NEW",
       parsingStatus: "PENDING",
+      lastStageChangeAt: new Date(),
       data: Object.keys(customFields).length > 0 ? { customFields } : undefined,
     },
   });

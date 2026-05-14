@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
-import type { ApplicationStatus } from "@/generated/prisma/enums";
 
 export async function getPipelineData(jobId: string) {
   const user = await requireSession();
@@ -20,31 +19,39 @@ export async function getPipelineData(jobId: string) {
 
   const applicants = await prisma.applicant.findMany({
     where: { jobId },
-    orderBy: { createdAt: "desc" },
+    orderBy: { lastStageChangeAt: "desc" },
     select: {
       id: true,
       name: true,
       email: true,
       score: true,
       status: true,
+      pipelineStageId: true,
+      lastStageChangeAt: true,
       createdAt: true,
       data: true,
       job: { select: { title: true } },
     },
   });
 
+  const firstStageId = stages[0]?.id ?? null;
+
   const mapped = applicants.map((a) => {
     const d = (a.data ?? {}) as { institution?: string; program?: string };
-    return { ...a, institution: d.institution ?? null, program: d.program ?? null };
-  });
-
-  const grouped = stages.map((stage) => {
-    const status = stage.name.toUpperCase() as ApplicationStatus;
     return {
-      ...stage,
-      applicants: mapped.filter((a) => a.status === status),
+      ...a,
+      institution: d.institution ?? null,
+      program: d.program ?? null,
     };
   });
+
+  const grouped = stages.map((stage) => ({
+    ...stage,
+    applicants: mapped.filter((a) => {
+      if (a.pipelineStageId) return a.pipelineStageId === stage.id;
+      return stage.id === firstStageId;
+    }),
+  }));
 
   return grouped;
 }

@@ -142,25 +142,30 @@ model JobTemplate {
 }
 
 model Applicant {
-  id            String            @id @default(cuid())
-  jobId         String
-  job           Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  name          String
-  email         String?
-  phone         String?
-  resumeUrl     String?
-  status        ApplicationStatus @default(NEW)
-  score         Float?
-  notes         String?
-  data          Json?
-  parsedData    Json?
-  parsingStatus ParsingStatus?    @default(PENDING)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id                 String            @id @default(cuid())
+  jobId              String
+  job                Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  pipelineStageId    String?
+  pipelineStage      PipelineStage?    @relation(fields: [pipelineStageId], references: [id], onDelete: SetNull)
+  lastStageChangeAt  DateTime          @default(now())
+  name               String
+  email              String?
+  phone              String?
+  resumeUrl          String?
+  status             ApplicationStatus @default(NEW)
+  score              Float?
+  notes              String?
+  data               Json?
+  parsedData         Json?
+  parsingStatus      ParsingStatus?    @default(PENDING)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   transitions StageTransition[]
 
   @@unique([jobId, email])
+  @@index([jobId, pipelineStageId])
+  @@index([jobId, createdAt])
 }
 
 model PipelineStage {
@@ -174,6 +179,7 @@ model PipelineStage {
   updatedAt DateTime @updatedAt
 
   integration JobIntegration?
+  applicants  Applicant[]
 }
 
 model StageTransition {

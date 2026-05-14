@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
-import type { ApplicationStatus } from "@/generated/prisma/enums";
 
 async function assertJobAccess(jobId: string, organizationId: string) {
   const job = await prisma.job.findFirst({
@@ -51,7 +50,7 @@ export async function updateStage(stageId: string, data: { name?: string; color?
   revalidatePath("/admin/jobs/[id]/stages");
 }
 
-export async function deleteStage(stageId: string, reassignToStatus?: string) {
+export async function deleteStage(stageId: string, reassignToStageId?: string) {
   const user = await requireSession();
   await assertStageAccess(stageId, user.organizationId);
 
@@ -61,21 +60,30 @@ export async function deleteStage(stageId: string, reassignToStatus?: string) {
   });
   if (!stage) throw new Error("Stage not found");
 
-  const currentStatus = stage.name.toUpperCase() as ApplicationStatus;
+  let targetStageId = reassignToStageId ?? null;
+  if (!targetStageId) {
+    const fallback = await prisma.pipelineStage.findFirst({
+      where: { jobId: stage.jobId, id: { not: stageId } },
+      orderBy: { order: "asc" },
+      select: { id: true },
+    });
+    targetStageId = fallback?.id ?? null;
+  }
 
-  if (reassignToStatus) {
+  if (targetStageId) {
     await prisma.applicant.updateMany({
-      where: { jobId: stage.jobId, status: currentStatus },
-      data: { status: reassignToStatus as ApplicationStatus },
+      where: { jobId: stage.jobId, pipelineStageId: stageId },
+      data: { pipelineStageId: targetStageId, lastStageChangeAt: new Date() },
     });
   }
 
   await prisma.pipelineStage.delete({ where: { id: stageId } });
-  revalidatePath("/admin/jobs/[id]/stages");
+  revalidatePath(`/admin/jobs/${stage.jobId}/stages`);
+  revalidatePath(`/admin/jobs/${stage.jobId}/pipeline`);
 
-  const affectedCount = reassignToStatus
+  const affectedCount = targetStageId
     ? await prisma.applicant.count({
-        where: { jobId: stage.jobId, status: reassignToStatus as ApplicationStatus },
+        where: { jobId: stage.jobId, pipelineStageId: targetStageId },
       })
     : 0;
 

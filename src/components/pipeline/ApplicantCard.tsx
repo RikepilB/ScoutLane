@@ -1,6 +1,6 @@
 "use client";
 
-import { useSortable } from "@dnd-kit/sortable";
+import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { formatStageDuration } from "@/lib/utils/date";
 
@@ -10,21 +10,31 @@ export interface Applicant {
   email: string | null;
   score: number | null;
   createdAt: string;
+  lastStageChangeAt?: string;
   institution?: string;
   program?: string;
 }
 
-export function ApplicantCard({ applicant, stageName }: { applicant: Applicant; stageName: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+export function ApplicantCard({
+  applicant,
+  stageId,
+  stageName,
+}: {
+  applicant: Applicant;
+  stageId: string;
+  stageName: string;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: applicant.id,
-    data: { stageName },
+    data: { stageId, stageName },
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.4 : 1,
   };
+
+  const stageEnteredAt = applicant.lastStageChangeAt ?? applicant.createdAt;
 
   return (
     <div
@@ -45,8 +55,8 @@ export function ApplicantCard({ applicant, stageName }: { applicant: Applicant; 
         <div className="mt-0.5 truncate text-xs text-muted-foreground">{applicant.email}</div>
       )}
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-[11px] text-muted-foreground">
-          {formatStageDuration(new Date(applicant.createdAt))}
+        <span className="text-[11px] text-muted-foreground" title={`In stage since ${new Date(stageEnteredAt).toLocaleString()}`}>
+          {formatStageDuration(new Date(stageEnteredAt))}
         </span>
         {applicant.score && (
           <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">

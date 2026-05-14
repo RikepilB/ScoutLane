@@ -47,16 +47,15 @@ export default function PipelinePage({ params }: PipelinePageProps) {
   }
 
   const handleMoveApplicant = useCallback(
-    async (applicantId: string, fromStage: string, toStage: string) => {
+    async (applicantId: string, _fromStageId: string, toStageId: string) => {
       if (!jobId) return;
-      const status = toStage.toUpperCase();
-      const result = await moveApplicant(applicantId, status);
+      const result = await moveApplicant(applicantId, toStageId);
       if (result.success) {
         fetchStages(jobId);
         router.refresh();
       }
     },
-    [jobId, router],
+    [jobId, router, fetchStages],
   );
 
   if (loading) {
