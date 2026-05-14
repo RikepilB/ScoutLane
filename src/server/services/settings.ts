@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/prisma";
 import {
   organizationSettingsSchema,
   teamMemberRoleSchema,
+  userProfileSelfSchema,
 } from "@/schemas/settings";
 import { getCurrentUserWithOrganization } from "./current-user";
 
@@ -15,6 +16,33 @@ export interface SettingsActionResult {
 
 function requireAdmin(user: { role: string }) {
   return user.role === "ADMIN";
+}
+
+export async function updateMyProfile(
+  formData: FormData,
+): Promise<SettingsActionResult> {
+  const user = await getCurrentUserWithOrganization();
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  const parsed = userProfileSelfSchema.safeParse({
+    name: String(formData.get("name") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid profile",
+    };
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { name: parsed.data.name, phone: parsed.data.phone },
+  });
+
+  revalidatePath("/admin/settings");
+  return { success: true };
 }
 
 export async function updateOrganizationSettings(

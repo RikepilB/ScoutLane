@@ -122,7 +122,7 @@
 **Admin Job Management Flow:**
 
 1. Admin visits `GET /admin/jobs` (authenticated RSC)
-2. Middleware verifies session role === "ADMIN" (from `middleware.ts`)
+2. Middleware verifies session role is one of ADMIN / RECRUITER / HIRING_MANAGER (from `middleware.ts`)
 3. Page calls `getCurrentUserWithOrganization()` service → gets user + organization
 4. Page queries `prisma.job.findMany({ where: { organizationId } })`
 5. Derives job status via `getJobStatus(job)` utility (archive/publish → status)
@@ -227,21 +227,21 @@
 
 **Admin Dashboard:**
 - Location: `src/app/(admin)/admin/page.tsx`
-- Triggers: Authenticated ADMIN user visit to `/admin`
+- Triggers: Authenticated workspace member visit to `/admin`
 - Responsibilities: Display stats (jobs, applicants, pipeline activity)
-- Protected: Role must be ADMIN
+- Protected: ADMIN / RECRUITER / HIRING_MANAGER (`middleware.ts`); granular admin-only actions enforced in server code
 
 **Jobs List:**
 - Location: `src/app/(admin)/admin/jobs/page.tsx`
-- Triggers: Authenticated ADMIN user visit to `/admin/jobs`
+- Triggers: Authenticated workspace member visit to `/admin/jobs`
 - Responsibilities: Fetch + render jobs, filter by status, link to detail/create
-- Protected: Role must be ADMIN
+- Protected: Same workspace roles via middleware
 
 **Job Detail:**
 - Location: `src/app/(admin)/admin/jobs/[id]/page.tsx`
-- Triggers: Authenticated ADMIN user click on job
+- Triggers: Authenticated workspace member opens a job
 - Responsibilities: Render job metadata, navigation tabs (overview, applicants, pipeline, stages, integrations)
-- Protected: Role must be ADMIN
+- Protected: Same workspace roles via middleware
 
 **Public Careers Page (Single Job):**
 - Location: `src/app/(public)/careers/[slug]/page.tsx`

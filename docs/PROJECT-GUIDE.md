@@ -266,7 +266,7 @@ When an applicant moves to that stage, ScoutLane sends:
 | Feature | Location | Notes |
 |---------|----------|-------|
 | User auth (JWT) | Auth.js v5 | Google OAuth + Dev login |
-| Role-based middleware | `middleware.ts` | Only ADMIN passes `/admin/*` |
+| Role-based middleware | `middleware.ts` | ADMIN, RECRUITER, HIRING_MANAGER pass `/admin/*`; non-workspace roles blocked |
 | Landing page | `/page.tsx` | Lists active jobs |
 | Job CRUD | `services/jobs/` | Create, read, update, delete |
 | Job edit page | `/admin/jobs/[id]/edit` | Full form with status mapping |
