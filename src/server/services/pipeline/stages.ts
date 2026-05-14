@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
+import type { ApplicationStatus } from "@/generated/prisma/enums";
 
 async function assertJobAccess(jobId: string, organizationId: string) {
   const job = await prisma.job.findFirst({
@@ -50,12 +51,35 @@ export async function updateStage(stageId: string, data: { name?: string; color?
   revalidatePath("/admin/jobs/[id]/stages");
 }
 
-export async function deleteStage(stageId: string) {
+export async function deleteStage(stageId: string, reassignToStatus?: string) {
   const user = await requireSession();
   await assertStageAccess(stageId, user.organizationId);
 
+  const stage = await prisma.pipelineStage.findUnique({
+    where: { id: stageId },
+    select: { name: true, jobId: true },
+  });
+  if (!stage) throw new Error("Stage not found");
+
+  const currentStatus = stage.name.toUpperCase() as ApplicationStatus;
+
+  if (reassignToStatus) {
+    await prisma.applicant.updateMany({
+      where: { jobId: stage.jobId, status: currentStatus },
+      data: { status: reassignToStatus as ApplicationStatus },
+    });
+  }
+
   await prisma.pipelineStage.delete({ where: { id: stageId } });
   revalidatePath("/admin/jobs/[id]/stages");
+
+  const affectedCount = reassignToStatus
+    ? await prisma.applicant.count({
+        where: { jobId: stage.jobId, status: reassignToStatus as ApplicationStatus },
+      })
+    : 0;
+
+  return { success: true as const, applicantCount: affectedCount };
 }
 
 export async function reorderStages(stages: { id: string; order: number }[]) {

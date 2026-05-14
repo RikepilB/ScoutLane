@@ -10,6 +10,7 @@ export interface UpdateJobInput {
   location?: string;
   type?: string;
   salary?: string;
+  slug?: string;
   published?: boolean;
   archived?: boolean;
 }

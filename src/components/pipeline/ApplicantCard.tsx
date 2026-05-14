@@ -38,6 +38,9 @@ export function ApplicantCard({ applicant, stageName }: { applicant: Applicant; 
       {applicant.institution && (
         <div className="mt-0.5 truncate text-xs text-slate-600">{applicant.institution}</div>
       )}
+      {applicant.program && (
+        <div className="mt-0.5 truncate text-xs text-slate-600">{applicant.program}</div>
+      )}
       {applicant.email && (
         <div className="mt-0.5 truncate text-xs text-muted-foreground">{applicant.email}</div>
       )}

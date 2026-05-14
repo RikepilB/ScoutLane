@@ -2,7 +2,7 @@
 
 > **AI-powered recruitment platform** — streamline hiring with intelligent candidate matching, pipeline management, and automated workflows.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-blue?logo=typescript)](https://www.typescriptlang.org)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)](https://www.prisma.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org)
@@ -10,6 +10,8 @@
 [![Auth.js](https://img.shields.io/badge/Auth.js-v5-7C3AED)](https://authjs.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in_Codespaces-181717?logo=github)](https://codespaces.new/RikepilB/ScoutLane)
+
+**🌐 Live demo:** [scoutlane.vercel.app](https://scoutlane.vercel.app)
 
 ---
 
@@ -529,6 +531,22 @@ When fixing either bug, update the corresponding test in the same commit.
 | `pnpm prisma:reset` | Reset database |
 | `pnpm db:seed` | Seed test data |
 | `pnpm db:studio` | Open Prisma Studio UI |
+
+---
+
+## 🎬 Demo
+
+A full walkthrough demo is available. Recorded with [OpenVid](https://openvid.dev) — a free, browser-based screen recording and video editing tool.
+
+**Demo walkthrough covers:**
+- Creating templates with custom fields and assessment questions
+- Job management: create, publish, edit, archive, reopen
+- Public careers page with application form and resume upload
+- Admin dashboard with charts and stats
+- Applicant list with search, filter by status, filter by institution, grouping
+- Applicant detail with parsed resume data, activity timeline, admin notes
+- Kanban pipeline with drag-and-drop stage transitions
+- External service integration with webhook.site
 
 ---
 
