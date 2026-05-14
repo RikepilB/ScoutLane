@@ -102,28 +102,23 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
 - [ ] **M2. Template preview**
   - [ ] New route `/admin/templates/[id]/preview`
   - [ ] Renders form fields as applicant would see them + questions with durations
-- [ ] **M3. Template question-snapshot onto Job**
-  - [ ] Migration: add `assessmentQuestions JSON?` column on `Job`
-  - [ ] In job-create-with-template: snapshot `template.questions` → `job.assessmentQuestions`
-  - [ ] Integration payload reads from `job.assessmentQuestions` (decouples from later template edits)
-  - [ ] Add "edit assessment questions on this job" UI on job settings page
-- [ ] **M5. Integration audit log UI**
-  - [ ] New page (or tab) `/admin/jobs/[id]/integrations/logs`
-  - [ ] Columns: stage, timestamp, status, response code, retry button
+- [x] **M3. Template question-snapshot onto Job** (Cursor-agent commit `5b2e1d7`)
+  - [x] Migration adds `assessmentTitle` + `assessmentQuestions JSON?` columns on `Job`
+  - [x] `lib/jobs/assessment.ts` normalizes shape; integration payload reads from `job.assessmentQuestions`
+  - [ ] UI to edit assessment questions on a created job (still open)
+- [~] **M5. Integration audit log UI** (partial — server side done, UI list missing)
+  - [x] `IntegrationLog` rows are written with `stageTransitionId`, status, request/response bodies
+  - [ ] Dedicated `/admin/jobs/[id]/integrations/logs` page (or tab) — still to build
   - [ ] Drawer showing payload + response body
-- [ ] **M6. Manual retry of failed integration**
-  - [ ] `POST /api/admin/integrations/logs/[logId]/retry` endpoint
-  - [ ] `retryIntegrationCall(logId)` service
-  - [ ] Wire retry button from M5; admin-initiated retries marked `manualRetry: true` in log
-- [ ] **M7. "Test integration" button**
-  - [ ] Sends synthetic payload with fake applicant to configured URL
-  - [ ] Shows result inline (status code + response preview)
-- [ ] **M8. Institution distribution chart**
-  - [ ] New `InstitutionDistributionChart` in `src/components/dashboard/Charts.tsx`
-  - [ ] Server query groups applicants by `parsedData.education[0].institution`
-  - [ ] Bar chart, top 10 + "Other"
-- [ ] **M9. Degree/field-of-study distribution chart**
-  - [ ] Similar to M8, groups by `parsedData.education[0].degree`
+- [x] **M6. Manual retry of failed integration** (Cursor `5b2e1d7`)
+  - [x] `POST /api/admin/jobs/integrations/[integrationId]?action=retry` replays last stored payload
+- [x] **M7. "Test integration" button** (Cursor `5b2e1d7`)
+  - [x] `POST /api/admin/jobs/integrations/[integrationId]?action=test` sends synthetic payload
+- [x] **M8. Institution distribution chart** (Cursor `5b2e1d7`)
+  - [x] Generic `TopLabelsBarChart` component in `dashboard/Charts.tsx`
+  - [x] Wired into job dashboard (`/admin/jobs/[id]/page.tsx`)
+- [x] **M9. Degree/field-of-study distribution chart** (Cursor `5b2e1d7`)
+  - [x] Same `TopLabelsBarChart`, fed with degree counts
 - [ ] **M10. Application volume chart with date range**
   - [ ] Replace static trend with DateRange-filterable chart
   - [ ] Add `DateRangePicker` shadcn component
@@ -135,20 +130,20 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
 
 ## Sprint 4 — Power-user features
 
-- [ ] **M4. CSV export of applicant list**
-  - [ ] Server action accepting current filter state → returns CSV
-  - [ ] "Export CSV" button on `/admin/jobs/[id]/applicants`
-  - [ ] Filename `applicants-<jobSlug>-<YYYY-MM-DD>.csv`
+- [x] **M4. CSV export of applicant list** (Cursor `5b2e1d7`)
+  - [x] `GET /api/admin/jobs/[id]/applicants/export` route returns CSV
+  - [x] Wired from applicant list page
+  - [ ] Honor active filter state (currently exports all for the job)
 - [ ] **M12. Skills multi-select filter**
   - [ ] Compute union of all parsed skills in current applicant pool
   - [ ] Combobox chip-multi-select on applicant list page
   - [ ] OR-logic across selected skills (per spec)
 - [ ] **M13. Date-range filter on applicant list**
 - [ ] **M14. Group-by-degree** in applicant list (extend existing group-by toggle)
-- [ ] **M15. Manual edit of parsed resume fields**
-  - [ ] Edit modal on applicant detail page
-  - [ ] Form mirrors `parsedData` JSON (education[], workHistory[], skills[])
-  - [ ] Validates + persists; logs edit in activity timeline
+- [x] **M15. Manual edit of parsed resume fields** (Cursor `5b2e1d7`)
+  - [x] `ApplicantResumeDataEditor.tsx` component edits parsed data inline
+  - [x] `services/applicants/update.ts` persists changes
+  - [ ] Log edit in activity timeline (depends on M21)
 - [ ] **M16. Low-confidence indicator**
   - [ ] Update Gemini prompt to return per-field confidence (`high | medium | low | null`)
   - [ ] UI: faded text + warning icon for `low` confidence; "missing" for `null`
@@ -164,10 +159,11 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
   - [ ] Tabs: Overview / Applicants / Pipeline / Stages / Integrations / Settings
   - [ ] Sticky top of every `/admin/jobs/[id]/*` page
 - [ ] **M20. Stage color customization UI** in pipeline config
-- [ ] **M21. Activity timeline polish**
+- [~] **M21. Activity timeline polish** (notes side landed; aggregation still open)
+  - [x] Proper `ApplicantNote` model + `services/applicants/notes.ts` (CRUD with timestamps + author)
+  - [x] `NotesSection.tsx` rebuilt around the new model
   - [ ] Aggregate `StageTransition` + parse events + integration calls + note adds
-  - [ ] Server query in `getApplicantDetail`
-  - [ ] UI: vertical timeline with icons per event type
+  - [ ] Vertical timeline UI with icons per event type
 - [ ] **M22. Application form validation polish**
   - [ ] Inline errors on blur, not just submit
   - [ ] ARIA `aria-invalid` + `aria-describedby`
@@ -190,10 +186,10 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
   - [ ] Replace fire-and-forget in `moveApplicant`
   - [ ] Persist IntegrationLog before send (for retry traceability)
   - [ ] Retries on 5xx, never on 4xx
-- [ ] **H3. Idempotent stage transition / webhook**
-  - [ ] Migration: add `transitionKey` unique constraint on `IntegrationLog`
+- [~] **H3. Idempotent stage transition / webhook** (partial — duplicate-success guard, no transitionKey index)
+  - [x] `services/pipeline/update.ts` checks for an existing 2xx `IntegrationLog` with same `stageTransitionId` before re-sending
+  - [ ] Migration: add `transitionKey` unique constraint on `IntegrationLog` (formal dedup)
   - [ ] Compute `transitionKey = hash(applicantId + toStageId + bucket(timestamp, 5s))`
-  - [ ] Dedups same-trigger double-fire
   - [ ] Distinct from manual retry path (allowed)
 - [ ] **H4. Vitest unit tests** for critical services
   - [ ] `jobs/create` — slug generation, uniqueness, default stages
@@ -205,13 +201,14 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
   - [ ] `tests/e2e/smoke.spec.ts` covers 6 critical flows (see UX-TEST-PROTOCOL.md)
   - [ ] Screenshots per step in `tests/e2e/screenshots/`
   - [ ] Add to `.github/workflows/ci.yml`
-- [ ] **H6. API documentation** `docs/API.md`
-  - [ ] Every public + admin endpoint
-  - [ ] Request/response shape, auth, examples
-- [ ] **H7. Performance indexes**
-  - [ ] Migration: `@@index([jobId, createdAt])` on Applicant
+- [~] **H6. API documentation** `docs/API.md` (skeleton landed; needs expansion)
+  - [x] Initial `docs/API.md` with auth, pipeline, integrations, parse-retry, export routes (Cursor `5b2e1d7`)
+  - [ ] Request/response examples per endpoint
+  - [ ] Document Server Actions inventory under `src/server/services/**`
+- [~] **H7. Performance indexes** (partial — composite indexes added, GIN still open)
+  - [x] `@@index([jobId, createdAt])` on Applicant (E3 migration)
+  - [x] `@@index([jobId, pipelineStageId])` on Applicant (E3 migration)
   - [ ] GIN index on `parsedData->'skills'` (Postgres jsonb)
-  - [ ] `@@index([jobId, pipelineStageId])` on Applicant
   - [ ] EXPLAIN ANALYZE on filter queries to confirm
 
 ## Sprint 6 — Optional / bonus
