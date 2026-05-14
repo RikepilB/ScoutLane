@@ -17,6 +17,7 @@ export interface Applicant {
   email: string | null;
   score: number | null;
   createdAt: string;
+  lastStageChangeAt?: string;
 }
 
 export interface Stage {
@@ -30,7 +31,7 @@ export interface Stage {
 interface KanbanBoardProps {
   stages: Stage[];
   children: (stage: Stage) => ReactNode;
-  onMoveApplicant: (applicantId: string, fromStage: string, toStage: string) => void;
+  onMoveApplicant: (applicantId: string, fromStageId: string, toStageId: string) => void;
 }
 
 export function KanbanBoard({ stages, children, onMoveApplicant }: KanbanBoardProps) {
@@ -55,12 +56,12 @@ export function KanbanBoard({ stages, children, onMoveApplicant }: KanbanBoardPr
 
       if (!activeData || !overData) return;
 
-      const fromStage = activeData.stageName as string;
-      const toStage = overData.stageName as string;
+      const fromStageId = activeData.stageId as string;
+      const toStageId = overData.stageId as string;
 
-      if (fromStage === toStage) return;
+      if (!fromStageId || !toStageId || fromStageId === toStageId) return;
 
-      onMoveApplicant(active.id as string, fromStage, toStage);
+      onMoveApplicant(active.id as string, fromStageId, toStageId);
     },
     [onMoveApplicant],
   );

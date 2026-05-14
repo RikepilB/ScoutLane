@@ -2,46 +2,97 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { dispatchWebhook } from "@/lib/webhook";
 import { requireSession } from "@/server/services/_lib/validate-session";
-import { z } from "zod";
+import type { ApplicationStatus } from "@/generated/prisma/enums";
 
-const validStatuses = z.enum(["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"]);
+const stageNameToStatus: Record<string, ApplicationStatus> = {
+  APPLIED: "NEW",
+  NEW: "NEW",
+  SCREENING: "REVIEWING",
+  REVIEWING: "REVIEWING",
+  ASSESSMENT: "REVIEWING",
+  SHORTLISTED: "SHORTLISTED",
+  INTERVIEW: "INTERVIEW",
+  OFFER: "OFFERED",
+  OFFERED: "OFFERED",
+  HIRED: "OFFERED",
+  REJECTED: "REJECTED",
+  WITHDRAWN: "WITHDRAWN",
+};
 
-export async function moveApplicant(applicantId: string, newStatus: string) {
+function deriveStatus(stageName: string): ApplicationStatus {
+  return stageNameToStatus[stageName.toUpperCase()] ?? "REVIEWING";
+}
+
+export async function moveApplicant(applicantId: string, newStageId: string) {
   const user = await requireSession();
-  const valid = validStatuses.safeParse(newStatus);
-  if (!valid.success) return { success: false, error: "Invalid status" };
 
   const existing = await prisma.applicant.findUnique({
     where: { id: applicantId },
-    select: { status: true, jobId: true, job: { select: { organizationId: true, title: true } } },
+    select: {
+      pipelineStageId: true,
+      status: true,
+      jobId: true,
+      job: {
+        select: {
+          organizationId: true,
+          title: true,
+          assessmentTitle: true,
+          assessmentQuestions: true,
+        },
+      },
+    },
   });
   if (!existing || existing.job.organizationId !== user.organizationId) {
     return { success: false, error: "Applicant not found" };
   }
 
+  const newStage = await prisma.pipelineStage.findUnique({
+    where: { id: newStageId },
+    select: { id: true, name: true, jobId: true },
+  });
+  if (!newStage || newStage.jobId !== existing.jobId) {
+    return { success: false, error: "Invalid stage" };
+  }
+
+  if (existing.pipelineStageId === newStageId) {
+    return { success: true, unchanged: true };
+  }
+
+  const fromStage = existing.pipelineStageId
+    ? await prisma.pipelineStage.findUnique({
+        where: { id: existing.pipelineStageId },
+        select: { name: true },
+      })
+    : null;
+
+  const derivedStatus = deriveStatus(newStage.name);
+  const now = new Date();
+
   const applicant = await prisma.applicant.update({
     where: { id: applicantId },
-    data: { status: valid.data },
+    data: {
+      pipelineStageId: newStageId,
+      status: derivedStatus,
+      lastStageChangeAt: now,
+    },
     include: { job: { select: { title: true } } },
   });
 
-  await prisma.stageTransition.create({
+  const transition = await prisma.stageTransition.create({
     data: {
       applicantId,
       jobId: existing.jobId,
-      fromStage: existing.status,
-      toStage: valid.data,
+      fromStage: fromStage?.name ?? existing.status,
+      toStage: newStage.name,
       changedById: user.id,
     },
   });
 
   const webhooks = await prisma.webhook.findMany({
-    where: {
-      active: true,
-      events: { has: "applicant.status_changed" },
-    },
+    where: { active: true, events: { has: "applicant.status_changed" } },
   });
 
   for (const webhook of webhooks) {
@@ -49,22 +100,22 @@ export async function moveApplicant(applicantId: string, newStatus: string) {
       applicantId: applicant.id,
       name: applicant.name,
       email: applicant.email,
-      status: valid.data,
+      stageId: newStage.id,
+      stageName: newStage.name,
+      status: derivedStatus,
       jobTitle: applicant.job.title,
     }).catch(() => {});
   }
 
-  const integrations = await prisma.jobIntegration.findMany({
-    where: { jobId: existing.jobId, active: true },
+  const integration = await prisma.jobIntegration.findUnique({
+    where: { stageId: newStage.id },
     include: { stage: true },
   });
 
-  for (const integration of integrations) {
-    if (integration.stage.name.toUpperCase() !== valid.data) continue;
-
+  if (integration && integration.active && integration.jobId === existing.jobId) {
     const payload: Record<string, unknown> = {
       event: "stage_transition",
-      timestamp: new Date().toISOString(),
+      timestamp: now.toISOString(),
       candidate: {
         id: applicant.id,
         name: applicant.name,
@@ -75,68 +126,81 @@ export async function moveApplicant(applicantId: string, newStatus: string) {
     };
 
     if (integration.includeQuestions) {
-      const template = await prisma.jobTemplate.findFirst({
-        where: { organizationId: user.organizationId },
-        select: { name: true, questions: true },
-      });
-      if (template?.questions) {
+      const questions = normalizeAssessmentQuestions(existing.job.assessmentQuestions);
+      if (questions.length > 0) {
         payload.assessment = {
-          title: template.name,
+          title: existing.job.assessmentTitle ?? applicant.job.title,
           description: "Please answer each question concisely.",
-          questions: (template.questions as Array<{ text: string; maxDurationSeconds?: number; maxAttempts?: number }>),
+          questions,
         };
       }
     }
 
-    try {
-      const response = await fetch(integration.endpointUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
-        },
-        body: JSON.stringify(payload),
-      });
+    const duplicateSuccess = await prisma.integrationLog.findFirst({
+      where: {
+        integrationId: integration.id,
+        stageTransitionId: transition.id,
+        event: "stage_transition",
+        status: { gte: 200, lt: 300 },
+      },
+    });
 
-      await prisma.integrationLog.create({
-        data: {
-          integrationId: integration.id,
-          event: "stage_transition",
-          status: response.status,
-          requestBody: JSON.stringify(payload).slice(0, 10000),
-          responseBody: (await response.text().catch(() => null))?.slice(0, 10000) ?? null,
-        },
-      });
-
-      if (response.ok) {
-        await prisma.jobIntegration.update({
-          where: { id: integration.id },
-          data: { lastSuccessAt: new Date(), failureCount: 0 },
+    if (!duplicateSuccess) {
+      try {
+        const response = await fetch(integration.endpointUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
+          },
+          body: JSON.stringify(payload),
         });
-      } else {
+
+        const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;
+
+        await prisma.integrationLog.create({
+          data: {
+            integrationId: integration.id,
+            event: "stage_transition",
+            status: response.status,
+            requestBody: JSON.stringify(payload).slice(0, 10000),
+            responseBody: responseText,
+            stageTransitionId: transition.id,
+          },
+        });
+
+        if (response.ok) {
+          await prisma.jobIntegration.update({
+            where: { id: integration.id },
+            data: { lastSuccessAt: new Date(), failureCount: 0 },
+          });
+        } else {
+          await prisma.jobIntegration.update({
+            where: { id: integration.id },
+            data: { lastFailureAt: new Date(), failureCount: { increment: 1 } },
+          });
+        }
+      } catch {
+        await prisma.integrationLog.create({
+          data: {
+            integrationId: integration.id,
+            event: "stage_transition",
+            status: 0,
+            requestBody: JSON.stringify(payload).slice(0, 10000),
+            responseBody: "Network error",
+            stageTransitionId: transition.id,
+          },
+        });
+
         await prisma.jobIntegration.update({
           where: { id: integration.id },
           data: { lastFailureAt: new Date(), failureCount: { increment: 1 } },
         });
       }
-    } catch {
-      await prisma.integrationLog.create({
-        data: {
-          integrationId: integration.id,
-          event: "stage_transition",
-          status: 0,
-          requestBody: JSON.stringify(payload).slice(0, 10000),
-          responseBody: "Network error",
-        },
-      });
-
-      await prisma.jobIntegration.update({
-        where: { id: integration.id },
-        data: { lastFailureAt: new Date(), failureCount: { increment: 1 } },
-      });
     }
   }
 
-  revalidatePath("/admin/jobs/[id]/pipeline");
+  revalidatePath(`/admin/jobs/${existing.jobId}/pipeline`);
+  revalidatePath(`/admin/jobs/${existing.jobId}/applicants`);
   return { success: true };
 }

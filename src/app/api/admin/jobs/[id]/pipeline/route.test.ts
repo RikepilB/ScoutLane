@@ -43,6 +43,9 @@ interface PipelineColumn {
     score: number | null;
     status: string;
     createdAt: string;
+    lastStageChangeAt: string;
+    institution: string | null;
+    program: string | null;
   }>;
 }
 
@@ -71,6 +74,9 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
         score: 9,
         status: "NEW",
         createdAt,
+        pipelineStageId: "stage-new",
+        lastStageChangeAt: createdAt,
+        data: null,
       },
       {
         id: "a2",
@@ -79,6 +85,9 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
         score: 7,
         status: "INTERVIEW",
         createdAt,
+        pipelineStageId: "stage-interview",
+        lastStageChangeAt: createdAt,
+        data: null,
       },
       {
         id: "a3",
@@ -87,6 +96,9 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
         score: 8,
         status: "NEW",
         createdAt,
+        pipelineStageId: "stage-new",
+        lastStageChangeAt: createdAt,
+        data: null,
       },
     ]);
 
@@ -118,6 +130,9 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
         score: null,
         status: "NEW",
         createdAt,
+        pipelineStageId: "stage-new",
+        lastStageChangeAt: createdAt,
+        data: null,
       },
     ]);
 
@@ -143,20 +158,20 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
       orderBy: { order: "asc" },
     });
     expect(prismaMock.applicant.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { jobId: "job-42" } }),
+      expect.objectContaining({
+        where: { jobId: "job-42" },
+        orderBy: { lastStageChangeAt: "desc" },
+      }),
     );
   });
 
-  // Current-behavior bug lock-in: stage names produced by the seed
-  // ("Screening", "Offer", "Hired") do NOT match ApplicationStatus enum values,
-  // so applicants in REVIEWING / OFFERED status silently drop into empty columns.
-  // When the stage<->status mapping is fixed, update this test in the SAME commit.
-  it("currently produces empty columns for stage names that don't match ApplicationStatus (documented bug)", async () => {
+  it("groups applicants by pipelineStageId (not by status name)", async () => {
     prismaMock.pipelineStage.findMany.mockResolvedValue([
       { id: "stage-screening", name: "Screening", color: null, order: 1 },
       { id: "stage-offer", name: "Offer", color: null, order: 4 },
       { id: "stage-hired", name: "Hired", color: null, order: 5 },
     ]);
+    const d = new Date();
     prismaMock.applicant.findMany.mockResolvedValue([
       {
         id: "a1",
@@ -164,7 +179,10 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
         email: "ada@example.com",
         score: 9,
         status: "REVIEWING",
-        createdAt: new Date(),
+        createdAt: d,
+        pipelineStageId: "stage-screening",
+        lastStageChangeAt: d,
+        data: null,
       },
       {
         id: "a2",
@@ -172,7 +190,10 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
         email: "linus@example.com",
         score: 7,
         status: "OFFERED",
-        createdAt: new Date(),
+        createdAt: d,
+        pipelineStageId: "stage-offer",
+        lastStageChangeAt: d,
+        data: null,
       },
     ]);
 
@@ -182,6 +203,6 @@ describe("GET /api/admin/jobs/[id]/pipeline", () => {
     );
     const body = (await response.json()) as PipelineColumn[];
 
-    expect(body.map((c) => c.applicants.length)).toEqual([0, 0, 0]);
+    expect(body.map((c) => c.applicants.length)).toEqual([1, 1, 0]);
   });
 });

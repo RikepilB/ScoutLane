@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
 
@@ -42,4 +43,38 @@ export async function updateApplicantNotes(applicantId: string, notes: string) {
     data: { notes },
   });
   revalidatePath("/admin/jobs/[id]/applicants/[applicantId]");
+}
+
+export async function saveApplicantResumeDataJson(applicantId: string, jsonText: string) {
+  const user = await requireSession();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    throw new Error("Invalid JSON");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("JSON must be an object");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { jobId: true, data: true, job: { select: { organizationId: true } } },
+  });
+  if (!applicant || applicant.job.organizationId !== user.organizationId) {
+    throw new Error("Applicant not found");
+  }
+
+  const prev = (applicant.data && typeof applicant.data === "object" ? applicant.data : {}) as Record<
+    string,
+    unknown
+  >;
+  const next = { ...prev, ...(parsed as Record<string, unknown>) };
+
+  await prisma.applicant.update({
+    where: { id: applicantId },
+    data: { data: next as Prisma.InputJsonValue },
+  });
+
+  revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
 }
