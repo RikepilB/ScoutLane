@@ -4,6 +4,15 @@ import authConfig from "@/lib/auth/auth.config";
 
 const { auth } = NextAuth(authConfig);
 
+const PUBLIC_FILES = new Set([
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.json",
+  "/manifest.webmanifest",
+  "/favicon.ico",
+  "/favicon.svg",
+]);
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const session = req.auth;
@@ -17,7 +26,8 @@ export default auth((req) => {
     pathname === "/api/health" ||
     pathname === "/careers" ||
     pathname.startsWith("/careers/") ||
-    pathname.startsWith("/api/public/");
+    pathname.startsWith("/api/public/") ||
+    PUBLIC_FILES.has(pathname);
 
   if (isPublic) return NextResponse.next();
 
@@ -36,5 +46,7 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api/auth|api/public|_next/static|_next/image|favicon.ico|careers).*)"],
+  matcher: [
+    "/((?!api/auth|api/public|_next/static|_next/image|favicon\\.ico|favicon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.(?:json|webmanifest)|careers).*)",
+  ],
 };
