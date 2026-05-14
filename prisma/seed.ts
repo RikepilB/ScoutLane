@@ -161,39 +161,44 @@ async function main() {
       })),
     });
 
+    const stages = await prisma.pipelineStage.findMany({
+      where: { jobId: job.id },
+      orderBy: { order: "asc" },
+      select: { id: true, name: true },
+    });
+
+    const stageStatusMap: Record<string, "NEW" | "REVIEWING" | "SHORTLISTED" | "INTERVIEW" | "OFFERED" | "REJECTED" | "WITHDRAWN"> = {
+      Applied: "NEW",
+      Screening: "REVIEWING",
+      Assessment: "REVIEWING",
+      Interview: "INTERVIEW",
+      Offer: "OFFERED",
+      Hired: "OFFERED",
+      Rejected: "REJECTED",
+    };
+
     for (let applicantIndex = 0; applicantIndex < 10; applicantIndex += 1) {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const createdAt = faker.date.recent({ days: 45 });
       const parsed = generateParsedData();
+      const stage = stages[applicantIndex % stages.length];
+      const status = stageStatusMap[stage.name] ?? "REVIEWING";
 
       await prisma.applicant.create({
         data: {
           jobId: job.id,
+          pipelineStageId: stage.id,
           name: `${firstName} ${lastName}`,
           email: faker.internet.email({ firstName, lastName }).toLowerCase(),
           phone: faker.phone.number({ style: "international" }),
           resumeUrl: `https://storage.googleapis.com/demo-bucket/resumes/${job.slug}-${index}-${applicantIndex}.pdf`,
-          status: [
-            "NEW",
-            "REVIEWING",
-            "SHORTLISTED",
-            "INTERVIEW",
-            "OFFERED",
-            "REJECTED",
-            "WITHDRAWN",
-          ][applicantIndex % 7] as
-            | "NEW"
-            | "REVIEWING"
-            | "SHORTLISTED"
-            | "INTERVIEW"
-            | "OFFERED"
-            | "REJECTED"
-            | "WITHDRAWN",
+          status,
           score: faker.number.float({ min: 62, max: 98, fractionDigits: 1 }),
           notes: faker.lorem.sentence(),
           data: parsed,
           createdAt,
+          lastStageChangeAt: createdAt,
         },
       });
     }

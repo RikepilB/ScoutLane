@@ -1,4 +1,3 @@
-import type { ApplicationStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db/prisma";
 
 interface RouteProps {
@@ -15,42 +14,44 @@ export async function GET(_request: Request, { params }: RouteProps) {
 
   const applicants = await prisma.applicant.findMany({
     where: { jobId: id },
-    orderBy: { createdAt: "desc" },
+    orderBy: { lastStageChangeAt: "desc" },
     select: {
       id: true,
       name: true,
       email: true,
       score: true,
       status: true,
+      pipelineStageId: true,
+      lastStageChangeAt: true,
       createdAt: true,
       data: true,
     },
   });
 
-  const grouped = stages.map((stage) => {
-    const status = stage.name.toUpperCase() as ApplicationStatus;
-    return {
-      id: stage.id,
-      name: stage.name,
-      color: stage.color,
-      order: stage.order,
-      applicants: applicants
-        .filter((a) => a.status === status)
-        .map((a) => {
-          const d = (a.data ?? {}) as { institution?: string; program?: string };
-          return {
-            id: a.id,
-            name: a.name,
-            email: a.email,
-            score: a.score,
-            status: a.status,
-            createdAt: a.createdAt.toISOString(),
-            institution: d.institution ?? null,
-            program: d.program ?? null,
-          };
-        }),
-    };
-  });
+  const firstStageId = stages[0]?.id ?? null;
+
+  const grouped = stages.map((stage) => ({
+    id: stage.id,
+    name: stage.name,
+    color: stage.color,
+    order: stage.order,
+    applicants: applicants
+      .filter((a) => (a.pipelineStageId ? a.pipelineStageId === stage.id : stage.id === firstStageId))
+      .map((a) => {
+        const d = (a.data ?? {}) as { institution?: string; program?: string };
+        return {
+          id: a.id,
+          name: a.name,
+          email: a.email,
+          score: a.score,
+          status: a.status,
+          createdAt: a.createdAt.toISOString(),
+          lastStageChangeAt: a.lastStageChangeAt.toISOString(),
+          institution: d.institution ?? null,
+          program: d.program ?? null,
+        };
+      }),
+  }));
 
   return Response.json(grouped);
 }

@@ -1,11 +1,14 @@
 "use client";
 
-import { useSortable } from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
 import type { Stage } from "./KanbanBoard";
 import { ApplicantCard } from "./ApplicantCard";
 
 export function KanbanColumn({ stage }: { stage: Stage }) {
-  const { setNodeRef } = useSortable({ id: stage.id, data: { type: "stage", stageName: stage.name } });
+  const { setNodeRef, isOver } = useDroppable({
+    id: stage.id,
+    data: { type: "stage", stageId: stage.id, stageName: stage.name },
+  });
 
   return (
     <div ref={setNodeRef} className="flex w-72 shrink-0 flex-col gap-3">
@@ -17,11 +20,16 @@ export function KanbanColumn({ stage }: { stage: Stage }) {
         <span className="text-sm font-semibold text-slate-900">{stage.name}</span>
         <span className="ml-auto text-xs text-muted-foreground">{stage.applicants.length}</span>
       </div>
-      <div className="flex flex-col gap-2 rounded-2xl bg-muted/30 p-3">
+      <div
+        className={`flex min-h-[120px] flex-col gap-2 rounded-2xl p-3 transition-colors ${
+          isOver ? "bg-sky-50" : "bg-muted/30"
+        }`}
+      >
         {stage.applicants.map((applicant) => (
           <ApplicantCard
             key={applicant.id}
             applicant={applicant}
+            stageId={stage.id}
             stageName={stage.name}
           />
         ))}
