@@ -10,6 +10,8 @@
 [![Auth.js](https://img.shields.io/badge/Auth.js-v5-7C3AED)](https://authjs.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+**Live demo:** [scoutlane.vercel.app](https://scoutlane.vercel.app)
+
 ---
 
 ## ✨ Features
@@ -244,7 +246,7 @@ A full walkthrough demo is available. Recorded with [OpenVid](https://openvid.de
 
 ## 🗄 Database
 
-- **12 models:** Organization, User, Job, Applicant, PipelineStage, StageTransition, JobTemplate, JobIntegration, IntegrationLog, Webhook, WebhookLog, Account, Session, VerificationToken
+- **15 models:** Organization, User, Account, Session, VerificationToken, Job, JobTemplate, Applicant, ApplicantNote, PipelineStage, StageTransition, JobIntegration, IntegrationLog, Webhook, WebhookLog
 - Import Prisma client from `@/generated/prisma/client` — never from `@prisma/client`
 - `src/generated/` is gitignored — rebuild with `pnpm prisma:generate`
 
