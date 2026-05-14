@@ -23,6 +23,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
       score: true,
       status: true,
       createdAt: true,
+      data: true,
     },
   });
 
@@ -35,7 +36,19 @@ export async function GET(_request: Request, { params }: RouteProps) {
       order: stage.order,
       applicants: applicants
         .filter((a) => a.status === status)
-        .map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })),
+        .map((a) => {
+          const d = (a.data ?? {}) as { institution?: string; program?: string };
+          return {
+            id: a.id,
+            name: a.name,
+            email: a.email,
+            score: a.score,
+            status: a.status,
+            createdAt: a.createdAt.toISOString(),
+            institution: d.institution ?? null,
+            program: d.program ?? null,
+          };
+        }),
     };
   });
 

@@ -43,7 +43,7 @@ function SortableStageItem({
   editingId: string | null;
   onStartEdit: (id: string) => void;
   onRename: (id: string, name: string) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, name: string) => void;
   onCancelEdit: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stage.id });
@@ -84,7 +84,7 @@ function SortableStageItem({
       <button type="button" onClick={() => onStartEdit(stage.id)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-slate-100">
         <Pencil className="h-3.5 w-3.5" />
       </button>
-      <button type="button" onClick={() => onDelete(stage.id)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50">
+      <button type="button" onClick={() => onDelete(stage.id, stage.name)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50">
         <Trash2 className="h-3.5 w-3.5" />
       </button>
     </div>
@@ -120,9 +120,22 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
     router.refresh();
   }
 
-  async function handleDelete(stageId: string) {
-    await deleteStage(stageId);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+
+  function handleDeleteClick(stageId: string, stageName: string) {
+    setPendingDelete({ id: stageId, name: stageName });
+  }
+
+  async function handleConfirmDelete(reassignToStageName: string) {
+    if (!pendingDelete) return;
+    const reassignToStatus = reassignToStageName.toUpperCase();
+    await deleteStage(pendingDelete.id, reassignToStatus);
+    setPendingDelete(null);
     router.refresh();
+  }
+
+  function handleCancelDelete() {
+    setPendingDelete(null);
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -197,7 +210,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                 editingId={editingId}
                 onStartEdit={setEditingId}
                 onRename={handleRename}
-                onDelete={handleDelete}
+                onDelete={handleDeleteClick}
                 onCancelEdit={() => setEditingId(null)}
               />
             ))}
@@ -209,6 +222,64 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
           </div>
         </SortableContext>
       </DndContext>
+
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-md rounded-2xl border border-border/70 bg-card p-6 shadow-xl">
+            <h3 className="text-lg font-semibold">Delete &quot;{pendingDelete.name}&quot;?</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Applicants in this stage will be moved to another stage.
+            </p>
+            {stages.filter(s => s.id !== pendingDelete.id).length > 0 ? (
+              <>
+                <label className="mt-4 block text-sm font-medium">
+                  Move applicants to:
+                  <select
+                    className="mt-1 flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                    defaultValue={stages.find(s => s.id !== pendingDelete.id)?.name ?? ""}
+                    id="reassign-stage-select"
+                  >
+                    {stages.filter(s => s.id !== pendingDelete.id).map(s => (
+                      <option key={s.id} value={s.name}>{s.name}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="mt-6 flex justify-end gap-3">
+                  <button type="button" onClick={handleCancelDelete} className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium hover:bg-muted/20">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const select = document.getElementById("reassign-stage-select") as HTMLSelectElement;
+                      handleConfirmDelete(select.value);
+                    }}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                  >
+                    Delete & move
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-sm text-amber-600">This is the last stage. Deleting it will not affect existing applicants.</p>
+                <div className="mt-6 flex justify-end gap-3">
+                  <button type="button" onClick={handleCancelDelete} className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium hover:bg-muted/20">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleConfirmDelete(pendingDelete.name)}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

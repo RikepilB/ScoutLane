@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { FilePlus2, Pencil, Plus } from "lucide-react";
+import { FilePlus2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
-import { createTemplate } from "@/server/services/templates";
+import { createTemplate, deleteTemplate } from "@/server/services/templates";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
@@ -103,6 +103,11 @@ export default async function TemplatesPage() {
                             Edit
                           </Link>
                         </Button>
+                        <form action={deleteTemplate.bind(null, template.id)}>
+                          <Button variant="ghost" size="sm" className="hover:text-red-600 hover:bg-red-50">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </form>
                       </div>
                     </td>
                   </tr>
