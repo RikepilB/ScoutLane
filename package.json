@@ -68,7 +68,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
-<<<<<<< HEAD
     "@next/eslint-plugin-next": "^16.2.6",
     "@playwright/test": "1.59.0",
     "@testing-library/jest-dom": "6.9.0",
