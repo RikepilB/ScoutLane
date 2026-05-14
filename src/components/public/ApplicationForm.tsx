@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { submitJobApplication } from "@/server/services/applications";
 import { type JobApplicationInput, jobApplicationSchema } from "@/schemas/application";
@@ -174,21 +174,38 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 <FormLabel>Resume</FormLabel>
                 <FormControl>
                   <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-5">
-                    <Input
-                      {...field}
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={(event) => {
-                        onChange(event.target.files?.[0]);
-                      }}
-                    />
-                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                      <Upload className="h-3.5 w-3.5" />
-                      PDF, DOC, or DOCX up to 5 MB
-                    </div>
                     {value instanceof File ? (
-                      <div className="mt-2 text-xs text-foreground">{value.name}</div>
-                    ) : null}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span className="truncate">{value.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            form.resetField("resumeFile");
+                          }}
+                          className="rounded-lg p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <Input
+                          {...field}
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          onChange={(event) => {
+                            onChange(event.target.files?.[0]);
+                          }}
+                        />
+                        <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Upload className="h-3.5 w-3.5" />
+                          PDF, DOC, or DOCX up to 5 MB
+                        </div>
+                      </>
+                    )}
                   </div>
                 </FormControl>
                 <FormMessage />

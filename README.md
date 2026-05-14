@@ -479,15 +479,36 @@ Run locally: `pnpm lint && pnpm typecheck && pnpm test`
 ### Testing
 
 ```bash
-# Run all tests
-pnpm test
-
-# Run E2E tests (requires dev server running)
-pnpm test:e2e
-
-# Watch mode
-pnpm test -- --watch
+pnpm test                                          # Watch mode (dev)
+pnpm test -- --run                                 # One-shot (CI)
+pnpm test -- --run src/lib/jobs/status.test.ts     # Single file
+pnpm test -- -t "round-trips"                      # By name pattern
+pnpm test:e2e                                      # Playwright (none configured yet)
 ```
+
+**Current suite: 47 tests across 6 files, all passing.**
+
+| Layer | File | Coverage |
+|-------|------|----------|
+| Domain | `src/lib/jobs/status.test.ts` | Job status derivation, persistence round-trip |
+| Utility | `src/lib/slug/slugify.test.ts` | Unicode normalization, separator collapsing, edge cases |
+| Utility | `src/lib/slug/index.test.ts` | `buildJobSlug` shape, length cap, fallback |
+| Schema | `src/schemas/job.test.ts` | `jobCreationSchema` boundaries, `jobStatusSchema` enum |
+| Auth | `src/lib/auth/auth.config.test.ts` | NextAuth `jwt` and `session` callbacks as pure functions |
+| API route | `src/app/api/admin/jobs/[id]/pipeline/route.test.ts` | GET handler with mocked Prisma |
+
+**Conventions:**
+
+- Tests are **co-located** with source: `foo.ts` ↔ `foo.test.ts`. Vitest's `include: "**/*.test.{ts,tsx}"` picks them up wherever they live.
+- Add `// @vitest-environment node` at the top of any test that doesn't touch the DOM (everything in the table above does this). The global setup file (`src/test/setup.ts`) loads jest-dom matchers conditionally so node-env tests don't pull in jsdom.
+- Mock Prisma via `vi.hoisted` + `vi.mock("@/lib/db/prisma", …)` — see the pipeline route test for the canonical pattern. The shared mock factory lives at `src/test/prisma-mock.ts`.
+
+**Two pinned bug tests** assert *current* behavior so a future fix has to deliberately update them rather than silently change the contract:
+
+1. `src/schemas/job.test.ts` — `optionalShortString` only transforms `""` → `undefined` for `slug` (its regex rejects `""`); for `location`/`type`/`salary`/`templateId` the empty string passes through unchanged.
+2. `src/app/api/admin/jobs/[id]/pipeline/route.test.ts` — stage names `Screening` / `Offer` / `Hired` produce empty applicant columns because they don't match any `ApplicationStatus` enum value.
+
+When fixing either bug, update the corresponding test in the same commit.
 
 ---
 

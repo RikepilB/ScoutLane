@@ -1,1 +1,5 @@
-import "@testing-library/jest-dom/vitest";
+export {};
+
+if (typeof window !== "undefined") {
+  await import("@testing-library/jest-dom/vitest");
+}

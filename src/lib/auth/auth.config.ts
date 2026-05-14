@@ -7,7 +7,7 @@ export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER";
 export default {
   providers: [
     Google,
-    ...(process.env.NODE_ENV === "development"
+    ...(process.env.NODE_ENV === "development" || !process.env.AUTH_GOOGLE_ID
       ? [
           Credentials({
             id: "dev",

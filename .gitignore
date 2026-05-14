@@ -72,3 +72,6 @@ temp/
 .webpack-cache/
 
 .vercel
+
+.neon
+pnpm-workspace.yaml
