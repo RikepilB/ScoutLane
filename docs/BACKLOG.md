@@ -8,6 +8,19 @@ Single source of truth for outstanding work against the Genious take-home spec. 
 
 ---
 
+## Review log — 2026-05-14 take-home spec alignment
+
+`feature/takehome-spec-alignment` (commits `5b2e1d7` → `981f217`, ~3.2k LOC) merged into `main` via `a2d1769`. Full code-reviewer report saved to session report. Headline:
+
+- **Verdict**: Approve with follow-ups. No critical issues. No security regressions. The branch genuinely advances the spec: real PDF/DOCX parsing replaces a broken `TextDecoder` path; `ApplicantNote` model + CRUD; CSV export; integration test/retry endpoints; assessment-question snapshot; institution + degree charts; comprehensive seed.
+- **Confirmed closed**: E3, M3 (UI gap noted), M4 (filter-state gap noted), M6, M7, M8, M9.
+- **Confirmed partial (as marked)**: M5, M21, H6, H7.
+- **Reclassified**: M15 downgraded `[x] → [~]` (JSON-merge editor only, not per-field). H3 marked still partial with a note that the duplicate-success guard is currently dead code.
+- **New follow-ups**: see "Sprint 7 — Code review follow-ups" below (Critical=0, Important=6, Minor=11).
+- **Local CI status at merge time**: `pnpm install --frozen-lockfile` ✓, `pnpm lint` ✓ (0 warnings), `pnpm typecheck` ✓, `pnpm test --run` ✓ (94/94 across 12 files), `pnpm build` ✓ (Next 16 middleware→proxy deprecation warning is the only noise).
+
+---
+
 ## Sprint 1 — Foundation polish
 
 Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
@@ -140,9 +153,10 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
   - [ ] OR-logic across selected skills (per spec)
 - [ ] **M13. Date-range filter on applicant list**
 - [ ] **M14. Group-by-degree** in applicant list (extend existing group-by toggle)
-- [x] **M15. Manual edit of parsed resume fields** (Cursor `5b2e1d7`)
-  - [x] `ApplicantResumeDataEditor.tsx` component edits parsed data inline
-  - [x] `services/applicants/update.ts` persists changes
+- [~] **M15. Manual edit of parsed resume fields** (Cursor `5b2e1d7` — partial per 2026-05-14 review)
+  - [x] `ApplicantResumeDataEditor.tsx` ships, but is a **raw JSON textarea merge**, not the per-field inline editor the spec implies
+  - [x] `services/applicants/update.ts` persists changes via `saveApplicantResumeDataJson`
+  - [ ] Replace JSON textarea with per-field editor (education entries, work entries, skills chip input) backed by a `zod` schema so an admin can't break the detail page with `{ "education": "oops" }`
   - [ ] Log edit in activity timeline (depends on M21)
 - [ ] **M16. Low-confidence indicator**
   - [ ] Update Gemini prompt to return per-field confidence (`high | medium | low | null`)
@@ -186,10 +200,11 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
   - [ ] Replace fire-and-forget in `moveApplicant`
   - [ ] Persist IntegrationLog before send (for retry traceability)
   - [ ] Retries on 5xx, never on 4xx
-- [~] **H3. Idempotent stage transition / webhook** (partial — duplicate-success guard, no transitionKey index)
-  - [x] `services/pipeline/update.ts` checks for an existing 2xx `IntegrationLog` with same `stageTransitionId` before re-sending
-  - [ ] Migration: add `transitionKey` unique constraint on `IntegrationLog` (formal dedup)
-  - [ ] Compute `transitionKey = hash(applicantId + toStageId + bucket(timestamp, 5s))`
+- [~] **H3. Idempotent stage transition / webhook** (partial — guard exists but is currently a no-op per 2026-05-14 review)
+  - [~] `services/pipeline/update.ts` *attempts* a duplicate-success check, but the lookup is by `stageTransitionId` of a row that was created on the same call → the query is structurally always empty, so the guard never fires (`src/server/services/pipeline/update.ts:139-146`)
+  - [ ] Compute and persist `transitionKey = hash(applicantId + toStageId + bucket(timestamp, 5s))` on `IntegrationLog`
+  - [ ] Migration: add `transitionKey` unique constraint (formal dedup)
+  - [ ] `findFirst` on `transitionKey` **before** creating the `StageTransition` and dispatching
   - [ ] Distinct from manual retry path (allowed)
 - [ ] **H4. Vitest unit tests** for critical services
   - [ ] `jobs/create` — slug generation, uniqueness, default stages
@@ -216,6 +231,44 @@ Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
 - [ ] **H8. RBAC: enable RECRUITER read-only access**
 - [ ] **H9. Admin invite system**
 - [ ] **H10. Rate limiting on `/api/public/*`** (per-IP)
+
+## Sprint 7 — Code review follow-ups (2026-05-14)
+
+Surfaced by the `code-reviewer` pass on the merged `feature/takehome-spec-alignment` branch. No critical issues. Six important, eleven minor.
+
+### Important — should land before the recorded demo
+
+- [ ] **R1. Make stage move + transition write atomic** — `src/server/services/pipeline/update.ts:74-92`
+  - `applicant.update` and `stageTransition.create` are two separate calls; a blip between them silently breaks the activity timeline. Wrap both in `prisma.$transaction([...])`. Keep the integration dispatch outside the transaction (network call).
+- [ ] **R2. Org-scope check on `/api/admin/jobs/[id]/pipeline/route.ts`**
+  - Every other admin route touched on this branch verifies `user.organizationId === job.organizationId`; this one doesn't. Add the same guard. Currently an ADMIN of org A can read applicant names + emails from org B's job.
+- [ ] **R3. Delete or redirect `updateApplicantStatus`** — `src/server/services/applicants/update.ts:11-28`
+  - Its only consumer was deleted on this branch and replaced with `ApplicantStageActions.tsx → moveApplicant`. The legacy function still updates `Applicant.status` directly with no stage-transition logging — footgun for the next contributor. Either delete or make it delegate to `moveApplicant`.
+- [ ] **R4. Validate `ApplicantResumeDataEditor` input** (also rolled into M15 follow-up above)
+  - The JSON textarea blindly merges into `applicant.data`. A bad save (`{ "education": "oops" }`) will crash `applicant/[applicantId]/page.tsx` on next render. Add a `zod` partial-schema validation before persist, or block save until M15's per-field editor lands.
+- [ ] **R5. Background parsing is fire-and-forget on Server Actions** — production risk
+  - `parseResumeBackground(...).catch(...)` works in `pnpm dev` because the Node process stays alive, but on Vercel the function instance can be torn down as soon as the action's response flushes. Tracked indirectly under H1, but call this out in deployment notes — the synchronous-ish behavior in dev hides a production gap.
+- [ ] **R6. `pdf-parse` import path under Next.js bundling** — preview-deploy risk
+  - The dynamic `await import("pdf-parse")` in `src/lib/resume/extractText.ts:25-27` works locally; smoke-test it in a Vercel preview deploy before the demo, since `pdf-parse` has a history of touching test fixtures at module load.
+
+### Minor — opportunistic, no demo impact
+
+- [ ] **R7. Drop the `any` cast in applicant list groupedRows** — `src/app/(admin)/admin/jobs/[id]/applicants/page.tsx:381`. Use a discriminated union.
+- [ ] **R8. Push search filter into Prisma** — same file, lines 106-148. In-memory filter is fine at 12 applicants/job, doesn't scale.
+- [ ] **R9. Forward filter state into CSV export URL** — already noted in M4; restate so it's not orphaned.
+- [ ] **R10. `IntegrationList.tsx:44-56` — check `response.ok` on DELETE** and toast on failure. Folds into E11.
+- [ ] **R11. Replace native `confirm()` in `NotesSection.tsx:52`** with an inline confirmation pattern.
+- [ ] **R12. Update CLAUDE.md / AGENTS.md "Pipeline ↔ status coupling" notes** — they still describe the pre-E3 world; new world dual-writes `status` for UI badge compatibility.
+- [ ] **R13. `pipeline/route.ts` over-fetches `Applicant.data` JSON** — select only the needed sub-path or shape server-side.
+- [ ] **R14. Defensive optional-chaining for parsed-data renders** — `applicant/[applicantId]/page.tsx:43-47` will print `undefined in undefined · undefined` if Gemini omits a field.
+- [ ] **R15. `parseApplicantResume.ts:48` silently truncates resumes >48k chars** — add a `console.warn` at the boundary for debuggability.
+- [ ] **R16. `docs/PROJECT-GUIDE.md` overstates the activity timeline** — line ~280 implies aggregated timeline, what landed is "submitted + StageTransition list". Soften the wording.
+- [ ] **R17. `Applicant.notes` String column is stranded** — moved to `ApplicantNote` model but old column not dropped. Soft-deprecate per the additive-migration rule, then drop later.
+
+### Open questions raised by the reviewer
+
+- GCS resume URLs are public — both the `<iframe>` preview and the integration webhook payload expose the bucket URL. The take-home spec doesn't explicitly require signed URLs, but M23 already tracks the fix.
+- Snapshot-on-creation semantics: `createJob` only snapshots `assessmentTitle/Questions` at creation; switching templates later or editing the job won't re-sync. Reviewer confirmed this is intentional per the spec snapshot model — flagging to confirm.
 
 ---
 
