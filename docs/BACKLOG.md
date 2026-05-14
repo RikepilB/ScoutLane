@@ -12,21 +12,23 @@ Single source of truth for outstanding work against the Genious take-home spec. 
 
 Silent bugs and friction fixes. No architectural risk. Each item is 30–90 min.
 
-- [ ] **E1. Fix folder typo** `[applicantId]_components/` → `[applicantId]/_components/`
-  - [ ] Rename folder via `git mv`
-  - [ ] Update any imports that referenced the old path
-  - [ ] `pnpm typecheck` green
-- [ ] **E2. `noindex/nofollow/noarchive` on `/careers/[slug]`**
-  - [ ] Add `metadata.robots = { index: false, follow: false, noarchive: true, nocache: true }` to `src/app/(public)/careers/[slug]/page.tsx`
-  - [ ] Create `src/app/robots.ts` excluding `/careers/*`
-  - [ ] Verify with `curl -I` after build
-- [ ] **E3. Pipeline stage→status mapping fix (BLOCKER)**
-  - [ ] Audit `src/app/api/admin/jobs/[id]/pipeline/route.ts`
-  - [ ] Add `pipelineStageId` foreign key on `Applicant` model (migration)
-  - [ ] Update `submitJobApplication` to set default stage
-  - [ ] Update `moveApplicant` to write `pipelineStageId`, not just `status`
-  - [ ] Update pipeline read service to group by `pipelineStageId`
-  - [ ] Update seed to set initial stage on each applicant
+- [x] **E1. Fix folder typo** `[applicantId]_components/` → `[applicantId]/_components/`
+  - [x] Verified: empty malformed folder was untracked by git; correct path already exists
+  - [x] CLAUDE.md "Known cosmetic issue" note removed
+- [x] **E2. `noindex/nofollow/noarchive` on `/careers/[slug]`**
+  - [x] Added `noarchive`, `nosnippet`, `max-image-preview` to robots metadata
+  - [x] Added `X-Robots-Tag` header with `noai, noimageai` LLM scraping defense
+  - [x] Created `src/app/robots.ts` excluding `/careers/`, `/admin/`, `/api/` and blocking GPTBot/ClaudeBot/Google-Extended/CCBot/anthropic-ai/PerplexityBot
+- [x] **E3. Pipeline stage→status mapping fix (BLOCKER)**
+  - [x] Added `Applicant.pipelineStageId` FK with `SET NULL` on delete + indexes
+  - [x] Added `Applicant.lastStageChangeAt` for time-in-stage
+  - [x] Migration backfill assigns 30 existing applicants to correct stage
+  - [x] `moveApplicant(stageId)` replaces `moveApplicant(status)` — pipelineStageId is the source of truth, status enum derived from stage name
+  - [x] `getPipelineData` + pipeline route group by `pipelineStageId`
+  - [x] `deleteStage` reassigns by FK, defaults to first stage
+  - [x] `submitJobApplication` sets initial stage to first by order
+  - [x] Kanban: switched cards from `useSortable` to `useDraggable`, columns to `useDroppable` (proper drop targets)
+  - [x] Seed assigns explicit `pipelineStageId` per applicant
 - [ ] **E4. README accuracy fixes**
   - [ ] `database sessions` → `JWT sessions`
   - [ ] `S3` → `Google Cloud Storage`
