@@ -1,9 +1,19 @@
-# Project-specific (root-only ad-hoc planning files; docs/ versions are tracked)
+# Project-specific (root-only ad-hoc planning files)
 /AGENTS.md
 /CLAUDE.md
 /PLAN.md
 /PROGRESS-REPORT.md
 /NEXT-STEPS.md
+
+# Local development artifacts under docs/ — kept locally for the dev workflow,
+# never committed to public branches (main, master, etc.)
+/docs/BACKLOG.md
+/docs/NEXT-STEPS.md
+/docs/PLAN.md
+/docs/PROGRESS-REPORT.md
+/docs/codebase/CONCERNS.md
+/docs/session-reports/
+/docs/Copy of Full-Stack Developer Take-Home Assessments.md
 # Dependencies
 node_modules/
 .pnp/
