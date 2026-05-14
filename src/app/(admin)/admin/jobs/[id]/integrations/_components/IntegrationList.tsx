@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 interface Log {
   id: string;
@@ -48,12 +48,19 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
     });
   }
 
+  async function postAction(integrationId: string, action: "test" | "retry") {
+    startTransition(async () => {
+      await fetch(`/api/admin/jobs/integrations/${integrationId}?action=${action}`, { method: "POST" });
+      router.refresh();
+    });
+  }
+
   return (
     <div className="space-y-4">
       {integrations.map((integration) => (
         <div key={integration.id} className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-center gap-2">
                 <span className={`inline-flex h-2 w-2 rounded-full ${integration.active ? "bg-emerald-500" : "bg-slate-300"}`} />
                 <span className="text-sm font-medium text-slate-900">
@@ -67,13 +74,32 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
                 {integration.failureCount > 0 && <span className="text-red-600">Failures: {integration.failureCount}</span>}
               </div>
             </div>
-            <button
-              onClick={() => handleDelete(integration.id)}
-              disabled={isPending}
-              className="rounded-lg p-2 text-red-500 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void postAction(integration.id, "test")}
+                disabled={isPending}
+                className="rounded-lg border border-border/70 px-2 py-1 text-xs font-medium text-slate-800 hover:bg-muted/30 disabled:opacity-50"
+              >
+                Test payload
+              </button>
+              <button
+                type="button"
+                onClick={() => void postAction(integration.id, "retry")}
+                disabled={isPending}
+                className="rounded-lg border border-border/70 px-2 py-1 text-xs font-medium text-slate-800 hover:bg-muted/30 disabled:opacity-50"
+              >
+                Retry last
+              </button>
+              <button
+                onClick={() => handleDelete(integration.id)}
+                disabled={isPending}
+                className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                title="Delete integration"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           {integration.logs.length > 0 && (

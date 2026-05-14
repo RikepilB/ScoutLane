@@ -2,10 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2 } from "lucide-react";
-import { ApplicantActions } from "./_components/ApplicantActions";
+import { ApplicantStageActions } from "./_components/ApplicantStageActions";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
+import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
@@ -18,6 +19,11 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
     where: { id: applicantId },
     include: {
       job: { select: { title: true, slug: true } },
+      pipelineStage: { select: { id: true, name: true } },
+      noteEntries: {
+        orderBy: { createdAt: "desc" },
+        include: { author: { select: { name: true } } },
+      },
       transitions: {
         orderBy: { createdAt: "desc" },
         include: { changedBy: { select: { name: true } } },
@@ -28,13 +34,17 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
   if (!applicant) notFound();
   if (applicant.jobId !== jobId) notFound();
 
+  const stages = await prisma.pipelineStage.findMany({
+    where: { jobId },
+    orderBy: { order: "asc" },
+    select: { id: true, name: true },
+  });
+
   const parsedData = (applicant.data ?? {}) as {
     education?: { institution: string; degree: string; field: string; graduationYear: number }[];
     work?: { company: string; title: string; duration: string }[];
     skills?: string[];
   };
-
-  const notes = (applicant.notes ?? "");
 
   return (
     <div className="space-y-6">
@@ -86,8 +96,15 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <ApplicantStatusBadge status={applicant.status} />
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <ApplicantStatusBadge status={applicant.status} />
+                {applicant.pipelineStage && (
+                  <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-800">
+                    Stage: {applicant.pipelineStage.name}
+                  </span>
+                )}
+              </div>
               {applicant.score && (
                 <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
                   Score: {applicant.score}
@@ -113,7 +130,11 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           </div>
 
           <div className="flex items-start gap-3">
-            <ApplicantActions applicantId={applicant.id} currentStatus={applicant.status} jobId={jobId} />
+            <ApplicantStageActions
+              applicantId={applicant.id}
+              stages={stages}
+              currentStageId={applicant.pipelineStageId}
+            />
             <RetryParsingButton applicantId={applicant.id} status={applicant.parsingStatus ?? null} />
           </div>
         </div>
@@ -232,7 +253,18 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         </div>
       </div>
 
-      <NotesSection applicantId={applicant.id} initialNotes={notes} />
+      <NotesSection
+        applicantId={applicant.id}
+        notes={applicant.noteEntries.map((n) => ({
+          id: n.id,
+          body: n.body,
+          createdAt: n.createdAt.toISOString(),
+          updatedAt: n.updatedAt.toISOString(),
+          author: n.author,
+        }))}
+      />
+
+      <ApplicantResumeDataEditor applicantId={applicant.id} initialData={applicant.data} />
     </div>
   );
 }

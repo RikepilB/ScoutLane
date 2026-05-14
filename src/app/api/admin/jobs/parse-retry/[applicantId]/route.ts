@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
+import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 
 export async function POST(
   _request: NextRequest,
@@ -27,46 +28,17 @@ export async function POST(
     return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
   }
 
+  if (!applicant.resumeUrl) {
+    return NextResponse.json({ error: "No resume on file" }, { status: 400 });
+  }
+
   await prisma.applicant.update({
     where: { id: applicantId },
     data: { parsingStatus: "PENDING" },
   });
 
-  const { parseResumeWithGemini } = await import("@/lib/llm/resume");
-
   try {
-    await prisma.applicant.update({
-      where: { id: applicantId },
-      data: { parsingStatus: "PARSING" },
-    });
-
-    const response = await fetch(applicant.resumeUrl!);
-    const buffer = await response.arrayBuffer();
-    const text = new TextDecoder("utf-8").decode(buffer);
-    const parsed = await parseResumeWithGemini(text.slice(0, 10000));
-
-    await prisma.applicant.update({
-      where: { id: applicantId },
-      data: {
-        parsedData: parsed,
-        parsingStatus: "COMPLETED",
-        data: {
-          education: parsed.education.map((e) => ({
-            institution: e.institution,
-            degree: e.degree,
-            field: e.fieldOfStudy,
-            graduationYear: e.graduationYear,
-          })),
-          work: parsed.workHistory.map((w) => ({
-            company: w.company,
-            title: w.jobTitle,
-            duration: w.duration,
-          })),
-          skills: parsed.skills,
-        },
-      },
-    });
-
+    await parseApplicantResumeFromUrl(applicantId, applicant.resumeUrl);
     return NextResponse.json({ success: true, status: "COMPLETED" });
   } catch {
     await prisma.applicant.update({

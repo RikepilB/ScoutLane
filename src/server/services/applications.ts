@@ -1,10 +1,12 @@
 "use server";
 
+import { Buffer } from "node:buffer";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
-import { uploadResumeFile } from "@/lib/storage/upload";
+import { parseApplicantResumeFromBuffer, parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
+import { uploadFileBuffer } from "@/lib/storage/upload";
 import { jobApplicationSubmissionSchema } from "@/schemas/application";
 
 export interface ApplicationActionResult {
@@ -13,47 +15,24 @@ export interface ApplicationActionResult {
   warning?: string;
 }
 
-async function parseResumeBackground(applicantId: string, resumeUrl: string) {
+async function parseResumeBackground(
+  applicantId: string,
+  source: { buffer: Buffer; filename: string } | { resumeUrl: string },
+) {
   try {
-    await prisma.applicant.update({
-      where: { id: applicantId },
-      data: { parsingStatus: "PARSING" },
-    });
-
-    const response = await fetch(resumeUrl);
-    const buffer = await response.arrayBuffer();
-    const text = new TextDecoder("utf-8").decode(buffer);
-
-    const { parseResumeWithGemini } = await import("@/lib/llm/resume");
-    const parsed = await parseResumeWithGemini(text.slice(0, 10000));
-
-    await prisma.applicant.update({
-      where: { id: applicantId },
-      data: {
-        parsedData: parsed,
-        parsingStatus: "COMPLETED",
-        data: {
-          education: parsed.education.map((e) => ({
-            institution: e.institution,
-            degree: e.degree,
-            field: e.fieldOfStudy,
-            graduationYear: e.graduationYear,
-          })),
-          work: parsed.workHistory.map((w) => ({
-            company: w.company,
-            title: w.jobTitle,
-            duration: w.duration,
-          })),
-          skills: parsed.skills,
-        },
-      },
-    });
+    if ("buffer" in source) {
+      await parseApplicantResumeFromBuffer(applicantId, source.buffer, source.filename);
+    } else {
+      await parseApplicantResumeFromUrl(applicantId, source.resumeUrl);
+    }
   } catch (error) {
     console.error("Resume parsing failed:", error);
-    await prisma.applicant.update({
-      where: { id: applicantId },
-      data: { parsingStatus: "FAILED" },
-    }).catch(() => {});
+    await prisma.applicant
+      .update({
+        where: { id: applicantId },
+        data: { parsingStatus: "FAILED" },
+      })
+      .catch(() => {});
   }
 }
 
@@ -87,7 +66,14 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     return { success: false, error: "This position is not accepting applications." };
   }
 
-  const upload = await uploadResumeFile(resumeFile);
+  const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
+  const resumeFilename = resumeFile.name || "resume.pdf";
+
+  const upload = await uploadFileBuffer({
+    buffer: resumeBuffer,
+    contentType: resumeFile.type || "application/octet-stream",
+    filename: resumeFilename,
+  });
   const applicantName = `${firstName} ${lastName}`.trim();
 
   const existingApplicant = await prisma.applicant.findFirst({
@@ -129,7 +115,7 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     },
   });
 
-  parseResumeBackground(applicant.id, upload.url).catch((e) =>
+  parseResumeBackground(applicant.id, { buffer: resumeBuffer, filename: resumeFilename }).catch((e) =>
     console.error("Background parse failed:", e),
   );
 
