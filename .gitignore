@@ -1,9 +1,9 @@
-# Project-specific
-AGENTS.md
-CLAUDE.md
-PLAN.md
-PROGRESS-REPORT.md
-NEXT-STEPS.md
+# Project-specific (root-only ad-hoc planning files; docs/ versions are tracked)
+/AGENTS.md
+/CLAUDE.md
+/PLAN.md
+/PROGRESS-REPORT.md
+/NEXT-STEPS.md
 # Dependencies
 node_modules/
 .pnp/
@@ -55,8 +55,10 @@ test-results/
 # Agent / tooling
 .agents/
 .claude/
+.planning/
 skills-lock.json
 opencode.json
+/cli
 
 # Test artifacts
 testsprite_tests/
