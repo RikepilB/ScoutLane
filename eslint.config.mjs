@@ -14,6 +14,8 @@ const config = [
       "node_modules/**",
       "out/**",
       "next-env.d.ts",
+      ".claude/worktrees/**",
+      ".planning/**",
     ],
   },
   {

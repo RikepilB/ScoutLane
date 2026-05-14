@@ -14,7 +14,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   return {
     title: `ScoutLane careers | ${slug}`,
-    robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false, noimageindex: true, "max-snippet": 0 } },
+    robots: {
+      index: false,
+      follow: false,
+      nocache: true,
+      noarchive: true,
+      nosnippet: true,
+      googleBot: {
+        index: false,
+        follow: false,
+        noimageindex: true,
+        noarchive: true,
+        nosnippet: true,
+        "max-snippet": 0,
+        "max-image-preview": "none",
+        "max-video-preview": -1,
+      },
+    },
+    other: {
+      "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet, noai, noimageai",
+    },
   };
 }
 
