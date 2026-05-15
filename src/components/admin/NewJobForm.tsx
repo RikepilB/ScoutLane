@@ -67,7 +67,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
 
     const formData = new FormData();
     formData.set("title", values.title);
-    formData.set("description", values.description);
+    formData.set("description", values.description ?? "");
     formData.set("status", values.status ?? "draft");
     if (values.location) formData.set("location", values.location);
     if (values.type) formData.set("type", values.type);

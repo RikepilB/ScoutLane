@@ -19,13 +19,19 @@ function buildParsedApplicantData(
     field: e.fieldOfStudy,
     graduationYear: e.graduationYear,
     timePeriod: e.timePeriod,
+    confidence: e.confidence,
   }));
   next.work = parsed.workHistory.map((w) => ({
     company: w.company,
     title: w.jobTitle,
     duration: w.duration,
+    confidence: w.confidence,
   }));
   next.skills = parsed.skills;
+  next.skillsConfidence = parsed.skillsConfidence;
+  next.fullNameConfidence = parsed.fullNameConfidence;
+  next.emailConfidence = parsed.emailConfidence;
+  next.phoneConfidence = parsed.phoneConfidence;
   return next;
 }
 
