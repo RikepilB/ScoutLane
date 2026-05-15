@@ -2,7 +2,7 @@
 
 import { useTransition, useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Archive, MoreHorizontal, RotateCcw, Trash2, Loader2, FileEdit } from "lucide-react";
+import { MoreHorizontal, Trash2, Loader2, FileEdit } from "lucide-react";
 import { updateJob } from "@/server/services/jobs/update";
 import { deleteJob } from "@/server/services/jobs/delete";
 
