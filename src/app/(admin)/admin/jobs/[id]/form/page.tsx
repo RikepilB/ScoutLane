@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, GripVertical, Save } from "lucide-react";
 import { saveCustomFields } from "@/server/services/jobs/update";
 
-interface CustomField {
+export interface CustomField {
   id: string;
   label: string;
   type: "text" | "textarea" | "select" | "file";
@@ -55,7 +55,13 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
   async function handleSave() {
     if (!jobId) return;
     setSaving(true);
-    await saveCustomFields(jobId, fields);
+    const normalized = fields.map((f) =>
+      f.type === "select"
+        ? { ...f, options: (f.options ?? []).map((o) => o.trim()).filter(Boolean) }
+        : f,
+    );
+    await saveCustomFields(jobId, normalized);
+    setFields(normalized);
     setDirty(false);
     setSaving(false);
     router.refresh();
@@ -155,7 +161,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
                       value={(field.options ?? []).join("\n")}
                       onChange={(e) =>
                         updateField(field.id, {
-                          options: e.target.value.split("\n").map((o) => o.trim()).filter(Boolean),
+                          options: e.target.value.split("\n"),
                         })
                       }
                       rows={3}
