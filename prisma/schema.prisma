@@ -164,6 +164,7 @@ model Applicant {
   data               Json?
   parsedData         Json?
   parsingStatus      ParsingStatus?    @default(PENDING)
+  interviewDate      DateTime?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 

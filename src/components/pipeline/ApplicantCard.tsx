@@ -2,6 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { Calendar } from "lucide-react";
 import { formatStageDuration } from "@/lib/utils/date";
 
 export interface Applicant {
@@ -11,6 +12,7 @@ export interface Applicant {
   score: number | null;
   createdAt: string;
   lastStageChangeAt?: string;
+  interviewDate?: string | null;
   institution?: string;
   program?: string;
 }
@@ -53,6 +55,18 @@ export function ApplicantCard({
       )}
       {applicant.email && (
         <div className="mt-0.5 truncate text-xs text-muted-foreground">{applicant.email}</div>
+      )}
+      {applicant.interviewDate && (
+        <div className="mt-1 flex items-center gap-1 text-xs text-violet-600">
+          <Calendar className="h-3 w-3" />
+          {new Date(applicant.interviewDate).toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
       )}
       <div className="mt-2 flex items-center justify-between">
         <span className="text-[11px] text-muted-foreground" title={`In stage since ${new Date(stageEnteredAt).toLocaleString()}`}>
