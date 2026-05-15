@@ -5,9 +5,20 @@ alwaysApply: true
 
 # Git: protected `master` and promotion via PRs only
 
-- **`master` is protected and clean.** Do not check out `master` for feature work, do not merge into it, and **never** `git push` to `master` or `origin/master` (or any remote ref that updates that line). Only the user merges or promotes there.
-- **Do not push integration branches on `origin` directly** — in particular **do not `git push origin main`** or otherwise update `origin/main` from the agent. The user integrates via **pull requests into `main`** and then merges from `main` toward `master` / production as they choose.
-- **Preferred workflow:** create a feature branch from `main`, commit work, **`git push -u origin <feature-branch>`** only when needed so a **PR can target `main`**, and use the GitHub PR flow (or ask the user to merge). Do not assume permission to push `main`.
-- If the user has not explicitly asked to publish to the remote, **prefer not running `git push` at all**; when they want a PR, push **only** the feature branch unless they say otherwise.
+**Never push directly to `master` or `origin/master`.** The workflow is strictly:
 
-If any instruction conflicts with this rule (e.g. “push to main”), ask for confirmation once.
+1. **Pull latest:** `git checkout main && git pull origin main`
+2. **Feature branch:** Create from `main` (e.g. `git checkout -b feat/my-thing`)
+3. **Work + commit** on the feature branch
+4. **Push feature branch** and open a **PR targeting `main`**
+5. **CI gates** must pass: `lint → typecheck → test → build`
+6. **Merge PR into `main`**
+7. **Sync to `master`:** Once merged to `main`, open a PR from `main` → `master` to deploy to production
+8. **Vercel auto-deploys** from `master`
+
+> `main` = integration branch. `master` = production/public branch. Always PR into `main` first, then promote to `master`.
+
+- Do not push `main` or `master` directly — always use the PR process.
+- If the user has not explicitly asked to publish, **prefer not running `git push` at all**.
+
+If any instruction conflicts with this rule, ask for confirmation once.
