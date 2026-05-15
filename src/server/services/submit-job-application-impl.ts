@@ -3,34 +3,13 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
-import { parseApplicantResumeFromBuffer, parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
+import { enqueueResumeParse } from "@/lib/queue/resume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
   type ApplicationActionResult,
   jobApplicationSubmissionSchema,
 } from "@/schemas/application";
-
-async function parseResumeBackground(
-  applicantId: string,
-  source: { buffer: Buffer; filename: string } | { resumeUrl: string },
-) {
-  try {
-    if ("buffer" in source) {
-      await parseApplicantResumeFromBuffer(applicantId, source.buffer, source.filename);
-    } else {
-      await parseApplicantResumeFromUrl(applicantId, source.resumeUrl);
-    }
-  } catch (error) {
-    console.error("Resume parsing failed:", error);
-    await prisma.applicant
-      .update({
-        where: { id: applicantId },
-        data: { parsingStatus: "FAILED" },
-      })
-      .catch(() => {});
-  }
-}
 
 export async function submitJobApplicationImpl(
   formData: FormData,
@@ -135,9 +114,17 @@ export async function submitJobApplicationImpl(
     throw e;
   }
 
-  parseResumeBackground(applicant.id, { buffer: resumeBuffer, filename: resumeFilename }).catch((err) =>
-    console.error("Background parse failed:", err),
-  );
+  try {
+    await enqueueResumeParse(applicant.id, upload.url);
+  } catch (error) {
+    console.error("Failed to enqueue resume parse:", error);
+    await prisma.applicant
+      .update({
+        where: { id: applicant.id },
+        data: { parsingStatus: "FAILED" },
+      })
+      .catch(() => {});
+  }
 
   let warning: string | undefined;
 
