@@ -9,11 +9,23 @@ import { parseApplicantResumeFromBuffer, parseApplicantResumeFromUrl } from "@/l
 import { uploadFileBuffer } from "@/lib/storage/upload";
 import { jobApplicationSubmissionSchema } from "@/schemas/application";
 
+/**
+ * Form fields the server can scope an error to. The client uses this to render
+ * the message inline next to the field instead of (or in addition to) the
+ * top-level banner.
+ */
+export type ApplicationErrorField = "email" | "resumeFile";
+
 export interface ApplicationActionResult {
   error?: string;
+  /** When set, the error pertains to this specific form field. */
+  field?: ApplicationErrorField;
   success: boolean;
   warning?: string;
 }
+
+export const DUPLICATE_APPLICATION_MESSAGE =
+  "An application with this email already exists for this position.";
 
 async function parseResumeBackground(
   applicantId: string,
@@ -84,7 +96,8 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
   if (existingApplicant) {
     return {
       success: false,
-      error: "An application with this email already exists for this position.",
+      field: "email",
+      error: DUPLICATE_APPLICATION_MESSAGE,
     };
   }
 
