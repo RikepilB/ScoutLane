@@ -73,17 +73,23 @@ export default async function JobsListPage({ searchParams }: PageProps) {
         <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-1">
             <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Jobs</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">All jobs</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+              {user?.role === "ADMIN" ? "All jobs" : "My jobs"}
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Manage roles, review applicants, and publish public application links.
+              {user?.role === "ADMIN"
+                ? "Manage roles, review applicants, and publish public application links."
+                : "Jobs assigned to you — manage applicants and pipelines."}
             </p>
           </div>
-          <Button asChild>
-            <Link href="/admin/jobs/new" className="inline-flex items-center gap-1">
-              <Plus className="h-4 w-4" />
-              Create job
-            </Link>
-          </Button>
+          {user?.role === "ADMIN" ? (
+            <Button asChild>
+              <Link href="/admin/jobs/new" className="inline-flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                Create job
+              </Link>
+            </Button>
+          ) : null}
         </header>
 
         <div className="flex flex-wrap items-center gap-2">

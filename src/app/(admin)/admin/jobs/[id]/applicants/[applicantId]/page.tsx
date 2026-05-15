@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2 } from "lucide-react";
 import { ApplicantStageActions } from "./_components/ApplicantStageActions";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
@@ -14,6 +15,9 @@ interface ApplicantDetailPageProps {
 
 export default async function ApplicantDetailPage({ params }: ApplicantDetailPageProps) {
   const { id: jobId, applicantId } = await params;
+
+  const currentUser = await getCurrentUserWithOrganization();
+  const isAdmin = currentUser?.role === "ADMIN";
 
   const applicant = await prisma.applicant.findUnique({
     where: { id: applicantId },
@@ -264,7 +268,9 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         }))}
       />
 
-      <ApplicantResumeDataEditor applicantId={applicant.id} initialData={applicant.data} />
+      {isAdmin ? (
+        <ApplicantResumeDataEditor applicantId={applicant.id} initialData={applicant.data} />
+      ) : null}
     </div>
   );
 }
