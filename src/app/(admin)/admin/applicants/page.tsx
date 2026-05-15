@@ -2,11 +2,8 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { cn } from "@/lib/utils/cn";
-import { StatusBadge } from "@/components/admin/StatusBadge";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
-import { getJobStatus } from "@/lib/jobs";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +24,7 @@ export default async function GlobalApplicantsPage() {
   const organizationId = user?.organizationId;
 
   type ApplicantRow = Prisma.ApplicantGetPayload<{
-    include: { job: { select: { id: true; title: true; slug: true } }; stage: { select: { name: true } } };
+    include: { job: { select: { id: true; title: true; slug: true } }; pipelineStage: { select: { name: true } } };
   }>;
 
   const applicants: ApplicantRow[] = organizationId
@@ -35,7 +32,7 @@ export default async function GlobalApplicantsPage() {
         where: { job: { organizationId } },
         include: {
           job: { select: { id: true, title: true, slug: true } },
-          stage: { select: { name: true } },
+          pipelineStage: { select: { name: true } },
         },
         orderBy: { createdAt: "desc" },
       })
@@ -97,7 +94,7 @@ export default async function GlobalApplicantsPage() {
                       </td>
                       <td className="px-5 py-4">
                         <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
-                          {getStageName(a.stage)}
+                          {getStageName(a.pipelineStage)}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
