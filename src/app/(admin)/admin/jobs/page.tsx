@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { JobRowActions } from "@/components/admin/JobRowActions";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
@@ -135,6 +136,7 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                   <th className="px-5 py-3 font-medium">Type</th>
                   <th className="px-5 py-3 font-medium">Created</th>
                   <th className="px-5 py-3" />
+                  <th className="px-5 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -169,6 +171,9 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                         Public page
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Link>
+                    </td>
+                    <td className="px-5 py-4">
+                      <JobRowActions jobId={job.id} status={job.status} />
                     </td>
                   </tr>
                 ))}

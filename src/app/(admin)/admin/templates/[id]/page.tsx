@@ -38,6 +38,7 @@ export default async function TemplateEditorPage({ params }: TemplateEditorPageP
             salary: template.salary,
             stageNames: template.stageNames,
             questions: template.questions,
+            customFields: template.customFields,
           }}
           updateAction={updateAction}
           deleteAction={deleteAction}

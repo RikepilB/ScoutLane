@@ -1,24 +1,36 @@
 ---
-description: Protected branches — no direct pushes to master/main on origin; use PRs into main only.
+description: Branch → PR to main → PR to master; always sync from origin/main or origin/master before commit or push.
 alwaysApply: true
 ---
 
-# Git: protected `master` and promotion via PRs only
+# Git: `main` integration, `master` production, PRs only
 
-**Never push directly to `master` or `origin/master`.** The workflow is strictly:
+## Mandatory before any commit or push
 
-1. **Pull latest:** `git checkout main && git pull origin main`
-2. **Feature branch:** Create from `main` (e.g. `git checkout -b feat/my-thing`)
-3. **Work + commit** on the feature branch
-4. **Push feature branch** and open a **PR targeting `main`**
-5. **CI gates** must pass: `lint → typecheck → test → build`
-6. **Merge PR into `main`**
-7. **Sync to `master`:** Once merged to `main`, open a PR from `main` → `master` to deploy to production
-8. **Vercel auto-deploys** from `master`
+1. `git fetch origin`
+2. Sync the line you are building on top of (at least one of these, depending on what you are about to merge into):
+   - **Toward `main`:** `git checkout main && git pull origin main` (or `git merge origin/main` / `git rebase origin/main` on your feature branch after fetching).
+   - **Toward `master`:** after `main` is up to date, also `git checkout master && git pull origin master` when preparing or validating a promotion PR from `main` → `master`.
+3. Return to your **feature branch** and integrate upstream if needed (`merge` or `rebase` from `main` / `master` as appropriate), **resolve conflicts**, then commit.
 
-> `main` = integration branch. `master` = production/public branch. Always PR into `main` first, then promote to `master`.
+Do **not** commit or push on a stale base without fetching and updating from `origin/main` or `origin/master` as above.
 
-- Do not push `main` or `master` directly — always use the PR process.
-- If the user has not explicitly asked to publish, **prefer not running `git push` at all**.
+## Promotion path (no direct pushes to integration or production)
 
-If any instruction conflicts with this rule, ask for confirmation once.
+1. **`master` is protected** — clean production line. **Never** `git push` to `master` or `origin/master` from the agent. Only the user merges or promotes there (via PR or GitHub UI).
+
+2. **Commit only on a feature branch** (never commit directly on `main` or `master` for product work).
+
+3. **First PR: feature branch → `main`**
+   - Push the **feature branch** to `origin` when a remote is needed for the PR (only that branch, not `main`).
+   - Open a PR into **`main`**, resolve review and **merge conflicts** in that PR until it merges cleanly into `main`.
+
+4. **Second PR: `main` → `master`**
+   - After the feature is on `main`, open a **separate PR from `main` into `master`** (or the user’s documented promotion flow) for production.
+   - Again: sync with `git fetch` + latest `origin/main` / `origin/master` before pushing anything or opening/updating that PR.
+
+5. **Do not** `git push origin main` or otherwise update `origin/main` from the agent unless the user explicitly orders it.
+
+6. If the user has not asked to touch the remote, **prefer not running `git push` at all**; when they want a PR, push **only** the feature branch unless they say otherwise.
+
+If any user instruction conflicts with this rule, confirm once before proceeding.

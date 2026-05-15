@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { templateSchema } from "@/schemas/template";
+import type { Prisma } from "@/generated/prisma/client";
 import { getCurrentUserWithOrganization } from "./current-user";
 
 const defaultTemplateStages = [
@@ -27,6 +28,9 @@ function formDataToTemplateInput(formData: FormData) {
     .map((question) => question.trim())
     .filter(Boolean);
 
+  const customFieldsRaw = formData.get("customFields");
+  const customFields = customFieldsRaw ? JSON.parse(String(customFieldsRaw)) : [];
+
   return templateSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description") ?? undefined,
@@ -37,6 +41,7 @@ function formDataToTemplateInput(formData: FormData) {
     salary: formData.get("salary") ?? undefined,
     stageNames,
     questions,
+    customFields,
   });
 }
 
@@ -91,6 +96,7 @@ export async function updateTemplate(id: string, formData: FormData) {
       salary: parsed.data.salary,
       stageNames: parsed.data.stageNames,
       questions: parsed.data.questions,
+      customFields: parsed.data.customFields as Prisma.InputJsonValue,
     },
   });
 

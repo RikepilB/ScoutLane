@@ -32,6 +32,18 @@ export const templateSchema = z.object({
   questions: z
     .array(z.string().trim().min(1).max(240))
     .max(12, "Templates can include up to 12 screening questions"),
+  customFields: z
+    .array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        type: z.enum(["text", "textarea", "select", "file"]),
+        required: z.boolean(),
+        options: z.array(z.string()).optional(),
+      }),
+    )
+    .optional()
+    .default([]),
 });
 
 export type TemplateInput = z.infer<typeof templateSchema>;
