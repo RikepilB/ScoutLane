@@ -46,9 +46,19 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
   });
 
   const parsedData = (applicant.data ?? {}) as {
-    education?: { institution: string; degree: string; field: string; graduationYear: number }[];
-    work?: { company: string; title: string; duration: string }[];
+    education?: { institution: string; degree: string; field: string; graduationYear: string; timePeriod?: string; confidence?: "high" | "medium" | "low" }[];
+    work?: { company: string; title: string; duration: string; confidence?: "high" | "medium" | "low" }[];
     skills?: string[];
+    skillsConfidence?: "high" | "medium" | "low";
+    fullNameConfidence?: "high" | "medium" | "low";
+    emailConfidence?: "high" | "medium" | "low";
+    phoneConfidence?: "high" | "medium" | "low";
+  };
+
+  const confidenceColors: Record<string, string> = {
+    high: "bg-emerald-100 text-emerald-700",
+    medium: "bg-amber-100 text-amber-700",
+    low: "bg-red-100 text-red-700",
   };
 
   return (
@@ -182,7 +192,14 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
             <div className="mt-3 space-y-3">
               {parsedData.education.map((edu, i) => (
                 <div key={i} className="rounded-xl border border-border/50 bg-muted/20 p-3">
-                  <div className="font-medium text-sm">{edu.institution}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium text-sm">{edu.institution}</div>
+                    {edu.confidence && (
+                      <span className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-medium capitalize ${confidenceColors[edu.confidence]}`}>
+                        {edu.confidence}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {edu.degree} in {edu.field} · {edu.graduationYear}
                   </div>
@@ -203,7 +220,14 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
             <div className="mt-3 space-y-3">
               {parsedData.work.map((w, i) => (
                 <div key={i} className="rounded-xl border border-border/50 bg-muted/20 p-3">
-                  <div className="font-medium text-sm">{w.title}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium text-sm">{w.title}</div>
+                    {w.confidence && (
+                      <span className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-medium capitalize ${confidenceColors[w.confidence]}`}>
+                        {w.confidence}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {w.company} · {w.duration}
                   </div>
@@ -221,6 +245,11 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
             <Wrench className="h-4 w-4 text-muted-foreground" />
             Skills
+            {parsedData.skillsConfidence && (
+              <span className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-medium capitalize ${confidenceColors[parsedData.skillsConfidence]}`}>
+                {parsedData.skillsConfidence}
+              </span>
+            )}
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {parsedData.skills.map((skill, i) => (

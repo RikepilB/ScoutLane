@@ -22,6 +22,12 @@ export const templateSchema = z.object({
     .max(12000, "Job description must be 12000 characters or fewer")
     .optional()
     .or(z.literal("").transform(() => undefined)),
+  descriptionUrl: z
+    .string()
+    .url("Description URL must be a valid URL")
+    .max(2000, "URL must be 2000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   location: optionalShortString(120, "Location"),
   type: optionalShortString(60, "Type"),
   salary: optionalShortString(60, "Salary"),
@@ -30,7 +36,16 @@ export const templateSchema = z.object({
     .min(1, "Add at least one pipeline stage")
     .max(12, "Templates can include up to 12 stages"),
   questions: z
-    .array(z.string().trim().min(1).max(240))
+    .array(
+      z.union([
+        z.string().trim().min(1).max(240),
+        z.object({
+          text: z.string().trim().min(1).max(240),
+          maxDurationSeconds: z.number().int().min(10).max(600).default(120),
+          maxAttempts: z.number().int().min(1).max(10).default(1),
+        }),
+      ]),
+    )
     .min(1, "Add at least one assessment question")
     .max(12, "Templates can include up to 12 screening questions"),
   customFields: z

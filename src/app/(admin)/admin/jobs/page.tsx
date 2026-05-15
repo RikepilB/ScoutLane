@@ -136,7 +136,6 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                   <th className="px-5 py-3 font-medium">Type</th>
                   <th className="px-5 py-3 font-medium">Created</th>
                   <th className="px-5 py-3" />
-                  <th className="px-5 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -144,8 +143,17 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                   <tr key={job.id} className="hover:bg-muted/20">
                     <td className="px-5 py-4">
                       <div className="font-medium text-slate-950">{job.title}</div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                        /{job.slug}
+                      <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                        <span className="truncate">/{job.slug}</span>
+                        <Link
+                          href={`/careers/${job.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex shrink-0 text-muted-foreground/60 hover:text-muted-foreground"
+                          title="Open public page"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -162,18 +170,7 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                       {formatDate(job.createdAt)}
                     </td>
                     <td className="px-5 py-4">
-                      <Link
-                        href={`/careers/${job.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                      >
-                        Public page
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </Link>
-                    </td>
-                    <td className="px-5 py-4">
-                      <JobRowActions jobId={job.id} status={job.status} />
+                      <JobRowActions jobId={job.id} status={job.status} role={user?.role} />
                     </td>
                   </tr>
                 ))}

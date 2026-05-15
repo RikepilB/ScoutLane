@@ -1,6 +1,7 @@
 import { ApplicationForm } from "@/components/public/ApplicationForm";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
+import { renderMarkdown } from "@/lib/utils/markdown";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -41,7 +42,7 @@ export default async function JobApplicationPage({ params }: Props) {
   const { slug } = await params;
   const job = await prisma.job.findUnique({
     where: { slug },
-    select: { id: true, title: true, description: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true },
+    select: { id: true, title: true, description: true, descriptionUrl: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true },
   });
 
   if (!job) notFound();
@@ -117,9 +118,34 @@ export default async function JobApplicationPage({ params }: Props) {
 
             <div className="space-y-4">
               <h2 className="text-base font-semibold text-slate-900">About this role</h2>
-              <div className="prose prose-sm max-w-none text-slate-600 leading-7 whitespace-pre-wrap">
-                {job.description || "Job details will be added soon."}
-              </div>
+              {job.descriptionUrl ? (
+                <div className="space-y-3">
+                  <a
+                    href={job.descriptionUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-card px-4 py-2 text-sm font-medium text-slate-900 hover:bg-muted/30"
+                  >
+                    View full job description ↗
+                  </a>
+                  {/\.pdf($|\?)/i.test(job.descriptionUrl) ? (
+                    <iframe
+                      src={job.descriptionUrl}
+                      className="h-[600px] w-full rounded-lg border border-border/70"
+                      title="Job description"
+                    />
+                  ) : null}
+                </div>
+              ) : job.description ? (
+                <div
+                  className="prose prose-sm max-w-none text-slate-600 leading-7"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(job.description) }}
+                />
+              ) : (
+                <div className="prose prose-sm max-w-none text-slate-600 leading-7">
+                  Job details will be added soon.
+                </div>
+              )}
             </div>
 
             <div className="rounded-2xl border border-border/70 bg-muted/20 p-6 space-y-4">

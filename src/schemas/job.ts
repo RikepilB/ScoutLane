@@ -20,7 +20,15 @@ export const jobCreationSchema = z.object({
   description: z
     .string()
     .min(20, "Job description must be at least 20 characters")
-    .max(12000, "Job description must be 12000 characters or fewer"),
+    .max(12000, "Job description must be 12000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  descriptionUrl: z
+    .string()
+    .url("Description URL must be a valid URL")
+    .max(2000, "URL must be 2000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   location: optionalShortString(120, "Location"),
   type: optionalShortString(60, "Type"),
   salary: optionalShortString(60, "Salary"),
@@ -49,6 +57,7 @@ export interface JobActionResult {
 export interface UpdateJobInput {
   title?: string;
   description?: string;
+  descriptionUrl?: string;
   location?: string;
   type?: string;
   salary?: string;

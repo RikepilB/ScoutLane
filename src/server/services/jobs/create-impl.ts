@@ -22,6 +22,7 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
   const parsed = jobCreationSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
+    descriptionUrl: formData.get("descriptionUrl") ?? undefined,
     location: formData.get("location") ?? undefined,
     type: formData.get("type") ?? undefined,
     salary: formData.get("salary") ?? undefined,
@@ -71,7 +72,7 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
           id: parsed.data.templateId,
           organizationId,
         },
-        select: { stageNames: true, name: true, questions: true, customFields: true },
+        select: { stageNames: true, name: true, questions: true, customFields: true, jobDescription: true, descriptionUrl: true },
       })
     : null;
 
@@ -83,7 +84,8 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
   const createdJob = await prisma.job.create({
     data: {
       title: parsed.data.title,
-      description: parsed.data.description,
+      description: parsed.data.description ?? template?.jobDescription ?? undefined,
+      descriptionUrl: parsed.data.descriptionUrl ?? template?.descriptionUrl ?? undefined,
       location: parsed.data.location,
       type: parsed.data.type,
       salary: parsed.data.salary,

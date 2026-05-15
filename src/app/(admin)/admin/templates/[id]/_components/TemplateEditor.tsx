@@ -14,56 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { QuestionsEditor } from "./QuestionsEditor";
 import { TemplatePreviewTrigger } from "./TemplatePreview";
-
-function escapeHtml(text: string) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-function renderMarkdown(text: string): string {
-  const lines = text.split("\n");
-  const html: string[] = [];
-  let inList = false;
-
-  for (const raw of lines) {
-    const trimmed = raw.trim();
-
-    if (!trimmed) {
-      if (inList) {
-        html.push("</ul>");
-        inList = false;
-      }
-      continue;
-    }
-
-    const processed = escapeHtml(trimmed)
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/`(.+?)`/g, "<code class=\"rounded bg-muted px-1 py-0.5 text-sm\">$1</code>");
-
-    if (/^###\s/.test(processed)) {
-      if (inList) { html.push("</ul>"); inList = false; }
-      html.push(`<h3 class="text-lg font-semibold mt-4 mb-1">${processed.slice(4)}</h3>`);
-    } else if (/^##\s/.test(processed)) {
-      if (inList) { html.push("</ul>"); inList = false; }
-      html.push(`<h2 class="text-xl font-semibold mt-5 mb-2">${processed.slice(3)}</h2>`);
-    } else if (/^#\s/.test(processed)) {
-      if (inList) { html.push("</ul>"); inList = false; }
-      html.push(`<h1 class="text-2xl font-bold mt-6 mb-3">${processed.slice(2)}</h1>`);
-    } else if (/^-\s/.test(processed)) {
-      if (!inList) { html.push('<ul class="list-disc pl-5 space-y-1 my-2">'); inList = true; }
-      html.push(`<li>${processed.slice(2)}</li>`);
-    } else {
-      if (inList) { html.push("</ul>"); inList = false; }
-      html.push(`<p class="mb-2 leading-relaxed">${processed}</p>`);
-    }
-  }
-
-  if (inList) html.push("</ul>");
-  return html.join("\n");
-}
+import { renderMarkdown } from "@/lib/utils/markdown";
 
 interface TemplateData {
   id: string;
@@ -71,6 +22,7 @@ interface TemplateData {
   description: string | null;
   title: string;
   jobDescription: string | null;
+  descriptionUrl: string | null;
   location: string | null;
   type: string | null;
   salary: string | null;
@@ -106,6 +58,9 @@ export function TemplateEditor({
     if (!Array.isArray(template.customFields)) return [];
     return template.customFields as CustomFieldRow[];
   });
+  const [descMode, setDescMode] = useState<"write" | "link">(
+    template.descriptionUrl ? "link" : "write",
+  );
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -198,75 +153,111 @@ export function TemplateEditor({
               <Input name="title" defaultValue={template.title} required />
             </label>
 
-            <div className="space-y-2 text-sm font-medium">
+            <div className="space-y-3 text-sm font-medium">
               <div className="flex items-center justify-between">
                 <span>Default description</span>
                 <div className="flex items-center gap-2">
-                  {fileStatus ? (
-                    <span className="text-xs text-muted-foreground">
-                      {fileStatus}
-                    </span>
-                  ) : null}
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept=".md"
-                    className="hidden"
-                    onChange={handleFile}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileRef.current?.click()}
-                  >
-                    <FileUp className="h-3.5 w-3.5" />
-                    Upload .md
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreview(!preview)}
-                  >
-                    {preview ? (
-                      <>
-                        <Eye className="h-3.5 w-3.5" />
-                        Edit
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="h-3.5 w-3.5" />
-                        Preview
-                      </>
-                    )}
-                  </Button>
+                  <label className="flex items-center gap-1.5 text-xs font-normal">
+                    <input
+                      type="radio"
+                      name="descMode"
+                      value="write"
+                      checked={descMode === "write"}
+                      onChange={() => setDescMode("write")}
+                    />
+                    Write description
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs font-normal">
+                    <input
+                      type="radio"
+                      name="descMode"
+                      value="link"
+                      checked={descMode === "link"}
+                      onChange={() => setDescMode("link")}
+                    />
+                    Link to hosted PDF/Google Doc
+                  </label>
                 </div>
               </div>
-              {preview ? (
-                <div
-                  className="min-h-48 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  {previewContent ? (
-                    <div
-                      className="prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{
-                        __html: renderMarkdown(previewContent),
-                      }}
-                    />
-                  ) : (
-                    <span className="text-muted-foreground">
-                      Nothing to preview
-                    </span>
-                  )}
-                </div>
+
+              {descMode === "link" ? (
+                <>
+                  <Input
+                    type="url"
+                    name="descriptionUrl"
+                    placeholder="https://docs.google.com/document/d/..."
+                    defaultValue={template.descriptionUrl ?? ""}
+                  />
+                  <input type="hidden" name="jobDescription" value="" />
+                </>
               ) : (
-                <Textarea
-                  ref={descRef}
-                  name="jobDescription"
-                  className="min-h-48"
-                  defaultValue={template.jobDescription ?? ""}
-                />
+                <>
+                  <div className="flex items-center justify-end gap-2">
+                    {fileStatus ? (
+                      <span className="text-xs text-muted-foreground">
+                        {fileStatus}
+                      </span>
+                    ) : null}
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept=".md"
+                      className="hidden"
+                      onChange={handleFile}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      <FileUp className="h-3.5 w-3.5" />
+                      Upload .md
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPreview(!preview)}
+                    >
+                      {preview ? (
+                        <>
+                          <Eye className="h-3.5 w-3.5" />
+                          Edit
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3.5 w-3.5" />
+                          Preview
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  {preview ? (
+                    <div className="min-h-48 rounded-md border border-input bg-background px-3 py-2 text-sm">
+                      {previewContent ? (
+                        <div
+                          className="prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{
+                            __html: renderMarkdown(previewContent),
+                          }}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Nothing to preview
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Textarea
+                      ref={descRef}
+                      name="jobDescription"
+                      className="min-h-48"
+                      defaultValue={template.jobDescription ?? ""}
+                    />
+                  )}
+                  <input type="hidden" name="descriptionUrl" value="" />
+                </>
               )}
             </div>
 

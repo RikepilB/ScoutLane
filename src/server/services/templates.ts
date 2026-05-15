@@ -23,10 +23,26 @@ function formDataToTemplateInput(formData: FormData) {
     .map((stage) => stage.trim())
     .filter(Boolean);
 
-  const questions = String(formData.get("questions") ?? "")
-    .split(/\r?\n/)
-    .map((question) => question.trim())
-    .filter(Boolean);
+  const questionsRaw = formData.get("questions");
+  let questions: unknown[] = [];
+  if (typeof questionsRaw === "string" && questionsRaw.trim()) {
+    const trimmed = questionsRaw.trim();
+    if (trimmed.startsWith("[")) {
+      try {
+        questions = JSON.parse(trimmed);
+      } catch {
+        questions = trimmed
+          .split(/\r?\n/)
+          .map((q) => q.trim())
+          .filter(Boolean);
+      }
+    } else {
+      questions = trimmed
+        .split(/\r?\n/)
+        .map((q) => q.trim())
+        .filter(Boolean);
+    }
+  }
 
   const customFieldsRaw = formData.get("customFields");
   const customFields = customFieldsRaw ? JSON.parse(String(customFieldsRaw)) : [];
@@ -36,6 +52,7 @@ function formDataToTemplateInput(formData: FormData) {
     description: formData.get("description") ?? undefined,
     title: formData.get("title"),
     jobDescription: formData.get("jobDescription") ?? undefined,
+    descriptionUrl: formData.get("descriptionUrl") ?? undefined,
     location: formData.get("location") ?? undefined,
     type: formData.get("type") ?? undefined,
     salary: formData.get("salary") ?? undefined,
@@ -91,6 +108,7 @@ export async function updateTemplate(id: string, formData: FormData) {
       description: parsed.data.description,
       title: parsed.data.title,
       jobDescription: parsed.data.jobDescription,
+      descriptionUrl: parsed.data.descriptionUrl,
       location: parsed.data.location,
       type: parsed.data.type,
       salary: parsed.data.salary,
@@ -123,6 +141,7 @@ export async function duplicateTemplate(id: string) {
       description: original.description,
       title: original.title,
       jobDescription: original.jobDescription,
+      descriptionUrl: original.descriptionUrl,
       location: original.location,
       type: original.type,
       salary: original.salary,
