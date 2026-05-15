@@ -21,6 +21,7 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
       initialData={{
         title: job.title ?? "",
         description: job.description ?? "",
+        descriptionUrl: job.descriptionUrl ?? "",
         location: job.location ?? "",
         type: job.type ?? "",
         salary: job.salary ?? "",

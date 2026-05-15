@@ -29,8 +29,15 @@ const jobEditSchema = z.object({
     .max(120, "Job title must be 120 characters or fewer"),
   description: z
     .string()
-    .min(20, "Job description must be at least 20 characters")
-    .max(12000, "Job description must be 12000 characters or fewer"),
+    .max(12000, "Job description must be 12000 characters or fewer")
+    .optional()
+    .or(z.literal("")),
+  descriptionUrl: z
+    .string()
+    .url("Description URL must be a valid URL")
+    .max(2000, "URL must be 2000 characters or fewer")
+    .optional()
+    .or(z.literal("")),
   location: z
     .string()
     .max(120, "Location must be 120 characters or fewer")
@@ -63,7 +70,7 @@ interface EditJobFormProps {
   jobId: string;
   initialData: Pick<
     FormValues,
-    "title" | "description" | "location" | "type" | "salary" | "slug"
+    "title" | "description" | "descriptionUrl" | "location" | "type" | "salary" | "slug"
   >;
   currentStatus: FormValues["status"];
 }
@@ -85,6 +92,10 @@ export function EditJobForm({
     },
   });
 
+  const [descMode, setDescMode] = useState<"write" | "link">(
+    initialData.descriptionUrl ? "link" : "write",
+  );
+
   const handleSubmit = form.handleSubmit((values) => {
     setError(null);
     const persistence = getJobPersistence(values.status);
@@ -92,7 +103,8 @@ export function EditJobForm({
     startTransition(async () => {
       const result = await updateJob(jobId, {
         title: values.title,
-        description: values.description,
+        description: descMode === "link" ? undefined : values.description || undefined,
+        descriptionUrl: descMode === "link" ? values.descriptionUrl || undefined : undefined,
         location: values.location || undefined,
         type: values.type || undefined,
         salary: values.salary || undefined,
@@ -154,23 +166,71 @@ export function EditJobForm({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe the role, expectations, and requirements."
-                      className="min-h-48"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">Description source</span>
+                <label className="flex items-center gap-1.5 text-sm">
+                  <input
+                    type="radio"
+                    name="descMode"
+                    value="write"
+                    checked={descMode === "write"}
+                    onChange={() => setDescMode("write")}
+                  />
+                  Write description
+                </label>
+                <label className="flex items-center gap-1.5 text-sm">
+                  <input
+                    type="radio"
+                    name="descMode"
+                    value="link"
+                    checked={descMode === "link"}
+                    onChange={() => setDescMode("link")}
+                  />
+                  Link to hosted PDF/Google Doc
+                </label>
+              </div>
+
+              {descMode === "link" ? (
+                <FormField
+                  control={form.control}
+                  name="descriptionUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="url"
+                          placeholder="https://docs.google.com/document/d/..."
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe the role, expectations, and requirements."
+                          className="min-h-48"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
               <FormField

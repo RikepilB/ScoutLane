@@ -33,6 +33,7 @@ export default async function TemplateEditorPage({ params }: TemplateEditorPageP
             description: template.description,
             title: template.title,
             jobDescription: template.jobDescription,
+            descriptionUrl: template.descriptionUrl,
             location: template.location,
             type: template.type,
             salary: template.salary,
