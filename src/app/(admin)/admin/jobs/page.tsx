@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ExternalLink, Plus } from "lucide-react";
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import type { JobStatus } from "@/schemas/job";
@@ -44,7 +45,11 @@ export default async function JobsListPage({ searchParams }: PageProps) {
   const user = await getCurrentUserWithOrganization();
   const organizationId = user?.organizationId;
 
-  const jobs = organizationId
+  type JobListRow = Prisma.JobGetPayload<{
+    include: { _count: { select: { applicants: true } } };
+  }>;
+
+  const jobs: JobListRow[] = organizationId
     ? await prisma.job.findMany({
         where: { organizationId },
         include: { _count: { select: { applicants: true } } },
@@ -52,14 +57,14 @@ export default async function JobsListPage({ searchParams }: PageProps) {
       })
     : [];
 
-  const withStatus = jobs.map((job) => ({ ...job, status: getJobStatus(job) }));
-  const visible = filter === "all" ? withStatus : withStatus.filter((j) => j.status === filter);
+  const withStatus = jobs.map((job: JobListRow) => ({ ...job, status: getJobStatus(job) }));
+  const visible = filter === "all" ? withStatus : withStatus.filter((j: (typeof withStatus)[number]) => j.status === filter);
 
   const counts = {
     all: withStatus.length,
-    active: withStatus.filter((j) => j.status === "active").length,
-    draft: withStatus.filter((j) => j.status === "draft").length,
-    closed: withStatus.filter((j) => j.status === "closed").length,
+    active: withStatus.filter((j: (typeof withStatus)[number]) => j.status === "active").length,
+    draft: withStatus.filter((j: (typeof withStatus)[number]) => j.status === "draft").length,
+    closed: withStatus.filter((j: (typeof withStatus)[number]) => j.status === "closed").length,
   };
 
   return (
@@ -127,7 +132,7 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {visible.map((job) => (
+                {visible.map((job: (typeof visible)[number]) => (
                   <tr key={job.id} className="hover:bg-muted/20">
                     <td className="px-5 py-4">
                       <div className="font-medium text-slate-950">{job.title}</div>

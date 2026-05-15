@@ -37,3 +37,22 @@ export const jobCreationSchema = z.object({
 
 export type JobCreationInput = z.infer<typeof jobCreationSchema>;
 export type JobStatus = z.infer<typeof jobStatusSchema>;
+
+/** Shared shape for admin job mutations (create, delete, etc.). */
+export interface JobActionResult {
+  error?: string;
+  jobId?: string;
+  slug?: string;
+  success: boolean;
+}
+
+export interface UpdateJobInput {
+  title?: string;
+  description?: string;
+  location?: string;
+  type?: string;
+  salary?: string;
+  slug?: string;
+  published?: boolean;
+  archived?: boolean;
+}

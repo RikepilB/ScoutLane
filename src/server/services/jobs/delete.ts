@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
-import type { JobActionResult } from "./create";
+import type { JobActionResult } from "@/schemas/job";
 
 export async function deleteJob(id: string): Promise<JobActionResult> {
   const user = await requireSession();

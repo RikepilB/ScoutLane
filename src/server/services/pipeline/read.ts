@@ -36,7 +36,8 @@ export async function getPipelineData(jobId: string) {
 
   const firstStageId = stages[0]?.id ?? null;
 
-  const mapped = applicants.map((a) => {
+  const mapped = applicants.map(
+    (a: (typeof applicants)[number]) => {
     const d = (a.data ?? {}) as { institution?: string; program?: string };
     return {
       ...a,
@@ -45,9 +46,9 @@ export async function getPipelineData(jobId: string) {
     };
   });
 
-  const grouped = stages.map((stage) => ({
+  const grouped = stages.map((stage: (typeof stages)[number]) => ({
     ...stage,
-    applicants: mapped.filter((a) => {
+    applicants: mapped.filter((a: (typeof mapped)[number]) => {
       if (a.pipelineStageId) return a.pipelineStageId === stage.id;
       return stage.id === firstStageId;
     }),

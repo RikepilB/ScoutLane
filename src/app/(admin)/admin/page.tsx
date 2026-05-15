@@ -43,9 +43,9 @@ export default async function AdminDashboardPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const activeJobs = jobs.filter((j) => getJobStatus(j) === "active");
-  const draftJobs = jobs.filter((j) => getJobStatus(j) === "draft");
-  const totalApplicants = jobs.reduce((sum, j) => sum + j._count.applicants, 0);
+  const activeJobs = jobs.filter((j: (typeof jobs)[number]) => getJobStatus(j) === "active");
+  const draftJobs = jobs.filter((j: (typeof jobs)[number]) => getJobStatus(j) === "draft");
+  const totalApplicants = jobs.reduce((sum: number, j: (typeof jobs)[number]) => sum + j._count.applicants, 0);
 
   const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const newApplicantsThisWeek = await prisma.applicant.count({
@@ -59,7 +59,7 @@ export default async function AdminDashboardPage() {
   });
 
   const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-  const dailyCounts = await prisma.applicant.findMany({
+  const dailyCounts: Array<{ createdAt: Date }> = await prisma.applicant.findMany({
     where: { createdAt: { gte: fourteenDaysAgo } },
     select: { createdAt: true },
     orderBy: { createdAt: "asc" },
@@ -136,7 +136,7 @@ export default async function AdminDashboardPage() {
 
         <section className="grid gap-6 lg:grid-cols-2">
           <StageDistributionChart
-            data={stageDistribution.map((s) => ({ status: s.status, count: s._count.id }))}
+            data={stageDistribution.map((s: (typeof stageDistribution)[number]) => ({ status: s.status, count: s._count.id }))}
           />
           <ApplicantTrendChart data={applicantTrend} />
         </section>

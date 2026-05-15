@@ -230,7 +230,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
               </p>
             </div>
           </div>
-          {applicant.transitions.map((t) => (
+          {applicant.transitions.map((t: (typeof applicant.transitions)[number]) => (
             <div key={t.id} className="flex items-start gap-3">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100">
                 <div className="h-2 w-2 rounded-full bg-sky-500" />
@@ -255,7 +255,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
 
       <NotesSection
         applicantId={applicant.id}
-        notes={applicant.noteEntries.map((n) => ({
+        notes={applicant.noteEntries.map((n: (typeof applicant.noteEntries)[number]) => ({
           id: n.id,
           body: n.body,
           createdAt: n.createdAt.toISOString(),

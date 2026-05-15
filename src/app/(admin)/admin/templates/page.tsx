@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FilePlus2, Pencil, Plus, Trash2 } from "lucide-react";
+import type { JobTemplate } from "@/generated/prisma/client";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
 import { createTemplate, deleteTemplate } from "@/server/services/templates";
@@ -18,7 +19,7 @@ function formatDate(date: Date) {
 export default async function TemplatesPage() {
   const user = await getCurrentUserWithOrganization();
 
-  const templates = user?.organizationId
+  const templates: JobTemplate[] = user?.organizationId
     ? await prisma.jobTemplate.findMany({
         where: { organizationId: user.organizationId },
         orderBy: { updatedAt: "desc" },

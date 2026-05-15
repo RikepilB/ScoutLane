@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { submitJobApplication } from "@/server/services/applications";
+import { submitJobApplication } from "@/server/services/submit-job-application";
 import { type JobApplicationInput, jobApplicationSchema } from "@/schemas/application";
 import { Button } from "@/components/ui/button";
 import {
