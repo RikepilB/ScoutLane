@@ -1,4 +1,4 @@
-# ScoutLane 🚀
+# ScoutLane
 
 > **AI-powered recruitment platform** — streamline hiring with pipeline management, AI resume parsing, and automated workflows.
 
@@ -14,26 +14,24 @@
 
 ---
 
-## ✨ Features
+## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Public Career Pages** | Browse and apply to jobs without creating an account |
-| **Admin Dashboard** | Stats, charts, and quick links for hiring activity overview |
-| **Job Management** | Create, edit, publish, archive, and close job postings |
-| **Kanban Pipeline** | Drag-and-drop applicants through hiring stages |
-| **AI Resume Parsing** | Auto-extract education, work history, and skills via Gemini AI |
-| **Applicant Review** | Search, filter, group, and view detailed applicant profiles |
-| **Custom Application Forms** | Per-job form builder with text, select, and file fields |
-| **Job Templates** | Reusable templates with stages, description, and screening questions |
-| **External Integrations** | Webhook dispatch on pipeline stage transitions |
-| **Email Notifications** | Instant confirmation emails via Resend |
-| **Role-Based Access** | ADMIN / RECRUITER / HIRING_MANAGER roles with middleware guards |
-| **Team Management** | Organization settings and team member role assignment |
+- **Public Career Pages** — browse and apply to jobs without creating an account
+- **Admin Dashboard** — stats, charts, and hiring activity overview
+- **Job Management** — create, edit, publish, archive, and close job postings
+- **Kanban Pipeline** — drag-and-drop applicants through hiring stages
+- **AI Resume Parsing** — auto-extract education, work history, and skills via Gemini AI
+- **Applicant Review** — search, filter, group, and view detailed applicant profiles
+- **Custom Application Forms** — per-job form builder with text, select, and file fields
+- **Job Templates** — reusable templates with stages, descriptions, and screening questions
+- **External Integrations** — webhook dispatch on pipeline stage transitions
+- **Email Notifications** — instant confirmation emails via Resend
+- **Role-Based Access** — ADMIN / RECRUITER / HIRING_MANAGER roles with middleware guards
+- **Team Management** — organization settings and team member role assignment
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Category | Choice |
 |----------|--------|
@@ -44,24 +42,21 @@
 | **Auth** | Auth.js v5 (NextAuth) — JWT strategy, Google OAuth + Dev login |
 | **UI** | Tailwind CSS v4 + shadcn/ui components |
 | **Forms** | react-hook-form + Zod 4 validation |
-| **State** | Zustand (client) + React Server Components (server) |
+| **Charts** | Recharts |
 | **Storage** | Google Cloud Storage |
 | **Email** | Resend |
 | **AI** | Google Gemini 2.5 Flash (resume parsing) |
-| **Tables** | TanStack Table v8 |
-| **Charts** | Recharts |
 | **Drag & Drop** | @dnd-kit |
-| **Queue** | pg-boss (PostgreSQL-backed, greenfield) |
-| **Testing** | Vitest + React Testing Library + Playwright (configured, zero tests) |
+| **Testing** | Vitest + React Testing Library + Playwright (E2E configured) |
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - **Node.js** 22.x LTS
-- **pnpm** 9+ (`npm i -g pnpm`)
+- **pnpm** 9+ `npm i -g pnpm`
 - **Docker** and **Docker Compose**
 
 ### Setup
@@ -117,44 +112,42 @@ Visit **http://localhost:3000** — go to `/signin` and enter any email to log i
 
 ---
 
-## 📖 User Guide
-
-HTTP API reference: [docs/API.md](docs/API.md).
+## User Guide
 
 ### For Candidates
 
-1. Open the **direct job link** you received (for example `/careers/your-role-slug`)
+1. Open the direct job link you received (e.g. `/careers/your-role-slug`)
 2. Review the job details (description, location, salary, type)
 3. Click "Apply now" and fill in the application form
 4. Upload your resume (PDF, DOC, or DOCX, max 5MB)
-5. Submit — you'll receive a **confirmation email** instantly
+5. Submit — you'll receive a confirmation email instantly
 
 ### For Admins
 
-#### Dashboard (`/admin`)
+**Dashboard** (`/admin`)
 Stats cards and charts showing hiring activity at a glance.
 
-#### Jobs (`/admin/jobs`)
+**Jobs** (`/admin/jobs`)
 Create, edit, publish, archive, and manage all job postings. Filter by status (All / Active / Draft / Closed).
 
-#### Pipeline (`/admin/jobs/[id]/pipeline`)
+**Pipeline** (`/admin/jobs/[id]/pipeline`)
 Kanban board for visual stage management. Drag applicant cards between columns to update their status. Every transition is logged with a timestamp and user.
 
-#### Applicants (`/admin/jobs/[id]/applicants`)
+**Applicants** (`/admin/jobs/[id]/applicants`)
 Search across parsed resume fields, filter by pipeline stage / institution / degree / date range / skills, sort, group, and export CSV. Click any applicant to view their full profile with AI-parsed resume data, activity timeline, structured JSON editing, and threaded admin notes.
 
-#### Templates (`/admin/templates`)
+**Templates** (`/admin/templates`)
 Create reusable templates with job defaults, pipeline stages, markdown job descriptions, and structured screening questions. Use templates when creating new jobs — they're copied at creation time.
 
-#### Integrations (`/admin/jobs/[id]/integrations`)
+**Integrations** (`/admin/jobs/[id]/integrations`)
 Connect pipeline stage transitions to external APIs. ScoutLane sends candidate data as JSON when an applicant reaches a configured stage.
 
-#### Settings (`/admin/settings`)
+**Settings** (`/admin/settings`)
 Configure organization name/slug and manage team member roles.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -181,25 +174,18 @@ src/
 │   └── webhook/                 # Webhook dispatch + HMAC signing
 ├── schemas/                     # Zod validation schemas
 ├── server/services/             # Server actions (business logic)
-└── middleware.ts                # Auth middleware
+├── middleware.ts                # Auth middleware
+└── generated/                   # Prisma client (gitignored, rebuild with pnpm prisma:generate)
 ```
 
-**Key conventions:**
+**Conventions:**
 - Path alias `@/*` → `./src/*`
 - Server Components by default; `"use client"` only for interactivity
 - Conventional commits (`feat:`, `fix:`, `chore:`, etc.)
-- shadcn/ui primitives under `src/components/ui/`
-
-## Architecture overview (take-home alignment)
-
-- **Template → job snapshot:** When a job is created with a template, pipeline stage names and **assessment questions** are copied onto the `Job` (`assessmentTitle`, `assessmentQuestions`). Outbound integrations read from the job snapshot (not a live template pointer).
-- **Resume parsing:** Uploads are stored in GCS (or dev URL). Parsing extracts text from **PDF/DOCX** server-side, then calls Gemini asynchronously; progress is tracked via `parsingStatus`.
-- **Pipeline source of truth:** Applicant Kanban + job analytics use `pipelineStageId`. Legacy `ApplicationStatus` is still updated for compatibility, but the admin UX is stage-first.
-- **Integrations:** Stage transitions enqueue outbound POSTs; failures are logged and do not roll back the stage move. `POST ...?action=test|retry` supports demos and manual recovery.
 
 ---
 
-## 📜 Commands
+## Commands
 
 | Command | Action |
 |---------|--------|
@@ -207,7 +193,8 @@ src/
 | `pnpm build` | Production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
-| `pnpm test` | Vitest (47 tests across 6 files, all passing) |
+| `pnpm test` | Vitest (54 tests across 10 files, all passing) |
+| `pnpm test:e2e` | Playwright (configured, no tests written yet) |
 | `pnpm prisma:generate` | Regenerate Prisma client to `src/generated/prisma/` |
 | `pnpm prisma:migrate --name <x>` | Create + apply migration |
 | `pnpm prisma:deploy` | Apply pending migrations |
@@ -219,22 +206,7 @@ CI: `lint → typecheck → test → build`
 
 ---
 
-## 🎬 Demo
-
-A full walkthrough demo is available. Recorded with [OpenVid](https://openvid.dev) — a free, browser-based screen recording and video editing tool.
-
-### Demo Walkthrough
-
-| Segment | Duration | Covers |
-|---------|----------|--------|
-| **Public Experience** | ~1 min | Landing page, career detail, application form, confirmation email |
-| **Jobs & Pipeline** | ~1.5 min | Dashboard, create job, use template, Kanban drag-and-drop |
-| **Applicant Review** | ~1 min | Search/filter, parsed resume, activity timeline, notes |
-| **Advanced Features** | ~1.5 min | Templates (markdown upload + questions), custom forms, integrations, settings |
-
----
-
-## 🔐 Auth Notes
+## Auth Notes
 
 - **Session strategy is JWT**, not database sessions (`strategy: "jwt"`)
 - **Two auth files:** `auth.config.ts` (Edge-safe, no Prisma — used by middleware) and `auth.ts` (full instance with PrismaAdapter — used by API routes and server actions)
@@ -244,24 +216,8 @@ A full walkthrough demo is available. Recorded with [OpenVid](https://openvid.de
 
 ---
 
-## 🗄 Database
+## Database
 
 - **15 models:** Organization, User, Account, Session, VerificationToken, Job, JobTemplate, Applicant, ApplicantNote, PipelineStage, StageTransition, JobIntegration, IntegrationLog, Webhook, WebhookLog
 - Import Prisma client from `@/generated/prisma/client` — never from `@prisma/client`
 - `src/generated/` is gitignored — rebuild with `pnpm prisma:generate`
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-MIT — see [LICENSE](LICENSE).
