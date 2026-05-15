@@ -335,7 +335,7 @@ We are looking for a talented **Software Engineer** to join our growing team.
     }
 
     // ── Applicants ─────────────────────────────────────────────────────────
-    const applicantCount = job.published && !job.archived ? 12 : 4;
+    const applicantCount = job.published && !job.archived ? 25 : 6;
 
     for (let i = 0; i < applicantCount; i++) {
       const firstName = faker.person.firstName();
