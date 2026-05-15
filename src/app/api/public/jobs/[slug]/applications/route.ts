@@ -45,6 +45,7 @@ export async function POST(
       );
     }
 
+    const email = parsed.data.email.trim().toLowerCase();
     const job = await prisma.job.findUnique({ where: { slug } });
     if (!job) {
       return NextResponse.json({ success: false, error: "Job not found" }, { status: 404 });
@@ -55,7 +56,10 @@ export async function POST(
     }
 
     const existingApplicant = await prisma.applicant.findFirst({
-      where: { jobId: job.id, email: parsed.data.email },
+      where: {
+        jobId: job.id,
+        email: { equals: email, mode: "insensitive" },
+      },
       select: { id: true },
     });
 
@@ -79,7 +83,7 @@ export async function POST(
       data: {
         jobId: job.id,
         name: applicantName,
-        email: parsed.data.email,
+        email,
         phone: parsed.data.phone,
         status: "NEW",
       },

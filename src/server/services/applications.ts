@@ -2,6 +2,7 @@
 
 import { Buffer } from "node:buffer";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
@@ -65,7 +66,8 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     };
   }
 
-  const { email, firstName, jobSlug, lastName, phone, resumeFile } = parsed.data;
+  const { firstName, jobSlug, lastName, phone, resumeFile } = parsed.data;
+  const email = parsed.data.email.trim().toLowerCase();
   const job = await prisma.job.findUnique({
     where: { slug: jobSlug },
   });
@@ -89,7 +91,10 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
   const applicantName = `${firstName} ${lastName}`.trim();
 
   const existingApplicant = await prisma.applicant.findFirst({
-    where: { jobId: job.id, email },
+    where: {
+      jobId: job.id,
+      email: { equals: email, mode: "insensitive" },
+    },
     select: { id: true },
   });
 
@@ -113,20 +118,32 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     select: { id: true },
   });
 
-  const applicant = await prisma.applicant.create({
-    data: {
-      jobId: job.id,
-      pipelineStageId: firstStage?.id ?? null,
-      name: applicantName,
-      email,
-      phone,
-      resumeUrl: upload.url,
-      status: "NEW",
-      parsingStatus: "PENDING",
-      lastStageChangeAt: new Date(),
-      data: Object.keys(customFields).length > 0 ? { customFields } : undefined,
-    },
-  });
+  let applicant;
+  try {
+    applicant = await prisma.applicant.create({
+      data: {
+        jobId: job.id,
+        pipelineStageId: firstStage?.id ?? null,
+        name: applicantName,
+        email,
+        phone,
+        resumeUrl: upload.url,
+        status: "NEW",
+        parsingStatus: "PENDING",
+        lastStageChangeAt: new Date(),
+        data: Object.keys(customFields).length > 0 ? { customFields } : undefined,
+      },
+    });
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return {
+        success: false,
+        field: "email",
+        error: DUPLICATE_APPLICATION_MESSAGE,
+      };
+    }
+    throw e;
+  }
 
   parseResumeBackground(applicant.id, { buffer: resumeBuffer, filename: resumeFilename }).catch((e) =>
     console.error("Background parse failed:", e),
