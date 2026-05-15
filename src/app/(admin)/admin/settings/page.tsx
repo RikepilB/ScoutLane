@@ -1,4 +1,5 @@
 import { Building2, ShieldCheck, UserCircle, Users } from "lucide-react";
+import type { User } from "@/generated/prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { prisma } from "@/lib/db/prisma";
@@ -21,7 +22,7 @@ export default async function SettingsPage() {
   const user = await getCurrentUserWithOrganization();
   const organization = user?.organization;
 
-  const team = organization
+  const team: User[] = organization
     ? await prisma.user.findMany({
         where: { organizationId: organization.id },
         orderBy: [{ role: "asc" }, { email: "asc" }],

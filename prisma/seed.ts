@@ -302,7 +302,7 @@ We are looking for a talented **Software Engineer** to join our growing team.
 
     // ── Job Integration for Interview stage ────────────────────────────────
     if (job.published && !job.archived) {
-      const interviewStage = stages.find((s) => s.name === "Interview");
+      const interviewStage = stages.find((s: { id: string; name: string }) => s.name === "Interview");
       if (interviewStage) {
         await prisma.jobIntegration.upsert({
           where: { stageId: interviewStage.id },

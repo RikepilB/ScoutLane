@@ -30,14 +30,16 @@ export async function GET(_request: Request, { params }: RouteProps) {
 
   const firstStageId = stages[0]?.id ?? null;
 
-  const grouped = stages.map((stage) => ({
+  const grouped = stages.map((stage: (typeof stages)[number]) => ({
     id: stage.id,
     name: stage.name,
     color: stage.color,
     order: stage.order,
     applicants: applicants
-      .filter((a) => (a.pipelineStageId ? a.pipelineStageId === stage.id : stage.id === firstStageId))
-      .map((a) => {
+      .filter((a: (typeof applicants)[number]) =>
+        a.pipelineStageId ? a.pipelineStageId === stage.id : stage.id === firstStageId,
+      )
+      .map((a: (typeof applicants)[number]) => {
         const d = (a.data ?? {}) as {
           education?: Array<{ institution?: string; field?: string }>;
         };

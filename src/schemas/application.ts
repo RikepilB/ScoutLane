@@ -61,3 +61,16 @@ export const jobApplicationSubmissionSchema = jobApplicationSchema.extend({
 
 export type JobApplicationInput = z.infer<typeof jobApplicationSchema>;
 export type JobApplicationSubmissionInput = z.infer<typeof jobApplicationSubmissionSchema>;
+
+/** Form fields the server can scope an error to (public apply flow + API). */
+export type ApplicationErrorField = "email" | "resumeFile";
+
+export interface ApplicationActionResult {
+  error?: string;
+  field?: ApplicationErrorField;
+  success: boolean;
+  warning?: string;
+}
+
+export const DUPLICATE_APPLICATION_MESSAGE =
+  "An application with this email already exists for this position.";

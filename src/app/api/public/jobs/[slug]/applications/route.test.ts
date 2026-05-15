@@ -21,7 +21,7 @@ vi.mock("@/lib/jobs/status", () => ({
 }));
 
 import { POST } from "@/app/api/public/jobs/[slug]/applications/route";
-import { DUPLICATE_APPLICATION_MESSAGE } from "@/server/services/applications";
+import { DUPLICATE_APPLICATION_MESSAGE } from "@/schemas/application";
 
 interface DuplicateBody {
   success: boolean;

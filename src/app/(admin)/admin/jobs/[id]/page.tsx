@@ -36,12 +36,15 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
     _count: { id: true },
   });
   const countByStageId = Object.fromEntries(
-    stageCountRows.map((row) => [row.pipelineStageId ?? "unassigned", row._count.id]),
+    stageCountRows.map((row: (typeof stageCountRows)[number]) => [
+      row.pipelineStageId ?? "unassigned",
+      row._count.id,
+    ]),
   );
   const firstStageId = job.stages[0]?.id ?? null;
   const unassignedCount = countByStageId.unassigned ?? 0;
 
-  const stageCounts = job.stages.map((stage) => ({
+  const stageCounts = job.stages.map((stage: (typeof job.stages)[number]) => ({
     ...stage,
     count:
       (countByStageId[stage.id] ?? 0) +
@@ -56,7 +59,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
     prisma.applicant.count({ where: { jobId: id, createdAt: { gte: monthAgo } } }),
   ]);
 
-  const applicantsForCharts = await prisma.applicant.findMany({
+  const applicantsForCharts: Array<{ createdAt: Date; data: unknown }> = await prisma.applicant.findMany({
     where: { jobId: id },
     select: { createdAt: true, data: true },
   });
@@ -95,7 +98,10 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
     .sort((a, b) => b.count - a.count)
     .slice(0, 8);
 
-  const pipelineChartData = stageCounts.map((s) => ({ name: s.name, count: s.count }));
+  const pipelineChartData = stageCounts.map((s: (typeof stageCounts)[number]) => ({
+    name: s.name,
+    count: s.count,
+  }));
 
   return (    <div className="space-y-8">
       <section className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
@@ -150,7 +156,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stageCounts.map((stage) => (
+        {stageCounts.map((stage: (typeof stageCounts)[number]) => (
           <div
             key={stage.id}
             className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm"

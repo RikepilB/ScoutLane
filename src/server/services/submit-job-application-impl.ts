@@ -1,32 +1,15 @@
-"use server";
-
 import { Buffer } from "node:buffer";
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
 import { parseApplicantResumeFromBuffer, parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
-import { jobApplicationSubmissionSchema } from "@/schemas/application";
-
-/**
- * Form fields the server can scope an error to. The client uses this to render
- * the message inline next to the field instead of (or in addition to) the
- * top-level banner.
- */
-export type ApplicationErrorField = "email" | "resumeFile";
-
-export interface ApplicationActionResult {
-  error?: string;
-  /** When set, the error pertains to this specific form field. */
-  field?: ApplicationErrorField;
-  success: boolean;
-  warning?: string;
-}
-
-export const DUPLICATE_APPLICATION_MESSAGE =
-  "An application with this email already exists for this position.";
+import {
+  DUPLICATE_APPLICATION_MESSAGE,
+  type ApplicationActionResult,
+  jobApplicationSubmissionSchema,
+} from "@/schemas/application";
 
 async function parseResumeBackground(
   applicantId: string,
@@ -49,7 +32,9 @@ async function parseResumeBackground(
   }
 }
 
-export async function submitJobApplication(formData: FormData): Promise<ApplicationActionResult> {
+export async function submitJobApplicationImpl(
+  formData: FormData,
+): Promise<ApplicationActionResult> {
   const parsed = jobApplicationSubmissionSchema.safeParse({
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
@@ -135,7 +120,12 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
       },
     });
   } catch (e: unknown) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+    if (
+      typeof e === "object" &&
+      e !== null &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
       return {
         success: false,
         field: "email",
@@ -145,8 +135,8 @@ export async function submitJobApplication(formData: FormData): Promise<Applicat
     throw e;
   }
 
-  parseResumeBackground(applicant.id, { buffer: resumeBuffer, filename: resumeFilename }).catch((e) =>
-    console.error("Background parse failed:", e),
+  parseResumeBackground(applicant.id, { buffer: resumeBuffer, filename: resumeFilename }).catch((err) =>
+    console.error("Background parse failed:", err),
   );
 
   let warning: string | undefined;

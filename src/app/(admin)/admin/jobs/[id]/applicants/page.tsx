@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { Search, GraduationCap } from "lucide-react";
 
@@ -64,7 +65,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
   });
   const firstStageId = stages[0]?.id ?? null;
 
-  const where: Record<string, unknown> = { jobId: id };
+  const where: Prisma.ApplicantWhereInput = { jobId: id };
 
   if (filters.stageId && filters.stageId !== "all") {
     where.pipelineStageId = filters.stageId;
@@ -90,20 +91,21 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
   const [sortField, sortDirRaw] = sortParam.split("-");
   const sortDir = sortDirRaw === "asc" ? "asc" : "desc";
 
-  let orderBy:
-    | Record<string, "asc" | "desc">
-    | { pipelineStage: { name: "asc" | "desc" } }
-    | { createdAt: "asc" | "desc" } = { createdAt: "desc" };
+  let orderBy: Prisma.ApplicantOrderByWithRelationInput = { createdAt: "desc" };
 
   if (sortField === "name" || sortField === "email" || sortField === "score") {
-    orderBy = { [sortField]: sortDir };
+    orderBy = { [sortField]: sortDir } as Prisma.ApplicantOrderByWithRelationInput;
   } else if (sortField === "createdAt") {
     orderBy = { createdAt: sortDir };
   } else if (sortField === "pipelineStage") {
     orderBy = { pipelineStage: { name: sortDir } };
   }
 
-  let rawApplicants = await prisma.applicant.findMany({
+  type ApplicantListRow = Prisma.ApplicantGetPayload<{
+    include: { pipelineStage: { select: { id: true; name: true } } };
+  }>;
+
+  let rawApplicants: ApplicantListRow[] = await prisma.applicant.findMany({
     where,
     include: { pipelineStage: { select: { id: true, name: true } } },
     orderBy,
@@ -133,9 +135,9 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
 
   const filterSkills = filters.skills;
   if (filterSkills) {
-    const skillSet = filterSkills.split(",").map((s) => s.trim().toLowerCase());
+    const skillSet = filterSkills.split(",").map((s: string) => s.trim().toLowerCase());
     applicants = applicants.filter((a) =>
-      a.skillsList.some((s) => skillSet.includes(s.toLowerCase())),
+      a.skillsList.some((s: string) => skillSet.includes(s.toLowerCase())),
     );
   }
 
@@ -147,13 +149,13 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     });
   }
 
-  const allInstitutions = [
-    ...new Set(rawApplicants.map((a) => getFirstInstitution(a.data)).filter((x): x is string => !!x)),
+  const allInstitutions: string[] = [
+    ...new Set(rawApplicants.map((a: ApplicantListRow) => getFirstInstitution(a.data)).filter((x): x is string => !!x)),
   ].sort();
-  const allDegrees = [
-    ...new Set(rawApplicants.map((a) => getFirstDegree(a.data)).filter((x): x is string => !!x)),
+  const allDegrees: string[] = [
+    ...new Set(rawApplicants.map((a: ApplicantListRow) => getFirstDegree(a.data)).filter((x): x is string => !!x)),
   ].sort();
-  const allSkills = [...new Set(rawApplicants.flatMap((a) => getSkills(a.data)))].sort();
+  const allSkills: string[] = [...new Set(rawApplicants.flatMap((a: ApplicantListRow) => getSkills(a.data)))].sort();
 
   const groupBy = filters.group;
   if (groupBy === "institution") {
@@ -220,7 +222,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
           >
             All stages
           </Link>
-          {stages.map((s) => {
+          {stages.map((s: (typeof stages)[number]) => {
             const active = filters.stageId === s.id;
             return (
               <Link

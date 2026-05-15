@@ -54,7 +54,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
 
   const lines = [
     header.join(","),
-    ...applicants.map((a) =>
+    ...applicants.map((a: (typeof applicants)[number]) =>
       [
         csvEscape(a.id),
         csvEscape(a.name),
