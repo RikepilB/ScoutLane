@@ -31,6 +31,13 @@
 
 ---
 
+## Documentation
+
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system design, request flow, directory map, auth model, end-to-end flows, known sharp edges.
+- [`docs/API.md`](./docs/API.md) — REST endpoint reference and Server Action catalog, plus webhook / per-stage integration payloads.
+
+---
+
 ## Tech Stack
 
 | Category | Choice |

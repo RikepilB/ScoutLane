@@ -6,7 +6,9 @@
 /NEXT-STEPS.md
 
 # Documentation lives locally only — never pushed to public branches.
-/docs/
+/docs/*
+# …except the API reference, which is part of the public docs.
+!/docs/API.md
 # Dependencies
 node_modules/
 .pnp/
