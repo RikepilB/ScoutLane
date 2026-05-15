@@ -10,6 +10,7 @@ interface CustomField {
   label: string;
   type: "text" | "textarea" | "select" | "file";
   required: boolean;
+  options?: string[];
 }
 
 interface FormBuilderPageProps {
@@ -37,7 +38,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
 
   function addField() {
     const id = crypto.randomUUID();
-    setFields([...fields, { id, label: "", type: "text", required: false }]);
+    setFields([...fields, { id, label: "", type: "text", required: false, options: [] }]);
     setDirty(true);
   }
 
@@ -145,6 +146,24 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
                     <option value="file">File</option>
                   </select>
                 </div>
+                {field.type === "select" && (
+                  <div className="w-full">
+                    <label className="mb-1 block text-xs text-muted-foreground">
+                      Options <span className="font-normal">(one per line)</span>
+                    </label>
+                    <textarea
+                      value={(field.options ?? []).join("\n")}
+                      onChange={(e) =>
+                        updateField(field.id, {
+                          options: e.target.value.split("\n").map((o) => o.trim()).filter(Boolean),
+                        })
+                      }
+                      rows={3}
+                      placeholder={"Option A\nOption B\nOption C"}
+                      className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                    />
+                  </div>
+                )}
                 <label className="flex items-center gap-2 pb-2">
                   <input
                     type="checkbox"
