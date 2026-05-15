@@ -14,3 +14,8 @@ export async function saveApplicantResumeDataJson(applicantId: string, jsonText:
   const { saveApplicantResumeDataJsonImpl } = await import("./update-impl");
   return saveApplicantResumeDataJsonImpl(applicantId, jsonText);
 }
+
+export async function updateInterviewDate(applicantId: string, interviewDate: string | null) {
+  const { updateInterviewDateImpl } = await import("./update-impl");
+  return updateInterviewDateImpl(applicantId, interviewDate);
+}

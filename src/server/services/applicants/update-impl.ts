@@ -84,3 +84,22 @@ export async function saveApplicantResumeDataJsonImpl(applicantId: string, jsonT
 
   revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
 }
+
+export async function updateInterviewDateImpl(applicantId: string, interviewDate: string | null) {
+  const user = await requireSession();
+
+  const applicant = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { jobId: true, job: { select: { organizationId: true } } },
+  });
+  if (!applicant || applicant.job.organizationId !== user.organizationId) {
+    throw new Error("Applicant not found");
+  }
+
+  await prisma.applicant.update({
+    where: { id: applicantId },
+    data: { interviewDate: interviewDate ? new Date(interviewDate) : null },
+  });
+
+  revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
+}
