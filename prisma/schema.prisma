@@ -274,3 +274,12 @@ model IntegrationLog {
 
   @@index([integrationId, stageTransitionId])
 }
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  status    Int
+  error     String?
+  createdAt DateTime @default(now())
+}

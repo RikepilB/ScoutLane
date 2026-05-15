@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { Search, GraduationCap } from "lucide-react";
+import { Search, GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
+import { SkillsMultiSelect } from "@/components/applicants/SkillsMultiSelect";
 
 interface ApplicantsPageProps {
   params: Promise<{ id: string }>;
@@ -54,6 +55,9 @@ function matchesSearch(a: { name: string; email: string | null; data: unknown },
 export default async function ApplicantsListPage({ params, searchParams }: ApplicantsPageProps) {
   const { id } = await params;
   const filters = await searchParams;
+
+  const page = Math.max(1, parseInt(filters.page ?? "1", 10) || 1);
+  const pageSize = Math.min(100, Math.max(10, parseInt(filters.pageSize ?? "20", 10) || 20));
 
   const job = await prisma.job.findUnique({ where: { id } });
   if (!job) notFound();
@@ -157,10 +161,14 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
   ].sort();
   const allSkills: string[] = [...new Set(rawApplicants.flatMap((a: ApplicantListRow) => getSkills(a.data)))].sort();
 
+  const totalApplicants = applicants.length;
+  const totalPages = Math.ceil(totalApplicants / pageSize);
+  const paginatedApplicants = applicants.slice((page - 1) * pageSize, page * pageSize);
+
   const groupBy = filters.group;
   if (groupBy === "institution") {
-    const grouped: Record<string, typeof applicants> = {};
-    for (const a of applicants) {
+    const grouped: Record<string, typeof paginatedApplicants> = {};
+    for (const a of paginatedApplicants) {
       const key = a.institution ?? "Unknown";
       (grouped[key] ??= []).push(a);
     }
@@ -169,8 +177,8 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
       ...items,
     ]);
   } else if (groupBy === "pipelineStage") {
-    const grouped: Record<string, typeof applicants> = {};
-    for (const a of applicants) {
+    const grouped: Record<string, typeof paginatedApplicants> = {};
+    for (const a of paginatedApplicants) {
       const key = a.pipelineStage?.name ?? "Unassigned";
       (grouped[key] ??= []).push(a);
     }
@@ -179,8 +187,8 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
       ...items,
     ]);
   } else if (groupBy === "degree") {
-    const grouped: Record<string, typeof applicants> = {};
-    for (const a of applicants) {
+    const grouped: Record<string, typeof paginatedApplicants> = {};
+    for (const a of paginatedApplicants) {
       const key = a.degree ?? "Unknown";
       (grouped[key] ??= []).push(a);
     }
@@ -188,6 +196,8 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
       { ...items[0], isGroup: true, groupKey: key, count: items.length },
       ...items,
     ]);
+  } else {
+    applicants = paginatedApplicants;
   }
 
   function formatDate(date: Date) {
@@ -312,11 +322,10 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-medium text-muted-foreground">Skills contains</label>
-          <input
+          <SkillsMultiSelect
             name="skills"
             defaultValue={filters.skills ?? ""}
-            placeholder="comma separated"
-            className="min-w-[160px] rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+            availableSkills={allSkills}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -430,6 +439,47 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalApplicants > 0 && (
+        <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
+          <p>
+            Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, totalApplicants)} of {totalApplicants} applicants
+          </p>
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <Link
+                href={buildHref({ page: String(page - 1), pageSize: String(pageSize) })}
+                className="inline-flex items-center gap-1 rounded-lg border border-border/70 px-3 py-1.5 text-xs font-medium hover:bg-muted/30"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Previous
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-border/30 px-3 py-1.5 text-xs font-medium text-muted-foreground/40 cursor-not-allowed">
+                <ChevronLeft className="h-3.5 w-3.5" />
+                Previous
+              </span>
+            )}
+            <span className="text-xs">
+              Page {page} of {totalPages}
+            </span>
+            {page < totalPages ? (
+              <Link
+                href={buildHref({ page: String(page + 1), pageSize: String(pageSize) })}
+                className="inline-flex items-center gap-1 rounded-lg border border-border/70 px-3 py-1.5 text-xs font-medium hover:bg-muted/30"
+              >
+                Next
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-border/30 px-3 py-1.5 text-xs font-medium text-muted-foreground/40 cursor-not-allowed">
+                Next
+                <ChevronRight className="h-3.5 w-3.5" />
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>
