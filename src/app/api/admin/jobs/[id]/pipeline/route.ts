@@ -15,7 +15,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const applicants = await prisma.applicant.findMany({
     where: { jobId: id },
     orderBy: { lastStageChangeAt: "desc" },
-    select: {
+      select: {
       id: true,
       name: true,
       email: true,
@@ -24,6 +24,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
       pipelineStageId: true,
       lastStageChangeAt: true,
       createdAt: true,
+      interviewDate: true,
       data: true,
     },
   });
@@ -52,6 +53,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
           status: a.status,
           createdAt: a.createdAt.toISOString(),
           lastStageChangeAt: a.lastStageChangeAt.toISOString(),
+          interviewDate: a.interviewDate?.toISOString() ?? null,
           institution: firstEdu?.institution ?? null,
           program: firstEdu?.field ?? null,
         };

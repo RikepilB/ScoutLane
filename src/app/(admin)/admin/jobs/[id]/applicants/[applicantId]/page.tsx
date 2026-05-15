@@ -8,6 +8,7 @@ import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
 import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
+import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
@@ -133,7 +134,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
+          <div className="flex flex-wrap items-start gap-3">
             <ApplicantStageActions
               applicantId={applicant.id}
               stages={stages}
@@ -144,15 +145,29 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         </div>
       </div>
 
+      <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-900">Interview</h3>
+        <div className="mt-3">
+          <InterviewDatePicker
+            applicantId={applicant.id}
+            interviewDate={applicant.interviewDate?.toISOString().slice(0, 16) ?? null}
+          />
+        </div>
+      </div>
+
       {applicant.resumeUrl && (
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-slate-900">Resume preview</h3>
-          <div className="mt-3 h-96 w-full overflow-hidden rounded-xl border border-border/60">
-            <iframe
-              src={applicant.resumeUrl}
-              className="h-full w-full"
-              title="Resume preview"
-            />
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-900">Resume</h3>
+            <a
+              href={applicant.resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Open resume in new tab
+            </a>
           </div>
         </div>
       )}
