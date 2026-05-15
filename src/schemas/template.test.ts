@@ -7,7 +7,7 @@ describe("templateSchema customFields", () => {
       name: "Test",
       title: "Engineer",
       stageNames: ["Applied"],
-      questions: [],
+      questions: ["Tell us about yourself"],
       customFields: [{ id: "1", label: "City", type: "text", required: false }],
     });
     expect(result.success).toBe(true);
@@ -18,7 +18,7 @@ describe("templateSchema customFields", () => {
       name: "Test",
       title: "Engineer",
       stageNames: ["Applied"],
-      questions: [],
+      questions: ["Tell us about yourself"],
       customFields: [],
     });
     expect(result.success).toBe(true);
