@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { canAcceptApplications } from "@/lib/jobs/status";
+import { DUPLICATE_APPLICATION_MESSAGE } from "@/server/services/applications";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,7 @@ export async function POST(
       );
     }
 
+    const email = parsed.data.email.trim().toLowerCase();
     const job = await prisma.job.findUnique({ where: { slug } });
     if (!job) {
       return NextResponse.json({ success: false, error: "Job not found" }, { status: 404 });
@@ -54,13 +56,16 @@ export async function POST(
     }
 
     const existingApplicant = await prisma.applicant.findFirst({
-      where: { jobId: job.id, email: parsed.data.email },
+      where: {
+        jobId: job.id,
+        email: { equals: email, mode: "insensitive" },
+      },
       select: { id: true },
     });
 
     if (existingApplicant) {
       return NextResponse.json(
-        { success: false, error: "An application with this email already exists for this position." },
+        { success: false, field: "email", error: DUPLICATE_APPLICATION_MESSAGE },
         { status: 409 },
       );
     }
@@ -78,7 +83,7 @@ export async function POST(
       data: {
         jobId: job.id,
         name: applicantName,
-        email: parsed.data.email,
+        email,
         phone: parsed.data.phone,
         status: "NEW",
       },
