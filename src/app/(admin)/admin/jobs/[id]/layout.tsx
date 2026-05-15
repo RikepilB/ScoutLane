@@ -56,7 +56,7 @@ export default async function JobDetailLayout({ children, params }: LayoutProps)
           </div>
         </div>
 
-        <JobTabs jobId={id} />
+        <JobTabs jobId={id} role={user?.role} />
 
         <div className="py-6">{children}</div>
       </div>

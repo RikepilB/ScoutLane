@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Briefcase, LayoutTemplate, LogOut, Settings, type LucideIcon } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  LayoutDashboard,
+  LayoutTemplate,
+  LogOut,
+  Settings,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 type NavItem = {
@@ -11,13 +20,44 @@ type NavItem = {
   label: string;
   icon: LucideIcon;
   matchPrefix?: string;
+  exact?: boolean;
 };
 
-const navItems: NavItem[] = [
+const adminNav: NavItem[] = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase, matchPrefix: "/admin/jobs" },
   { href: "/admin/templates", label: "Templates", icon: LayoutTemplate, matchPrefix: "/admin/templates" },
-  { href: "/admin/settings", label: "Settings", icon: Settings, matchPrefix: "/admin/settings" },
+  { href: "/admin/settings", label: "Organization", icon: Building2, matchPrefix: "/admin/settings" },
 ];
+
+const recruiterNav: NavItem[] = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/jobs", label: "My jobs", icon: Briefcase, matchPrefix: "/admin/jobs" },
+  { href: "/admin/settings", label: "Account", icon: Settings, matchPrefix: "/admin/settings" },
+];
+
+const hiringManagerNav: NavItem[] = [
+  { href: "/admin/jobs", label: "My jobs", icon: Briefcase, matchPrefix: "/admin/jobs" },
+  { href: "/admin/settings", label: "Account", icon: Settings, matchPrefix: "/admin/settings" },
+];
+
+function getNavItems(role: string | undefined): NavItem[] {
+  if (role === "RECRUITER") return recruiterNav;
+  if (role === "HIRING_MANAGER") return hiringManagerNav;
+  return adminNav;
+}
+
+const rolePillStyles: Record<string, string> = {
+  ADMIN: "bg-slate-950 text-white",
+  RECRUITER: "bg-sky-100 text-sky-700",
+  HIRING_MANAGER: "bg-violet-100 text-violet-700",
+};
+
+const roleLabels: Record<string, string> = {
+  ADMIN: "Admin",
+  RECRUITER: "Recruiter",
+  HIRING_MANAGER: "Hiring manager",
+};
 
 export interface SidebarUser {
   email: string;
@@ -27,6 +67,7 @@ export interface SidebarUser {
 
 export function Sidebar({ user }: { user: SidebarUser }) {
   const pathname = usePathname();
+  const navItems = getNavItems(user.role);
 
   return (
     <aside className="hidden md:flex md:w-64 md:flex-shrink-0 md:flex-col md:border-r md:border-border/70 md:bg-card">
@@ -40,24 +81,13 @@ export function Sidebar({ user }: { user: SidebarUser }) {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-5">
-        <Link
-          href="/admin"
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-            pathname === "/admin"
-              ? "bg-slate-950 text-white"
-              : "text-slate-700 hover:bg-slate-100",
-          )}
-        >
-          <span className="inline-flex h-4 w-4 items-center justify-center text-[10px]">●</span>
-          Dashboard
-        </Link>
-
         {navItems.map((item) => {
           const Icon = item.icon;
-          const active = item.matchPrefix
-            ? pathname === item.matchPrefix || pathname.startsWith(`${item.matchPrefix}/`)
-            : pathname === item.href;
+          const active = item.exact
+            ? pathname === item.href
+            : item.matchPrefix
+              ? pathname === item.matchPrefix || pathname.startsWith(`${item.matchPrefix}/`)
+              : pathname === item.href;
           return (
             <Link
               key={item.href}
@@ -80,8 +110,20 @@ export function Sidebar({ user }: { user: SidebarUser }) {
             {(user.name ?? user.email).charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium text-slate-900">
-              {user.name ?? user.email.split("@")[0]}
+            <div className="flex items-center gap-2">
+              <span className="truncate text-sm font-medium text-slate-900">
+                {user.name ?? user.email.split("@")[0]}
+              </span>
+              {user.role ? (
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                    rolePillStyles[user.role] ?? "bg-slate-100 text-slate-600",
+                  )}
+                >
+                  {roleLabels[user.role] ?? user.role}
+                </span>
+              ) : null}
             </div>
             <div className="truncate text-xs text-slate-500">{user.email}</div>
           </div>

@@ -4,17 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 
-const tabs = [
+type Tab = { label: string; href: string };
+
+const allTabs: Tab[] = [
   { label: "Overview", href: "" },
   { label: "Pipeline", href: "/pipeline" },
+  { label: "Applicants", href: "/applicants" },
   { label: "Stages", href: "/stages" },
   { label: "Form", href: "/form" },
-  { label: "Applicants", href: "/applicants" },
   { label: "Integrations", href: "/integrations" },
 ];
 
-export function JobTabs({ jobId }: { jobId: string }) {
+// Non-admins only see these tabs
+const restrictedTabs: Tab[] = [
+  { label: "Overview", href: "" },
+  { label: "Pipeline", href: "/pipeline" },
+  { label: "Applicants", href: "/applicants" },
+];
+
+export function JobTabs({ jobId, role }: { jobId: string; role?: string }) {
   const pathname = usePathname();
+  const tabs = role === "ADMIN" ? allTabs : restrictedTabs;
 
   return (
     <nav className="flex gap-6 border-b border-border/70">
