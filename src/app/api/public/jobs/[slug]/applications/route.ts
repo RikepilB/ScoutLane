@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { canAcceptApplications } from "@/lib/jobs/status";
+import { DUPLICATE_APPLICATION_MESSAGE } from "@/server/services/applications";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ export async function POST(
 
     if (existingApplicant) {
       return NextResponse.json(
-        { success: false, error: "An application with this email already exists for this position." },
+        { success: false, field: "email", error: DUPLICATE_APPLICATION_MESSAGE },
         { status: 409 },
       );
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -46,6 +46,21 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
     },
   });
 
+  const lastDuplicateEmailRef = useRef<string | null>(null);
+  const watchedEmail = form.watch("email");
+
+  useEffect(() => {
+    const dup = lastDuplicateEmailRef.current;
+    if (
+      dup &&
+      typeof watchedEmail === "string" &&
+      watchedEmail.trim().toLowerCase() !== dup
+    ) {
+      form.clearErrors("email");
+      lastDuplicateEmailRef.current = null;
+    }
+  }, [watchedEmail, form]);
+
   function updateCustomValue(id: string, value: string) {
     setCustomValues((prev) => ({ ...prev, [id]: value }));
   }
@@ -68,7 +83,25 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
       const result = await submitJobApplication(formData);
 
       if (!result.success) {
-        setServerError(result.error ?? "Could not submit your application.");
+        const message = result.error ?? "Could not submit your application.";
+        if (result.field === "email") {
+          lastDuplicateEmailRef.current = values.email.trim().toLowerCase();
+          form.setError(
+            "email",
+            { type: "server", message },
+            { shouldFocus: true },
+          );
+          return;
+        }
+        if (result.field === "resumeFile") {
+          form.setError(
+            "resumeFile",
+            { type: "server", message },
+            { shouldFocus: true },
+          );
+          return;
+        }
+        setServerError(message);
         return;
       }
 
