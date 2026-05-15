@@ -57,7 +57,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
   const filters = await searchParams;
 
   const page = Math.max(1, parseInt(filters.page ?? "1", 10) || 1);
-  const pageSize = Math.min(100, Math.max(10, parseInt(filters.pageSize ?? "20", 10) || 20));
+  const pageSize = Math.min(100, Math.max(10, parseInt(filters.pageSize ?? "15", 10) || 15));
 
   const job = await prisma.job.findUnique({ where: { id } });
   if (!job) notFound();
@@ -200,6 +200,15 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     applicants = paginatedApplicants;
   }
 
+  const stageStats = new Map<string, number>();
+  for (const a of rawApplicants) {
+    const name = a.pipelineStage?.name ?? "Unassigned";
+    stageStats.set(name, (stageStats.get(name) ?? 0) + 1);
+  }
+  const sortedStats = Array.from(stageStats.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+
   function formatDate(date: Date) {
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
@@ -254,6 +263,22 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
           Export CSV
         </Link>
       </div>
+
+      {sortedStats.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-medium text-slate-700">
+            <span className="font-semibold text-slate-950">{totalApplicants}</span> Total
+          </div>
+          {sortedStats.map((s) => (
+            <div
+              key={s.name}
+              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-medium text-slate-700"
+            >
+              <span className="font-semibold text-slate-950">{s.count}</span> {s.name}
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       <form
         method="get"
