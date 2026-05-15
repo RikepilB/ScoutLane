@@ -6,6 +6,7 @@ import { getJobPersistence } from "@/lib/jobs/status";
 import { buildJobSlug } from "@/lib/slug";
 import type { JobActionResult } from "@/schemas/job";
 import { jobCreationSchema } from "@/schemas/job";
+import type { Prisma } from "@/generated/prisma/client";
 
 const defaultStages = [
   "New",
@@ -70,13 +71,14 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
           id: parsed.data.templateId,
           organizationId,
         },
-        select: { stageNames: true, name: true, questions: true },
+        select: { stageNames: true, name: true, questions: true, customFields: true },
       })
     : null;
 
   const stageNames = template?.stageNames.length ? template.stageNames : defaultStages;
   const assessmentQuestions = normalizeAssessmentQuestions(template?.questions ?? null);
   const assessmentTitle = template?.name ?? null;
+  const templateCustomFields = template?.customFields ?? null;
 
   const createdJob = await prisma.job.create({
     data: {
@@ -92,6 +94,9 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
       archived: persistence.archived,
       assessmentTitle: assessmentQuestions.length ? assessmentTitle : undefined,
       assessmentQuestions: assessmentQuestions.length ? assessmentQuestions : undefined,
+      customFields: templateCustomFields
+        ? (templateCustomFields as Prisma.InputJsonValue)
+        : undefined,
       stages: {
         create: stageNames.map((name: string, index: number) => ({
           name,

@@ -26,6 +26,7 @@ type NavItem = {
 const adminNav: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase, matchPrefix: "/admin/jobs" },
+  { href: "/admin/applicants", label: "Applicants", icon: Users, matchPrefix: "/admin/applicants" },
   { href: "/admin/templates", label: "Templates", icon: LayoutTemplate, matchPrefix: "/admin/templates" },
   { href: "/admin/settings", label: "Organization", icon: Building2, matchPrefix: "/admin/settings" },
 ];

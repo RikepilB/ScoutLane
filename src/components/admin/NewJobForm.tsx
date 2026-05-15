@@ -11,6 +11,8 @@ import { jobCreationSchema, jobStatusValues } from "@/schemas/job";
 import { slugify } from "@/lib/slug/slugify";
 
 type FormValues = z.input<typeof jobCreationSchema>;
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -217,7 +219,14 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
             />
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            <Link
+              href="/admin/jobs"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-slate-900"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to jobs
+            </Link>
             <Button type="submit" disabled={isPending}>
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Create job
