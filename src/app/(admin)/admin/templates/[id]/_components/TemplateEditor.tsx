@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { QuestionsEditor } from "./QuestionsEditor";
+import { TemplatePreviewTrigger } from "./TemplatePreview";
 
 function escapeHtml(text: string) {
   return text
@@ -134,12 +135,17 @@ export function TemplateEditor({
               Templates
             </Link>
           </Button>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
-            Edit template
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Update reusable defaults for future jobs created from this template.
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+                Edit template
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Update reusable defaults for future jobs created from this template.
+              </p>
+            </div>
+            <TemplatePreviewTrigger template={template} />
+          </div>
         </div>
         <form action={deleteAction}>
           <Button type="submit" variant="outline">

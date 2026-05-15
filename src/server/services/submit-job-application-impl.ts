@@ -149,6 +149,17 @@ export async function submitJobApplicationImpl(
     });
   } catch (error) {
     console.error("Failed to send application confirmation email:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await prisma.emailLog
+      .create({
+        data: {
+          to: email,
+          subject: `Application received for ${job.title}`,
+          status: 0,
+          error: errorMessage,
+        },
+      })
+      .catch((logErr) => console.error("Failed to log email error:", logErr));
     warning = "Your application was submitted, but the confirmation email could not be sent.";
   }
 

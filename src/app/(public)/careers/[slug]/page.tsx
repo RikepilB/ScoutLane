@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     },
     other: {
-      "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet, noai, noimageai",
+      "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet, noai, noimageai, nollms",
     },
   };
 }
