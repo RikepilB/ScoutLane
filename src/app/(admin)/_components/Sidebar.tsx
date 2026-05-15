@@ -11,6 +11,7 @@ import {
   LogOut,
   Settings,
   Users,
+  Webhook,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -28,6 +29,7 @@ const adminNav: NavItem[] = [
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase, matchPrefix: "/admin/jobs" },
   { href: "/admin/applicants", label: "Applicants", icon: Users, matchPrefix: "/admin/applicants" },
   { href: "/admin/templates", label: "Templates", icon: LayoutTemplate, matchPrefix: "/admin/templates" },
+  { href: "/admin/integrations", label: "Integrations", icon: Webhook, matchPrefix: "/admin/integrations" },
   { href: "/admin/settings", label: "Organization", icon: Building2, matchPrefix: "/admin/settings" },
 ];
 

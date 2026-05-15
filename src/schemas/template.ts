@@ -31,6 +31,7 @@ export const templateSchema = z.object({
     .max(12, "Templates can include up to 12 stages"),
   questions: z
     .array(z.string().trim().min(1).max(240))
+    .min(1, "Add at least one assessment question")
     .max(12, "Templates can include up to 12 screening questions"),
   customFields: z
     .array(
