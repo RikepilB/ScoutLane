@@ -62,7 +62,7 @@ function formDataToTemplateInput(formData: FormData) {
   });
 }
 
-export async function createTemplate() {
+export async function createTemplate(): Promise<{ id: string }> {
   const user = await getCurrentUserWithOrganization();
   if (!user) redirect("/signin?callbackUrl=/admin/templates");
 
@@ -86,7 +86,7 @@ export async function createTemplate() {
   });
 
   revalidatePath("/admin/templates");
-  redirect(`/admin/templates/${template.id}`);
+  return { id: template.id };
 }
 
 export async function updateTemplate(id: string, formData: FormData) {
@@ -121,41 +121,6 @@ export async function updateTemplate(id: string, formData: FormData) {
   revalidatePath("/admin/templates");
   revalidatePath(`/admin/templates/${id}`);
   redirect("/admin/templates");
-}
-
-export async function duplicateTemplate(id: string) {
-  const user = await getCurrentUserWithOrganization();
-  if (!user) redirect("/signin?callbackUrl=/admin/templates");
-
-  const original = await prisma.jobTemplate.findFirst({
-    where: { id, organizationId: user.organizationId },
-  });
-
-  if (!original) {
-    throw new Error("Template not found");
-  }
-
-  const copy = await prisma.jobTemplate.create({
-    data: {
-      name: `${original.name} (copy)`,
-      description: original.description,
-      title: original.title,
-      jobDescription: original.jobDescription,
-      descriptionUrl: original.descriptionUrl,
-      location: original.location,
-      type: original.type,
-      salary: original.salary,
-      stageNames: original.stageNames,
-      questions: original.questions as Prisma.InputJsonValue,
-      customFields: original.customFields as Prisma.InputJsonValue,
-      organizationId: user.organizationId,
-      createdById: user.id,
-    },
-    select: { id: true },
-  });
-
-  revalidatePath("/admin/templates");
-  redirect(`/admin/templates/${copy.id}`);
 }
 
 export async function deleteTemplate(id: string) {

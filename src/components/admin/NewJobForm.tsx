@@ -221,11 +221,11 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
 
           <div className="flex items-center justify-between pt-2">
             <Link
-              href="/admin/jobs"
+              href={templateId ? "/admin/templates" : "/admin/jobs"}
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-slate-900"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to jobs
+              {templateId ? "Back to templates" : "Back to jobs"}
             </Link>
             <Button type="submit" disabled={isPending}>
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

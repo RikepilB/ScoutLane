@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { FilePlus2, Pencil, Plus, Trash2, Copy } from "lucide-react";
+import { FilePlus2, Pencil, Trash2 } from "lucide-react";
 import type { JobTemplate } from "@/generated/prisma/client";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
-import { createTemplate, deleteTemplate, duplicateTemplate } from "@/server/services/templates";
+import { deleteTemplate } from "@/server/services/templates";
+import { NewTemplateButton } from "./_components/NewTemplateButton";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
@@ -41,12 +42,7 @@ export default async function TemplatesPage() {
               Save role defaults, screening questions, and pipeline stages for repeated hiring.
             </p>
           </div>
-          <form action={createTemplate}>
-            <Button type="submit">
-              <Plus className="h-4 w-4" />
-              New template
-            </Button>
-          </form>
+          <NewTemplateButton />
         </header>
 
         {templates.length === 0 ? (
@@ -55,9 +51,9 @@ export default async function TemplatesPage() {
             <p className="mt-3 text-sm text-muted-foreground">
               No templates yet. Create one to reuse a role setup across future jobs.
             </p>
-            <form action={createTemplate} className="mt-4">
-              <Button type="submit">Create template</Button>
-            </form>
+            <div className="mt-4">
+              <NewTemplateButton label="Create template" />
+            </div>
           </div>
         ) : (
           <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
@@ -104,14 +100,14 @@ export default async function TemplatesPage() {
                             Edit
                           </Link>
                         </Button>
-                        <form action={duplicateTemplate.bind(null, template.id)}>
-                          <Button variant="ghost" size="sm">
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </form>
                         <form action={deleteTemplate.bind(null, template.id)}>
-                          <Button variant="ghost" size="sm" className="hover:text-red-600 hover:bg-red-50">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="hover:text-red-600 hover:bg-red-50"
+                          >
                             <Trash2 className="h-4 w-4" />
+                            Delete
                           </Button>
                         </form>
                       </div>
