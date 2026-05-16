@@ -7,7 +7,7 @@ import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 const STATUS_ORDER: ApplicationStatus[] = [
   "NEW",
