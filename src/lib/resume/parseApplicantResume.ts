@@ -1,12 +1,10 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { extractTextFromResumeBuffer } from "@/lib/resume/extractText";
-import { parseResumeWithGemini } from "@/lib/llm/resume";
+import { parseResumeFromText, type ParsedResume } from "@/lib/llm/resume";
+import { scoreApplicantInline } from "@/lib/match/scoreApplicant";
 
-function buildParsedApplicantData(
-  existing: unknown,
-  parsed: Awaited<ReturnType<typeof parseResumeWithGemini>>,
-) {
+function buildParsedApplicantData(existing: unknown, parsed: ParsedResume) {
   const prev = existing && typeof existing === "object" ? { ...(existing as Record<string, unknown>) } : {};
   const customFields = prev.customFields;
   const next: Record<string, unknown> = { ...prev };
@@ -51,7 +49,7 @@ export async function parseApplicantResumeFromBuffer(
   });
 
   const rawText = await extractTextFromResumeBuffer(buffer, filename);
-  const parsed = await parseResumeWithGemini(rawText.slice(0, 48_000));
+  const parsed = await parseResumeFromText(rawText.slice(0, 48_000));
 
   await prisma.applicant.update({
     where: { id: applicantId },
@@ -61,6 +59,12 @@ export async function parseApplicantResumeFromBuffer(
       data: buildParsedApplicantData(existing?.data, parsed) as Prisma.InputJsonValue,
     },
   });
+
+  try {
+    await scoreApplicantInline(applicantId);
+  } catch (err) {
+    console.error(`[parse] match-score failed for applicant ${applicantId}`, err);
+  }
 }
 
 export async function parseApplicantResumeFromUrl(applicantId: string, resumeUrl: string): Promise<void> {

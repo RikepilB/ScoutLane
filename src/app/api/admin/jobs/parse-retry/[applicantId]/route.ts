@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
-import { enqueueResumeParse } from "@/lib/queue/resume";
+import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 
 export async function POST(
   _request: NextRequest,
@@ -32,20 +32,14 @@ export async function POST(
     return NextResponse.json({ error: "No resume on file" }, { status: 400 });
   }
 
-  await prisma.applicant.update({
-    where: { id: applicantId },
-    data: { parsingStatus: "PENDING" },
-  });
-
   try {
-    const jobId = await enqueueResumeParse(applicantId, applicant.resumeUrl);
-    return NextResponse.json({ success: true, status: "PENDING", jobId });
+    await parseApplicantResumeFromUrl(applicantId, applicant.resumeUrl);
+    return NextResponse.json({ success: true, status: "COMPLETED" });
   } catch (error) {
-    console.error("Failed to enqueue resume parse retry:", error);
-    await prisma.applicant.update({
-      where: { id: applicantId },
-      data: { parsingStatus: "FAILED" },
-    });
+    console.error("[parse-retry] failed:", error);
+    await prisma.applicant
+      .update({ where: { id: applicantId }, data: { parsingStatus: "FAILED" } })
+      .catch(() => {});
     return NextResponse.json({ success: false, status: "FAILED" }, { status: 500 });
   }
 }
