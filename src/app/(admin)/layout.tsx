@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/auth";
 import { Sidebar } from "./_components/Sidebar";
+import { MobileNav } from "./_components/MobileNav";
 
 export default async function AdminLayout({
   children,
@@ -13,16 +14,19 @@ export default async function AdminLayout({
     redirect("/signin?callbackUrl=/admin");
   }
 
+  const user = {
+    email: session.user.email,
+    name: session.user.name,
+    role: session.user.role,
+  };
+
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar
-        user={{
-          email: session.user.email,
-          name: session.user.name,
-          role: session.user.role,
-        }}
-      />
-      <div className="flex min-h-screen flex-1 flex-col">{children}</div>
+    <div className="flex min-h-screen flex-col bg-background md:flex-row">
+      <Sidebar user={user} />
+      <div className="flex min-h-screen flex-1 flex-col">
+        <MobileNav user={user} />
+        {children}
+      </div>
     </div>
   );
 }
