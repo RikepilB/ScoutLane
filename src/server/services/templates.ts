@@ -62,7 +62,7 @@ function formDataToTemplateInput(formData: FormData) {
   });
 }
 
-export async function createTemplate() {
+export async function createTemplate(): Promise<{ id: string }> {
   const user = await getCurrentUserWithOrganization();
   if (!user) redirect("/signin?callbackUrl=/admin/templates");
 
@@ -86,7 +86,7 @@ export async function createTemplate() {
   });
 
   revalidatePath("/admin/templates");
-  redirect(`/admin/templates/${template.id}`);
+  return { id: template.id };
 }
 
 export async function updateTemplate(id: string, formData: FormData) {
