@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MockedPrisma } from "@/test/prisma-mock";
 
-const { prismaMock } = vi.hoisted(() => {
+const { prismaMock, mockAuth } = vi.hoisted(() => {
   // Re-implement createMockPrisma inline so the hoisted factory has no
   // dependency on a module that vi.mock would try to evaluate first.
   const fn = () => vi.fn();
@@ -18,15 +18,24 @@ const { prismaMock } = vi.hoisted(() => {
       job: {
         findMany: fn(),
         findUnique: fn(),
+        findFirst: fn(),
         create: fn(),
         update: fn(),
       },
+      user: {
+        findUnique: fn(),
+      },
     } satisfies MockedPrisma,
+    mockAuth: fn(),
   };
 });
 
 vi.mock("@/lib/db/prisma", () => ({
   prisma: prismaMock,
+}));
+
+vi.mock("@/lib/auth/auth", () => ({
+  auth: mockAuth,
 }));
 
 import { GET } from "@/app/api/admin/jobs/[id]/pipeline/route";
@@ -50,6 +59,11 @@ interface PipelineColumn {
 }
 
 beforeEach(() => {
+  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+  prismaMock.user.findUnique.mockResolvedValue({
+    organizationId: "org-1",
+  });
+  prismaMock.job.findFirst.mockResolvedValue({ id: "job-1" });
   prismaMock.pipelineStage.findMany.mockReset();
   prismaMock.applicant.findMany.mockReset();
 });

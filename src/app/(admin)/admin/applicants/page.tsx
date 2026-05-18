@@ -41,6 +41,19 @@ function getStageName(stage: { name: string } | null): string {
   return stage?.name ?? "Unassigned";
 }
 
+function matchBadgeColor(score: number | null): string {
+  if (score === null) return "bg-slate-100 text-slate-500";
+  if (score >= 0.75) return "bg-emerald-50 text-emerald-700";
+  if (score >= 0.5) return "bg-amber-50 text-amber-700";
+  if (score >= 0.3) return "bg-slate-100 text-slate-600";
+  return "bg-red-50 text-red-700";
+}
+
+function formatMatchScore(score: number | null): string {
+  if (score === null) return "—";
+  return `${Math.round(score * 100)}%`;
+}
+
 export default async function GlobalApplicantsPage({
   searchParams,
 }: {
@@ -197,6 +210,7 @@ export default async function GlobalApplicantsPage({
                     <th className="px-5 py-3 font-medium">Job</th>
                     <th className="px-5 py-3 font-medium">Stage</th>
                     <th className="px-5 py-3 font-medium">Status</th>
+                    <th className="px-5 py-3 font-medium">Match</th>
                     <th className="px-5 py-3 font-medium">Applied</th>
                     <th className="px-5 py-3" />
                   </tr>
@@ -228,6 +242,13 @@ export default async function GlobalApplicantsPage({
                           }`}
                         >
                           {a.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${matchBadgeColor(a.score)}`}
+                        >
+                          {formatMatchScore(a.score)}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">

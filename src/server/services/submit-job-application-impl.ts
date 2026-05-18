@@ -1,9 +1,10 @@
 import { Buffer } from "node:buffer";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
-import { enqueueResumeParse } from "@/lib/queue/resume";
+import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
@@ -114,17 +115,17 @@ export async function submitJobApplicationImpl(
     throw e;
   }
 
-  try {
-    await enqueueResumeParse(applicant.id, upload.url);
-  } catch (error) {
-    console.error("Failed to enqueue resume parse:", error);
-    await prisma.applicant
-      .update({
-        where: { id: applicant.id },
-        data: { parsingStatus: "FAILED" },
-      })
-      .catch(() => {});
-  }
+  const applicantId = applicant.id;
+  after(async () => {
+    try {
+      await parseApplicantResumeFromBuffer(applicantId, resumeBuffer, resumeFilename);
+    } catch (error) {
+      console.error("[submit] parse-after-submit failed:", error);
+      await prisma.applicant
+        .update({ where: { id: applicantId }, data: { parsingStatus: "FAILED" } })
+        .catch(() => {});
+    }
+  });
 
   let warning: string | undefined;
 

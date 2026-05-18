@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  serverExternalPackages: ["@prisma/client", "pg", "@google-cloud/storage", "pg-boss"],
+  serverExternalPackages: ["@prisma/client", "pg", "@google-cloud/storage"],
   async headers() {
     return [
       {

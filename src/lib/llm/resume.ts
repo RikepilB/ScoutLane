@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getGeminiClient } from "./client";
+import { getOpenRouterClient, getOpenRouterModel, stripFences } from "./openrouter";
 
 export const parsedResumeSchema = z.object({
   summary: z.string().default("Structured parsing stub output"),
@@ -33,50 +33,21 @@ export const parsedResumeSchema = z.object({
 
 export type ParsedResume = z.infer<typeof parsedResumeSchema>;
 
-export async function parseResumeWithGemini(resumeText: string): Promise<ParsedResume> {
-  if (!resumeText.trim()) {
-    return {
-      summary: "No resume text was provided to the parsing stub.",
-      fullName: null,
-      fullNameConfidence: "low",
-      email: null,
-      emailConfidence: "low",
-      phone: null,
-      phoneConfidence: "low",
-      education: [],
-      workHistory: [],
-      skills: [],
-      skillsConfidence: "low",
-    };
-  }
+const EMPTY_STUB: ParsedResume = {
+  summary: "No resume text was provided to the parser.",
+  fullName: null,
+  fullNameConfidence: "low",
+  email: null,
+  emailConfidence: "low",
+  phone: null,
+  phoneConfidence: "low",
+  education: [],
+  workHistory: [],
+  skills: [],
+  skillsConfidence: "low",
+};
 
-  const client = getGeminiClient();
-
-  if (!client) {
-    return {
-      summary: "Gemini stub skipped because GEMINI_API_KEY is not configured.",
-      fullName: null,
-      fullNameConfidence: "low",
-      email: null,
-      emailConfidence: "low",
-      phone: null,
-      phoneConfidence: "low",
-      education: [],
-      workHistory: [],
-      skills: [],
-      skillsConfidence: "low",
-    };
-  }
-
-  const model = client.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: {
-      temperature: 0.1,
-      responseMimeType: "application/json",
-    },
-  });
-
-  const prompt = `
+const PROMPT_BODY = `
 Return a JSON object matching this schema:
 - summary: string
 - fullName: string | null
@@ -98,10 +69,45 @@ If a field is null, set its confidence to "low".
 Only use information present in the resume. Use null or empty arrays when missing.
 
 Resume:
-${resumeText}
-  `;
+`;
 
-  const result = await model.generateContent(prompt);
-  const responseText = result.response.text();
-  return parsedResumeSchema.parse(JSON.parse(responseText));
+export async function parseResumeFromText(resumeText: string): Promise<ParsedResume> {
+  if (!resumeText.trim()) {
+    return EMPTY_STUB;
+  }
+
+  const client = getOpenRouterClient();
+  if (!client) {
+    return {
+      ...EMPTY_STUB,
+      summary: "Parser skipped because OPENROUTER_API_KEY is not configured.",
+    };
+  }
+
+  const prompt = `${PROMPT_BODY}${resumeText}`;
+
+  async function callOnce(): Promise<string> {
+    const completion = await client!.chat.completions.create({
+      model: getOpenRouterModel(),
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: "Return ONLY a JSON object. No prose, no markdown, no code fences.",
+        },
+        { role: "user", content: prompt },
+      ],
+    });
+    return completion.choices[0]?.message?.content ?? "";
+  }
+
+  let raw = await callOnce();
+  try {
+    return parsedResumeSchema.parse(JSON.parse(stripFences(raw)));
+  } catch (firstErr) {
+    console.warn("[parseResumeFromText] first attempt failed Zod/JSON, retrying once", firstErr);
+    raw = await callOnce();
+    return parsedResumeSchema.parse(JSON.parse(stripFences(raw)));
+  }
 }

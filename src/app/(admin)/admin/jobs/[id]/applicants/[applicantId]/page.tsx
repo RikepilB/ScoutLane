@@ -2,13 +2,22 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
-import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2 } from "lucide-react";
+import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2, Target } from "lucide-react";
 import { ApplicantStageActions } from "./_components/ApplicantStageActions";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
+import { RescoreButton } from "./_components/RescoreButton";
 import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
 import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
+
+function matchBadgeColor(score: number | null): string {
+  if (score === null) return "bg-slate-100 text-slate-500";
+  if (score >= 0.75) return "bg-emerald-50 text-emerald-700";
+  if (score >= 0.5) return "bg-amber-50 text-amber-700";
+  if (score >= 0.3) return "bg-slate-100 text-slate-600";
+  return "bg-red-50 text-red-700";
+}
 
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
@@ -53,7 +62,20 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
     fullNameConfidence?: "high" | "medium" | "low";
     emailConfidence?: "high" | "medium" | "low";
     phoneConfidence?: "high" | "medium" | "low";
+    match?: {
+      score: number;
+      matchedSkills?: string[];
+      missingSkills?: string[];
+      rationale?: string;
+      scoredAt?: string;
+    };
   };
+
+  const matchScorePct =
+    applicant.score !== null && applicant.score !== undefined
+      ? Math.round(applicant.score * 100)
+      : null;
+  const hasParsedData = applicant.parsingStatus === "COMPLETED";
 
   const confidenceColors: Record<string, string> = {
     high: "bg-emerald-100 text-emerald-700",
@@ -120,9 +142,12 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
                   </span>
                 )}
               </div>
-              {applicant.score && (
-                <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
-                  Score: {applicant.score}
+              {matchScorePct !== null && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${matchBadgeColor(applicant.score)}`}
+                >
+                  <Target className="h-3 w-3" />
+                  Match: {matchScorePct}%
                 </span>
               )}
               {applicant.parsingStatus && applicant.parsingStatus !== "COMPLETED" && (
@@ -151,6 +176,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
               currentStageId={applicant.pipelineStageId}
             />
             <RetryParsingButton applicantId={applicant.id} status={applicant.parsingStatus ?? null} />
+            {hasParsedData && <RescoreButton applicantId={applicant.id} />}
           </div>
         </div>
       </div>
@@ -181,6 +207,86 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           </div>
         </div>
       )}
+
+      <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Target className="h-4 w-4 text-muted-foreground" />
+            Match to job
+          </h3>
+          {hasParsedData && <RescoreButton applicantId={applicant.id} />}
+        </div>
+
+        {!hasParsedData ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Not yet scored. Parsing must complete first.
+          </p>
+        ) : parsedData.match ? (
+          <div className="mt-4 space-y-5">
+            <div className="flex items-baseline gap-3">
+              <div
+                className={`inline-flex items-center rounded-2xl px-4 py-2 text-2xl font-semibold ${matchBadgeColor(parsedData.match.score)}`}
+              >
+                {Math.round(parsedData.match.score * 100)}%
+              </div>
+              <span className="text-xs text-muted-foreground">
+                fit for {applicant.job.title}
+              </span>
+            </div>
+
+            {parsedData.match.rationale && (
+              <p className="rounded-xl border border-border/50 bg-muted/20 p-3 text-sm text-slate-700">
+                {parsedData.match.rationale}
+              </p>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                  Matched skills
+                </h4>
+                {parsedData.match.matchedSkills && parsedData.match.matchedSkills.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {parsedData.match.matchedSkills.map((skill, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-muted-foreground">None.</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-red-700">
+                  Missing skills
+                </h4>
+                {parsedData.match.missingSkills && parsedData.match.missingSkills.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {parsedData.match.missingSkills.map((skill, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-muted-foreground">None.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Scoring did not produce a result. Click Re-score to try again.
+          </p>
+        )}
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">

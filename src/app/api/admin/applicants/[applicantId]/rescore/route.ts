@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
-import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
+import { prisma } from "@/lib/db/prisma";
+import { scoreApplicantInline } from "@/lib/match/scoreApplicant";
 
 export async function POST(
   _request: NextRequest,
@@ -28,18 +28,22 @@ export async function POST(
     return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
   }
 
-  if (!applicant.resumeUrl) {
-    return NextResponse.json({ error: "No resume on file" }, { status: 400 });
+  if (!applicant.parsedData) {
+    return NextResponse.json(
+      { error: "Resume has not been parsed yet" },
+      { status: 400 },
+    );
   }
 
   try {
-    await parseApplicantResumeFromUrl(applicantId, applicant.resumeUrl);
-    return NextResponse.json({ success: true, status: "COMPLETED" });
+    await scoreApplicantInline(applicantId);
+    const updated = await prisma.applicant.findUnique({
+      where: { id: applicantId },
+      select: { score: true },
+    });
+    return NextResponse.json({ success: true, score: updated?.score ?? null });
   } catch (error) {
-    console.error("[parse-retry] failed:", error);
-    await prisma.applicant
-      .update({ where: { id: applicantId }, data: { parsingStatus: "FAILED" } })
-      .catch(() => {});
-    return NextResponse.json({ success: false, status: "FAILED" }, { status: 500 });
+    console.error("[rescore] failed:", error);
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 }
