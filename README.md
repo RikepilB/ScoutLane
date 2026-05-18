@@ -113,7 +113,10 @@ Visit **http://localhost:3000** — go to `/signin` and enter any email to log i
 | `GCS_PUBLIC_BASE_URL` | for uploads | Public base URL for files |
 | `RESEND_API_KEY` | for email | Resend API key |
 | `EMAIL_FROM` | for email | Sender email address |
-| `GEMINI_API_KEY` | for AI | Google Gemini API key |
+| `OPENROUTER_API_KEY` | for AI | OpenRouter API key (https://openrouter.ai/keys) |
+| `OPENROUTER_MODEL` | optional | Model id, default `deepseek/deepseek-chat-v3.1:free` |
+| `OPENROUTER_APP_URL` | optional | Attribution header for OpenRouter |
+| `OPENROUTER_APP_TITLE` | optional | Attribution header for OpenRouter |
 
 > Full reference at [`.env.example`](.env.example). Docker uses `scoutlane:scoutlane` credentials, `.env.example` defaults to `postgres:postgres` — update `.env` after copying.
 

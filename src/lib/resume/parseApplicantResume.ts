@@ -1,12 +1,10 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { extractTextFromResumeBuffer } from "@/lib/resume/extractText";
-import { parseResumeWithGemini } from "@/lib/llm/resume";
+import { parseResumeFromText, type ParsedResume } from "@/lib/llm/resume";
+import { scoreApplicantInline } from "@/lib/match/scoreApplicant";
 
-function buildParsedApplicantData(
-  existing: unknown,
-  parsed: Awaited<ReturnType<typeof parseResumeWithGemini>>,
-) {
+function buildParsedApplicantData(existing: unknown, parsed: ParsedResume) {
   const prev = existing && typeof existing === "object" ? { ...(existing as Record<string, unknown>) } : {};
   const customFields = prev.customFields;
   const next: Record<string, unknown> = { ...prev };
@@ -35,6 +33,29 @@ function buildParsedApplicantData(
   return next;
 }
 
+function getAppBaseUrl(): string {
+  const rawBaseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    process.env.VERCEL_URL ||
+    "http://localhost:3000";
+  const baseUrl = /^https?:\/\//.test(rawBaseUrl) ? rawBaseUrl : `https://${rawBaseUrl}`;
+  return baseUrl.replace(/\/$/, "");
+}
+
+function resolveResumeUrl(resumeUrl: string): string {
+  try {
+    const parsedUrl = new URL(resumeUrl);
+    if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+      return parsedUrl.toString();
+    }
+  } catch {
+    // Relative URLs are resolved against the configured app origin below.
+  }
+
+  return new URL(resumeUrl, getAppBaseUrl()).toString();
+}
+
 export async function parseApplicantResumeFromBuffer(
   applicantId: string,
   buffer: Buffer,
@@ -51,7 +72,7 @@ export async function parseApplicantResumeFromBuffer(
   });
 
   const rawText = await extractTextFromResumeBuffer(buffer, filename);
-  const parsed = await parseResumeWithGemini(rawText.slice(0, 48_000));
+  const parsed = await parseResumeFromText(rawText.slice(0, 48_000));
 
   await prisma.applicant.update({
     where: { id: applicantId },
@@ -61,6 +82,12 @@ export async function parseApplicantResumeFromBuffer(
       data: buildParsedApplicantData(existing?.data, parsed) as Prisma.InputJsonValue,
     },
   });
+
+  try {
+    await scoreApplicantInline(applicantId);
+  } catch (err) {
+    console.error(`[parse] match-score failed for applicant ${applicantId}`, err);
+  }
 }
 
 export async function parseApplicantResumeFromUrl(applicantId: string, resumeUrl: string): Promise<void> {
@@ -74,7 +101,7 @@ export async function parseApplicantResumeFromUrl(applicantId: string, resumeUrl
     }
   })();
 
-  const response = await fetch(resumeUrl);
+  const response = await fetch(resolveResumeUrl(resumeUrl));
   if (!response.ok) {
     throw new Error(`Could not download resume (HTTP ${response.status})`);
   }
