@@ -83,7 +83,22 @@ export function JobRowActions({ jobId, status, role }: JobRowActionsProps) {
 
   const dropdownItems: { label: string; action: () => void; dangerous?: boolean }[] = [];
 
+  dropdownItems.push({
+    label: "View details",
+    action: () => {
+      closeMenu();
+      router.push(`/admin/jobs/${jobId}`);
+    },
+  });
+
   if (status === "active" && isAdmin) {
+    dropdownItems.push({
+      label: "View details",
+      action: () => {
+        closeMenu();
+        router.push(`/admin/jobs/${jobId}`);
+      },
+    });
     dropdownItems.push({
       label: "Unpublish to draft",
       action: () => {
