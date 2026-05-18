@@ -142,7 +142,12 @@ export default async function JobsListPage({ searchParams }: PageProps) {
                 {visible.map((job: (typeof visible)[number]) => (
                   <tr key={job.id} className="hover:bg-muted/20">
                     <td className="px-5 py-4">
-                      <div className="font-medium text-slate-950">{job.title}</div>
+                      <Link
+                        href={`/admin/jobs/${job.id}`}
+                        className="font-medium text-slate-950 hover:text-primary transition-colors"
+                      >
+                        {job.title}
+                      </Link>
                       <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                         <span className="truncate">/{job.slug}</span>
                         <Link
