@@ -1,3 +1,4 @@
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 
 interface RouteProps {
@@ -5,7 +6,28 @@ interface RouteProps {
 }
 
 export async function GET(_request: Request, { params }: RouteProps) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return Response.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
   const { id } = await params;
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { organizationId: true },
+  });
+  if (!user?.organizationId) {
+    return Response.json({ error: "Not authorized" }, { status: 403 });
+  }
+
+  const job = await prisma.job.findFirst({
+    where: { id, organizationId: user.organizationId },
+    select: { id: true },
+  });
+  if (!job) {
+    return Response.json({ error: "Not found" }, { status: 404 });
+  }
 
   const stages = await prisma.pipelineStage.findMany({
     where: { jobId: id },

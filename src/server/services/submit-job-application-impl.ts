@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
-import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
+import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
@@ -116,10 +116,9 @@ export async function submitJobApplicationImpl(
   }
 
   const applicantId = applicant.id;
-  const resumeUrl = upload.url;
   after(async () => {
     try {
-      await parseApplicantResumeFromUrl(applicantId, resumeUrl);
+      await parseApplicantResumeFromBuffer(applicantId, resumeBuffer, resumeFilename);
     } catch (error) {
       console.error("[submit] parse-after-submit failed:", error);
       await prisma.applicant

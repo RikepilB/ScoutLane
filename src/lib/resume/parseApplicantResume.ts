@@ -33,6 +33,29 @@ function buildParsedApplicantData(existing: unknown, parsed: ParsedResume) {
   return next;
 }
 
+function getAppBaseUrl(): string {
+  const rawBaseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    process.env.VERCEL_URL ||
+    "http://localhost:3000";
+  const baseUrl = /^https?:\/\//.test(rawBaseUrl) ? rawBaseUrl : `https://${rawBaseUrl}`;
+  return baseUrl.replace(/\/$/, "");
+}
+
+function resolveResumeUrl(resumeUrl: string): string {
+  try {
+    const parsedUrl = new URL(resumeUrl);
+    if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+      return parsedUrl.toString();
+    }
+  } catch {
+    // Relative URLs are resolved against the configured app origin below.
+  }
+
+  return new URL(resumeUrl, getAppBaseUrl()).toString();
+}
+
 export async function parseApplicantResumeFromBuffer(
   applicantId: string,
   buffer: Buffer,
@@ -78,7 +101,7 @@ export async function parseApplicantResumeFromUrl(applicantId: string, resumeUrl
     }
   })();
 
-  const response = await fetch(resumeUrl);
+  const response = await fetch(resolveResumeUrl(resumeUrl));
   if (!response.ok) {
     throw new Error(`Could not download resume (HTTP ${response.status})`);
   }
