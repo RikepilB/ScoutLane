@@ -1,58 +1,161 @@
 @import "tailwindcss";
 
+/* ── ScoutLane Design System ──
+   Brand colors: royal #1B2CC1, slate-blue #3D518C
+   Ink scale: 950 #091540 → 900 #0c1529 → 800 #14213d → 700 #394050
+   Paper scale: #f1f5f9 → #e6ecf2 → #d4d9df
+   Accents: peri #7692FF, sky #ABD2FA, cyan #5ea7c5, plum #473459, steel #5f8ea0
+*/
+
 @theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(221.2 83.2% 53.3%);
-  --color-primary-foreground: hsl(210 40% 98%);
-  --color-secondary: hsl(210 40% 96.1%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96.1%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(221.2 83.2% 53.3%);
+  /* ── Brand ── */
+  --color-brand-royal: #1B2CC1;
+  --color-brand-slate: #3D518C;
+  --color-brand-royal-hover: #2238d6;
+  --color-brand-royal-dark: #161fa8;
+
+  /* ── Ink (dark) ── */
+  --color-ink-950: #091540;
+  --color-ink-900: #0c1529;
+  --color-ink-800: #14213d;
+  --color-ink-700: #394050;
+
+  /* ── Paper (light) ── */
+  --color-paper: #f1f5f9;
+  --color-paper-2: #e6ecf2;
+  --color-paper-3: #d4d9df;
+
+  /* ── Accents ── */
+  --color-peri: #7692FF;
+  --color-sky: #ABD2FA;
+  --color-cyan: #5ea7c5;
+  --color-plum: #473459;
+  --color-steel: #5f8ea0;
+
+  /* ── Surfaces (semantic) ── */
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f1f5f9;
+  --color-surface-raised: #ffffff;
+
+  /* ── Text ── */
+  --color-text-primary: #0c1529;
+  --color-text-secondary: #394050;
+  --color-text-muted: #5f8ea0;
+  --color-text-soft: #94a3b8;
+  --color-text-inverse: #f1f5f9;
+
+  /* ── Borders ── */
+  --color-border-default: #d4d9df;
+  --color-border-strong: #b8c2cc;
+  --color-border-subtle: rgba(9, 21, 64, 0.08);
+  --color-border-dark: rgba(241, 245, 249, 0.08);
+  --color-border-dark-strong: rgba(241, 245, 249, 0.14);
+
+  /* ── Status ── */
+  --color-success: #2d8a6a;
+  --color-success-soft: rgba(45, 138, 106, 0.12);
+  --color-warning: #c88c28;
+  --color-warning-soft: rgba(200, 140, 40, 0.12);
+  --color-danger: #c93a3a;
+  --color-danger-soft: rgba(201, 58, 58, 0.12);
+  --color-info: #2d6f8a;
+  --color-info-soft: rgba(45, 111, 138, 0.12);
+
+  /* ── Radii ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-pill: 9999px;
+
+  /* ── Shadows (tinted ink) ── */
+  --shadow-xs: 0 1px 2px rgba(9, 21, 64, 0.04);
+  --shadow-sm: 0 1px 3px rgba(9, 21, 64, 0.06), 0 1px 2px rgba(9, 21, 64, 0.04);
+  --shadow-md: 0 4px 12px rgba(9, 21, 64, 0.08), 0 2px 4px rgba(9, 21, 64, 0.04);
+  --shadow-lg: 0 12px 32px rgba(9, 21, 64, 0.10), 0 4px 8px rgba(9, 21, 64, 0.06);
+  --shadow-xl: 0 20px 60px rgba(9, 21, 64, 0.14), 0 8px 16px rgba(9, 21, 64, 0.08);
+  --shadow-glow-primary: 0 0 0 3px rgba(27, 44, 193, 0.18);
+  --shadow-glow-sky: 0 0 0 3px rgba(171, 210, 250, 0.18);
+
+  /* ── Font families ── */
+  --font-display: "Bricolage Grotesque", serif;
+  --font-body: "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* ── Legacy shadcn compat (keep existing components working) ── */
+  --color-background: #f1f5f9;
+  --color-foreground: #0c1529;
+  --color-card: #ffffff;
+  --color-card-foreground: #0c1529;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0c1529;
+  --color-primary: #1B2CC1;
+  --color-primary-foreground: #f1f5f9;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #0c1529;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #5f8ea0;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0c1529;
+  --color-destructive: #c93a3a;
+  --color-destructive-foreground: #f1f5f9;
+  --color-border: #d4d9df;
+  --color-input: #d4d9df;
+  --color-ring: #1B2CC1;
   --radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: hsl(222.2 84% 4.9%);
-    --color-foreground: hsl(210 40% 98%);
-    --color-card: hsl(222.2 84% 4.9%);
-    --color-card-foreground: hsl(210 40% 98%);
-    --color-popover: hsl(222.2 84% 4.9%);
-    --color-popover-foreground: hsl(210 40% 98%);
-    --color-primary: hsl(217.2 91.2% 59.8%);
-    --color-primary-foreground: hsl(222.2 47.4% 11.2%);
-    --color-secondary: hsl(217.2 32.6% 17.5%);
-    --color-secondary-foreground: hsl(210 40% 98%);
-    --color-muted: hsl(217.2 32.6% 17.5%);
-    --color-muted-foreground: hsl(215 20.2% 65.1%);
-    --color-accent: hsl(217.2 32.6% 17.5%);
-    --color-accent-foreground: hsl(210 40% 98%);
-    --color-destructive: hsl(0 62.8% 30.6%);
-    --color-destructive-foreground: hsl(210 40% 98%);
-    --color-border: hsl(217.2 32.6% 17.5%);
-    --color-input: hsl(217.2 32.6% 17.5%);
-    --color-ring: hsl(224.3 76.3% 48%);
-  }
-}
-
+/* ── Base ── */
 * {
   border-color: var(--color-border);
+}
+
+html {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ── Animations ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(171, 210, 250, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-up-delay-1 { animation-delay: 0.05s; }
+.animate-fade-up-delay-2 { animation-delay: 0.12s; }
+.animate-fade-up-delay-3 { animation-delay: 0.20s; }
+.animate-fade-up-delay-4 { animation-delay: 0.28s; }
+.animate-fade-up-delay-5 { animation-delay: 0.36s; }
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-out infinite;
+}
+
+/* ── Utility ── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
 }

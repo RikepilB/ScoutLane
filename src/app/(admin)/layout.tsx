@@ -21,11 +21,11 @@ export default async function AdminLayout({
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background md:flex-row">
+    <div className="flex min-h-screen bg-[#f1f5f9] md:flex-row">
       <Sidebar user={user} />
       <div className="flex min-h-screen flex-1 flex-col">
         <MobileNav user={user} />
-        {children}
+        <main className="flex-1">{children}</main>
       </div>
     </div>
   );

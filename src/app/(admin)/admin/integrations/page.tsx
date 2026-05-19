@@ -14,72 +14,66 @@ export default async function GlobalIntegrationsPage() {
   });
 
   return (
-    <main className="flex-1 bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">
-              Integrations
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
-              All integrations
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              View every configured external integration across all jobs.
-            </p>
-          </div>
+    <main className="flex-1" style={{ background: "#f1f5f9" }}>
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+        <header className="animate-fade-up flex flex-col gap-1">
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#5f8ea0]"
+            style={{ fontFamily: "var(--font-mono)" }}>Integrations</p>
+          <h1 className="text-[32px] tracking-[-0.02em] text-[#0c1529]"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>All integrations</h1>
+          <p className="text-[13.5px] text-[#5f8ea0]">
+            View every configured external integration across all jobs.
+          </p>
         </header>
 
         {integrations.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border bg-muted/20 p-10 text-center">
-            <Webhook className="mx-auto h-9 w-9 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">
+          <div className="animate-fade-up animate-fade-up-delay-1 rounded-2xl border border-dashed border-[#d4d9df] bg-white p-10 text-center">
+            <Webhook className="mx-auto h-9 w-9 text-[#5f8ea0]" />
+            <p className="mt-3 text-[13px] text-[#5f8ea0]">
               No integrations configured yet. Add them from each job&apos;s integrations tab.
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Job</th>
-                  <th className="px-5 py-3 font-medium">Trigger stage</th>
-                  <th className="px-5 py-3 font-medium">Endpoint</th>
-                  <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium">Last result</th>
+          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-[#d4d9df] bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+            <table className="w-full text-[13.5px]">
+              <thead>
+                <tr className="border-b border-[#d4d9df]">
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>Job</th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>Trigger stage</th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>Endpoint</th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>Status</th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>Last result</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody>
                 {integrations.map((integration) => {
                   const lastLog = integration.logs[0];
                   return (
-                    <tr key={integration.id} className="hover:bg-muted/20">
-                      <td className="px-5 py-4">
+                    <tr key={integration.id} className="border-b border-[rgba(9,21,64,0.06)] transition-colors hover:bg-[#f1f5f9]">
+                      <td className="px-4 py-3.5">
                         <a
                           href={`/admin/jobs/${integration.job.id}/integrations`}
-                          className="font-medium text-slate-950 hover:underline"
+                          className="text-[13.5px] font-medium text-[#0c1529] hover:text-[#1B2CC1]"
                         >
                           {integration.job.title}
                         </a>
                       </td>
-                      <td className="px-5 py-4 text-muted-foreground">
+                      <td className="px-4 py-3.5 text-[13px] text-[#394050]">
                         {integration.stage.name}
                       </td>
-                      <td className="px-5 py-4 text-muted-foreground max-w-xs truncate">
+                      <td className="px-4 py-3.5 max-w-xs truncate text-[12px] text-[#5f8ea0]"
+                        style={{ fontFamily: "var(--font-mono)" }}>
                         {integration.endpointUrl}
                       </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-                            integration.active ? "text-emerald-700" : "text-slate-400"
-                          }`}
-                        >
-                          <span
-                            className={`inline-flex h-2 w-2 rounded-full ${
-                              integration.active ? "bg-emerald-500" : "bg-slate-300"
-                            }`}
-                          />
-                          {integration.active ? "Active" : "Paused"}
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#2d8a6a]">
+                          <span className={`inline-flex h-2 w-2 rounded-full ${integration.active ? "bg-[#2d8a6a]" : "bg-[#d4d9df]"}`} />
+                          Active
                         </span>
                       </td>
                       <td className="px-5 py-4 text-muted-foreground">
