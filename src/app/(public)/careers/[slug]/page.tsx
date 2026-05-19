@@ -15,20 +15,20 @@ interface Props {
 
 function JobUnavailableState() {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ background: "#0B1437", fontFamily: "var(--font-body)" }}>
+    <div className="flex min-h-screen items-center justify-center" style={{ background: "#0c1529", fontFamily: "var(--font-body)" }}>
       <div className="text-center">
-        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-white shadow-[0_12px_30px_rgba(43,75,255,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
-          style={{ background: "linear-gradient(135deg, #2B4BFF, #1A2EFF)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "28px", letterSpacing: "-0.04em" }}>
+        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-white shadow-[0_12px_30px_rgba(27,44,193,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
+          style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "28px", letterSpacing: "-0.04em" }}>
           SL
         </div>
-        <h1 className="mb-2 text-[32px] font-medium tracking-[-0.02em] text-[#F9FAFB]"
+        <h1 className="mb-2 text-[32px] font-medium tracking-[-0.02em] text-[#f1f5f9]"
           style={{ fontFamily: "var(--font-display)" }}>
           Position not found
         </h1>
-        <p className="mb-6 text-[14px] text-[#6B7280]">
+        <p className="mb-6 text-[14px] text-[#5f8ea0]">
           This application link may have been removed, archived, or entered incorrectly.
         </p>
-        <Button asChild className="rounded-full bg-[#2B4BFF] hover:bg-[#1A2EFF]">
+        <Button asChild className="rounded-full bg-[#1B2CC1] hover:bg-[#3D518C]">
           <Link href="/">Return home</Link>
         </Button>
       </div>
@@ -108,7 +108,7 @@ export default async function JobApplicationPage({ params }: Props) {
   const skillsList = (job.toolsAndSkills ?? []) as string[];
 
   return (
-    <div className="min-h-screen" style={{ background: "#0B1437", color: "#F9FAFB", fontFamily: "var(--font-body)" }}>
+    <div className="min-h-screen" style={{ background: "#0c1529", color: "#f1f5f9", fontFamily: "var(--font-body)" }}>
       {/* Background ambience */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-35"
         style={{
@@ -119,31 +119,31 @@ export default async function JobApplicationPage({ params }: Props) {
       <div className="pointer-events-none fixed z-0"
         style={{
           top: "-200px", right: "-100px", width: "600px", height: "600px",
-          background: "radial-gradient(circle, rgba(43,75,255,0.25), rgba(43,75,255,0) 70%)",
+          background: "radial-gradient(circle, rgba(27,44,193,0.25), rgba(27,44,193,0) 70%)",
           filter: "blur(40px)",
         }}
       />
 
       {/* Header */}
-      <header className="relative z-[1] border-b border-white/[0.08] bg-[#0B1437]">
+      <header className="relative z-[1] border-b border-white/[0.08] bg-[#0c1529]">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white"
               style={{
-                background: "linear-gradient(135deg, #2B4BFF, #1A2EFF)",
+                background: "linear-gradient(135deg, #1B2CC1, #161fa8)",
                 fontFamily: "var(--font-display)",
                 letterSpacing: "-0.04em",
                 boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12)",
               }}>
               SL
             </span>
-            <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#F9FAFB]"
+            <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#f1f5f9]"
               style={{ fontFamily: "var(--font-display)" }}>
               ScoutLane
             </span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#A3B0FF] transition-colors hover:text-white"
+            <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#ABD2FA] transition-colors hover:text-white"
               style={{ fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               <ArrowLeft className="h-3.5 w-3.5" />
               All positions
@@ -153,7 +153,7 @@ export default async function JobApplicationPage({ params }: Props) {
                 <Link href="/admin">Dashboard</Link>
               </Button>
             ) : (
-              <Button asChild size="sm" className="rounded-full bg-[#2B4BFF] hover:bg-[#1A2EFF]">
+              <Button asChild size="sm" className="rounded-full bg-[#1B2CC1] hover:bg-[#3D518C]">
                 <Link href="/signin" className="inline-flex items-center gap-1.5">
                   <LogIn className="h-3.5 w-3.5" />
                   Sign in
@@ -171,12 +171,12 @@ export default async function JobApplicationPage({ params }: Props) {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ background: "linear-gradient(135deg, #2B4BFF, #1A2EFF)", boxShadow: "0 8px 20px rgba(43,75,255,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
+                  style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", boxShadow: "0 8px 20px rgba(27,44,193,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
                   <Building className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#F9FAFB]">ScoutLane</p>
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[#6B7280]"
+                  <p className="text-sm font-medium text-[#f1f5f9]">ScoutLane</p>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-[#5f8ea0]"
                     style={{ fontFamily: "var(--font-mono)" }}>
                     AI-Powered Recruitment
                   </p>
@@ -184,11 +184,11 @@ export default async function JobApplicationPage({ params }: Props) {
               </div>
 
               <div>
-                <h1 className="text-[clamp(28px,4vw,40px)] font-medium leading-[1] tracking-[-0.03em] text-[#F9FAFB]"
+                <h1 className="text-[clamp(28px,4vw,40px)] font-medium leading-[1] tracking-[-0.03em] text-[#f1f5f9]"
                   style={{ fontFamily: "var(--font-display)" }}>
                   {job.title}
                 </h1>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] text-[#6B7280]"
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] text-[#5f8ea0]"
                   style={{ fontFamily: "var(--font-mono)" }}>
                   {job.location && (
                     <span className="inline-flex items-center gap-1.5">
@@ -213,18 +213,18 @@ export default async function JobApplicationPage({ params }: Props) {
             </div>
 
             {status !== "active" ? (
-              <div className="rounded-2xl border border-[rgba(217,119,6,0.25)] bg-[rgba(217,119,6,0.08)] p-6 text-[#D97706]">
+              <div className="rounded-2xl border border-[rgba(200,140,40,0.25)] bg-[rgba(200,140,40,0.08)] p-6 text-[#c88c28]">
                 <h2 className="text-base font-semibold">
                   {status === "closed" ? "This position is no longer accepting applications." : "This position is not open for applications yet."}
                 </h2>
-                <p className="mt-1 text-sm text-[#D97706]/80">If you received this link recently, contact the hiring team for the latest status.</p>
+                <p className="mt-1 text-sm text-[#c88c28]/80">If you received this link recently, contact the hiring team for the latest status.</p>
               </div>
             ) : null}
 
             {/* Structured description */}
-            <div className="rounded-[24px] border border-white/[0.04] bg-[#F9FAFB] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
-              style={{ color: "#0B1437" }}>
-              <h2 className="mb-6 text-[24px] font-medium tracking-[-0.015em] text-[#0B1437]"
+            <div className="rounded-[24px] border border-white/[0.04] bg-[#f1f5f9] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+              style={{ color: "#0c1529" }}>
+              <h2 className="mb-6 text-[24px] font-medium tracking-[-0.015em] text-[#0c1529]"
                 style={{ fontFamily: "var(--font-display)" }}>
                 About this role
               </h2>
@@ -236,7 +236,7 @@ export default async function JobApplicationPage({ params }: Props) {
                     What you&apos;ll do
                   </h3>
                   <div
-                    className="prose prose-sm max-w-none text-[#374151] leading-7"
+                    className="prose prose-sm max-w-none text-[#394050] leading-7"
                     dangerouslySetInnerHTML={{ __html: renderMarkdown(job.whatYouWillDo) }}
                   />
                 </div>
@@ -250,8 +250,8 @@ export default async function JobApplicationPage({ params }: Props) {
                   </h3>
                   <ul className="space-y-2">
                     {requirementsList.map((req, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#374151]">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#2B4BFF]" />
+                      <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#394050]">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1B2CC1]" />
                         {req}
                       </li>
                     ))}
@@ -269,7 +269,7 @@ export default async function JobApplicationPage({ params }: Props) {
                     {skillsList.map((skill, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center rounded-full border border-[rgba(43,75,255,0.15)] bg-[rgba(43,75,255,0.08)] px-3 py-1 text-[12px] font-medium text-[#2B4BFF]"
+                        className="inline-flex items-center rounded-full border border-[rgba(27,44,193,0.15)] bg-[rgba(27,44,193,0.08)] px-3 py-1 text-[12px] font-medium text-[#1B2CC1]"
                       >
                         {skill}
                       </span>
@@ -284,7 +284,7 @@ export default async function JobApplicationPage({ params }: Props) {
                     href={job.descriptionUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-[13px] font-medium text-[#0B1437] transition-all hover:bg-[#F9FAFB]"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#d4d9df] bg-white px-4 py-2 text-[13px] font-medium text-[#0c1529] transition-all hover:bg-[#f1f5f9]"
                   >
                     View full job description
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M7 17 17 7M7 7h10v10" /></svg>
@@ -292,29 +292,29 @@ export default async function JobApplicationPage({ params }: Props) {
                   {/\.pdf($|\?)/i.test(job.descriptionUrl) ? (
                     <iframe
                       src={job.descriptionUrl}
-                      className="h-[600px] w-full rounded-lg border border-[#E5E7EB]"
+                      className="h-[600px] w-full rounded-lg border border-[#d4d9df]"
                       title="Job description"
                     />
                   ) : null}
                 </div>
               ) : job.description ? (
                 <div
-                  className="prose prose-sm max-w-none text-[#374151] leading-7"
+                  className="prose prose-sm max-w-none text-[#394050] leading-7"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(job.description) }}
                 />
               ) : null}
             </div>
 
             {/* About ScoutLane */}
-            <div className="rounded-2xl border border-[#2B4BFF]/10 bg-[#0B1437] p-8"
+            <div className="rounded-2xl border border-[#1B2CC1]/10 bg-[#0c1529] p-8"
               style={{
-                background: "radial-gradient(circle at 80% 20%, rgba(43,75,255,0.08), transparent 50%), #0B1437",
+                background: "radial-gradient(circle at 80% 20%, rgba(27,44,193,0.08), transparent 50%), #0c1529",
               }}>
-              <h2 className="mb-3 text-[20px] font-medium tracking-[-0.015em] text-[#F9FAFB]"
+              <h2 className="mb-3 text-[20px] font-medium tracking-[-0.015em] text-[#f1f5f9]"
                 style={{ fontFamily: "var(--font-display)" }}>
                 About ScoutLane
               </h2>
-              <p className="text-[14px] leading-7 text-[#6B7280]">
+              <p className="text-[14px] leading-7 text-[#5f8ea0]">
                 ScoutLane is an AI-powered recruitment platform that helps companies streamline their hiring process. From posting jobs with custom application forms to intelligent resume parsing and pipeline management, ScoutLane provides everything hiring teams need to find and evaluate top talent.
               </p>
             </div>
@@ -326,12 +326,12 @@ export default async function JobApplicationPage({ params }: Props) {
               {status === "active" ? (
                 <ApplicationForm jobSlug={slug} customFields={customFields} />
               ) : (
-                <div className="rounded-2xl border border-white/[0.08] bg-[#0F1B4D] p-6">
-                  <h2 className="text-base font-semibold text-[#F9FAFB]"
+                <div className="rounded-2xl border border-white/[0.08] bg-[#091540] p-6">
+                  <h2 className="text-base font-semibold text-[#f1f5f9]"
                     style={{ fontFamily: "var(--font-display)" }}>
                     Applications unavailable
                   </h2>
-                  <p className="mt-2 text-sm text-[#6B7280]">
+                  <p className="mt-2 text-sm text-[#5f8ea0]">
                     This position is not currently accepting applications.
                   </p>
                 </div>

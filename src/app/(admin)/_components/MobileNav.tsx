@@ -22,16 +22,16 @@ export function MobileNav({ user }: { user: SidebarUser }) {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-[#E5E7EB] bg-white px-4 md:hidden">
+    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-[#d4d9df] bg-white px-4 md:hidden">
       <Link
         href="/admin"
         className="flex items-center gap-2"
       >
-        <span className="inline-flex h-[28px] w-[28px] items-center justify-center rounded-lg bg-gradient-to-br from-[#2B4BFF] to-[#1A2EFF] text-xs font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+        <span className="inline-flex h-[28px] w-[28px] items-center justify-center rounded-lg bg-gradient-to-br from-[#1B2CC1] to-[#161fa8] text-xs font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
           SL
         </span>
-        <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#0B1437]"
+        <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#0c1529]"
           style={{ fontFamily: "var(--font-display)" }}>
           ScoutLane
         </span>
@@ -39,7 +39,7 @@ export function MobileNav({ user }: { user: SidebarUser }) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger
           aria-label="Open navigation"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#374151] hover:bg-[#F9FAFB]"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#394050] hover:bg-[#f1f5f9]"
         >
           <Menu className="h-5 w-5" />
         </SheetTrigger>

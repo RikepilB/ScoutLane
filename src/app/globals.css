@@ -1,78 +1,86 @@
 @import "tailwindcss";
 
 /* ── ScoutLane Design System ──
-   Brand: #2B4BFF (bright blue), #1A2EFF (darker blue)
-   Hero: #0F1B4D → #0B1437 gradient, border #1E2546
-   Text: #A3B0FF (periwinkle light), #FFFFFF (white)
-   Paper: #F9FAFB (input bg), #E5E7EB (border)
+   Brand: #1B2CC1 (royal primary), #3D518C (slate-blue hover)
+   Ink: #091540 (midnight) → #0c1529 (ink-900) → #394050 (graphite)
+   Paper: #f1f5f9 (bg) → #ffffff (surface) → #d4d9df (mist/borders)
+   Accents: #7692FF (peri), #ABD2FA (sky), #5ea7c5 (cyan), #5f8ea0 (steel)
 */
 
 @theme {
   /* ── Brand ── */
-  --color-brand-primary: #2B4BFF;
-  --color-brand-hover: #1A2EFF;
-  --color-brand-dark: #1E2546;
+  --color-brand-royal: #1B2CC1;
+  --color-brand-slate: #3D518C;
+  --color-brand-royal-hover: #2238d6;
+  --color-brand-royal-dark: #161fa8;
 
-  /* ── Hero (dark) ── */
-  --color-hero-top: #0F1B4D;
-  --color-hero-bottom: #0B1437;
-  --color-hero-border: #1E2546;
-
-  /* ── Light text ── */
-  --color-soft-white: #A3B0FF;
+  /* ── Ink (dark) ── */
+  --color-ink-950: #091540;
+  --color-ink-900: #0c1529;
+  --color-ink-800: #14213d;
+  --color-ink-700: #394050;
 
   /* ── Paper (light) ── */
-  --color-paper: #F9FAFB;
-  --color-paper-2: #F3F4F6;
-  --color-paper-3: #E5E7EB;
+  --color-paper: #f1f5f9;
+  --color-paper-2: #e6ecf2;
+  --color-paper-3: #d4d9df;
+
+  /* ── Accents ── */
+  --color-peri: #7692FF;
+  --color-sky: #ABD2FA;
+  --color-cyan: #5ea7c5;
+  --color-plum: #473459;
+  --color-steel: #5f8ea0;
 
   /* ── Surfaces (semantic) ── */
   --color-surface: #ffffff;
-  --color-surface-secondary: #F9FAFB;
+  --color-surface-secondary: #f1f5f9;
   --color-surface-raised: #ffffff;
 
   /* ── Text ── */
-  --color-text-primary: #0B1437;
-  --color-text-secondary: #374151;
-  --color-text-muted: #6B7280;
-  --color-text-soft: #9CA3AF;
-  --color-text-inverse: #FFFFFF;
+  --color-text-primary: #0c1529;
+  --color-text-secondary: #394050;
+  --color-text-muted: #5f8ea0;
+  --color-text-soft: #94a3b8;
+  --color-text-inverse: #f1f5f9;
 
   /* ── Borders ── */
-  --color-border-default: #E5E7EB;
-  --color-border-strong: #D1D5DB;
-  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-border-default: #d4d9df;
+  --color-border-strong: #b8c2cc;
+  --color-border-subtle: rgba(9, 21, 64, 0.08);
+  --color-border-dark: rgba(241, 245, 249, 0.08);
+  --color-border-dark-strong: rgba(241, 245, 249, 0.14);
 
   /* ── Status ── */
-  --color-success: #059669;
-  --color-success-soft: rgba(5, 150, 105, 0.12);
-  --color-warning: #D97706;
-  --color-warning-soft: rgba(217, 119, 6, 0.12);
-  --color-danger: #DC2626;
-  --color-danger-soft: rgba(220, 38, 38, 0.12);
-  --color-info: #0284C7;
-  --color-info-soft: rgba(2, 132, 199, 0.12);
+  --color-success: #2d8a6a;
+  --color-success-soft: rgba(45, 138, 106, 0.12);
+  --color-warning: #c88c28;
+  --color-warning-soft: rgba(200, 140, 40, 0.12);
+  --color-danger: #c93a3a;
+  --color-danger-soft: rgba(201, 58, 58, 0.12);
+  --color-info: #2d6f8a;
+  --color-info-soft: rgba(45, 111, 138, 0.12);
 
-  /* ── Legacy compat ── */
-  --color-background: #F9FAFB;
-  --color-foreground: #0B1437;
+  /* ── Legacy shadcn compat ── */
+  --color-background: #f1f5f9;
+  --color-foreground: #0c1529;
   --color-card: #ffffff;
-  --color-card-foreground: #0B1437;
+  --color-card-foreground: #0c1529;
   --color-popover: #ffffff;
-  --color-popover-foreground: #0B1437;
-  --color-primary: #2B4BFF;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #F9FAFB;
-  --color-secondary-foreground: #0B1437;
-  --color-muted: #F9FAFB;
-  --color-muted-foreground: #6B7280;
-  --color-accent: #F9FAFB;
-  --color-accent-foreground: #0B1437;
-  --color-destructive: #DC2626;
-  --color-destructive-foreground: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-input: #E5E7EB;
-  --color-ring: #2B4BFF;
+  --color-popover-foreground: #0c1529;
+  --color-primary: #1B2CC1;
+  --color-primary-foreground: #f1f5f9;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #0c1529;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #5f8ea0;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0c1529;
+  --color-destructive: #c93a3a;
+  --color-destructive-foreground: #f1f5f9;
+  --color-border: #d4d9df;
+  --color-input: #d4d9df;
+  --color-ring: #1B2CC1;
   --radius: 0.5rem;
 
   /* ── Font families ── */
@@ -105,9 +113,9 @@ body {
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(163, 176, 255, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(163, 176, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(163, 176, 255, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(171, 210, 250, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0); }
 }
 
 .animate-fade-up {
