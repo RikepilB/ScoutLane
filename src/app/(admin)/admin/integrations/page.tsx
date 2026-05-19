@@ -14,39 +14,39 @@ export default async function GlobalIntegrationsPage() {
   });
 
   return (
-    <main className="flex-1" style={{ background: "#f1f5f9" }}>
+    <main className="flex-1" style={{ background: "#F9FAFB" }}>
       <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
         <header className="animate-fade-up flex flex-col gap-1">
-          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#5f8ea0]"
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#6B7280]"
             style={{ fontFamily: "var(--font-mono)" }}>Integrations</p>
-          <h1 className="text-[32px] tracking-[-0.02em] text-[#0c1529]"
+          <h1 className="text-[32px] tracking-[-0.02em] text-[#0B1437]"
             style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>All integrations</h1>
-          <p className="text-[13.5px] text-[#5f8ea0]">
+          <p className="text-[13.5px] text-[#6B7280]">
             View every configured external integration across all jobs.
           </p>
         </header>
 
         {integrations.length === 0 ? (
-          <div className="animate-fade-up animate-fade-up-delay-1 rounded-2xl border border-dashed border-[#d4d9df] bg-white p-10 text-center">
-            <Webhook className="mx-auto h-9 w-9 text-[#5f8ea0]" />
-            <p className="mt-3 text-[13px] text-[#5f8ea0]">
+          <div className="animate-fade-up animate-fade-up-delay-1 rounded-2xl border border-dashed border-[#E5E7EB] bg-white p-10 text-center">
+            <Webhook className="mx-auto h-9 w-9 text-[#6B7280]" />
+            <p className="mt-3 text-[13px] text-[#6B7280]">
               No integrations configured yet. Add them from each job&apos;s integrations tab.
             </p>
           </div>
         ) : (
-          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-[#d4d9df] bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
             <table className="w-full text-[13.5px]">
               <thead>
-                <tr className="border-b border-[#d4d9df]">
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                <tr className="border-b border-[#E5E7EB]">
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#6B7280]"
                     style={{ fontFamily: "var(--font-mono)" }}>Job</th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#6B7280]"
                     style={{ fontFamily: "var(--font-mono)" }}>Trigger stage</th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#6B7280]"
                     style={{ fontFamily: "var(--font-mono)" }}>Endpoint</th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#6B7280]"
                     style={{ fontFamily: "var(--font-mono)" }}>Status</th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#6B7280]"
                     style={{ fontFamily: "var(--font-mono)" }}>Last result</th>
                 </tr>
               </thead>
@@ -54,25 +54,25 @@ export default async function GlobalIntegrationsPage() {
                 {integrations.map((integration) => {
                   const lastLog = integration.logs[0];
                   return (
-                    <tr key={integration.id} className="border-b border-[rgba(9,21,64,0.06)] transition-colors hover:bg-[#f1f5f9]">
+                    <tr key={integration.id} className="border-b border-[rgba(9,21,64,0.06)] transition-colors hover:bg-[#F9FAFB]">
                       <td className="px-4 py-3.5">
                         <a
                           href={`/admin/jobs/${integration.job.id}/integrations`}
-                          className="text-[13.5px] font-medium text-[#0c1529] hover:text-[#1B2CC1]"
+                          className="text-[13.5px] font-medium text-[#0B1437] hover:text-[#2B4BFF]"
                         >
                           {integration.job.title}
                         </a>
                       </td>
-                      <td className="px-4 py-3.5 text-[13px] text-[#394050]">
+                      <td className="px-4 py-3.5 text-[13px] text-[#374151]">
                         {integration.stage.name}
                       </td>
-                      <td className="px-4 py-3.5 max-w-xs truncate text-[12px] text-[#5f8ea0]"
+                      <td className="px-4 py-3.5 max-w-xs truncate text-[12px] text-[#6B7280]"
                         style={{ fontFamily: "var(--font-mono)" }}>
                         {integration.endpointUrl}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#2d8a6a]">
-                          <span className={`inline-flex h-2 w-2 rounded-full ${integration.active ? "bg-[#2d8a6a]" : "bg-[#d4d9df]"}`} />
+                        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#059669]">
+                          <span className={`inline-flex h-2 w-2 rounded-full ${integration.active ? "bg-[#059669]" : "bg-[#E5E7EB]"}`} />
                           Active
                         </span>
                       </td>
