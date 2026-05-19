@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/slug/slugify";
+import { DEPARTMENTS } from "@/lib/jobs/departments";
 import { jobCreationSchema, jobStatusValues } from "@/schemas/job";
 import { createJob } from "@/server/services/jobs/create";
 
@@ -78,16 +79,22 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
       status: "draft",
       slug: "",
       templateId,
+      department: initialValues?.department ?? "",
+      whatYouWillDo: initialValues?.whatYouWillDo ?? "",
+      requirements: initialValues?.requirements ?? "",
+      toolsAndSkills: initialValues?.toolsAndSkills ?? "",
     },
   });
 
   const watchedTitle = form.watch("title");
   const watchedDescription = form.watch("description");
+  const watchedWhatYouWillDo = form.watch("whatYouWillDo");
   const watchedLocation = form.watch("location");
   const watchedType = form.watch("type");
   const watchedSalary = form.watch("salary");
   const watchedStatus = form.watch("status");
   const watchedSlug = form.watch("slug");
+  const watchedDepartment = form.watch("department");
 
   useEffect(() => {
     const current = form.getValues("slug");
@@ -112,6 +119,10 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
     formData.set("title", values.title);
     formData.set("description", values.description ?? "");
     formData.set("status", values.status ?? "draft");
+    if (values.department) formData.set("department", values.department);
+    if (values.whatYouWillDo) formData.set("whatYouWillDo", values.whatYouWillDo);
+    if (values.requirements) formData.set("requirements", values.requirements);
+    if (values.toolsAndSkills) formData.set("toolsAndSkills", values.toolsAndSkills);
     if (values.location) formData.set("location", values.location);
     if (values.type) formData.set("type", values.type);
     if (values.salary) formData.set("salary", values.salary);
@@ -234,7 +245,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
                         <FormControl>
                           <Textarea
                             placeholder="Describe the role, expectations, and requirements."
-                            className="min-h-72"
+                            className="min-h-32"
                             {...field}
                           />
                         </FormControl>
@@ -242,11 +253,99 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
                       </FormItem>
                     )}
                   />
+
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 mb-4">
+                      Structured sections (appear on public job page)
+                    </p>
+
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="whatYouWillDo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>What you&apos;ll do</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Describe the day-to-day responsibilities. Markdown supported."
+                                className="min-h-28"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="requirements"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Requirements (one per line)</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder={`3+ years with React and TypeScript
+Experience with Node.js and PostgreSQL
+Strong CS fundamentals`}
+                                className="min-h-24"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="toolsAndSkills"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tools &amp; Skills (one per line)</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder={`React\nTypeScript\nNext.js\nDocker\nAWS`}
+                                className="min-h-24"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : null}
 
               {step === 1 ? (
                 <div className="space-y-5">
+                  <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Department</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="flex h-10 w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          >
+                            <option value="">None</option>
+                            {DEPARTMENTS.map((d) => (
+                              <option key={d} value={d}>
+                                {d}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <div className="grid gap-5 sm:grid-cols-2">
                     <FormField
                       control={form.control}

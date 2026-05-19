@@ -18,6 +18,13 @@ const defaultStages = [
   "Withdrawn",
 ];
 
+function stringToArray(value: string): string[] {
+  return value
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 export async function createJobImpl(formData: FormData): Promise<JobActionResult> {
   const parsed = jobCreationSchema.safeParse({
     title: formData.get("title"),
@@ -72,7 +79,7 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
           id: parsed.data.templateId,
           organizationId,
         },
-        select: { stageNames: true, name: true, questions: true, customFields: true, jobDescription: true, descriptionUrl: true },
+        select: { stageNames: true, name: true, questions: true, customFields: true, jobDescription: true, descriptionUrl: true, department: true, whatYouWillDo: true, requirements: true, toolsAndSkills: true },
       })
     : null;
 
@@ -90,10 +97,18 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
       type: parsed.data.type,
       salary: parsed.data.salary,
       slug: parsed.data.slug ?? buildJobSlug(parsed.data.title),
+      department: parsed.data.department ?? template?.department ?? undefined,
       organizationId,
       createdById: currentUser.id,
       published: persistence.published,
       archived: persistence.archived,
+      whatYouWillDo: parsed.data.whatYouWillDo ?? template?.whatYouWillDo ?? undefined,
+      requirements: parsed.data.requirements
+        ? stringToArray(parsed.data.requirements)
+        : template?.requirements ?? undefined,
+      toolsAndSkills: parsed.data.toolsAndSkills
+        ? stringToArray(parsed.data.toolsAndSkills)
+        : template?.toolsAndSkills ?? undefined,
       assessmentTitle: assessmentQuestions.length ? assessmentTitle : undefined,
       assessmentQuestions: assessmentQuestions.length ? assessmentQuestions : undefined,
       customFields: templateCustomFields

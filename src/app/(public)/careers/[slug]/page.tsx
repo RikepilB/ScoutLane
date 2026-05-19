@@ -1,12 +1,13 @@
 import { ApplicationForm } from "@/components/public/ApplicationForm";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { renderMarkdown } from "@/lib/utils/markdown";
 import type { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Briefcase, DollarSign, ArrowLeft, Building } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, ArrowLeft, Building, LogIn } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -68,6 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function JobApplicationPage({ params }: Props) {
   const { slug } = await params;
+  const session = await auth();
   let job: Prisma.JobGetPayload<{
     select: {
       id: true;
@@ -81,12 +83,15 @@ export default async function JobApplicationPage({ params }: Props) {
       type: true;
       salary: true;
       customFields: true;
+      whatYouWillDo: true;
+      requirements: true;
+      toolsAndSkills: true;
     };
   }> | null;
   try {
     job = await prisma.job.findUnique({
       where: { slug },
-      select: { id: true, title: true, description: true, descriptionUrl: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true },
+      select: { id: true, title: true, description: true, descriptionUrl: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true, whatYouWillDo: true, requirements: true, toolsAndSkills: true },
     });
   } catch (error) {
     console.error("[careers] failed to load public job:", error);
@@ -105,16 +110,30 @@ export default async function JobApplicationPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/70">
+      <header className="border-b border-border/70 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-950 text-xs font-bold text-white">SL</span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-xs font-bold text-white">SL</span>
             <span className="text-sm font-semibold text-slate-950">ScoutLane</span>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            All positions
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-blue-700 hover:text-blue-900 transition-colors">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to all positions
+            </Link>
+            {session?.user ? (
+              <Button asChild size="sm" variant="outline">
+                <Link href="/admin">Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800">
+                <Link href="/signin" className="inline-flex items-center gap-1.5">
+                  <LogIn className="h-3.5 w-3.5" />
+                  Sign in
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -168,6 +187,44 @@ export default async function JobApplicationPage({ params }: Props) {
 
             <div className="space-y-4">
               <h2 className="text-base font-semibold text-slate-900">About this role</h2>
+
+              {job.whatYouWillDo && (
+                <div
+                  className="prose prose-sm max-w-none text-slate-600 leading-7"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(job.whatYouWillDo) }}
+                />
+              )}
+
+              {job.requirements && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Requirements</h3>
+                  <ul className="space-y-1.5">
+                    {(job.requirements as string[]).map((req, i) => (
+                      <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-600" />
+                        {req}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {job.toolsAndSkills && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Tools &amp; Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(job.toolsAndSkills as string[]).map((skill, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {job.descriptionUrl ? (
                 <div className="space-y-3">
                   <a
