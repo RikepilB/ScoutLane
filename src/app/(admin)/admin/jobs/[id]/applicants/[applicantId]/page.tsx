@@ -193,8 +193,13 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
 
       {applicant.resumeUrl && (
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Resume</h3>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Resume</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Embedded preview with the original file kept available.
+              </p>
+            </div>
             <a
               href={applicant.resumeUrl}
               target="_blank"
@@ -205,6 +210,16 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
               Open resume in new tab
             </a>
           </div>
+          <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-slate-100">
+            <iframe
+              title={`${applicant.name} resume`}
+              src={applicant.resumeUrl}
+              className="h-[720px] w-full bg-white"
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            If the storage provider blocks embedding, open the resume in a new tab.
+          </p>
         </div>
       )}
 
