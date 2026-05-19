@@ -1,14 +1,42 @@
 import { ApplicationForm } from "@/components/public/ApplicationForm";
+import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { renderMarkdown } from "@/lib/utils/markdown";
+import type { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Home, MapPin, Briefcase, DollarSign, ArrowLeft, Building } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+function JobUnavailableState() {
+  return (
+    <div className="min-h-screen bg-[#f6f7fb]">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-xs font-bold text-white">SL</span>
+            <span className="text-sm font-bold text-slate-950">ScoutLane</span>
+          </Link>
+          <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800">
+            <Link href="/">Back home</Link>
+          </Button>
+        </div>
+      </header>
+      <main className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-6 text-center">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-950">Position not found</h1>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          This application link may have been removed, archived, or entered incorrectly.
+        </p>
+        <Button asChild className="mt-6 bg-blue-700 hover:bg-blue-800">
+          <Link href="/">Return home</Link>
+        </Button>
+      </main>
+    </div>
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -40,12 +68,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function JobApplicationPage({ params }: Props) {
   const { slug } = await params;
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    select: { id: true, title: true, description: true, descriptionUrl: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true },
-  });
+  let job: Prisma.JobGetPayload<{
+    select: {
+      id: true;
+      title: true;
+      description: true;
+      descriptionUrl: true;
+      slug: true;
+      published: true;
+      archived: true;
+      location: true;
+      type: true;
+      salary: true;
+      customFields: true;
+    };
+  }> | null;
+  try {
+    job = await prisma.job.findUnique({
+      where: { slug },
+      select: { id: true, title: true, description: true, descriptionUrl: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true },
+    });
+  } catch (error) {
+    console.error("[careers] failed to load public job:", error);
+    return <JobUnavailableState />;
+  }
 
-  if (!job) notFound();
+  if (!job) {
+    return <JobUnavailableState />;
+  }
 
   const status = getJobStatus(job);
 
