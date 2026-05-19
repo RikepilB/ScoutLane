@@ -204,7 +204,8 @@ src/
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
 | `pnpm test` | Vitest (54 tests across 10 files, all passing) |
-| `pnpm test:e2e` | Playwright (configured, no tests written yet) |
+| `pnpm test:e2e` | Playwright smoke tests across desktop and mobile Chromium |
+| `pnpm worker:resume` | pg-boss worker for asynchronous resume parsing |
 | `pnpm prisma:generate` | Regenerate Prisma client to `src/generated/prisma/` |
 | `pnpm prisma:migrate --name <x>` | Create + apply migration |
 | `pnpm prisma:deploy` | Apply pending migrations |

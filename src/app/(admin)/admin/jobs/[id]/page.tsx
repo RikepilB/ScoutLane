@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { JobStatusActions } from "@/components/admin/JobStatusActions";
 import { DeleteJobButton } from "@/components/admin/DeleteJobButton";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import {
   ApplicantTrendChart,
   PipelineStageDistributionChart,
@@ -18,9 +19,12 @@ interface OverviewPageProps {
 
 export default async function JobOverviewPage({ params }: OverviewPageProps) {
   const { id } = await params;
+  const user = await getCurrentUserWithOrganization();
+  const organizationId = user?.organizationId;
+  if (!organizationId) notFound();
 
-  const job = await prisma.job.findUnique({
-    where: { id },
+  const job = await prisma.job.findFirst({
+    where: { id, organizationId },
     include: {
       _count: { select: { applicants: true } },
       stages: { orderBy: { order: "asc" } },

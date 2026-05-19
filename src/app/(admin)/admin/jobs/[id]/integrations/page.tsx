@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import { ArrowLeft, Plus } from "lucide-react";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { IntegrationForm } from "./_components/IntegrationForm";
 import { IntegrationList } from "./_components/IntegrationList";
 
@@ -11,9 +10,12 @@ interface IntegrationsPageProps {
 
 export default async function IntegrationsPage({ params }: IntegrationsPageProps) {
   const { id } = await params;
+  const user = await getCurrentUserWithOrganization();
+  const organizationId = user?.organizationId;
+  if (!organizationId) notFound();
 
-  const job = await prisma.job.findUnique({
-    where: { id },
+  const job = await prisma.job.findFirst({
+    where: { id, organizationId },
     include: {
       stages: { orderBy: { order: "asc" } },
       integrations: {

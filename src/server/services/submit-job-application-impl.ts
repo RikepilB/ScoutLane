@@ -1,11 +1,10 @@
 import { Buffer } from "node:buffer";
-import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
-import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
+import { enqueueResumeParseJob } from "@/server/queues/resume";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
   type ApplicationActionResult,
@@ -115,19 +114,20 @@ export async function submitJobApplicationImpl(
     throw e;
   }
 
-  const applicantId = applicant.id;
-  after(async () => {
-    try {
-      await parseApplicantResumeFromBuffer(applicantId, resumeBuffer, resumeFilename);
-    } catch (error) {
-      console.error("[submit] parse-after-submit failed:", error);
-      await prisma.applicant
-        .update({ where: { id: applicantId }, data: { parsingStatus: "FAILED" } })
-        .catch(() => {});
-    }
-  });
-
   let warning: string | undefined;
+
+  try {
+    await enqueueResumeParseJob({
+      applicantId: applicant.id,
+      resumeUrl: upload.url,
+    });
+  } catch (error) {
+    console.error("[submit] resume queue enqueue failed:", error);
+    await prisma.applicant
+      .update({ where: { id: applicant.id }, data: { parsingStatus: "FAILED" } })
+      .catch(() => {});
+    warning = "Your application was submitted, but resume parsing could not be queued.";
+  }
 
   try {
     await sendApplicationConfirmationEmail({
@@ -148,7 +148,9 @@ export async function submitJobApplicationImpl(
         },
       })
       .catch((logErr) => console.error("Failed to log email error:", logErr));
-    warning = "Your application was submitted, but the confirmation email could not be sent.";
+    warning = warning
+      ? `${warning} The confirmation email could not be sent.`
+      : "Your application was submitted, but the confirmation email could not be sent.";
   }
 
   revalidatePath(`/careers/${job.slug}`);
