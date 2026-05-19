@@ -192,145 +192,106 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
             }}
           />
 
-          <div className="relative grid gap-12 lg:grid-cols-[1.6fr_1fr] lg:items-end">
+          <div className="relative grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[rgba(171,210,250,0.25)] bg-[rgba(171,210,250,0.08)] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#ABD2FA]">
                 <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full bg-[#ABD2FA]" />
                 AI-powered recruitment
               </div>
 
-              <h1 className="mb-5 text-[clamp(40px,5.6vw,76px)] leading-[0.96] tracking-[-0.035em] text-[#f1f5f9]"
-                style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
-                Current openings,<br />curated for{" "}
-                <em className="font-normal italic not-italic"
-                  style={{
-                    background: "linear-gradient(120deg, #ABD2FA, #7692FF)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}>
-                  real fit
-                </em>.
+              <h1 className="mb-5 text-[#f1f5f9]"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 500,
+                  fontSize: "clamp(40px, 5.6vw, 72px)",
+                  lineHeight: 0.98,
+                  letterSpacing: "-0.035em",
+                }}>
+                Current job openings at ScoutLane
               </h1>
 
-              <p className="mb-8 max-w-[520px] text-[17px] leading-[1.55] text-white/65">
-                We hire slowly, design carefully, and ship at the pace of trust. Browse the roles we&lsquo;re actively filling &mdash; every listing is owned by the hiring manager you&lsquo;ll work with.
+              <p className="mb-8 text-[17px] leading-[1.55]"
+                style={{
+                  color: "rgba(241, 245, 249, 0.7)",
+                  maxWidth: "560px",
+                }}>
+                Explore our open positions and find the role that matches your skills and ambitions.
               </p>
 
-              <div className="flex flex-wrap gap-x-8 gap-y-2 border-t border-dashed border-[rgba(118,146,255,0.20)] pt-7">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[32px] leading-none text-[#f1f5f9]"
-                    style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}>
-                    {count}
-                  </span>
-                  <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Open roles
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[32px] leading-none text-[#f1f5f9]"
-                    style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}>
-                    14d
-                  </span>
-                  <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Avg. response
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[32px] leading-none text-[#f1f5f9]"
-                    style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.02em" }}>
-                    96%
-                  </span>
-                  <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Offer acceptance
-                  </span>
-                </div>
+              <div className="flex items-center gap-3"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "12px",
+                  letterSpacing: "0.06em",
+                  color: "rgba(241, 245, 249, 0.55)",
+                  textTransform: "uppercase",
+                }}>
+                <span className="inline-block h-px w-6" style={{ background: "#5ea7c5" }} />
+                Open positions · {count} jobs available
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-6 lg:items-end">
-              <div className="w-full max-w-[280px] rounded-[18px] border border-[rgba(171,210,250,0.18)] bg-[rgba(9,21,64,0.6)] p-5 backdrop-blur-[8px]">
-                <div className="mb-3.5 flex items-center gap-2 text-[13px] text-white/80">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-                    <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
-                  </svg>
-                  Hiring velocity, last 90d
-                </div>
-                <div className="flex flex-col gap-2">
-                  {[
-                    { lbl: "Eng", val: 82 },
-                    { lbl: "Data", val: 64 },
-                    { lbl: "Product", val: 48 },
-                    { lbl: "Mktg", val: 31 },
-                  ].map((row) => (
-                    <div key={row.lbl} className="flex items-center gap-2.5 font-mono text-[11px] text-[#ABD2FA]"
-                      style={{ fontFamily: "var(--font-mono)" }}>
-                      <span className="w-16 text-white/50">{row.lbl}</span>
-                      <div className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(118,146,255,0.15)]">
-                        <div className="h-full rounded-full"
-                          style={{
-                            width: `${row.val}%`,
-                            background: "linear-gradient(90deg, #7692FF, #ABD2FA)",
-                          }}
-                        />
-                      </div>
-                      <span className="w-[30px] text-right text-white">{row.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-white/55"
-                style={{ fontFamily: "var(--font-mono)" }}>
-                <span className="h-px w-6 bg-[#5ea7c5]" />
-                Updated {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-              </div>
-
-              <div className="flex flex-wrap justify-end gap-2.5">
+            <div className="flex flex-col gap-3 lg:min-w-[180px]">
+              {session?.user ? (
                 <Link
-                  href="#"
-                  className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.18] bg-white/[0.04] px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s] hover:bg-white/[0.09] hover:border-white/[0.30]"
+                  href="/admin"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/[0.18] bg-white/[0.04] px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s] hover:bg-white/[0.09] hover:border-white/[0.30]"
                 >
-                  Browse teams
+                  Dashboard
                 </Link>
-                {session?.user ? (
-                  <Link
-                    href="/admin/jobs/new"
-                    className="inline-flex items-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s]"
-                    style={{
-                      background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
-                      boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                      e.currentTarget.style.boxShadow = "0 12px 28px rgba(27,44,193,0.55), inset 0 1px 0 rgba(255,255,255,0.16)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "";
-                      e.currentTarget.style.boxShadow = "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)";
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                      <path d="M12 5v14M5 12h14" />
-                    </svg>
-                    Post a role
-                  </Link>
-                ) : (
-                  <Link
-                    href="/signin"
-                    className="inline-flex items-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s]"
-                    style={{
-                      background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
-                      boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
-                    }}
-                  >
-                    Sign in
-                  </Link>
-                )}
-              </div>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/[0.18] bg-white/[0.04] px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s] hover:bg-white/[0.09] hover:border-white/[0.30]"
+                >
+                  Dashboard
+                </Link>
+              )}
+              {session?.user ? (
+                <Link
+                  href="/admin/jobs/new"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s]"
+                  style={{
+                    background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
+                    boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(27,44,193,0.55), inset 0 1px 0 rgba(255,255,255,0.16)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.boxShadow = "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)";
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Post a job
+                </Link>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s]"
+                  style={{
+                    background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
+                    boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(27,44,193,0.55), inset 0 1px 0 rgba(255,255,255,0.16)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.boxShadow = "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)";
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Post a job
+                </Link>
+              )}
             </div>
           </div>
         </header>
