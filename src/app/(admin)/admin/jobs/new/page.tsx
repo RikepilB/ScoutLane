@@ -40,6 +40,14 @@ export default async function NewJobPage({ searchParams }: NewJobPageProps) {
                   location: template.location ?? "",
                   type: template.type ?? "",
                   salary: template.salary ?? "",
+                  department: template.department ?? "",
+                  whatYouWillDo: template.whatYouWillDo ?? "",
+                  requirements: Array.isArray(template.requirements)
+                    ? (template.requirements as string[]).join("\n")
+                    : "",
+                  toolsAndSkills: Array.isArray(template.toolsAndSkills)
+                    ? (template.toolsAndSkills as string[]).join("\n")
+                    : "",
                 }
               : undefined
           }

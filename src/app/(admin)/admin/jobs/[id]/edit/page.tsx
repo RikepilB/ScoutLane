@@ -26,6 +26,14 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
         type: job.type ?? "",
         salary: job.salary ?? "",
         slug: job.slug ?? "",
+        department: job.department ?? "",
+        whatYouWillDo: job.whatYouWillDo ?? "",
+        requirements: Array.isArray(job.requirements)
+          ? (job.requirements as string[]).join("\n")
+          : "",
+        toolsAndSkills: Array.isArray(job.toolsAndSkills)
+          ? (job.toolsAndSkills as string[]).join("\n")
+          : "",
       }}
       currentStatus={status}
     />

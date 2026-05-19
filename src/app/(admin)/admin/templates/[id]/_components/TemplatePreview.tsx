@@ -20,6 +20,10 @@ interface TemplateData {
   location: string | null;
   type: string | null;
   salary: string | null;
+  department: string | null;
+  whatYouWillDo: string | null;
+  requirements: string[] | null;
+  toolsAndSkills: string[] | null;
   stageNames: string[];
   questions: unknown;
   customFields: unknown;
@@ -86,7 +90,40 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                   {template.location && <div><span className="font-medium">Location:</span> {template.location}</div>}
                   {template.type && <div><span className="font-medium">Type:</span> {template.type}</div>}
                   {template.salary && <div><span className="font-medium">Salary:</span> {template.salary}</div>}
+                  {template.department && <div><span className="font-medium">Department:</span> {template.department}</div>}
                 </div>
+                {template.whatYouWillDo && (
+                  <div className="mt-2">
+                    <span className="text-sm font-medium">What you&apos;ll do:</span>
+                    <pre className="mt-1 max-h-24 overflow-y-auto rounded-lg bg-muted/30 p-3 text-xs text-slate-700 whitespace-pre-wrap">
+                      {template.whatYouWillDo}
+                    </pre>
+                  </div>
+                )}
+                {template.requirements && template.requirements.length > 0 && (
+                  <div className="mt-2">
+                    <span className="text-sm font-medium">Requirements ({template.requirements.length}):</span>
+                    <ul className="mt-1 space-y-0.5">
+                      {template.requirements.map((r, i) => (
+                        <li key={i} className="text-xs text-slate-600 flex gap-1.5">
+                          <span className="text-blue-600">•</span> {r}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {template.toolsAndSkills && template.toolsAndSkills.length > 0 && (
+                  <div className="mt-2">
+                    <span className="text-sm font-medium">Tools &amp; Skills:</span>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {template.toolsAndSkills.map((s, i) => (
+                        <span key={i} className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {template.jobDescription && (
                   <div className="mt-2">
                     <span className="text-sm font-medium">Description:</span>

@@ -56,6 +56,10 @@ function formDataToTemplateInput(formData: FormData) {
     location: formData.get("location") ?? undefined,
     type: formData.get("type") ?? undefined,
     salary: formData.get("salary") ?? undefined,
+    department: formData.get("department") ?? undefined,
+    whatYouWillDo: formData.get("whatYouWillDo") ?? undefined,
+    requirements: formData.get("requirements") ?? undefined,
+    toolsAndSkills: formData.get("toolsAndSkills") ?? undefined,
     stageNames,
     questions,
     customFields,
@@ -112,6 +116,14 @@ export async function updateTemplate(id: string, formData: FormData) {
       location: parsed.data.location,
       type: parsed.data.type,
       salary: parsed.data.salary,
+      department: parsed.data.department,
+      whatYouWillDo: parsed.data.whatYouWillDo,
+      requirements: parsed.data.requirements
+        ? parsed.data.requirements.split("\n").map((s: string) => s.trim()).filter(Boolean)
+        : undefined,
+      toolsAndSkills: parsed.data.toolsAndSkills
+        ? parsed.data.toolsAndSkills.split("\n").map((s: string) => s.trim()).filter(Boolean)
+        : undefined,
       stageNames: parsed.data.stageNames,
       questions: parsed.data.questions,
       customFields: parsed.data.customFields as Prisma.InputJsonValue,
