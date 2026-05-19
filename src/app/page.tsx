@@ -44,39 +44,36 @@ export default async function Home() {
   const count = jobs.length;
 
   return (
-    <div className="min-h-screen bg-[#0f0f17]">
-      <div className="mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-6">
-        <header className="mb-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563eb] text-sm font-bold text-white">
-              SL
-            </span>
-            <span className="text-base font-semibold tracking-tight text-white">ScoutLane</span>
-          </Link>
+    <div className="min-h-screen bg-[#f6f7fb]">
+      <section
+        className="pb-12 pt-4 sm:pb-16 sm:pt-6"
+        style={{ background: "linear-gradient(135deg, #1150ff 0%, #0043ce 100%)" }}
+      >
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <header className="mb-8 flex items-center justify-between sm:mb-12">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-sm font-bold text-white">
+                SL
+              </span>
+              <span className="text-lg font-semibold tracking-tight text-white">ScoutLane</span>
+            </Link>
 
-          <nav className="flex items-center gap-3">
-            {session?.user ? (
-              <Button asChild size="sm" className="rounded-full bg-white text-slate-900 hover:bg-slate-100">
-                <Link href="/admin">Dashboard</Link>
-              </Button>
-            ) : (
-              <Button asChild size="sm" className="rounded-full bg-white text-slate-900 hover:bg-slate-100">
-                <Link href="/signin" className="inline-flex items-center gap-1.5">
-                  <LogIn className="h-3.5 w-3.5" />
-                  Sign in
-                </Link>
-              </Button>
-            )}
-          </nav>
-        </header>
+            <nav className="flex items-center gap-3">
+              {session?.user ? (
+                <Button asChild size="sm" className="rounded-full bg-white text-slate-900 hover:bg-slate-100">
+                  <Link href="/admin">Dashboard</Link>
+                </Button>
+              ) : (
+                <Button asChild size="sm" className="rounded-full bg-white text-slate-900 hover:bg-slate-100">
+                  <Link href="/signin" className="inline-flex items-center gap-1.5">
+                    <LogIn className="h-3.5 w-3.5" />
+                    Sign in
+                  </Link>
+                </Button>
+              )}
+            </nav>
+          </header>
 
-        <section
-          className="relative overflow-hidden rounded-[24px] px-6 py-8 sm:px-10 sm:py-12"
-          style={{
-            background: "linear-gradient(135deg, #1150ff 0%, #0043ce 100%)",
-            boxShadow: "0 18px 40px rgba(15, 23, 42, 0.45)",
-          }}
-        >
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-3">
               <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/90">
@@ -113,12 +110,14 @@ export default async function Home() {
               )}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
+      <div className="mx-auto max-w-[1200px] px-4 pb-12 sm:px-6">
         {count === 0 ? (
           <div className="mt-10 text-center">
-            <p className="text-lg text-slate-400">No open positions at this time.</p>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="text-lg text-slate-500">No open positions at this time.</p>
+            <p className="mt-2 text-sm text-slate-400">
               Check back later or sign in to create job listings.
             </p>
           </div>
