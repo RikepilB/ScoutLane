@@ -6,7 +6,7 @@ export type { SidebarUser };
 
 export function Sidebar({ user }: { user: SidebarUser }) {
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-shrink-0 md:flex-col md:border-r md:border-border/70 md:bg-card">
+    <aside className="sticky top-0 hidden h-screen w-[220px] flex-shrink-0 flex-col overflow-y-auto border-r border-[#d4d9df] bg-white md:flex">
       <SidebarNav user={user} />
     </aside>
   );

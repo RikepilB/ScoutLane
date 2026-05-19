@@ -1,18 +1,19 @@
 import { cn } from "@/lib/utils/cn";
 
 const statusStyles: Record<string, string> = {
-  active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  draft: "bg-amber-50 text-amber-700 ring-amber-200",
-  closed: "bg-slate-100 text-slate-600 ring-slate-200",
+  active: "bg-[rgba(45,138,106,0.12)] text-[#2d8a6a]",
+  draft: "bg-[rgba(200,140,40,0.12)] text-[#c88c28]",
+  closed: "bg-[rgba(95,142,160,0.16)] text-[#5f8ea0]",
 };
 
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset",
-        statusStyles[status] || "bg-slate-100 text-slate-700",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-[11.5px] font-medium capitalize",
+        statusStyles[status] || "bg-[rgba(95,142,160,0.16)] text-[#5f8ea0]",
       )}
+      style={{ fontFamily: "var(--font-body)" }}
     >
       {status}
     </span>

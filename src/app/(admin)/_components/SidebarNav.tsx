@@ -53,9 +53,9 @@ function getNavItems(role: string | undefined): NavItem[] {
 }
 
 const rolePillStyles: Record<string, string> = {
-  ADMIN: "bg-slate-950 text-white",
-  RECRUITER: "bg-sky-100 text-sky-700",
-  HIRING_MANAGER: "bg-violet-100 text-violet-700",
+  ADMIN: "bg-[#0c1529] text-[#f1f5f9]",
+  RECRUITER: "bg-[rgba(94,167,197,0.14)] text-[#2d6f8a]",
+  HIRING_MANAGER: "bg-[rgba(71,52,89,0.14)] text-[#473459]",
 };
 
 const roleLabels: Record<string, string> = {
@@ -81,21 +81,25 @@ export function SidebarNav({
   const navItems = getNavItems(user.role);
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
-      <div className="flex h-16 items-center gap-2 border-b border-border/70 px-5">
+    <div className="flex h-full min-h-0 flex-1 flex-col font-[family-name:var(--font-body)]">
+      <div className="flex items-center gap-2.5 px-3 py-4 border-b border-[rgba(9,21,64,0.06)]">
         <Link
           href="/admin"
           onClick={onNavigate}
-          className="flex items-center gap-2 text-base font-semibold tracking-tight"
+          className="flex items-center gap-2.5"
         >
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-950 text-xs font-bold text-white">
+          <span className="inline-flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#1B2CC1] to-[#3D518C] text-[13px] font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+            style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
             SL
           </span>
-          ScoutLane
+          <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#0c1529]"
+            style={{ fontFamily: "var(--font-display)" }}>
+            ScoutLane
+          </span>
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-3">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.exact
@@ -109,47 +113,50 @@ export function SidebarNav({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                active ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-100",
+                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-[0.16s]",
+                active
+                  ? "bg-[#0c1529] text-[#f1f5f9]"
+                  : "text-[#5f8ea0] hover:bg-[#f1f5f9] hover:text-[#0c1529]",
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-[15px] w-[15px] flex-shrink-0" />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-border/70 p-4">
-        <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
+      <div className="mt-auto border-t border-[rgba(9,21,64,0.06)] p-3">
+        <div className="mb-2 flex items-center gap-2.5 px-1.5 py-1">
+          <div className="flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center rounded-full bg-[#d4d9df] text-xs font-semibold text-[#394050]">
             {(user.name ?? user.email).charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="truncate text-sm font-medium text-slate-900">
+            <div className="flex items-center gap-1.5">
+              <span className="truncate text-[12.5px] font-medium text-[#0c1529]">
                 {user.name ?? user.email.split("@")[0]}
               </span>
               {user.role ? (
                 <span
                   className={cn(
-                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                    rolePillStyles[user.role] ?? "bg-slate-100 text-slate-600",
+                    "shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em]",
+                    rolePillStyles[user.role] ?? "bg-[#f1f5f9] text-[#394050]",
                   )}
+                  style={{ fontFamily: "var(--font-mono)" }}
                 >
                   {roleLabels[user.role] ?? user.role}
                 </span>
               ) : null}
             </div>
-            <div className="truncate text-xs text-slate-500">{user.email}</div>
+            <div className="truncate text-[11px] text-[#5f8ea0]">{user.email}</div>
           </div>
         </div>
         <button
           type="button"
           onClick={() => signOut({ redirectTo: "/" })}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-border/70 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#d4d9df] px-3 py-2 text-[12.5px] font-medium text-[#5f8ea0] transition-all duration-[0.16s] hover:bg-[#f1f5f9] hover:text-[#0c1529]"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-[13px] w-[13px]" />
           Sign out
         </button>
       </div>

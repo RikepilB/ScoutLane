@@ -28,17 +28,20 @@ export default async function TemplatesPage() {
     : [];
 
   return (
-    <main className="flex-1 bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">
+    <main className="flex-1" style={{ background: "#f1f5f9" }}>
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+        {/* Page header */}
+        <header className="animate-fade-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#5f8ea0]"
+              style={{ fontFamily: "var(--font-mono)" }}>
               Templates
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+            <h1 className="text-[32px] tracking-[-0.02em] text-[#0c1529]"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
               Job templates
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[13.5px] text-[#5f8ea0]">
               Save role defaults, screening questions, and pipeline stages for repeated hiring.
             </p>
           </div>
@@ -46,9 +49,9 @@ export default async function TemplatesPage() {
         </header>
 
         {templates.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border bg-muted/20 p-10 text-center">
-            <FilePlus2 className="mx-auto h-9 w-9 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">
+          <div className="animate-fade-up animate-fade-up-delay-1 rounded-2xl border border-dashed border-[#d4d9df] bg-white p-10 text-center">
+            <FilePlus2 className="mx-auto h-9 w-9 text-[#5f8ea0]" />
+            <p className="mt-3 text-[13px] text-[#5f8ea0]">
               No templates yet. Create one to reuse a role setup across future jobs.
             </p>
             <div className="mt-4">
@@ -56,47 +59,59 @@ export default async function TemplatesPage() {
             </div>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Template</th>
-                  <th className="px-5 py-3 font-medium">Role defaults</th>
-                  <th className="px-5 py-3 font-medium">Stages</th>
-                  <th className="px-5 py-3 font-medium">Updated</th>
-                  <th className="px-5 py-3" />
+          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-[#d4d9df] bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+            <table className="w-full text-[13.5px]">
+              <thead>
+                <tr className="border-b border-[#d4d9df]">
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>
+                    Template
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>
+                    Role defaults
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>
+                    Stages
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                    style={{ fontFamily: "var(--font-mono)" }}>
+                    Updated
+                  </th>
+                  <th className="px-4 py-2.5" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody>
                 {templates.map((template) => (
-                  <tr key={template.id} className="hover:bg-muted/20">
-                    <td className="px-5 py-4">
-                      <div className="font-medium text-slate-950">{template.name}</div>
-                      <div className="mt-0.5 max-w-md truncate text-xs text-muted-foreground">
+                  <tr key={template.id} className="border-b border-[rgba(9,21,64,0.06)] transition-colors hover:bg-[#f1f5f9]">
+                    <td className="px-4 py-3.5">
+                      <div className="text-[13.5px] font-medium text-[#0c1529]">{template.name}</div>
+                      <div className="mt-0.5 max-w-md truncate text-[12px] text-[#5f8ea0]">
                         {template.description ?? "No description"}
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-slate-700">
+                    <td className="px-4 py-3.5 text-[13px] text-[#394050]">
                       <div>{template.title}</div>
-                      <div className="mt-0.5 text-xs text-muted-foreground">
+                      <div className="mt-0.5 text-[12px] text-[#5f8ea0]">
                         {[template.location, template.type].filter(Boolean).join(" / ") ||
                           "No location or type"}
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-slate-700">{template.stageNames.length}</td>
-                    <td className="px-5 py-4 text-muted-foreground">
+                    <td className="px-4 py-3.5 text-[13px] text-[#394050]">{template.stageNames.length}</td>
+                    <td className="px-4 py-3.5 text-[13px] text-[#1B2CC1]">
                       {formatDate(template.updatedAt)}
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex justify-end gap-2">
-                        <Button asChild variant="outline" size="sm">
+                    <td className="px-4 py-3.5">
+                      <div className="flex justify-end gap-1.5">
+                        <Button asChild variant="outline" size="sm" className="h-[30px] rounded-md border-[#d4d9df] text-[12px] text-[#0c1529]">
                           <Link href={`/admin/jobs/new?template=${template.id}`}>
                             Use template
                           </Link>
                         </Button>
-                        <Button asChild variant="ghost" size="sm">
+                        <Button asChild variant="ghost" size="sm" className="h-[30px] rounded-md text-[12px]">
                           <Link href={`/admin/templates/${template.id}`}>
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-3.5 w-3.5" />
                             Edit
                           </Link>
                         </Button>
@@ -104,9 +119,9 @@ export default async function TemplatesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hover:text-red-600 hover:bg-red-50"
+                            className="h-[30px] rounded-md text-[12px] text-[#5f8ea0] hover:bg-[rgba(201,58,58,0.12)] hover:text-[#c93a3a]"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5" />
                             Delete
                           </Button>
                         </form>
@@ -116,13 +131,13 @@ export default async function TemplatesPage() {
                 ))}
               </tbody>
             </table>
+            <div className="border-t border-[rgba(9,21,64,0.06)] px-4 py-3.5">
+              <p className="text-[13px] text-[#1B2CC1]">
+                Applying a template copies its fields and stages into the new job. Later template edits do not change existing jobs.
+              </p>
+            </div>
           </div>
         )}
-
-        <section className="rounded-2xl border border-border/70 bg-muted/30 p-5 text-sm text-muted-foreground">
-          Applying a template copies its fields and stages into the new job. Later template edits do
-          not change existing jobs.
-        </section>
       </div>
     </main>
   );
