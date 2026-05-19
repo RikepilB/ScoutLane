@@ -5,10 +5,19 @@
 /PROGRESS-REPORT.md
 /NEXT-STEPS.md
 
-# Documentation lives locally only — never pushed to public branches.
+# Curated project documentation is tracked under /docs.
+# Other local documentation can stay on disk without showing up in Git.
 /docs/*
-# …except the API reference, which is part of the public docs.
 !/docs/API.md
+!/docs/ARCHITECTURE.md
+!/docs/CLAUDE.md
+!/docs/HANDOFF.md
+!/docs/INTEGRATIONS.md
+!/docs/PROJECT-GUIDE.md
+!/docs/README.md
+!/docs/STACK.md
+!/docs/TESTING.md
+!/docs/UX-TEST-PROTOCOL.md
 # Dependencies
 node_modules/
 .pnp/

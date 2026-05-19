@@ -12,26 +12,29 @@ interface StatCardProps {
   value: number;
   hint?: string;
   icon: React.ComponentType<{ className?: string }>;
-  accent: "sky" | "amber" | "emerald" | "violet";
+  accent: "green" | "amber" | "cyan" | "peri";
 }
 
-const accentMap: Record<StatCardProps["accent"], string> = {
-  sky: "bg-sky-50 text-sky-700",
-  amber: "bg-amber-50 text-amber-700",
-  emerald: "bg-emerald-50 text-emerald-700",
-  violet: "bg-violet-50 text-violet-700",
+const accentMap: Record<StatCardProps["accent"], { bg: string; fg: string }> = {
+  green: { bg: "bg-[rgba(45,138,106,0.12)]", fg: "text-[#2d8a6a]" },
+  amber: { bg: "bg-[rgba(200,140,40,0.12)]", fg: "text-[#c88c28]" },
+  cyan: { bg: "bg-[rgba(45,111,138,0.12)]", fg: "text-[#2d6f8a]" },
+  peri: { bg: "bg-[rgba(118,146,255,0.14)]", fg: "text-[#3D518C]" },
 };
 
 function StatCard({ label, value, hint, icon: Icon, accent }: StatCardProps) {
+  const a = accentMap[accent];
   return (
-    <article className="flex items-start gap-4 rounded-3xl border border-border/70 bg-card p-5 shadow-sm">
-      <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentMap[accent]}`}>
-        <Icon className="h-5 w-5" />
+    <article className="flex items-start gap-3.5 rounded-2xl border border-[#d4d9df] bg-white p-[18px] shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+      <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] ${a.bg} ${a.fg}`}>
+        <Icon className="h-[17px] w-[17px]" />
       </div>
-      <div className="flex-1">
-        <div className="text-sm text-muted-foreground">{label}</div>
-        <div className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">{value}</div>
-        {hint ? <div className="mt-1 text-xs text-muted-foreground">{hint}</div> : null}
+      <div>
+        <div className="text-[12.5px] text-[#5f8ea0]">{label}</div>
+        <div className="mt-1 text-[30px] leading-none tracking-[-0.02em] text-[#0c1529]" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          {value}
+        </div>
+        {hint ? <div className="mt-1.5 text-[11.5px] text-[#5f8ea0]">{hint}</div> : null}
       </div>
     </article>
   );
@@ -43,9 +46,9 @@ export default async function AdminDashboardPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const activeJobs = jobs.filter((j: (typeof jobs)[number]) => getJobStatus(j) === "active");
-  const draftJobs = jobs.filter((j: (typeof jobs)[number]) => getJobStatus(j) === "draft");
-  const totalApplicants = jobs.reduce((sum: number, j: (typeof jobs)[number]) => sum + j._count.applicants, 0);
+  const activeJobs = jobs.filter((j) => getJobStatus(j) === "active");
+  const draftJobs = jobs.filter((j) => getJobStatus(j) === "draft");
+  const totalApplicants = jobs.reduce((sum, j) => sum + j._count.applicants, 0);
 
   const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const newApplicantsThisWeek = await prisma.applicant.count({
@@ -77,84 +80,82 @@ export default async function AdminDashboardPage() {
   const applicantTrend = Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count }));
 
   return (
-    <main className="flex-1 bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
-        <section className="rounded-[2rem] border border-border/70 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8 text-white shadow-sm">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.24em] text-sky-200/80">
+    <main className="flex-1" style={{ background: "#f1f5f9" }}>
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-10 py-8">
+        {/* Hero */}
+        <section className="animate-fade-up relative overflow-hidden rounded-[24px] p-9 text-[#f1f5f9] shadow-[0_12px_32px_rgba(9,21,64,0.10),0_4px_8px_rgba(9,21,64,0.06)]"
+          style={{
+            background: "radial-gradient(circle at 8% 20%, rgba(27,44,193,0.45), transparent 55%), linear-gradient(170deg, #091540 0%, #0c1529 70%)",
+          }}>
+          <div className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: "linear-gradient(rgba(118,146,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(118,146,255,0.05) 1px, transparent 1px)",
+              backgroundSize: "56px 56px",
+              WebkitMaskImage: "radial-gradient(ellipse at 75% 50%, black 25%, transparent 75%)",
+              maskImage: "radial-gradient(ellipse at 75% 50%, black 25%, transparent 75%)",
+            }}
+          />
+
+          <div className="relative flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <div className="mb-3.5 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#ABD2FA]"
+                style={{ fontFamily: "var(--font-mono)" }}>
+                <span className="h-px w-5 bg-[#ABD2FA]" />
                 Recruitment cockpit
-              </p>
-              <h1 className="text-4xl font-semibold tracking-tight">Admin dashboard</h1>
-              <p className="max-w-2xl text-sm text-slate-300">
-                Quick snapshot of hiring activity. Open the Jobs list to manage roles and review
-                applicants by stage.
+              </div>
+              <h1 className="mb-2.5 text-[40px] leading-none tracking-[-0.03em]"
+                style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+                Admin dashboard
+              </h1>
+              <p className="max-w-[520px] text-[14px] leading-[1.55] text-white/65">
+                Quick snapshot of hiring activity. Open the Jobs list to manage roles and review applicants by stage.
               </p>
             </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="secondary">
+            <div className="flex gap-2.5">
+              <Button asChild className="rounded-lg border border-white/[0.16] bg-white/[0.06] text-[#f1f5f9] hover:bg-white/[0.12]">
                 <Link href="/admin/jobs">View jobs</Link>
               </Button>
-              <Button asChild>
-                <Link href="/admin/jobs/new">Create job</Link>
+              <Button asChild className="rounded-lg bg-gradient-to-b from-[#1B2CC1] to-[#161fa8] text-[#f1f5f9] shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+                <Link href="/admin/jobs/new" className="inline-flex items-center gap-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                  Create job
+                </Link>
               </Button>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Active jobs"
-            value={activeJobs.length}
-            hint="Published and open to applicants"
-            icon={Briefcase}
-            accent="emerald"
-          />
-          <StatCard
-            label="Draft jobs"
-            value={draftJobs.length}
-            hint="Saved but not yet published"
-            icon={FileEdit}
-            accent="amber"
-          />
-          <StatCard
-            label="Total applicants"
-            value={totalApplicants}
-            hint={`Across all ${jobs.length} jobs`}
-            icon={Users}
-            accent="sky"
-          />
-          <StatCard
-            label="New this week"
-            value={newApplicantsThisWeek}
-            hint="Applicants in the last 7 days"
-            icon={UserPlus}
-            accent="violet"
-          />
+        {/* Stats */}
+        <section className="animate-fade-up animate-fade-up-delay-1 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Active jobs" value={activeJobs.length} hint="Published and open to applicants" icon={Briefcase} accent="green" />
+          <StatCard label="Draft jobs" value={draftJobs.length} hint="Saved but not yet published" icon={FileEdit} accent="amber" />
+          <StatCard label="Total applicants" value={totalApplicants} hint={`Across all ${jobs.length} jobs`} icon={Users} accent="cyan" />
+          <StatCard label="New this week" value={newApplicantsThisWeek} hint="Applicants in the last 7 days" icon={UserPlus} accent="peri" />
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        {/* Charts */}
+        <section className="animate-fade-up animate-fade-up-delay-2 grid gap-4 lg:grid-cols-2">
           <StageDistributionChart
-            data={stageDistribution.map((s: (typeof stageDistribution)[number]) => ({ status: s.status, count: s._count.id }))}
+            data={stageDistribution.map((s) => ({ status: s.status, count: s._count.id }))}
           />
           <ApplicantTrendChart data={applicantTrend} />
         </section>
 
-        <section className="rounded-3xl border border-dashed border-border bg-muted/30 p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold tracking-tight">Manage all jobs</h2>
-              <p className="text-sm text-muted-foreground">
-                Filter by status, review applicant counts, and jump into the public page.
-              </p>
-            </div>
-            <Button asChild variant="outline">
-              <Link href="/admin/jobs" className="inline-flex items-center gap-1">
-                Open jobs list <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </Button>
+        {/* Manage card */}
+        <section className="animate-fade-up animate-fade-up-delay-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-[#d4d9df] bg-white px-6 py-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+          <div>
+            <h2 className="text-[15px] font-semibold text-[#0c1529]" style={{ fontFamily: "var(--font-display)" }}>
+              Manage all jobs
+            </h2>
+            <p className="text-[13px] text-[#5f8ea0]">
+              Filter by status, review applicant counts, and jump into the public page.
+            </p>
           </div>
+          <Button asChild variant="outline" className="gap-1.5 rounded-lg border-[#d4d9df] text-[#0c1529] hover:bg-[#f1f5f9]">
+            <Link href="/admin/jobs">
+              Open jobs list <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </Button>
         </section>
       </div>
     </main>

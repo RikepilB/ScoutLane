@@ -20,13 +20,13 @@ const STATUS_ORDER: ApplicationStatus[] = [
 ];
 
 const STATUS_BADGE_COLORS: Record<string, string> = {
-  NEW: "bg-indigo-50 text-indigo-700",
-  REVIEWING: "bg-amber-50 text-amber-700",
-  SHORTLISTED: "bg-sky-50 text-sky-700",
-  INTERVIEW: "bg-blue-50 text-blue-700",
-  OFFERED: "bg-emerald-50 text-emerald-700",
-  REJECTED: "bg-red-50 text-red-700",
-  WITHDRAWN: "bg-slate-100 text-slate-600",
+  NEW: "bg-[rgba(27,44,193,0.10)] text-[#1B2CC1]",
+  REVIEWING: "bg-[rgba(200,140,40,0.12)] text-[#c88c28]",
+  SHORTLISTED: "bg-[rgba(45,111,138,0.12)] text-[#2d6f8a]",
+  INTERVIEW: "bg-[rgba(118,146,255,0.14)] text-[#3D518C]",
+  OFFERED: "bg-[rgba(45,138,106,0.12)] text-[#2d8a6a]",
+  REJECTED: "bg-[rgba(201,58,58,0.12)] text-[#c93a3a]",
+  WITHDRAWN: "bg-[rgba(95,142,160,0.16)] text-[#5f8ea0]",
 };
 
 function formatDate(date: Date) {
@@ -76,12 +76,14 @@ export default async function GlobalApplicantsPage({
 
   if (!organizationId) {
     return (
-      <main className="flex-1 bg-background">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-          <header className="flex flex-col gap-1">
-            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Applicants</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">All applicants</h1>
-            <p className="text-sm text-muted-foreground">
+      <main className="flex-1" style={{ background: "#f1f5f9" }}>
+        <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+          <header className="animate-fade-up flex flex-col gap-1">
+            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#5f8ea0]"
+              style={{ fontFamily: "var(--font-mono)" }}>Applicants</p>
+            <h1 className="text-[32px] tracking-[-0.02em] text-[#0c1529]"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>All applicants</h1>
+            <p className="text-[13.5px] text-[#5f8ea0]">
               Applications appear here once candidates submit them.
             </p>
           </header>
@@ -136,12 +138,14 @@ export default async function GlobalApplicantsPage({
 
   if (totalApplicants === 0) {
     return (
-      <main className="flex-1 bg-background">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-          <header className="flex flex-col gap-1">
-            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Applicants</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">All applicants</h1>
-            <p className="text-sm text-muted-foreground">
+      <main className="flex-1" style={{ background: "#f1f5f9" }}>
+        <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+          <header className="animate-fade-up flex flex-col gap-1">
+            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#5f8ea0]"
+              style={{ fontFamily: "var(--font-mono)" }}>Applicants</p>
+            <h1 className="text-[32px] tracking-[-0.02em] text-[#0c1529]"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>All applicants</h1>
+            <p className="text-[13.5px] text-[#5f8ea0]">
               Applications appear here once candidates submit them.
             </p>
           </header>
@@ -154,24 +158,26 @@ export default async function GlobalApplicantsPage({
   const totalPages = Math.ceil(filteredCount / PAGE_SIZE);
 
   return (
-    <main className="flex-1 bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-        <header className="flex flex-col gap-1">
-          <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Applicants</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">All applicants</h1>
-          <p className="text-sm text-muted-foreground">
+    <main className="flex-1" style={{ background: "#f1f5f9" }}>
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+        <header className="animate-fade-up flex flex-col gap-1">
+          <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#5f8ea0]"
+            style={{ fontFamily: "var(--font-mono)" }}>Applicants</p>
+          <h1 className="text-[32px] tracking-[-0.02em] text-[#0c1529]"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>All applicants</h1>
+          <p className="text-[13.5px] text-[#5f8ea0]">
             {totalApplicants} applicant{totalApplicants !== 1 ? "s" : ""} across all jobs
           </p>
         </header>
 
         {/* Status filter pills */}
-        <div className="flex flex-wrap gap-2">
+        <div className="animate-fade-up animate-fade-up-delay-1 flex flex-wrap gap-2">
           <Link
             href={buildHref({ status: undefined, page: "1" })}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-all duration-[0.16s] ${
               !currentStatus
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "border-[#0c1529] bg-[#0c1529] text-[#f1f5f9]"
+                : "border-[#d4d9df] bg-white text-[#5f8ea0] hover:bg-[#f1f5f9] hover:text-[#0c1529]"
             }`}
           >
             <span className="font-semibold">{totalApplicants}</span> Total
@@ -182,10 +188,10 @@ export default async function GlobalApplicantsPage({
               <Link
                 key={s}
                 href={buildHref({ status: s, page: "1" })}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-all duration-[0.16s] ${
                   currentStatus === s
-                    ? "bg-slate-950 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    ? "border-[#0c1529] bg-[#0c1529] text-[#f1f5f9]"
+                    : "border-[#d4d9df] bg-white text-[#5f8ea0] hover:bg-[#f1f5f9] hover:text-[#0c1529]"
                 }`}
               >
                 <span className="font-semibold">{count}</span> {s}
@@ -196,33 +202,42 @@ export default async function GlobalApplicantsPage({
 
         {/* Applicants table */}
         {filteredCount === 0 ? (
-          <div className="rounded-3xl border border-border/70 bg-card px-6 py-12 text-center text-sm text-muted-foreground">
-            No applicants with <span className="font-medium text-slate-950">{currentStatus}</span> status.
+          <div className="animate-fade-up animate-fade-up-delay-2 rounded-2xl border border-[#d4d9df] bg-white px-6 py-12 text-center shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+            <p className="text-[13px] text-[#5f8ea0]">
+              No applicants with <span className="font-medium text-[#0c1529]">{currentStatus}</span> status.
+            </p>
           </div>
         ) : (
           <>
-            <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                  <tr>
-                    <th className="px-5 py-3 font-medium">Name</th>
-                    <th className="px-5 py-3 font-medium">Email</th>
-                    <th className="px-5 py-3 font-medium">Job</th>
-                    <th className="px-5 py-3 font-medium">Stage</th>
-                    <th className="px-5 py-3 font-medium">Status</th>
-                    <th className="px-5 py-3 font-medium">Match</th>
-                    <th className="px-5 py-3 font-medium">Applied</th>
-                    <th className="px-5 py-3" />
+            <div className="animate-fade-up animate-fade-up-delay-2 overflow-hidden rounded-2xl border border-[#d4d9df] bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+              <table className="w-full text-[13.5px]">
+                <thead>
+                  <tr className="border-b border-[#d4d9df]">
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Name</th>
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Email</th>
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Job</th>
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Stage</th>
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Status</th>
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Match</th>
+                    <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
+                      style={{ fontFamily: "var(--font-mono)" }}>Applied</th>
+                    <th className="px-4 py-2.5" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60">
+                <tbody>
                   {applicants.map((a: ApplicantRow) => (
-                    <tr key={a.id} className="hover:bg-muted/20">
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-slate-950">{a.name}</div>
+                    <tr key={a.id} className="border-b border-[rgba(9,21,64,0.06)] transition-colors hover:bg-[#f1f5f9]">
+                      <td className="px-4 py-3.5">
+                        <div className="text-[13.5px] font-medium text-[#0c1529]">{a.name}</div>
                       </td>
-                      <td className="px-5 py-4 text-slate-700">{a.email ?? "—"}</td>
-                      <td className="px-5 py-4 text-slate-700">
+                      <td className="px-4 py-3.5 text-[13px] text-[#394050]">{a.email ?? "—"}</td>
+                      <td className="px-4 py-3.5 text-[13px] text-[#394050]">
                         <Link
                           href={`/admin/jobs/${a.job.id}`}
                           className="underline-offset-2 hover:underline"
@@ -230,37 +245,32 @@ export default async function GlobalApplicantsPage({
                           {a.job.title}
                         </Link>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center rounded-full bg-[#f1f5f9] border border-[#d4d9df] px-2.5 py-1 text-[11.5px] text-[#5f8ea0]">
                           {getStageName(a.pipelineStage)}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            STATUS_BADGE_COLORS[a.status] || "bg-slate-100 text-slate-700"
-                          }`}
-                        >
+                      <td className="px-4 py-3.5">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11.5px] font-medium uppercase tracking-[0.06em] ${STATUS_BADGE_COLORS[a.status] ?? "bg-[rgba(95,142,160,0.16)] text-[#5f8ea0]"}`}
+                          style={{ fontFamily: "var(--font-mono)" }}>
                           {a.status}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${matchBadgeColor(a.score)}`}
-                        >
-                          {formatMatchScore(a.score)}
+                      <td className="px-4 py-3.5">
+                        <span className="text-[11.5px] text-[#5f8ea0]"
+                          style={{ fontFamily: "var(--font-mono)" }}>
+                          {a.score !== null ? (
+                            <span className="text-[#1B2CC1]">{formatMatchScore(a.score)}</span>
+                          ) : "—"}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-muted-foreground">
-                        {formatDate(a.createdAt)}
-                      </td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3.5 text-[13px] text-[#5f8ea0]">{formatDate(a.createdAt)}</td>
+                      <td className="px-4 py-3.5">
                         <Link
-                          href={`/admin/jobs/${a.job.id}/applicants/${a.id}`}
-                          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                          href={`/admin/applicants/${a.id}`}
+                          className="inline-flex items-center gap-1 text-[13px] font-medium text-[#1B2CC1] transition-colors hover:text-[#3D518C]"
                         >
-                          View
-                          <ExternalLink className="h-3.5 w-3.5" />
+                          View <ExternalLink className="h-3 w-3" />
                         </Link>
                       </td>
                     </tr>
@@ -271,7 +281,7 @@ export default async function GlobalApplicantsPage({
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between gap-4 px-1 pt-4 text-[13px] text-[#5f8ea0]">
                 <p>
                   Showing {(page - 1) * PAGE_SIZE + 1}–
                   {Math.min(page * PAGE_SIZE, filteredCount)} of {filteredCount} applicant
@@ -281,30 +291,30 @@ export default async function GlobalApplicantsPage({
                   {page > 1 ? (
                     <Link
                       href={buildHref({ page: String(page - 1) })}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border/70 px-3 py-1.5 text-xs font-medium hover:bg-muted/30"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#d4d9df] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0c1529] hover:bg-[#f1f5f9]"
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
                       Previous
                     </Link>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-border/30 px-3 py-1.5 text-xs font-medium text-muted-foreground/40">
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-[rgba(9,21,64,0.04)] px-3 py-1.5 text-[12px] font-medium text-[#5f8ea0]/40">
                       <ChevronLeft className="h-3.5 w-3.5" />
                       Previous
                     </span>
                   )}
-                  <span className="text-xs">
+                  <span className="text-[12px]">
                     Page {page} of {totalPages}
                   </span>
                   {page < totalPages ? (
                     <Link
                       href={buildHref({ page: String(page + 1) })}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border/70 px-3 py-1.5 text-xs font-medium hover:bg-muted/30"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#d4d9df] bg-white px-3 py-1.5 text-[12px] font-medium text-[#0c1529] hover:bg-[#f1f5f9]"
                     >
                       Next
                       <ChevronRight className="h-3.5 w-3.5" />
                     </Link>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-border/30 px-3 py-1.5 text-xs font-medium text-muted-foreground/40">
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-[rgba(9,21,64,0.04)] px-3 py-1.5 text-[12px] font-medium text-[#5f8ea0]/40">
                       Next
                       <ChevronRight className="h-3.5 w-3.5" />
                     </span>

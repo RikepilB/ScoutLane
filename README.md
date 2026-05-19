@@ -20,7 +20,7 @@
 - **Admin Dashboard** — stats, charts, and hiring activity overview
 - **Job Management** — create, edit, publish, archive, and close job postings
 - **Kanban Pipeline** — drag-and-drop applicants through hiring stages
-- **AI Resume Parsing** — auto-extract education, work history, and skills via Gemini AI
+- **AI Resume Parsing** — auto-extract education, work history, and skills via OpenRouter
 - **Applicant Review** — search, filter, group, and view detailed applicant profiles
 - **Custom Application Forms** — per-job form builder with text, select, and file fields
 - **Job Templates** — reusable templates with stages, descriptions, and screening questions
@@ -33,8 +33,10 @@
 
 ## Documentation
 
-- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system design, request flow, directory map, auth model, end-to-end flows, known sharp edges.
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — system design, request flow, directory map, auth model, end-to-end flows, known sharp edges.
 - [`docs/API.md`](./docs/API.md) — REST endpoint reference and Server Action catalog, plus webhook / per-stage integration payloads.
+- [`docs/PROJECT-GUIDE.md`](./docs/PROJECT-GUIDE.md) — product guide, feature inventory, user flows, and demo plan.
+- [`docs/TESTING.md`](./docs/TESTING.md) — current test files, commands, and next coverage priorities.
 
 ---
 
@@ -52,7 +54,7 @@
 | **Charts** | Recharts |
 | **Storage** | Google Cloud Storage |
 | **Email** | Resend |
-| **AI** | Google Gemini 2.5 Flash (resume parsing) |
+| **AI** | OpenRouter via the `openai` SDK (resume parsing and match extraction) |
 | **Drag & Drop** | @dnd-kit |
 | **Testing** | Vitest + React Testing Library + Playwright (E2E configured) |
 
@@ -179,7 +181,7 @@ src/
 │   ├── auth/                    # Auth.js (Edge-safe config + full instance)
 │   ├── db/                      # Prisma client
 │   ├── email/                   # Resend email sender
-│   ├── llm/                     # Gemini OpenAI wrappers
+│   ├── llm/                     # OpenRouter/OpenAI-compatible wrappers
 │   ├── storage/                 # Google Cloud Storage
 │   └── webhook/                 # Webhook dispatch + HMAC signing
 ├── schemas/                     # Zod validation schemas
