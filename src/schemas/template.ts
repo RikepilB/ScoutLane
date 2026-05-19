@@ -60,6 +60,22 @@ export const templateSchema = z.object({
     )
     .optional()
     .default([]),
+  department: optionalShortString(80, "Department"),
+  whatYouWillDo: z
+    .string()
+    .max(5000, "Role description must be 5000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  requirements: z
+    .string()
+    .max(3000, "Requirements must be 3000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  toolsAndSkills: z
+    .string()
+    .max(2000, "Tools & Skills must be 2000 characters or fewer")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
 });
 
 export type TemplateInput = z.infer<typeof templateSchema>;
