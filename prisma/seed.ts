@@ -178,8 +178,13 @@ We are looking for a talented **Software Engineer** to join our growing team.
     {
       title: "Senior Frontend Engineer",
       slug: "senior-frontend-engineer",
+      department: "Engineering",
       description:
         "Lead the frontend experience for ScoutLane — a modern recruitment platform built with Next.js, TypeScript, and a deeply data-driven admin dashboard.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Lead the architecture and development of ScoutLane's applicant tracking dashboard\n- Build reusable component libraries used across the admin and public experiences\n- Collaborate with product designers to implement pixel-perfect, accessible interfaces\n- Optimize bundle size, Core Web Vitals, and perceived performance\n- Mentor junior engineers on React patterns and testing best practices",
+      requirements: ["5+ years of professional frontend experience", "Deep expertise with React, TypeScript, and Next.js", "Experience building data-heavy dashboards with real-time features", "Strong CSS skills — Tailwind, CSS Modules, or styled-components", "Track record of improving Core Web Vitals in production"],
+      toolsAndSkills: ["React", "TypeScript", "Next.js", "Tailwind CSS", "D3.js / Recharts", "Vitest", "Playwright", "GraphQL"],
       location: "San Francisco, CA",
       type: "Full-time",
       salary: "$150k--$200k",
@@ -194,8 +199,13 @@ We are looking for a talented **Software Engineer** to join our growing team.
     {
       title: "Backend Platform Engineer",
       slug: "backend-platform-engineer",
+      department: "Engineering",
       description:
         "Design resilient APIs, asynchronous resume-processing workflows, and internal tooling that powers the hiring pipeline at scale.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Design and build scalable REST and GraphQL APIs serving the ScoutLane platform\n- Architect asynchronous job queues for resume parsing and webhook dispatch\n- Implement caching strategies and database optimizations for high-throughput endpoints\n- Build internal tooling and developer infrastructure to accelerate product velocity\n- Own the PostgreSQL schema and Prisma ORM layer",
+      requirements: ["5+ years of backend engineering experience", "Strong proficiency with Node.js and TypeScript", "Experience with PostgreSQL and Prisma ORM", "Familiarity with job queues (pg-boss, Bull, or similar)", "Experience designing APIs consumed by frontend teams"],
+      toolsAndSkills: ["Node.js", "TypeScript", "PostgreSQL", "Prisma", "pg-boss", "Docker", "AWS", "Redis"],
       location: "Remote · Americas",
       type: "Full-time",
       salary: "$140k--$190k",
@@ -209,8 +219,13 @@ We are looking for a talented **Software Engineer** to join our growing team.
     {
       title: "Product Designer",
       slug: "product-designer",
+      department: "Product",
       description:
         "Shape the public application experience and internal recruiting workspace used by hiring managers every day.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Design end-to-end workflows for the ScoutLane platform, from public careers pages to admin dashboards\n- Create high-fidelity mockups and interactive prototypes in Figma\n- Conduct user research with hiring managers and recruiters to inform design decisions\n- Build and maintain a design system used across all product surfaces\n- Partner with engineering to ensure polished, accessible implementations",
+      requirements: ["3+ years of product design experience", "Strong portfolio showing data-heavy dashboard design", "Proficiency with Figma and prototyping tools", "Experience conducting user research and usability testing", "Understanding of accessibility standards (WCAG 2.1)"],
+      toolsAndSkills: ["Figma", "Prototyping", "Design Systems", "User Research", "HTML/CSS", "Accessibility"],
       location: "New York, NY",
       type: "Full-time",
       salary: "$130k--$170k",
@@ -221,8 +236,13 @@ We are looking for a talented **Software Engineer** to join our growing team.
     {
       title: "DevOps Engineer",
       slug: "devops-engineer",
+      department: "Engineering",
       description:
         "Build and maintain the cloud infrastructure that keeps ScoutLane fast, secure, and scalable.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Manage cloud infrastructure on AWS using Infrastructure as Code\n- Set up and maintain CI/CD pipelines with GitHub Actions\n- Implement monitoring, alerting, and observability with Datadog and Sentry\n- Manage PostgreSQL databases including replication, backups, and performance tuning\n- Own security posture — secrets management, IAM, network policies",
+      requirements: ["3+ years of DevOps/SRE experience", "Strong AWS knowledge (ECS, RDS, Lambda, VPC)", "Experience with Docker and container orchestration", "Proficiency with Terraform or Pulumi", "Experience managing PostgreSQL in production"],
+      toolsAndSkills: ["AWS", "Docker", "Terraform", "GitHub Actions", "PostgreSQL", "Datadog", "Sentry", "Bash"],
       location: "Remote",
       type: "Contract",
       salary: "$100/hr--$150/hr",
@@ -236,8 +256,13 @@ We are looking for a talented **Software Engineer** to join our growing team.
     {
       title: "Data Scientist",
       slug: "data-scientist",
+      department: "Data Science",
       description:
         "Use machine learning and statistical analysis to improve candidate-job matching and hiring predictions.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Build and iterate on candidate-job matching models using NLP and structured data\n- Analyze hiring funnel data to identify patterns and recommend process improvements\n- Design A/B tests to measure the impact of matching algorithm changes\n- Collaborate with engineering to deploy models as API services\n- Build dashboards for the product team to track matching quality and pipeline health",
+      requirements: ["3+ years of applied ML/data science experience", "Strong proficiency with Python and SQL", "Experience with NLP techniques (transformers, embeddings, classification)", "Track record of deploying models to production", "Ability to communicate technical findings to non-technical stakeholders"],
+      toolsAndSkills: ["Python", "PyTorch", "scikit-learn", "SQL", "Pandas", "OpenAI API", "AWS SageMaker", "Jupyter"],
       location: "Boston, MA",
       type: "Full-time",
       salary: "$160k--$220k",
@@ -246,6 +271,66 @@ We are looking for a talented **Software Engineer** to join our growing team.
       customFields: [
         { id: "thesis", label: "Thesis or publication link", type: "text", required: false },
       ],
+    },
+    {
+      title: "Applied Machine Learning Scientist",
+      slug: "applied-ml-scientist",
+      department: "Data Science",
+      description: "Research and deploy cutting-edge ML models for resume parsing, skill extraction, and job-candidate matching.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Research and implement state-of-the-art NLP models for information extraction from resumes\n- Fine-tune large language models for domain-specific hiring tasks\n- Develop evaluation frameworks to measure model accuracy and fairness\n- Publish findings internally and contribute to the ML community\n- Work with product to translate model capabilities into user-facing features",
+      requirements: ["PhD or MS in ML, NLP, or related field", "Publication record in top-tier venues (NeurIPS, ICML, ACL, EMNLP)", "Experience fine-tuning and deploying LLMs in production", "Strong Python and deep learning framework skills", "Understanding of bias and fairness in ML systems"],
+      toolsAndSkills: ["Python", "PyTorch", "Transformers", "Hugging Face", "DeepSpeed", "CUDA", "Weights & Biases", "AWS"],
+      location: "Germany; Ireland; London; United Kingdom",
+      type: "Full-time",
+      salary: "$180k--$250k",
+      published: true,
+      archived: false,
+    },
+    {
+      title: "Machine Learning Engineer (Remote)",
+      slug: "ml-engineer-remote",
+      department: "Data Science",
+      description: "Build and productionize ML pipelines that power ScoutLane's intelligent hiring features.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Design and implement scalable ML inference pipelines\n- Build feature stores and model serving infrastructure\n- Optimize model latency and throughput for real-time scoring\n- Implement monitoring and drift detection for production models\n- Collaborate with data scientists to accelerate model iteration cycles",
+      requirements: ["3+ years of MLOps or ML engineering experience", "Strong backend engineering skills (Python or Go)", "Experience with ML serving frameworks (TensorFlow Serving, Triton, Ray Serve)", "Familiarity with feature stores and experiment tracking", "Experience with Kubernetes and container orchestration"],
+      toolsAndSkills: ["Python", "Go", "Kubernetes", "MLflow", "Kubeflow", "AWS SageMaker", "Docker", "Ray"],
+      location: "Alberta, Canada; British Columbia; Calgary, Alberta, Canada; California; New York; Ontario; Oregon; Seattle, WA",
+      type: "Full-time",
+      salary: "$160k--$210k",
+      published: true,
+      archived: false,
+    },
+    {
+      title: "Sales Engineer",
+      slug: "sales-engineer",
+      department: "GTM",
+      description: "Partner with the sales team to demonstrate ScoutLane's technical capabilities to prospective customers.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Deliver compelling technical demos of the ScoutLane platform to enterprise prospects\n- Build custom proof-of-concept integrations for evaluation accounts\n- Respond to RFPs and security questionnaires\n- Gather product feedback from prospects and channel it to the product team\n- Create technical content (blog posts, whitepapers, demo videos)",
+      requirements: ["3+ years in a sales engineering or solutions architect role", "Strong presentation and communication skills", "Technical background — can code basic integrations and read API docs", "Experience selling SaaS products to mid-market or enterprise", "Willingness to travel up to 25%"],
+      toolsAndSkills: ["REST APIs", "JavaScript", "Postman", "Salesforce", "HubSpot", "Notion", "Loom", "Figma"],
+      location: "New York, NY; San Francisco, CA; Remote",
+      type: "Full-time",
+      salary: "$130k--$180k + Commission",
+      published: true,
+      archived: false,
+    },
+    {
+      title: "Product Manager",
+      slug: "product-manager",
+      department: "Product",
+      description: "Define the product strategy and roadmap for ScoutLane's core recruiting platform.",
+      whatYouWillDo:
+        "## What you'll do\n\n- Define and prioritize the product roadmap based on customer feedback and market research\n- Write detailed product specs and work closely with engineering on implementation\n- Analyze product metrics to inform feature decisions and measure impact\n- Conduct customer interviews and usability testing sessions\n- Partner with GTM on product launches and enablement",
+      requirements: ["4+ years of product management experience", "Experience with B2B SaaS products", "Strong analytical skills — comfortable with SQL and product analytics", "Excellent written and verbal communication", "Experience working with engineering teams in an agile environment"],
+      toolsAndSkills: ["SQL", "Mixpanel / Amplitude", "Notion", "Figma", "Jira / Linear", "User Interviews"],
+      location: "San Francisco, CA; New York, NY; Remote",
+      type: "Full-time",
+      salary: "$150k--$200k",
+      published: true,
+      archived: false,
     },
   ];
 

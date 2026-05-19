@@ -14,22 +14,23 @@ async function main() {
     RESUME_PARSE_QUEUE,
     { batchSize: 2 },
     async (jobs: Job<ResumeParseJob>[]) => {
-      const job = jobs[0];
-      if (!job?.data?.applicantId || !job.data.resumeUrl) {
-        throw new Error("Resume parse job is missing applicantId or resumeUrl.");
-      }
+      for (const job of jobs) {
+        if (!job.data.applicantId || !job.data.resumeUrl) {
+          throw new Error("Resume parse job is missing applicantId or resumeUrl.");
+        }
 
-      try {
-        await parseApplicantResumeFromUrl(job.data.applicantId, job.data.resumeUrl);
-      } catch (error) {
-        console.error("[resume-worker] parse failed:", error);
-        await prisma.applicant
-          .update({
-            where: { id: job.data.applicantId },
-            data: { parsingStatus: "FAILED" },
-          })
-          .catch(() => {});
-        throw error;
+        try {
+          await parseApplicantResumeFromUrl(job.data.applicantId, job.data.resumeUrl);
+        } catch (error) {
+          console.error("[resume-worker] parse failed:", error);
+          await prisma.applicant
+            .update({
+              where: { id: job.data.applicantId },
+              data: { parsingStatus: "FAILED" },
+            })
+            .catch(() => {});
+          throw error;
+        }
       }
     },
   );
