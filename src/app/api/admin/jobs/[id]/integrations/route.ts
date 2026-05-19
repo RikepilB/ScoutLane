@@ -31,6 +31,14 @@ export async function POST(
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
+  const stage = await prisma.pipelineStage.findFirst({
+    where: { id: stageId, jobId },
+    select: { id: true },
+  });
+  if (!stage) {
+    return NextResponse.json({ error: "Stage not found" }, { status: 404 });
+  }
+
   const integration = await prisma.jobIntegration.create({
     data: {
       jobId,

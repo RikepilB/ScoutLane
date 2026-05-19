@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { Search, GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
 import { SkillsMultiSelect } from "@/components/applicants/SkillsMultiSelect";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 interface ApplicantsPageProps {
   params: Promise<{ id: string }>;
@@ -55,11 +56,14 @@ function matchesSearch(a: { name: string; email: string | null; data: unknown },
 export default async function ApplicantsListPage({ params, searchParams }: ApplicantsPageProps) {
   const { id } = await params;
   const filters = await searchParams;
+  const user = await getCurrentUserWithOrganization();
+  const organizationId = user?.organizationId;
+  if (!organizationId) notFound();
 
   const page = Math.max(1, parseInt(filters.page ?? "1", 10) || 1);
   const pageSize = Math.min(100, Math.max(10, parseInt(filters.pageSize ?? "20", 10) || 20));
 
-  const job = await prisma.job.findUnique({ where: { id } });
+  const job = await prisma.job.findFirst({ where: { id, organizationId } });
   if (!job) notFound();
 
   const stages = await prisma.pipelineStage.findMany({
@@ -69,7 +73,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
   });
   const firstStageId = stages[0]?.id ?? null;
 
-  const where: Prisma.ApplicantWhereInput = { jobId: id };
+  const where: Prisma.ApplicantWhereInput = { jobId: id, job: { organizationId } };
 
   if (filters.stageId && filters.stageId !== "all") {
     where.pipelineStageId = filters.stageId;

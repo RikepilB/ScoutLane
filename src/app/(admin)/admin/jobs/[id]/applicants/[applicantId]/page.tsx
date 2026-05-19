@@ -27,10 +27,12 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
   const { id: jobId, applicantId } = await params;
 
   const currentUser = await getCurrentUserWithOrganization();
+  const organizationId = currentUser?.organizationId;
+  if (!organizationId) notFound();
   const isAdmin = currentUser?.role === "ADMIN";
 
-  const applicant = await prisma.applicant.findUnique({
-    where: { id: applicantId },
+  const applicant = await prisma.applicant.findFirst({
+    where: { id: applicantId, jobId, job: { organizationId } },
     include: {
       job: { select: { title: true, slug: true } },
       pipelineStage: { select: { id: true, name: true } },

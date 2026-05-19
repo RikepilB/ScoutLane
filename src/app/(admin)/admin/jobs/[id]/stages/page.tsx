@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { StagesManager } from "./_components/StagesManager";
 
 interface StagesPageProps {
@@ -8,8 +9,11 @@ interface StagesPageProps {
 
 export default async function StagesPage({ params }: StagesPageProps) {
   const { id } = await params;
+  const user = await getCurrentUserWithOrganization();
+  const organizationId = user?.organizationId;
+  if (!organizationId) notFound();
 
-  const job = await prisma.job.findUnique({ where: { id } });
+  const job = await prisma.job.findFirst({ where: { id, organizationId } });
   if (!job) notFound();
 
   const stages = await prisma.pipelineStage.findMany({
