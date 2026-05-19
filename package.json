@@ -7,6 +7,7 @@
     "dev": "next dev --turbo",
     "build": "next build --webpack",
     "start": "next start",
+    "worker:resume": "tsx src/server/workers/resume.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -56,6 +57,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
     "@next/eslint-plugin-next": "^16.2.6",
+    "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "6.9.0",
     "@types/node": "25.6.1",
     "@types/pdf-parse": "^1.1.5",

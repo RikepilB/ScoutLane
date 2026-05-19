@@ -22,9 +22,12 @@ function SignInContent() {
       <div className="relative hidden w-1/2 lg:block">
         <AnimatedBackground />
         <div className="absolute bottom-16 left-12 z-10 max-w-md">
-          <h1 className="text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]">
+          <Link
+            href="/"
+            className="block text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
+          >
             ScoutLane
-          </h1>
+          </Link>
           <p className="mt-3 text-lg leading-7 text-slate-300">
             AI-powered recruitment platform. Post jobs, review applicants, and manage your hiring pipeline from one workspace.
           </p>
