@@ -27,12 +27,12 @@ export async function getResumeQueue(): Promise<PgBoss> {
       connectionString: getDatabaseUrl(),
       application_name: "scoutlane-resume-queue",
     });
-    globalForBoss.resumeBoss.on("error", (error) => {
+    globalForBoss.resumeBoss.on("error", (error: Error) => {
       console.error("[resume-queue] pg-boss error:", error);
     });
   }
 
-  globalForBoss.resumeBossStart ??= globalForBoss.resumeBoss.start().then(async (boss) => {
+  globalForBoss.resumeBossStart ??= globalForBoss.resumeBoss.start().then(async (boss: PgBoss) => {
     await boss.createQueue(RESUME_PARSE_QUEUE, {
       retryLimit: 3,
       retryDelay: 30,

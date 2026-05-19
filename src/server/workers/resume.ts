@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
+import type { Job } from "pg-boss";
 import {
   getResumeQueue,
   RESUME_PARSE_QUEUE,
@@ -11,8 +12,9 @@ async function main() {
 
   await boss.work<ResumeParseJob>(
     RESUME_PARSE_QUEUE,
-    { batchSize: 2, includeMetadata: false },
-    async ([job]) => {
+    { batchSize: 2 },
+    async (jobs: Job<ResumeParseJob>[]) => {
+      const job = jobs[0];
       if (!job?.data?.applicantId || !job.data.resumeUrl) {
         throw new Error("Resume parse job is missing applicantId or resumeUrl.");
       }
