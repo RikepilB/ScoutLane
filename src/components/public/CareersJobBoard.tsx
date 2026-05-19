@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { Department } from "@/lib/jobs/departments";
 import { DEPARTMENTS, inferDepartment } from "@/lib/jobs/departments";
 
@@ -45,7 +44,6 @@ function groupByDepartment(jobs: PublicJob[]): Map<string, PublicJob[]> {
 }
 
 export function CareersJobBoard({ jobs, count, session }: Props) {
-  const router = useRouter();
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("all");
   const [locationFilter, setLocationFilter] = useState<string>("all");
@@ -104,7 +102,8 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
 
   return (
     <div className="relative min-h-screen"
-      style={{ background: "#0c1529", color: "#f1f5f9", fontFamily: "var(--font-body)" }}>
+      style={{ background: "#0B1437", color: "#FFFFFF", fontFamily: "var(--font-body)" }}>
+
       {/* Background ambience */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-35"
         style={{
@@ -115,59 +114,42 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
       <div className="pointer-events-none fixed z-0"
         style={{
           top: "-200px", left: "-100px", width: "700px", height: "700px",
-          background: "radial-gradient(circle, rgba(27,44,193,0.35), rgba(27,44,193,0) 70%)",
+          background: "radial-gradient(circle, rgba(43,75,255,0.25), rgba(43,75,255,0) 70%)",
           filter: "blur(40px)",
         }}
       />
       <div className="pointer-events-none fixed z-0"
         style={{
           top: "100px", right: "-200px", width: "600px", height: "600px",
-          background: "radial-gradient(circle, rgba(94,167,197,0.18), rgba(94,167,197,0) 70%)",
+          background: "radial-gradient(circle, rgba(43,75,255,0.12), rgba(43,75,255,0) 70%)",
           filter: "blur(40px)",
         }}
       />
 
-      <div className="relative z-[1] mx-auto max-w-[1240px] px-6 pb-20 pt-6">
+      <div className="relative z-[1] mx-auto max-w-[1240px] px-7 pb-20 pt-6">
         {/* ── NAV ── */}
         <nav className="mb-9 flex items-center justify-between py-2">
           <Link href="/" className="flex items-center gap-3">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] font-bold text-white"
               style={{
-                background: "linear-gradient(135deg, #1B2CC1, #3D518C)",
+                background: "linear-gradient(135deg, #2B4BFF, #1A2EFF)",
                 fontFamily: "var(--font-display)",
                 fontSize: "16px",
                 letterSpacing: "-0.04em",
-                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 8px 20px rgba(27,44,193,0.35)",
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12), 0 8px 20px rgba(43,75,255,0.35)",
               }}>
               SL
             </span>
-            <span className="text-[17px] font-semibold text-[#f1f5f9]"
+            <span className="text-[17px] font-semibold"
               style={{ fontFamily: "var(--font-display)" }}>
               ScoutLane
             </span>
           </Link>
           <div className="flex items-center gap-2.5">
-            <Link href="#" className="px-3 py-2 text-[14px] text-white/60 no-underline transition-colors hover:text-white">
-              About
-            </Link>
-            <Link href="#" className="px-3 py-2 text-[14px] text-white/60 no-underline transition-colors hover:text-white">
-              Teams
-            </Link>
-            <Link href="#" className="px-3 py-2 text-[14px] text-white/60 no-underline transition-colors hover:text-white">
-              Blog
-            </Link>
-            {session?.user ? (
-              <Link
-                href="/admin"
-                className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-[14px] font-medium text-white transition-colors hover:bg-white/[0.10] hover:border-white/[0.20]"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#46d39a] shadow-[0_0_8px_rgba(70,211,154,0.7)]" />
-                Dashboard
-              </Link>
-            ) : (
+            {!session?.user && (
               <Link
                 href="/signin"
-                className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-[14px] font-medium text-white transition-colors hover:bg-white/[0.10] hover:border-white/[0.20]"
+                className="inline-flex items-center gap-2 rounded-full border border-[rgba(163,176,255,0.12)] bg-[rgba(255,255,255,0.06)] px-4 py-2 text-[14px] font-medium text-white transition-colors hover:bg-[rgba(255,255,255,0.10)] hover:border-[rgba(163,176,255,0.20)]"
               >
                 Sign in
               </Link>
@@ -176,95 +158,65 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
         </nav>
 
         {/* ── HERO ── */}
-        <header className="animate-fade-up relative overflow-hidden rounded-[28px] border border-[rgba(118,146,255,0.12)] px-8 pb-11 pt-14"
+        <header className="animate-fade-up relative overflow-hidden rounded-[24px] border border-[#1E2546] px-12 pb-11 pt-14"
           style={{
-            background: "radial-gradient(ellipse 80% 60% at 85% 110%, rgba(118,146,255,0.22), transparent 60%), radial-gradient(circle at 8% 10%, rgba(27,44,193,0.55), transparent 55%), linear-gradient(170deg, #091540 0%, #0c1529 70%)",
-            boxShadow: "0 30px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)",
-          }}
-        >
-          <div className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage: "linear-gradient(rgba(118,146,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(118,146,255,0.04) 1px, transparent 1px)",
-              backgroundSize: "64px 64px",
-              backgroundPosition: "-1px -1px",
-              WebkitMaskImage: "radial-gradient(ellipse at 70% 50%, black 30%, transparent 75%)",
-              maskImage: "radial-gradient(ellipse at 70% 50%, black 30%, transparent 75%)",
-            }}
-          />
+            background: "linear-gradient(180deg, #0F1B4D 0%, #0B1437 50%)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+          }}>
 
-          <div className="relative grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[rgba(171,210,250,0.25)] bg-[rgba(171,210,250,0.08)] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#ABD2FA]">
-                <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full bg-[#ABD2FA]" />
-                AI-powered recruitment
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-[600px]">
+              {/* Eyebrow pill */}
+              <div className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-[#1E2546] py-1.5 pl-2 pr-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A3B0FF]">
+                <span className="h-2 w-2 rounded-full bg-[#A3B0FF] animate-pulse-glow" />
+                AI-Powered Recruitment
               </div>
 
-              <h1 className="mb-5 text-[#f1f5f9]"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 500,
-                  fontSize: "clamp(40px, 5.6vw, 72px)",
-                  lineHeight: 0.98,
-                  letterSpacing: "-0.035em",
-                }}>
-                Current job openings at ScoutLane
+              {/* Title */}
+              <h1 className="mb-5 text-[clamp(36px,5vw,46px)] font-extrabold leading-[1] text-white"
+                style={{ lineHeight: "56px" }}>
+                Current job openings<br />at ScoutLane
               </h1>
 
-              <p className="mb-8 text-[17px] leading-[1.55]"
-                style={{
-                  color: "rgba(241, 245, 249, 0.7)",
-                  maxWidth: "560px",
-                }}>
+              {/* Subtitle */}
+              <p className="mb-8 max-w-[480px] text-[15px] leading-[22px] text-[#A3B0FF]">
                 Explore our open positions and find the role that matches your skills and ambitions.
               </p>
 
-              <div className="flex items-center gap-3"
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "12px",
-                  letterSpacing: "0.06em",
-                  color: "rgba(241, 245, 249, 0.55)",
-                  textTransform: "uppercase",
-                }}>
-                <span className="inline-block h-px w-6" style={{ background: "#5ea7c5" }} />
-                Open positions · {count} jobs available
+              {/* Meta line */}
+              <div className="flex items-center gap-2 text-[12px] text-[#A3B0FF]">
+                <span className="inline-block h-px w-6 bg-[#2B4BFF]" />
+                <span>Open positions · {count} {count === 1 ? "job" : "jobs"} available</span>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 lg:min-w-[180px]">
+            {/* CTA Buttons — horizontal row */}
+            <div className="flex items-center gap-3">
               {session?.user ? (
                 <Link
                   href="/admin"
-                  className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/[0.18] bg-white/[0.04] px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s] hover:bg-white/[0.09] hover:border-white/[0.30]"
+                  className="inline-flex h-[31px] items-center justify-center rounded-full bg-[#1E2546] px-6 text-[12.8px] font-normal text-white no-underline transition-all duration-[0.18s] hover:bg-[#2a3258]"
                 >
                   Dashboard
                 </Link>
               ) : (
                 <Link
                   href="/signin"
-                  className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/[0.18] bg-white/[0.04] px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s] hover:bg-white/[0.09] hover:border-white/[0.30]"
+                  className="inline-flex h-[31px] items-center justify-center rounded-full bg-[#1E2546] px-6 text-[12.8px] font-normal text-white no-underline transition-all duration-[0.18s] hover:bg-[#2a3258]"
                 >
-                  Dashboard
+                  Sign in
                 </Link>
               )}
               {session?.user ? (
                 <Link
                   href="/admin/jobs/new"
-                  className="inline-flex items-center justify-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s]"
+                  className="inline-flex h-[31px] items-center gap-1 rounded-full px-6 text-[12.4px] font-semibold text-white no-underline transition-all duration-[0.18s] hover:-translate-y-0.5"
                   style={{
-                    background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
-                    boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(27,44,193,0.55), inset 0 1px 0 rgba(255,255,255,0.16)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.boxShadow = "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)";
+                    background: "linear-gradient(180deg, #2B4BFF 0%, #1A2EFF 50%)",
+                    boxShadow: "0 4px 12px rgba(43,75,255,0.3)",
                   }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M12 5v14M5 12h14" />
                   </svg>
                   Post a job
@@ -272,21 +224,13 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
               ) : (
                 <Link
                   href="/signin"
-                  className="inline-flex items-center justify-center gap-2.5 rounded-full px-5 py-3 text-[14px] font-medium text-white no-underline transition-all duration-[0.18s]"
+                  className="inline-flex h-[31px] items-center gap-1 rounded-full px-6 text-[12.4px] font-semibold text-white no-underline transition-all duration-[0.18s] hover:-translate-y-0.5"
                   style={{
-                    background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
-                    boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(27,44,193,0.55), inset 0 1px 0 rgba(255,255,255,0.16)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.boxShadow = "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)";
+                    background: "linear-gradient(180deg, #2B4BFF 0%, #1A2EFF 50%)",
+                    boxShadow: "0 4px 12px rgba(43,75,255,0.3)",
                   }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <path d="M12 5v14M5 12h14" />
                   </svg>
                   Post a job
@@ -296,32 +240,34 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
           </div>
         </header>
 
-        {/* ── FILTERS ── */}
+        {/* ── FILTER BAR ── */}
         <div className="relative z-[5] -mt-6 mb-8 px-9">
-          <div className="grid grid-cols-[1fr_auto_auto] gap-2 rounded-[18px] bg-[#f1f5f9] p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,255,255,0.05)] max-sm:grid-cols-1">
-            <div className="flex h-12 items-center gap-3 rounded-xl border border-[#d4d9df] bg-white px-[18px] transition-[border-color,box-shadow] duration-[0.18s] focus-within:border-[#1B2CC1] focus-within:shadow-[0_0_0_3px_rgba(27,44,193,0.12)]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5f8ea0" strokeWidth="1.7">
+          <div className="grid grid-cols-[1fr_auto_auto] gap-2 rounded-[16px] bg-white p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10),0_10px_15px_-3px_rgba(0,0,0,0.10)] max-sm:grid-cols-1">
+            {/* Search */}
+            <div className="flex h-[50px] items-center gap-3 rounded-[12px] border border-[#E5E7EB] bg-[#F9FAFB] px-[18px] transition-all duration-[0.18s] focus-within:border-[#2B4BFF] focus-within:shadow-[0_0_0_3px_rgba(43,75,255,0.12)]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.7">
                 <circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" strokeLinecap="round" />
               </svg>
               <input
                 type="search"
-                placeholder="Search by role, skill, or team…"
+                placeholder="Search by role, skill, or team..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full border-none bg-transparent text-[15px] text-[#091540] outline-none placeholder:text-[#94a3b8]"
+                className="w-full border-none bg-transparent text-[14px] text-[#0B1437] outline-none placeholder:text-[#6B7280]"
               />
-              <span className="rounded-md border border-[#d4d9df] bg-[#f1f5f9] px-2 py-0.5 text-[11px] text-[#394050]"
+              <span className="rounded-[6px] border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-0.5 text-[9px] text-[#9CA3AF]"
                 style={{ fontFamily: "var(--font-mono)" }}>
-                ⌘ K
+                ⌘K
               </span>
             </div>
 
+            {/* Department select */}
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="h-12 min-w-[180px] cursor-pointer appearance-none rounded-xl border border-[#d4d9df] bg-white py-0 pl-4 pr-9 text-[14px] text-[#091540] focus:border-[#1B2CC1] focus:shadow-[0_0_0_3px_rgba(27,44,193,0.12)] focus:outline-none"
+              className="h-[42px] min-w-[160px] cursor-pointer appearance-none rounded-[12px] border border-[#E5E7EB] bg-[#F9FAFB] py-0 pl-4 pr-9 text-[14px] text-[#0B1437] focus:border-[#2B4BFF] focus:shadow-[0_0_0_3px_rgba(43,75,255,0.12)] focus:outline-none"
               style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23394050' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23374151' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "right 14px center",
               }}
@@ -332,12 +278,13 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
               ))}
             </select>
 
+            {/* Location select */}
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              className="h-12 min-w-[180px] cursor-pointer appearance-none rounded-xl border border-[#d4d9df] bg-white py-0 pl-4 pr-9 text-[14px] text-[#091540] focus:border-[#1B2CC1] focus:shadow-[0_0_0_3px_rgba(27,44,193,0.12)] focus:outline-none"
+              className="h-[42px] min-w-[150px] cursor-pointer appearance-none rounded-[12px] border border-[#E5E7EB] bg-[#F9FAFB] py-0 pl-4 pr-9 text-[14px] text-[#0B1437] focus:border-[#2B4BFF] focus:shadow-[0_0_0_3px_rgba(43,75,255,0.12)] focus:outline-none"
               style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23394050' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23374151' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "right 14px center",
               }}
@@ -352,33 +299,28 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
 
         {/* ── JOB SHEET ── */}
         {totalCount === 0 ? (
-          <section className="animate-fade-up animate-fade-up-delay-2 rounded-[24px] bg-[#f1f5f9] p-[60px_20px] text-center text-[#5f8ea0] shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
-            style={{ border: "1px dashed #d4d9df", color: "#0c1529" }}>
-            <h3 className="mb-2 text-[20px] text-[#0c1529]"
-              style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <section className="animate-fade-up animate-fade-up-delay-2 rounded-[24px] bg-white p-[60px_20px] text-center shadow-[0_20px_60px_rgba(0,0,0,0.4)]" style={{ border: "1px dashed #E5E7EB", color: "#0B1437" }}>
+            <h3 className="mb-2 text-[20px] text-[#0B1437]" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
               No matching roles right now
             </h3>
-            <p className="text-[14px] text-[#394050]">
-              Try widening the filters, or set a job alert below &mdash; we&lsquo;ll ping you when something lands.
+            <p className="text-[14px] text-[#6B7280]">
+              Try widening the filters, or set a job alert below &mdash; we&apos;ll ping you when something lands.
             </p>
           </section>
         ) : (
-          <section className="animate-fade-up animate-fade-up-delay-2 rounded-[24px] border border-white/[0.04] bg-[#f1f5f9] p-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-sm:p-6"
-            style={{ color: "#091540" }}>
-            <div className="mb-7 flex items-end justify-between gap-4 border-b border-[#d4d9df] pb-6 max-sm:flex-col max-sm:items-stretch">
+          <section className="animate-fade-up animate-fade-up-delay-2 rounded-[24px] bg-white p-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-sm:p-6" style={{ color: "#0B1437" }}>
+            <div className="mb-7 flex items-end justify-between gap-4 border-b border-[#E5E7EB] pb-6 max-sm:flex-col max-sm:items-stretch">
               <div>
-                <h2 className="mb-1 text-[32px] tracking-[-0.02em] text-[#091540]"
-                  style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+                <h2 className="mb-1 text-[32px] tracking-[-0.02em] text-[#0B1437]" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
                   Open positions
                 </h2>
-                <p className="text-[14px] text-[#394050]">
+                <p className="text-[14px] text-[#6B7280]">
                   {totalCount} of {count} roles match your filters
                 </p>
               </div>
-              <div className="flex items-center gap-[18px] text-[11px] uppercase tracking-[0.1em] text-[#5f8ea0]"
-                style={{ fontFamily: "var(--font-mono)" }}>
-                <span>Sorted · By dept</span>
-                <span className="h-1 w-1 rounded-full bg-[#5f8ea0]" />
+              <div className="flex items-center gap-[18px] text-[11px] uppercase tracking-[0.1em] text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
+                <span>Sorted &middot; By dept</span>
+                <span className="h-1 w-1 rounded-full bg-[#6B7280]" />
                 <span>Last sync 2m ago</span>
               </div>
             </div>
@@ -386,54 +328,54 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
             <div className="space-y-2">
               {[...grouped.entries()].map(([department, deptJobs], di) => (
                 <div key={department}>
-                  <div className={`flex items-center gap-3.5 border-[#d4d9df] py-3.5 ${di === 0 ? "border-t-0 pt-1" : "border-t"}`}>
-                    <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#473459]"
-                      style={{ fontFamily: "var(--font-mono)" }}>
+                  <div className={`flex items-center gap-3.5 border-[#E5E7EB] py-3.5 ${di === 0 ? "border-t-0 pt-1" : "border-t"}`}>
+                    <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
                       {department}
                     </span>
-                    <span className="rounded-full bg-[rgba(94,167,197,0.10)] px-2 py-0.5 text-[11px] text-[#5f8ea0]"
-                      style={{ fontFamily: "var(--font-mono)" }}>
+                    <span className="rounded-full bg-[#F3F4F6] px-2 py-0.5 text-[11px] text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
                       {deptJobs.length} {deptJobs.length === 1 ? "role" : "roles"}
                     </span>
-                    <span className="h-px flex-1"
-                      style={{ background: "linear-gradient(90deg, #d4d9df, transparent)" }} />
+                    <span className="h-px flex-1" style={{ background: "linear-gradient(90deg, #E5E7EB, transparent)" }} />
                   </div>
                   {deptJobs.map((job) => (
                     <Link
                       key={job.id}
                       href={`/careers/${job.slug}`}
-                      className="group grid grid-cols-[1fr_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit no-underline transition-all duration-[0.2s] hover:translate-x-1 hover:border-[#d4d9df] hover:bg-white hover:shadow-[0_8px_24px_rgba(9,21,64,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
+                      className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit no-underline transition-all duration-[0.2s] hover:translate-x-1 hover:border-[#E5E7EB] hover:bg-[#F9FAFB] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
                     >
                       <div className="flex flex-col gap-1.5">
                         <div className="flex flex-wrap items-baseline gap-3">
-                          <span className="text-[22px] tracking-[-0.01em] text-[#091540] transition-colors duration-[0.18s] group-hover:text-[#1B2CC1]"
-                            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+                          <span className="text-[22px] tracking-[-0.01em] text-[#0B1437] transition-colors duration-[0.18s] group-hover:text-[#2B4BFF]" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
                             {job.title}
                           </span>
-                          <span className="text-[12px] text-[#5f8ea0]"
-                            style={{ fontFamily: "var(--font-mono)" }}>
+                          <span className="text-[12px] text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
                             /{job.slug}
                           </span>
                         </div>
-                        <p className="max-w-[580px] text-[13.5px] leading-[1.5] text-[#394050]">
-                          {job.department} — {job.type}
+                        <p className="max-w-[580px] text-[13.5px] leading-[1.5] text-[#374151]">
+                          {job.department}{job.type ? ` — ${job.type}` : ""}
                         </p>
                       </div>
                       {job.type && (
-                        <span className={`inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium ${job.type?.toLowerCase().includes("remote") ? "bg-[rgba(94,167,197,0.15)] text-[#2d6f8a]" : "bg-[rgba(118,146,255,0.14)] text-[#3D518C]"}`}>
+                        <span className={`inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium ${job.type?.toLowerCase().includes("remote") ? "bg-[rgba(43,75,255,0.10)] text-[#2B4BFF]" : "bg-[#F3F4F6] text-[#374151]"}`}>
                           {job.type}
                         </span>
                       )}
                       {job.location && (
-                        <span className="inline-flex items-center gap-1.5 text-[13px] text-[#394050]"
-                          style={{ fontFamily: "var(--font-mono)" }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5f8ea0" strokeWidth="1.8">
+                        <span className="inline-flex items-center gap-1.5 text-[13px] text-[#374151]" style={{ fontFamily: "var(--font-mono)" }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.8">
                             <path d="M12 21s-7-7.6-7-12a7 7 0 0 1 14 0c0 4.4-7 12-7 12Z" />
                             <circle cx="12" cy="9" r="2.5" />
                           </svg>
                           {job.location}
                         </span>
                       )}
+                      {/* Hover arrow */}
+                      <span className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#0B1437] text-white opacity-0 transition-all duration-[0.2s] group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                          <path d="M5 12h14" /><path d="m13 5 7 7-7 7" />
+                        </svg>
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -443,17 +385,17 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
         )}
 
         {/* ── JOB ALERT ── */}
-        <section className="animate-fade-up animate-fade-up-delay-3 relative mt-7 rounded-[24px] p-px shadow-[0_20px_50px_rgba(118,146,255,0.18)]"
-          style={{ background: "linear-gradient(135deg, #7692FF, #5ea7c5, #ABD2FA)" }}>
+        <section className="animate-fade-up animate-fade-up-delay-3 relative mt-7 rounded-[24px] p-px shadow-[0_20px_50px_rgba(43,75,255,0.18)]"
+          style={{ background: "linear-gradient(135deg, #2B4BFF, #A3B0FF)" }}>
           <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-7 overflow-hidden rounded-[23px] p-10 max-sm:grid-cols-1 max-sm:gap-4 max-sm:p-7"
             style={{
-              background: "radial-gradient(circle at 80% 20%, rgba(118,146,255,0.18), transparent 50%), linear-gradient(135deg, #091540, #0c1529)",
+              background: "radial-gradient(circle at 80% 20%, rgba(43,75,255,0.18), transparent 50%), linear-gradient(135deg, #0B1437, #0F1B4D)",
             }}>
             <div className="pointer-events-none absolute -bottom-10 -right-10 h-[200px] w-[200px]"
-              style={{ background: "radial-gradient(circle, rgba(94,167,197,0.25), transparent 70%)" }} />
+              style={{ background: "radial-gradient(circle, rgba(163,176,255,0.25), transparent 70%)" }} />
 
-            <div className="relative z-[1] flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-[18px] text-white shadow-[0_12px_30px_rgba(27,44,193,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
-              style={{ background: "linear-gradient(135deg, #1B2CC1, #3D518C)" }}>
+            <div className="relative z-[1] flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-[18px] text-white shadow-[0_12px_30px_rgba(43,75,255,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
+              style={{ background: "linear-gradient(135deg, #2B4BFF, #1A2EFF)" }}>
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z" />
                 <path d="M10.3 21a1.9 1.9 0 0 0 3.4 0" />
@@ -461,17 +403,16 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
             </div>
 
             <div className="relative z-[1]">
-              <h3 className="mb-1.5 text-[26px] tracking-[-0.015em]"
-                style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+              <h3 className="mb-1.5 text-[26px] tracking-[-0.015em]" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
                 Create a job alert
               </h3>
-              <p className="max-w-[460px] text-[14.5px] leading-[1.5] text-white/65">
+              <p className="max-w-[460px] text-[14.5px] leading-[1.5] text-[#A3B0FF]">
                 Get notified the moment a role matching your skills opens up. No spam, no third-party sharing.
               </p>
             </div>
 
             {alertStatus === "done" ? (
-              <p className="relative z-[1] whitespace-nowrap text-[14.5px] font-medium text-[#ABD2FA]">
+              <p className="relative z-[1] whitespace-nowrap text-[14.5px] font-medium text-[#A3B0FF]">
                 Subscribed! Check your email.
               </p>
             ) : (
@@ -482,12 +423,12 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
                   onChange={(e) => setAlertEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="h-[50px] w-[240px] rounded-full border border-white/[0.14] bg-white/[0.06] px-[18px] text-[14.5px] text-white outline-none transition-all duration-[0.18s] placeholder:text-white/40 focus:border-[#ABD2FA] focus:bg-white/[0.10] focus:shadow-[0_0_0_3px_rgba(171,210,250,0.18)] max-sm:w-full"
+                  className="h-[50px] w-[240px] rounded-full border border-white/[0.14] bg-white/[0.06] px-[18px] text-[14.5px] text-white outline-none transition-all duration-[0.18s] placeholder:text-white/40 focus:border-[#A3B0FF] focus:bg-white/[0.10] focus:shadow-[0_0_0_3px_rgba(163,176,255,0.18)] max-sm:w-full"
                 />
                 <button
                   type="submit"
                   disabled={alertStatus === "submitting"}
-                  className="inline-flex h-[50px] items-center gap-1.5 rounded-full bg-[#f1f5f9] px-[22px] text-[14px] font-semibold text-[#091540] transition-all duration-[0.18s] hover:translate-y-[-1px] hover:bg-white hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)] disabled:opacity-50"
+                  className="inline-flex h-[50px] items-center gap-1.5 rounded-full bg-white px-[22px] text-[14px] font-semibold text-[#0B1437] transition-all duration-[0.18s] hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)] disabled:opacity-50"
                 >
                   {alertStatus === "submitting" ? "Subscribing..." : "Subscribe"}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -507,14 +448,14 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
         {/* ── FOOTER ── */}
         <footer className="mt-[60px] flex items-center justify-between gap-3 border-t border-white/[0.08] py-7 text-[11px] uppercase tracking-[0.08em] text-white/40 max-sm:flex-col max-sm:text-center"
           style={{ fontFamily: "var(--font-mono)" }}>
-          <div>© 2026 ScoutLane Inc.</div>
+          <div>&copy; 2026 ScoutLane Inc.</div>
           <div className="flex items-center gap-3">
-            <a href="#" className="text-white/50 no-underline hover:text-[#ABD2FA]">Careers</a>
-            <a href="#" className="text-white/50 no-underline hover:text-[#ABD2FA]">Press</a>
-            <a href="#" className="text-white/50 no-underline hover:text-[#ABD2FA]">Privacy</a>
-            <a href="#" className="text-white/50 no-underline hover:text-[#ABD2FA]">Terms</a>
+            <a href="#" className="text-white/50 no-underline hover:text-[#A3B0FF]">Careers</a>
+            <a href="#" className="text-white/50 no-underline hover:text-[#A3B0FF]">Press</a>
+            <a href="#" className="text-white/50 no-underline hover:text-[#A3B0FF]">Privacy</a>
+            <a href="#" className="text-white/50 no-underline hover:text-[#A3B0FF]">Terms</a>
           </div>
-          <div>v 4.1.2 · build 8a3f</div>
+          <div>v 4.1.2 &middot; build 8a3f</div>
         </footer>
       </div>
     </div>
