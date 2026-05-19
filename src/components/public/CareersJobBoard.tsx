@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, MapPin, Briefcase, Bell } from "lucide-react";
+import { Search, MapPin, Bell } from "lucide-react";
 import type { Department } from "@/lib/jobs/departments";
 import { DEPARTMENTS, inferDepartment } from "@/lib/jobs/departments";
 
@@ -76,6 +76,7 @@ export function CareersJobBoard({ jobs }: Props) {
   }, [jobs, search, deptFilter, locationFilter]);
 
   const grouped = useMemo(() => groupByDepartment(filtered), [filtered]);
+  const totalCount = filtered.length;
 
   async function handleAlertSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,40 +100,22 @@ export function CareersJobBoard({ jobs }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10 space-y-8">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-blue-200">
-            Open positions
-          </p>
-          <h2 className="text-3xl font-semibold tracking-tight text-white">
-            {filtered.length} {filtered.length === 1 ? "job" : "jobs"} available
-          </h2>
-        </div>
-        <Link
-          href="/signin"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
-        >
-          <Briefcase className="h-4 w-4" />
-          Dashboard
-        </Link>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+    <div className="mt-6 space-y-8">
+      <section className="flex flex-col gap-3 rounded-2xl bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:px-5 sm:py-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            type="text"
+            type="search"
             placeholder="Search jobs..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="h-11 w-full rounded-full border border-slate-200 bg-slate-50 pl-11 pr-4 text-[0.95rem] text-slate-900 placeholder:text-slate-400 focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
           />
         </div>
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="h-11 rounded-full border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-700 focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] sm:w-auto"
         >
           <option value="all">All departments</option>
           {DEPARTMENTS.map((d) => (
@@ -144,7 +127,7 @@ export function CareersJobBoard({ jobs }: Props) {
         <select
           value={locationFilter}
           onChange={(e) => setLocationFilter(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="h-11 rounded-full border border-slate-200 bg-slate-50 px-4 text-[0.95rem] text-slate-700 focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] sm:w-auto"
         >
           <option value="all">All locations</option>
           {locations.map((l) => (
@@ -153,11 +136,11 @@ export function CareersJobBoard({ jobs }: Props) {
             </option>
           ))}
         </select>
-      </div>
+      </section>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-xl border border-blue-300/40 bg-blue-50 px-8 py-12 text-center">
-          <p className="text-sm text-slate-600">
+      {totalCount === 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-white px-8 py-12 text-center shadow-sm">
+          <p className="text-sm text-slate-500">
             No jobs match your filters.
             <button
               onClick={() => {
@@ -165,84 +148,96 @@ export function CareersJobBoard({ jobs }: Props) {
                 setDeptFilter("all");
                 setLocationFilter("all");
               }}
-              className="ml-1 text-blue-600 underline hover:text-blue-800"
+              className="ml-1 text-[#2563eb] underline hover:text-[#1d4ed8]"
             >
               Clear filters
             </button>
           </p>
         </div>
       ) : (
-        <div className="space-y-8">
-          {[...grouped.entries()].map(([department, deptJobs]) => (
-            <section key={department}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                {department}
-              </h3>
-              <div className="space-y-1">
-                {deptJobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="group flex flex-col gap-0.5 rounded-lg px-3 py-2.5 hover:bg-blue-50/60 transition-colors"
-                  >
+        <div>
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">Open positions</h2>
+            <p className="text-sm text-slate-500">
+              {totalCount} {totalCount === 1 ? "job" : "jobs"} available
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {[...grouped.entries()].map(([department, deptJobs]) => (
+              <section key={department}>
+                <h3 className="mb-3 text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-slate-400">
+                  {department}
+                </h3>
+                <div className="divide-y divide-slate-100">
+                  {deptJobs.map((job) => (
                     <Link
+                      key={job.id}
                       href={`/careers/${job.slug}`}
-                      className="text-base font-semibold text-blue-700 underline decoration-blue-300 underline-offset-4 group-hover:text-blue-900 group-hover:decoration-blue-500 transition-colors"
+                      className="flex flex-col gap-1 py-3.5 transition-colors hover:bg-slate-50 px-3 -mx-3 rounded-lg group"
                     >
-                      {job.title}
+                      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                        <span className="text-base font-semibold text-[#1150ff] group-hover:text-[#0043ce] underline decoration-[#a5b4fc] underline-offset-4 group-hover:decoration-[#1150ff]">
+                          {job.title}
+                        </span>
+                        <span className="text-sm text-slate-400">/{job.slug}</span>
+                      </div>
+                      {job.location && (
+                        <span className="flex items-center gap-1 text-sm text-slate-500">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {job.location}
+                        </span>
+                      )}
                     </Link>
-                    <span className="text-[13px] text-slate-400">/{job.slug}</span>
-                    {job.location && (
-                      <span className="flex items-center gap-1 text-[13px] text-slate-500">
-                        <MapPin className="h-3 w-3" />
-                        {job.location}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
         </div>
       )}
 
-      <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+      <div className="flex flex-col gap-4 rounded-[20px] bg-[#e0edff] p-5 sm:flex-row sm:items-center">
+        <div className="flex items-start gap-4 sm:flex-1 sm:items-center">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#2563eb] text-white">
             <Bell className="h-5 w-5" />
           </div>
-          <div className="flex-1">
+          <div>
             <h3 className="text-sm font-semibold text-slate-900">Create a job alert</h3>
-            <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
+            <p className="text-[13px] leading-relaxed text-slate-500">
               Get notified when new positions matching your interests are posted.
             </p>
-            {alertStatus === "done" ? (
-              <p className="mt-3 text-sm font-medium text-emerald-600">Subscribed! Check your email.</p>
-            ) : (
-              <form onSubmit={handleAlertSubmit} className="mt-3 flex gap-2">
-                <input
-                  type="email"
-                  value={alertEmail}
-                  onChange={(e) => setAlertEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                  className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-                <button
-                  type="submit"
-                  disabled={alertStatus === "submitting"}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-                >
-                  {alertStatus === "submitting" ? "Subscribing..." : "Subscribe"}
-                </button>
-              </form>
-            )}
-            {alertStatus === "error" && (
-              <p className="mt-2 text-sm text-red-600">
-                Something went wrong. Please try again.
-              </p>
-            )}
           </div>
         </div>
+
+        {alertStatus === "done" ? (
+          <p className="whitespace-nowrap text-sm font-medium text-emerald-600">
+            Subscribed! Check your email.
+          </p>
+        ) : (
+          <form onSubmit={handleAlertSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              type="email"
+              value={alertEmail}
+              onChange={(e) => setAlertEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              className="h-12 rounded-full border border-[#cbd5f5] px-4 text-sm placeholder:text-slate-400 focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] sm:w-56"
+            />
+            <button
+              type="submit"
+              disabled={alertStatus === "submitting"}
+              className="h-12 whitespace-nowrap rounded-full bg-[#2563eb] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1d4ed8] disabled:opacity-50"
+            >
+              {alertStatus === "submitting" ? "Subscribing..." : "Subscribe"}
+            </button>
+          </form>
+        )}
+        {alertStatus === "error" && (
+          <p className="whitespace-nowrap text-sm text-red-600">
+            Something went wrong. Please try again.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DEPARTMENTS } from "@/lib/jobs/departments";
 
 const jobEditSchema = z.object({
   title: z
@@ -53,6 +54,26 @@ const jobEditSchema = z.object({
     .max(60, "Salary must be 60 characters or fewer")
     .optional()
     .or(z.literal("")),
+  department: z
+    .string()
+    .max(80, "Department must be 80 characters or fewer")
+    .optional()
+    .or(z.literal("")),
+  whatYouWillDo: z
+    .string()
+    .max(5000, "Role description must be 5000 characters or fewer")
+    .optional()
+    .or(z.literal("")),
+  requirements: z
+    .string()
+    .max(3000, "Requirements must be 3000 characters or fewer")
+    .optional()
+    .or(z.literal("")),
+  toolsAndSkills: z
+    .string()
+    .max(2000, "Tools & Skills must be 2000 characters or fewer")
+    .optional()
+    .or(z.literal("")),
   slug: z
     .string()
     .regex(
@@ -70,7 +91,7 @@ interface EditJobFormProps {
   jobId: string;
   initialData: Pick<
     FormValues,
-    "title" | "description" | "descriptionUrl" | "location" | "type" | "salary" | "slug"
+    "title" | "description" | "descriptionUrl" | "location" | "type" | "salary" | "slug" | "department" | "whatYouWillDo" | "requirements" | "toolsAndSkills"
   >;
   currentStatus: FormValues["status"];
 }
@@ -109,6 +130,14 @@ export function EditJobForm({
         type: values.type || undefined,
         salary: values.salary || undefined,
         slug: values.slug,
+        department: values.department || undefined,
+        whatYouWillDo: values.whatYouWillDo || undefined,
+        requirements: values.requirements
+          ? values.requirements.split("\n").map((s) => s.trim()).filter(Boolean)
+          : undefined,
+        toolsAndSkills: values.toolsAndSkills
+          ? values.toolsAndSkills.split("\n").map((s) => s.trim()).filter(Boolean)
+          : undefined,
         published: persistence.published,
         archived: persistence.archived,
       });
@@ -279,6 +308,70 @@ export function EditJobForm({
                       placeholder="senior-frontend-engineer"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Department</FormLabel>
+                  <FormControl>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                      {...field}
+                    >
+                      <option value="">None</option>
+                      {DEPARTMENTS.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="whatYouWillDo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>What you&apos;ll do</FormLabel>
+                  <FormControl>
+                    <Textarea className="min-h-28" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="requirements"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Requirements (one per line)</FormLabel>
+                  <FormControl>
+                    <Textarea className="min-h-24" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="toolsAndSkills"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tools &amp; Skills (one per line)</FormLabel>
+                  <FormControl>
+                    <Textarea className="min-h-24" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
