@@ -16,11 +16,18 @@ export type MatchResult = z.infer<typeof matchResultSchema>;
 const MAX_JD_CHARS = 12_000;
 const MAX_RESUME_CHARS = 16_000;
 
+export interface StructuredSections {
+  whatYouWillDo?: string | null;
+  requirements?: unknown;
+  toolsAndSkills?: unknown;
+}
+
 export async function scoreApplicantForJob(input: {
   jobDescription: string | null;
   parsedResume: ParsedResume;
+  structuredSections?: StructuredSections;
 }): Promise<MatchResult> {
-  const { jobDescription, parsedResume } = input;
+  const { jobDescription, parsedResume, structuredSections } = input;
 
   if (!jobDescription || jobDescription.trim().length === 0) {
     return {
@@ -63,6 +70,30 @@ export async function scoreApplicantForJob(input: {
     education: parsedResume.education,
   }).slice(0, MAX_RESUME_CHARS);
 
+  const structuredBlocks: string[] = [];
+
+  if (structuredSections?.whatYouWillDo) {
+    structuredBlocks.push(
+      `What you will do:\n"""\n${structuredSections.whatYouWillDo.slice(0, MAX_JD_CHARS)}\n"""`,
+    );
+  }
+
+  if (structuredSections?.requirements) {
+    structuredBlocks.push(
+      `Requirements:\n"""\n${JSON.stringify(structuredSections.requirements).slice(0, MAX_JD_CHARS)}\n"""`,
+    );
+  }
+
+  if (structuredSections?.toolsAndSkills) {
+    structuredBlocks.push(
+      `Tools & Skills:\n"""\n${JSON.stringify(structuredSections.toolsAndSkills).slice(0, MAX_JD_CHARS)}\n"""`,
+    );
+  }
+
+  const structuredText = structuredBlocks.length > 0
+    ? `\nStructured sections:\n${structuredBlocks.join("\n")}`
+    : "";
+
   const prompt = `
 You are a recruiting screener. Compare a candidate's parsed resume against a job description and produce a JSON match assessment.
 
@@ -82,6 +113,8 @@ Scoring rubric:
 - 0.00-0.29: clear mismatch
 Bias toward 0.50 when the JD is vague.
 
+If structured sections are provided below, use them as the primary source for matching. Cross-reference skills from "Tools & Skills" and "Requirements" against the resume's skills and work history.
+
 Job description:
 """
 ${jd}
@@ -89,6 +122,7 @@ ${jd}
 
 Parsed resume (JSON):
 ${resumeJson}
+${structuredText}
 `.trim();
 
   async function callOnce(): Promise<string> {
@@ -123,7 +157,14 @@ export async function scoreApplicantInline(applicantId: string): Promise<void> {
     select: {
       parsedData: true,
       data: true,
-      job: { select: { description: true } },
+      job: {
+        select: {
+          description: true,
+          whatYouWillDo: true,
+          requirements: true,
+          toolsAndSkills: true,
+        },
+      },
     },
   });
   if (!applicant?.parsedData) return;
@@ -131,6 +172,11 @@ export async function scoreApplicantInline(applicantId: string): Promise<void> {
   const result = await scoreApplicantForJob({
     jobDescription: applicant.job.description,
     parsedResume: applicant.parsedData as unknown as ParsedResume,
+    structuredSections: {
+      whatYouWillDo: applicant.job.whatYouWillDo,
+      requirements: applicant.job.requirements,
+      toolsAndSkills: applicant.job.toolsAndSkills,
+    },
   });
 
   const prevData =
