@@ -6,7 +6,7 @@ import { renderMarkdown } from "@/lib/utils/markdown";
 import type { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Home, MapPin, Briefcase, DollarSign, ArrowLeft, Building } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, ArrowLeft, Building } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
