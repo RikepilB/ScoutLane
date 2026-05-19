@@ -75,6 +75,12 @@
   --color-ring: #2B4BFF;
   --radius: 0.5rem;
 
+  /* ── Font families ── */
+  --font-display: "Bricolage Grotesque", serif;
+  --font-body: "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+}
+
 /* ── Base ── */
 * {
   border-color: var(--color-border);
@@ -99,9 +105,9 @@ body {
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(171, 210, 250, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(163, 176, 255, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(163, 176, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(163, 176, 255, 0); }
 }
 
 .animate-fade-up {
