@@ -115,6 +115,11 @@ export default async function AdminDashboardPage() {
               <Button asChild className="rounded-lg border border-white/[0.16] bg-white/[0.06] text-[#f1f5f9] hover:bg-white/[0.12]">
                 <Link href="/admin/jobs">View jobs</Link>
               </Button>
+              <Button asChild className="rounded-lg border border-white/[0.16] bg-white/[0.06] text-[#f1f5f9] hover:bg-white/[0.12]">
+                <Link href="/" target="_blank">
+                  View site <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
+                </Link>
+              </Button>
               <Button asChild className="rounded-lg bg-gradient-to-b from-[#1B2CC1] to-[#161fa8] text-[#f1f5f9] shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
                 <Link href="/admin/jobs/new" className="inline-flex items-center gap-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
