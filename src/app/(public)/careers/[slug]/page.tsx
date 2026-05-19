@@ -1,11 +1,21 @@
 import { ApplicationForm } from "@/components/public/ApplicationForm";
+import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { renderMarkdown } from "@/lib/utils/markdown";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Home, MapPin, Briefcase, DollarSign, ArrowLeft, Building } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Building,
+  DollarSign,
+  LayoutDashboard,
+  LogIn,
+  MapPin,
+} from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,6 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function JobApplicationPage({ params }: Props) {
   const { slug } = await params;
+  const session = await auth();
   const job = await prisma.job.findUnique({
     where: { slug },
     select: { id: true, title: true, description: true, descriptionUrl: true, slug: true, published: true, archived: true, location: true, type: true, salary: true, customFields: true },
@@ -54,17 +65,37 @@ export default async function JobApplicationPage({ params }: Props) {
   }>;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border/70">
+    <div className="min-h-screen bg-[#f6f7fb]">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-950 text-xs font-bold text-white">SL</span>
-            <span className="text-sm font-semibold text-slate-950">ScoutLane</span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-xs font-bold text-white">SL</span>
+            <span className="text-sm font-bold text-slate-950">ScoutLane</span>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            All positions
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 underline underline-offset-4 transition hover:text-blue-950"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to all positions
+            </Link>
+            {session?.user ? (
+              <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800">
+                <Link href="/admin" className="inline-flex items-center gap-1.5">
+                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800">
+                <Link href="/signin" className="inline-flex items-center gap-1.5">
+                  <LogIn className="h-3.5 w-3.5" />
+                  Sign in
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -83,7 +114,7 @@ export default async function JobApplicationPage({ params }: Props) {
               </div>
 
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{job.title}</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-blue-700 sm:text-4xl">{job.title}</h1>
                 <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   {job.location && (
                     <span className="inline-flex items-center gap-1.5">

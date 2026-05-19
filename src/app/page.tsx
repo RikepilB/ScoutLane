@@ -1,13 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { LogIn, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, LogIn } from "lucide-react";
 import { auth } from "@/lib/auth/auth";
 import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/db/prisma";
+import { CareersJobBoard, type CareersJob } from "@/components/public/CareersJobBoard";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ScoutLane",
+  title: "ScoutLane careers",
   robots: {
     index: false,
     follow: false,
@@ -22,27 +24,64 @@ export const metadata: Metadata = {
   },
 };
 
+function inferDepartment(job: { title: string; type: string | null }): string {
+  const title = job.title.toLowerCase();
+  const type = job.type?.trim();
+
+  if (/(data|machine learning|scientist|analytics|ai|ml)/i.test(job.title)) return "Data Science";
+  if (/(frontend|backend|full[- ]?stack|software|engineer|platform|infrastructure)/i.test(job.title)) {
+    return "Engineering";
+  }
+  if (/(recruit|talent|people|hr)/i.test(job.title)) return "People";
+  if (/(marketing|growth|sales|account|customer|success|solutions)/i.test(job.title)) return "GTM";
+  if (/(finance|procurement|accounting|operations)/i.test(job.title)) return "Operations";
+
+  return type || "Open Roles";
+}
+
 export default async function Home() {
   const session = await auth();
+  const jobs = await prisma.job.findMany({
+    where: {
+      published: true,
+      archived: false,
+    },
+    orderBy: [{ title: "asc" }],
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      location: true,
+      type: true,
+    },
+  });
+
+  const publicJobs: CareersJob[] = jobs.map((job) => ({
+    ...job,
+    department: inferDepartment(job),
+  }));
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border/70">
+    <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-sm font-bold text-white">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-700 text-sm font-bold text-white">
               SL
             </span>
-            <span className="text-base font-semibold tracking-tight text-slate-950">ScoutLane</span>
+            <span className="text-base font-bold tracking-tight text-slate-950">ScoutLane</span>
           </Link>
 
           <nav className="flex items-center gap-3">
             {session?.user ? (
-              <Button asChild variant="outline" size="sm">
-                <Link href="/admin">Dashboard</Link>
+              <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800">
+                <Link href="/admin" className="inline-flex items-center gap-1.5">
+                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Dashboard
+                </Link>
               </Button>
             ) : (
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800">
                 <Link href="/signin" className="inline-flex items-center gap-1.5">
                   <LogIn className="h-3.5 w-3.5" />
                   Sign in
@@ -53,47 +92,27 @@ export default async function Home() {
         </div>
       </header>
 
-      <section className="border-b border-border/70 bg-muted/30">
-        <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
-          <div className="max-w-2xl space-y-4">
-            <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
-              AI-Powered Recruitment
-            </span>
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">ScoutLane hiring</h1>
-            <p className="text-base leading-7 text-slate-600">
-              Open roles are shared as direct links (for example{" "}
-              <code className="rounded bg-white px-1.5 py-0.5 text-sm">/careers/your-role-slug</code>). There is no
-              public job directory here by design.
+      <section className="relative overflow-hidden bg-blue-700">
+        <div className="absolute inset-0 opacity-95">
+          <div className="absolute -left-24 top-10 h-56 w-[620px] rotate-[-24deg] rounded-full border-[72px] border-white/35" />
+          <div className="absolute right-[-120px] top-[-90px] h-72 w-[620px] rotate-[-26deg] rounded-full border-[72px] border-white/85" />
+        </div>
+        <div className="relative mx-auto max-w-5xl px-6 py-14 sm:py-20">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.24em] text-blue-100">
+              Public application portal
             </p>
-            <p className="text-base leading-7 text-slate-600">
-              If you are applying, use the link you received from the recruiting team. If you are hiring, sign in to
-              manage jobs, templates, applicants, and pipeline analytics.
+            <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-6xl">
+              Current job openings at ScoutLane
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-blue-50">
+              Find active roles, open a dedicated job page, and apply through the role-specific application form.
             </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Button asChild>
-                <Link href="/signin">Recruiter sign in</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/admin">Go to dashboard</Link>
-              </Button>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 py-12">
-        <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-600" />
-            <div>
-              <h2 className="text-sm font-semibold text-slate-900">Privacy-first public pages</h2>
-              <p className="mt-2 text-sm text-muted-foreground leading-6">
-                Individual job pages are marked non-indexable and are intended to be accessed only via their direct URL.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CareersJobBoard jobs={publicJobs} />
     </div>
   );
 }
