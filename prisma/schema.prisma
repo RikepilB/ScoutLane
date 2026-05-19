@@ -106,6 +106,7 @@ model Job {
   location       String?
   type           String?
   salary         String?
+  department     String?
   slug           String        @unique
   published      Boolean       @default(false)
   archived       Boolean       @default(false)
@@ -124,6 +125,10 @@ model Job {
   stages              PipelineStage[]
   integrations        JobIntegration[]
   stageTransitions    StageTransition[]
+
+  whatYouWillDo String?
+  requirements  Json?
+  toolsAndSkills Json?
 }
 
 model JobTemplate {
@@ -136,6 +141,7 @@ model JobTemplate {
   location       String?
   type           String?
   salary         String?
+  department     String?
   stageNames     String[]
   questions      Json?
   customFields   Json?
@@ -145,6 +151,10 @@ model JobTemplate {
   createdBy      User?         @relation(fields: [createdById], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  whatYouWillDo String?
+  requirements  Json?
+  toolsAndSkills Json?
 
   @@index([organizationId])
 }
@@ -284,5 +294,13 @@ model EmailLog {
   subject   String
   status    Int
   error     String?
+  createdAt DateTime @default(now())
+}
+
+model JobAlert {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  token     String   @unique
   createdAt DateTime @default(now())
 }
