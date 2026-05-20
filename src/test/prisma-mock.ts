@@ -4,7 +4,7 @@ type Fn = ReturnType<typeof vi.fn>;
 
 export interface MockedPrisma {
   pipelineStage: { findMany: Fn };
-  applicant: { findMany: Fn; findUnique: Fn; create: Fn; update: Fn };
+  applicant: { findMany: Fn; findUnique: Fn; create: Fn; update: Fn; delete: Fn };
   job: { findMany: Fn; findUnique: Fn; findFirst: Fn; create: Fn; update: Fn };
   user: { findUnique: Fn };
 }
@@ -17,6 +17,7 @@ export function createMockPrisma(): MockedPrisma {
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      delete: vi.fn(),
     },
     job: {
       findMany: vi.fn(),

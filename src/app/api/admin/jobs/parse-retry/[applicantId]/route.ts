@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
+import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 import { enqueueResumeParseJob } from "@/server/queues/resume";
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ applicantId: string }> },
 ) {
   const session = await auth();
@@ -33,10 +34,15 @@ export async function POST(
   }
 
   try {
+    if (request.nextUrl.searchParams.get("mode") === "inline") {
+      await parseApplicantResumeFromUrl(applicantId, applicant.resumeUrl);
+      return NextResponse.json({ success: true, status: "COMPLETED" });
+    }
+
     await enqueueResumeParseJob({ applicantId, resumeUrl: applicant.resumeUrl });
     return NextResponse.json({ success: true, status: "PENDING" });
   } catch (error) {
-    console.error("[parse-retry] enqueue failed:", error);
+    console.error("[parse-retry] parse failed:", error);
     await prisma.applicant
       .update({ where: { id: applicantId }, data: { parsingStatus: "FAILED" } })
       .catch(() => {});
