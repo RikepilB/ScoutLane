@@ -1,5 +1,4 @@
 # Project-specific (root-only ad-hoc planning files)
-/AGENTS.md
 /CLAUDE.md
 /PLAN.md
 /PROGRESS-REPORT.md
@@ -15,6 +14,8 @@
 !/docs/INTEGRATIONS.md
 !/docs/PROJECT-GUIDE.md
 !/docs/README.md
+!/docs/session-reports/
+!/docs/session-reports/*.md
 !/docs/STACK.md
 !/docs/TESTING.md
 !/docs/UX-TEST-PROTOCOL.md
@@ -81,6 +82,7 @@ testsprite_tests/
 app-screenshot.png
 scoutlane-fixed.png
 # Misc
+.data/
 tmp/
 temp/
 *.tsbuildinfo
