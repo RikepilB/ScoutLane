@@ -108,25 +108,23 @@ export default async function JobApplicationPage({ params }: Props) {
   const skillsList = (job.toolsAndSkills ?? []) as string[];
 
   return (
-    <div className="min-h-screen" style={{ background: "#0c1529", color: "#f1f5f9", fontFamily: "var(--font-body)" }}>
+    <div className="relative min-h-screen overflow-x-hidden" style={{ background: "#eef4f8", color: "#0c1529", fontFamily: "var(--font-body)" }}>
       {/* Background ambience */}
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-35"
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-60"
         style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)",
-          backgroundSize: "32px 32px",
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,255,255,0)), radial-gradient(circle at 18% 12%, rgba(171,210,250,0.42), transparent 34%), radial-gradient(circle at 86% 18%, rgba(27,44,193,0.12), transparent 30%)",
         }}
       />
-      <div className="pointer-events-none fixed z-0"
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[360px]"
         style={{
-          top: "-200px", right: "-100px", width: "600px", height: "600px",
-          background: "radial-gradient(circle, rgba(27,44,193,0.25), rgba(27,44,193,0) 70%)",
-          filter: "blur(40px)",
+          background: "linear-gradient(180deg, #091540 0%, rgba(9,21,64,0.92) 54%, rgba(9,21,64,0) 100%)",
         }}
       />
 
       {/* Header */}
-      <header className="relative z-[1] border-b border-white/[0.08] bg-[#0c1529]">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+      <header className="relative z-[1] border-b border-white/[0.10] bg-[#091540]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white"
               style={{
@@ -137,16 +135,16 @@ export default async function JobApplicationPage({ params }: Props) {
               }}>
               SL
             </span>
-            <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#f1f5f9]"
+            <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#f1f5f9] max-[420px]:hidden"
               style={{ fontFamily: "var(--font-display)" }}>
               ScoutLane
             </span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#ABD2FA] transition-colors hover:text-white"
               style={{ fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               <ArrowLeft className="h-3.5 w-3.5" />
-              All positions
+              <span className="max-[420px]:hidden">All positions</span>
             </Link>
             {session?.user ? (
               <Button asChild size="sm" className="rounded-full border border-white/[0.12] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:text-white">
@@ -164,11 +162,12 @@ export default async function JobApplicationPage({ params }: Props) {
         </div>
       </header>
 
-      <div className="relative z-[1] mx-auto max-w-5xl px-6 py-10">
-        <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr]">
+      <div className="relative z-[1] mx-auto max-w-6xl px-5 py-10 sm:px-6 lg:py-12">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_420px] lg:items-start">
           {/* Main content */}
-          <section className="space-y-8">
-            <div className="space-y-4">
+          <section className="space-y-6">
+            <div className="rounded-2xl border border-white/[0.12] bg-[#091540]/95 p-6 text-white shadow-[0_22px_60px_rgba(9,21,64,0.24)] sm:p-8">
+            <div className="space-y-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl"
                   style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", boxShadow: "0 8px 20px rgba(27,44,193,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
@@ -176,7 +175,7 @@ export default async function JobApplicationPage({ params }: Props) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-[#f1f5f9]">ScoutLane</p>
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[#5f8ea0]"
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-[#ABD2FA]"
                     style={{ fontFamily: "var(--font-mono)" }}>
                     AI-Powered Recruitment
                   </p>
@@ -184,32 +183,33 @@ export default async function JobApplicationPage({ params }: Props) {
               </div>
 
               <div>
-                <h1 className="text-[clamp(28px,4vw,40px)] font-medium leading-[1] tracking-[-0.03em] text-[#f1f5f9]"
+                <h1 className="text-[clamp(34px,5vw,56px)] font-medium leading-[0.98] tracking-[-0.03em] text-[#f1f5f9]"
                   style={{ fontFamily: "var(--font-display)" }}>
                   {job.title}
                 </h1>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] text-[#5f8ea0]"
+                <div className="mt-5 flex flex-wrap items-center gap-2.5 text-[13px] text-[#dbeafe]"
                   style={{ fontFamily: "var(--font-mono)" }}>
                   {job.location && (
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.07] px-3 py-1.5">
                       <MapPin className="h-4 w-4" />
                       {job.location}
                     </span>
                   )}
                   {job.type && (
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.07] px-3 py-1.5">
                       <Briefcase className="h-4 w-4" />
                       {job.type}
                     </span>
                   )}
                   {job.salary && (
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.07] px-3 py-1.5">
                       <DollarSign className="h-4 w-4" />
                       {job.salary}
                     </span>
                   )}
                 </div>
               </div>
+            </div>
             </div>
 
             {status !== "active" ? (
@@ -222,7 +222,7 @@ export default async function JobApplicationPage({ params }: Props) {
             ) : null}
 
             {/* Structured description */}
-            <div className="rounded-[24px] border border-white/[0.04] bg-[#f1f5f9] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+            <div className="rounded-2xl border border-[#d5e0e8] bg-white p-6 shadow-[0_18px_45px_rgba(9,21,64,0.10)] sm:p-8"
               style={{ color: "#0c1529" }}>
               <h2 className="mb-6 text-[24px] font-medium tracking-[-0.015em] text-[#0c1529]"
                 style={{ fontFamily: "var(--font-display)" }}>
@@ -306,15 +306,15 @@ export default async function JobApplicationPage({ params }: Props) {
             </div>
 
             {/* About ScoutLane */}
-            <div className="rounded-2xl border border-[#1B2CC1]/10 bg-[#0c1529] p-8"
+            <div className="rounded-2xl border border-[#cbd5e1] bg-white p-6 shadow-[0_18px_45px_rgba(9,21,64,0.08)] sm:p-8"
               style={{
-                background: "radial-gradient(circle at 80% 20%, rgba(27,44,193,0.08), transparent 50%), #0c1529",
+                background: "linear-gradient(135deg, #ffffff 0%, #f7fbff 100%)",
               }}>
-              <h2 className="mb-3 text-[20px] font-medium tracking-[-0.015em] text-[#f1f5f9]"
+              <h2 className="mb-3 text-[22px] font-medium tracking-[-0.015em] text-[#0c1529]"
                 style={{ fontFamily: "var(--font-display)" }}>
                 About ScoutLane
               </h2>
-              <p className="text-[14px] leading-7 text-[#5f8ea0]">
+              <p className="max-w-3xl text-[15px] leading-8 text-[#334155]">
                 ScoutLane is an AI-powered recruitment platform that helps companies streamline their hiring process. From posting jobs with custom application forms to intelligent resume parsing and pipeline management, ScoutLane provides everything hiring teams need to find and evaluate top talent.
               </p>
             </div>
