@@ -202,25 +202,27 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
                 Embedded preview with the original file kept available.
               </p>
             </div>
-            <a
-              href={applicant.resumeUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
-            >
-              <FileText className="h-3.5 w-3.5" />
-              Open resume in new tab
-            </a>
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href={applicant.resumeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Open in new tab
+              </a>
+            </div>
           </div>
           <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-slate-100">
             <iframe
               title={`${applicant.name} resume`}
-              src={applicant.resumeUrl}
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent(applicant.resumeUrl)}&embedded=true`}
               className="h-[720px] w-full bg-white"
             />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            If the storage provider blocks embedding, open the resume in a new tab.
+            If the embedded preview does not load, open the resume in a new tab using the button above.
           </p>
         </div>
       )}
