@@ -10,12 +10,12 @@ Current snapshot:
 
 | Item | Value |
 |---|---|
-| Branch | `feat/redesign` |
-| Latest observed commit | `f56df75 fix: applicant View link 404, resume preview, OpenRouter AI setup` |
-| Prior UI commit | `9569964 fix: improve public job application readability` |
-| Main next task | Finish end-to-end application submission verification and configure email env |
-| Working tree note | Non-doc code changes were already present; do not overwrite them without review |
-| Local app note | A Next dev server has recently run on `http://localhost:3006` |
+| Branch | `main` tracking `origin/main` |
+| Latest observed commit | `11c4521 fix applicant deletion and resume submission handling` |
+| Recently merged PR | `#69 fix: improve resume parsing and handoff docs` |
+| Main next task | Fix OpenRouter model fallback parsing and add the AI Engineer seed job/template |
+| Working tree note | App fixes for applicant deletion, submission handling, upload guard, custom fields, and parse-now were pushed in `11c4521`; generated `playwright-report/` remains local-only |
+| Local app note | Recent local testing used `http://localhost:3009`; use `localhost`, not `127.0.0.1`, for Next dev browser checks |
 | Primary test email | `ridi.pillaca@gmail.com` |
 | Test resume | `C:\Users\a2021\OneDrive\Escritorio\2026\Toronto\RichardPillaca_RESUME.pdf` |
 | Job sample source | `C:\Users\a2021\OneDrive\Escritorio\Vibe projects workspace\PROYECTOS\Documentation\Scoutlane\job post sample.md` |
@@ -24,13 +24,13 @@ Current snapshot:
 
 | Priority | Area | Symptom | Next Diagnostic Step | Source |
 |---|---|---|---|---|
-| P1 | Resume parsing | PDF extraction now works and browser submit reaches the parser, but OpenRouter returns `404 No endpoints found for deepseek/deepseek-chat-v3.1:free`. | Set `OPENROUTER_MODEL` to an available model, then submit again and confirm applicant `parsingStatus`, `parsedData`, `data.match`, and `score`. | `2026-05-20-parsing-performance-test` |
+| P1 | Resume parsing | PDF extraction now works and browser submit reaches the parser, but OpenRouter returns `404 No endpoints found for deepseek/deepseek-chat-v3.1:free`. | Replace the dead default model with an OpenRouter fallback list. Prefer `OPENROUTER_MODEL`, then a current free JSON-capable fallback such as `openrouter/owl-alpha`, retrying only model/provider availability failures. | `2026-05-20-parsing-ai-engineer-plan` |
+| P1 | AI Engineer seed data | The external job sample has not been added to seed data. | Add one `AI Engineer, Global Security` active job plus one reusable AI Engineer template in `prisma/seed.ts`, based on the sample but branded as ScoutLane demo data. | `2026-05-20-parsing-ai-engineer-plan` |
 | P2 | Application submission E2E | Browser submit on `localhost:3009` POSTed successfully and showed application success, but parsing warning remains because of OpenRouter model config. | Re-run after model config fix and email env config. | `2026-05-20-parsing-performance-test` |
 | P2 | Email confirmation | App submit logs `RESEND_API_KEY is not configured`; application can submit but confirmation email cannot send locally. | Configure `RESEND_API_KEY` and `EMAIL_FROM`, then rerun application submit. | `2026-05-20-parsing-performance-test` |
 | P2 | Auth/dev login | Dev credentials login can return a session without a persisted `User`, which can break admin DB operations. | Upsert the dev user in `src/lib/auth/auth.ts` sign-in callback; keep Prisma out of `auth.config.ts`. | Review findings |
 | P2 | Job creation | New-job form fields `slug`, `department`, `whatYouWillDo`, `requirements`, and `toolsAndSkills` can be dropped during parsing. | Add those fields to the `safeParse` input in `createJobImpl`. | Review findings |
-| P2 | Public application form | Required custom application fields are displayed but not enforced. | Validate required custom fields client-side and in `submitJobApplicationImpl`. | Review findings |
-| P2 | Public select fields | Custom select fields render only the placeholder and ignore configured options. | Add `options?: string[]` to the public custom field type and render options. | Review findings |
+| P2 | Public application form | Required custom application fields and select options were fixed in `11c4521`. | Retest on the deployed app after Vercel finishes building. | `11c4521` |
 | P2 | Auth/email/notifications | Google auth, email OTP verification, confirmed job alerts, and email-only notifications are planned but not implemented. | Implement the auth/email plan from the session index before production testing. | `2026-05-20-auth-email-notifications-plan` |
 | P3 | Lint | `pnpm lint` previously passed with an existing custom font warning in `src/app/layout.tsx`. | Fix separately if polishing final quality gates. | `2026-05-20-public-job-readability` |
 
@@ -43,6 +43,7 @@ Current snapshot:
 | 2026-05-20 | `2026-05-20-auth-email-notifications-plan` | Plan for Google OAuth, email OTP, job alert subscriptions, email notifications, AI Engineer seed data | Planned, not implemented | `feat/redesign` | [Report](./session-reports/2026-05-20-auth-email-notifications-plan.md) |
 | 2026-05-20 | `2026-05-20-handoff-system` | Reworked handoff into fast index plus session reports | Implemented | `feat/redesign` | [Report](./session-reports/2026-05-20-handoff-system.md) |
 | 2026-05-20 | `2026-05-20-parsing-performance-test` | Ran parsing-focused tests, fixed PDF extraction for `pdf-parse` v2, collected navigation performance | Implemented; E2E submit needs clean retest | `feat/redesign` | [Report](./session-reports/2026-05-20-parsing-performance-test.md) |
+| 2026-05-20 | `2026-05-20-parsing-ai-engineer-plan` | Decision-complete plan for OpenRouter fallback parsing and AI Engineer seed job/template | Planned, not implemented | `main` | [Report](./session-reports/2026-05-20-parsing-ai-engineer-plan.md) |
 
 ## Current Verified Work
 
@@ -109,7 +110,7 @@ pnpm worker:resume
 
 Local environment notes:
 
-- Existing uncommitted non-doc paths observed during this handoff update: `src/lib/storage/upload.ts`, `src/server/services/submit-job-application-impl.ts`, `src/app/api/resumes/`, `src/lib/storage/upload.test.ts`, and `playwright-report/`.
+- Current untracked local-only path observed on 2026-05-20: `playwright-report/`.
 - In sandboxed runs, `pnpm` commands can hit Windows `EPERM` reading `node_modules/.pnpm`; rerun with approved permissions if needed.
 - Git may warn about `C:\Users\a2021/.config/git/ignore` permission. The warning is known and not caused by project files.
 - A second Next dev server on `3007` previously reported that another server was already running for this directory.
