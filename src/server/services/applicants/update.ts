@@ -19,3 +19,8 @@ export async function updateInterviewDate(applicantId: string, interviewDate: st
   const { updateInterviewDateImpl } = await import("./update-impl");
   return updateInterviewDateImpl(applicantId, interviewDate);
 }
+
+export async function deleteApplicant(applicantId: string) {
+  const { deleteApplicantImpl } = await import("./update-impl");
+  return deleteApplicantImpl(applicantId);
+}

@@ -13,6 +13,11 @@ import {
 } from "@/schemas/application";
 
 type ResumeProcessingMode = "inline" | "queue" | "queue-and-inline";
+type PublicCustomField = {
+  id: string;
+  label: string;
+  required?: boolean;
+};
 
 export function getResumeProcessingMode(): ResumeProcessingMode {
   const raw = process.env.RESUME_PARSE_MODE?.toLowerCase();
@@ -55,14 +60,45 @@ export async function submitJobApplicationImpl(
     return { success: false, error: "This position is not accepting applications." };
   }
 
+  let customFields: Record<string, string> = {};
+  try {
+    const raw = formData.get("customFields");
+    if (typeof raw === "string") customFields = JSON.parse(raw);
+  } catch {
+    return { success: false, error: "Invalid custom application fields." };
+  }
+
+  const configuredCustomFields = Array.isArray(job.customFields)
+    ? (job.customFields as PublicCustomField[])
+    : [];
+  const missingCustomField = configuredCustomFields.find((field) => {
+    if (!field.required) return false;
+    const value = customFields[field.id];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+  if (missingCustomField) {
+    return { success: false, error: `${missingCustomField.label} is required.` };
+  }
+
   const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
   const resumeFilename = resumeFile.name || "resume.pdf";
 
-  const upload = await uploadFileBuffer({
-    buffer: resumeBuffer,
-    contentType: resumeFile.type || "application/octet-stream",
-    filename: resumeFilename,
-  });
+  let upload;
+  try {
+    upload = await uploadFileBuffer({
+      buffer: resumeBuffer,
+      contentType: resumeFile.type || "application/octet-stream",
+      filename: resumeFilename,
+    });
+  } catch (error) {
+    console.error("[submit] resume upload failed:", error);
+    return {
+      success: false,
+      field: "resumeFile",
+      error:
+        "Resume upload is not available right now. Please try again later or contact the hiring team.",
+    };
+  }
   const applicantName = `${firstName} ${lastName}`.trim();
 
   const existingApplicant = await prisma.applicant.findFirst({
@@ -80,12 +116,6 @@ export async function submitJobApplicationImpl(
       error: DUPLICATE_APPLICATION_MESSAGE,
     };
   }
-
-  let customFields: Record<string, string> = {};
-  try {
-    const raw = formData.get("customFields");
-    if (typeof raw === "string") customFields = JSON.parse(raw);
-  } catch {}
 
   const firstStage = await prisma.pipelineStage.findFirst({
     where: { jobId: job.id },

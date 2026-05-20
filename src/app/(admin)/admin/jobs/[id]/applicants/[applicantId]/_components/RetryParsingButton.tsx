@@ -13,11 +13,11 @@ export function RetryParsingButton({ applicantId, status }: RetryParsingButtonPr
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  if (status !== "FAILED") return null;
+  if (status === "COMPLETED") return null;
 
   function handleRetry() {
     startTransition(async () => {
-      await fetch(`/api/admin/jobs/parse-retry/${applicantId}`, { method: "POST" });
+      await fetch(`/api/admin/jobs/parse-retry/${applicantId}?mode=inline`, { method: "POST" });
       router.refresh();
     });
   }
@@ -29,7 +29,7 @@ export function RetryParsingButton({ applicantId, status }: RetryParsingButtonPr
       className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
     >
       {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-      Retry parsing
+      {status === "FAILED" ? "Retry parsing" : "Parse now"}
     </button>
   );
 }

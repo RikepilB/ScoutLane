@@ -14,6 +14,7 @@ const { prismaMock, mockAuth } = vi.hoisted(() => {
         findUnique: fn(),
         create: fn(),
         update: fn(),
+        delete: fn(),
       },
       job: {
         findMany: fn(),
