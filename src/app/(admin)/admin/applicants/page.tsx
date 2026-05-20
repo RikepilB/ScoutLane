@@ -267,7 +267,7 @@ export default async function GlobalApplicantsPage({
                       <td className="px-4 py-3.5 text-[13px] text-[#5f8ea0]">{formatDate(a.createdAt)}</td>
                       <td className="px-4 py-3.5">
                         <Link
-                          href={`/admin/applicants/${a.id}`}
+                          href={`/admin/jobs/${a.job.id}/applicants/${a.id}`}
                           className="inline-flex items-center gap-1 text-[13px] font-medium text-[#1B2CC1] transition-colors hover:text-[#3D518C]"
                         >
                           View <ExternalLink className="h-3 w-3" />
