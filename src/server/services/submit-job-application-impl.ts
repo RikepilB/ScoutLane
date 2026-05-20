@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
+import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
 import { enqueueResumeParseJob } from "@/server/queues/resume";
 import {
@@ -10,6 +11,16 @@ import {
   type ApplicationActionResult,
   jobApplicationSubmissionSchema,
 } from "@/schemas/application";
+
+type ResumeProcessingMode = "inline" | "queue" | "queue-and-inline";
+
+export function getResumeProcessingMode(): ResumeProcessingMode {
+  const raw = process.env.RESUME_PARSE_MODE?.toLowerCase();
+  if (raw === "queue" || raw === "queue-and-inline" || raw === "inline") {
+    return raw;
+  }
+  return "queue";
+}
 
 export async function submitJobApplicationImpl(
   formData: FormData,
@@ -115,18 +126,28 @@ export async function submitJobApplicationImpl(
   }
 
   let warning: string | undefined;
+  const resumeProcessingMode = getResumeProcessingMode();
 
   try {
-    await enqueueResumeParseJob({
-      applicantId: applicant.id,
-      resumeUrl: upload.url,
-    });
+    if (resumeProcessingMode === "queue" || resumeProcessingMode === "queue-and-inline") {
+      await enqueueResumeParseJob({
+        applicantId: applicant.id,
+        resumeUrl: upload.url,
+      });
+    }
+
+    if (resumeProcessingMode === "inline" || resumeProcessingMode === "queue-and-inline") {
+      await parseApplicantResumeFromBuffer(applicant.id, resumeBuffer, resumeFilename);
+    }
   } catch (error) {
-    console.error("[submit] resume queue enqueue failed:", error);
+    console.error("[submit] resume processing failed:", error);
     await prisma.applicant
       .update({ where: { id: applicant.id }, data: { parsingStatus: "FAILED" } })
       .catch(() => {});
-    warning = "Your application was submitted, but resume parsing could not be queued.";
+    warning =
+      resumeProcessingMode === "queue"
+        ? "Your application was submitted, but resume parsing could not be queued."
+        : "Your application was submitted, but resume parsing could not be completed.";
   }
 
   try {
