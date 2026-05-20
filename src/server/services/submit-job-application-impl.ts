@@ -14,12 +14,12 @@ import {
 
 type ResumeProcessingMode = "inline" | "queue" | "queue-and-inline";
 
-function getResumeProcessingMode(): ResumeProcessingMode {
+export function getResumeProcessingMode(): ResumeProcessingMode {
   const raw = process.env.RESUME_PARSE_MODE?.toLowerCase();
   if (raw === "queue" || raw === "queue-and-inline" || raw === "inline") {
     return raw;
   }
-  return "inline";
+  return "queue";
 }
 
 export async function submitJobApplicationImpl(
