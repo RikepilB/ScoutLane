@@ -6,6 +6,7 @@
 
 # Curated project documentation is tracked under /docs.
 # Other local documentation can stay on disk without showing up in Git.
+/doc/
 /docs/*
 !/docs/API.md
 !/docs/ARCHITECTURE.md
