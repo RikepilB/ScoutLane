@@ -37,6 +37,7 @@
 - [`docs/API.md`](./docs/API.md) — REST endpoint reference and Server Action catalog, plus webhook / per-stage integration payloads.
 - [`docs/PROJECT-GUIDE.md`](./docs/PROJECT-GUIDE.md) — product guide, feature inventory, user flows, and demo plan.
 - [`docs/TESTING.md`](./docs/TESTING.md) — current test files, commands, and next coverage priorities.
+- [`docs/HANDOFF.md`](./docs/HANDOFF.md) — latest implementation handoff, verification notes, known warnings, and recommended next steps.
 
 ---
 
