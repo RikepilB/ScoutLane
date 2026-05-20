@@ -44,6 +44,10 @@ export async function uploadFileBuffer({
   prefix = "resumes",
 }: UploadBufferInput): Promise<UploadedFileResult> {
   if (!isStorageConfigured()) {
+    if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+      throw new Error("Resume storage is not configured for this deployment.");
+    }
+
     const objectName = buildObjectName(filename, prefix);
     const filePath = path.join(LOCAL_RESUME_STORAGE_DIR, objectName);
     await mkdir(path.dirname(filePath), { recursive: true });

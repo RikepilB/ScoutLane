@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 interface CustomField {
   id: string;
   label: string;
+  options?: string[];
   type: "text" | "textarea" | "select" | "file";
   required: boolean;
 }
@@ -69,6 +70,16 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
     setServerError(null);
     setSuccessMessage(null);
     setWarningMessage(null);
+
+    const missingCustomField = customFields.find((field) => {
+      if (!field.required) return false;
+      const value = customValues[field.id];
+      return typeof value !== "string" || value.trim().length === 0;
+    });
+    if (missingCustomField) {
+      setServerError(`${missingCustomField.label} is required.`);
+      return;
+    }
 
     const formData = new FormData();
     formData.set("jobSlug", jobSlug);
@@ -270,6 +281,11 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   className="flex h-11 w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
                 >
                   <option value="">Select...</option>
+                  {(field.options ?? []).map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
                 </select>
               ) : (
                 <input

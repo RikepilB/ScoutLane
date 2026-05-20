@@ -9,6 +9,7 @@ import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
 import { RescoreButton } from "./_components/RescoreButton";
 import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
+import { DeleteApplicantButton } from "./_components/DeleteApplicantButton";
 import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
 
 function matchBadgeColor(score: number | null): string {
@@ -179,6 +180,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
             />
             <RetryParsingButton applicantId={applicant.id} status={applicant.parsingStatus ?? null} />
             {hasParsedData && <RescoreButton applicantId={applicant.id} />}
+            {isAdmin ? <DeleteApplicantButton applicantId={applicant.id} jobId={jobId} /> : null}
           </div>
         </div>
       </div>

@@ -10,7 +10,14 @@ vi.mock("./client", () => ({
   isStorageConfigured: () => false,
 }));
 
+const originalVercel = process.env.VERCEL;
+
 afterEach(async () => {
+  if (originalVercel === undefined) {
+    delete process.env.VERCEL;
+  } else {
+    process.env.VERCEL = originalVercel;
+  }
   await rm(LOCAL_RESUME_STORAGE_DIR, { force: true, recursive: true });
 });
 
@@ -49,5 +56,17 @@ describe("local resume storage", () => {
     });
 
     expect(response.status).toBe(404);
+  });
+
+  it("does not use local filesystem fallback on Vercel", async () => {
+    process.env.VERCEL = "1";
+
+    await expect(
+      uploadFileBuffer({
+        buffer: Buffer.from("resume text"),
+        contentType: "application/pdf",
+        filename: "Jane Resume.pdf",
+      }),
+    ).rejects.toThrow("Resume storage is not configured");
   });
 });

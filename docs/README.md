@@ -35,6 +35,7 @@ Session reports live in [session-reports](./session-reports/). Use one report pe
 | [2026-05-20-auth-email-notifications-plan.md](./session-reports/2026-05-20-auth-email-notifications-plan.md) | Planned Google auth, OTP, job alerts, and email notifications work. |
 | [2026-05-20-handoff-system.md](./session-reports/2026-05-20-handoff-system.md) | Handoff index/session-report system implementation. |
 | [2026-05-20-parsing-performance-test.md](./session-reports/2026-05-20-parsing-performance-test.md) | Resume parsing test run, PDF extraction fix, and navigation performance results. |
+| [2026-05-20-parsing-ai-engineer-plan.md](./session-reports/2026-05-20-parsing-ai-engineer-plan.md) | Planned OpenRouter fallback parsing fix and AI Engineer seed job/template. |
 
 ## Source Of Truth Rule
 

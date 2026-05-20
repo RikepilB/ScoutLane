@@ -103,3 +103,26 @@ export async function updateInterviewDateImpl(applicantId: string, interviewDate
 
   revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
 }
+
+export async function deleteApplicantImpl(applicantId: string) {
+  const user = await requireSession();
+
+  if (user.role !== "ADMIN") {
+    throw new Error("Only admins can delete applicants");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { jobId: true, job: { select: { organizationId: true } } },
+  });
+  if (!applicant || applicant.job.organizationId !== user.organizationId) {
+    throw new Error("Applicant not found");
+  }
+
+  await prisma.applicant.delete({ where: { id: applicantId } });
+
+  revalidatePath(`/admin/jobs/${applicant.jobId}/applicants`);
+  revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
+
+  return { jobId: applicant.jobId };
+}
