@@ -1,28 +1,45 @@
 # ScoutLane Documentation
 
-Use this directory as the project handoff and implementation reference. These docs merge the downloaded project notes with the current repository state as of 2026-05-19.
+Use this directory as the project handoff and implementation reference. Start with [HANDOFF.md](./HANDOFF.md) in every new agent session.
+
+## Fast Context Workflow
+
+1. Open [HANDOFF.md](./HANDOFF.md).
+2. Read `Read This First`, `Open Issues`, and `Session Index`.
+3. Open only the linked session reports needed for the current task.
+4. Use the deeper docs below when implementation details are needed.
 
 ## Core Docs
 
 | Doc | Purpose |
 |---|---|
-| [ASSESSMENT-PROGRESS.md](./ASSESSMENT-PROGRESS.md) | Requirement-by-requirement progress, in-process work, and missing gaps against the take-home assessment. |
+| [HANDOFF.md](./HANDOFF.md) | Fast current-state index, open issues, session history, and next-agent context. |
 | [PROJECT-GUIDE.md](./PROJECT-GUIDE.md) | Product overview, user flows, feature inventory, and demo guide. |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System topology, module boundaries, auth, data model, and sharp edges. |
 | [API.md](./API.md) | REST endpoints, Server Actions, request/response shapes, and integration payloads. |
-| [SECURITY-AUDIT.md](./SECURITY-AUDIT.md) | Evidence-based security posture, current risks, and hardening checklist. |
 | [STACK.md](./STACK.md) | Current framework, dependency, runtime, and environment reference. |
 | [INTEGRATIONS.md](./INTEGRATIONS.md) | External services: auth, database, storage, email, AI, webhooks, workers. |
 | [TESTING.md](./TESTING.md) | Unit, API, component, and E2E testing strategy. |
 | [UX-TEST-PROTOCOL.md](./UX-TEST-PROTOCOL.md) | Automated and moderated UX validation protocol. |
-| [HANDOFF.md](./HANDOFF.md) | Current branch state, verification notes, and next recommended actions. |
 | [CLAUDE.md](./CLAUDE.md) | Claude/agent operating context for this project. |
-| [session-reports/2026-05-19-docs-update.md](./session-reports/2026-05-19-docs-update.md) | Session summary for the docs-update branch and next-agent handoff. |
 
-## Source of Truth Rule
+## Session Reports
 
-When docs disagree with code, trust the code and update the doc in the same change. The highest-risk drift points are API implementation status, auth role gates, worker behavior, test coverage, and the AI provider.
+Session reports live in [session-reports](./session-reports/). Use one report per meaningful work session.
+
+| Report | Purpose |
+|---|---|
+| [TEMPLATE.md](./session-reports/TEMPLATE.md) | Copy this structure for future reports. |
+| [2026-05-19-docs-review.md](./session-reports/2026-05-19-docs-review.md) | Initial curated docs review context. |
+| [2026-05-20-public-job-readability.md](./session-reports/2026-05-20-public-job-readability.md) | Public job page readability work and resume parsing blocker. |
+| [2026-05-20-auth-email-notifications-plan.md](./session-reports/2026-05-20-auth-email-notifications-plan.md) | Planned Google auth, OTP, job alerts, and email notifications work. |
+| [2026-05-20-handoff-system.md](./session-reports/2026-05-20-handoff-system.md) | Handoff index/session-report system implementation. |
+| [2026-05-20-parsing-performance-test.md](./session-reports/2026-05-20-parsing-performance-test.md) | Resume parsing test run, PDF extraction fix, and navigation performance results. |
+
+## Source Of Truth Rule
+
+When docs disagree with code, trust the code and update the doc in the same change. The highest-risk drift points are API implementation status, auth role gates, worker behavior, test coverage, and AI provider behavior.
 
 ## Tracking Rule
 
-The docs branch intentionally ignores `/docs/*` by default and whitelists only curated documentation in `.gitignore`. Local drafts can stay on disk without appearing in Git. If a new doc becomes part of the curated package, add it to the whitelist and link it here.
+The docs directory is curated. Keep durable agent context in `HANDOFF.md` and `docs/session-reports/`; leave ad-hoc local drafts outside the tracked docs set.

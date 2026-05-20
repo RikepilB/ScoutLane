@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { slugify } from "@/lib/slug";
 import { isStorageConfigured, getStorageConfig, getBucket } from "./client";
+
+export const LOCAL_RESUME_STORAGE_DIR = path.join(process.cwd(), ".data", "resumes");
 
 function buildObjectName(filename: string, prefix: string): string {
   const cleanName = slugify(filename.replace(/\.[^.]+$/, "")) || "resume";
@@ -41,6 +45,9 @@ export async function uploadFileBuffer({
 }: UploadBufferInput): Promise<UploadedFileResult> {
   if (!isStorageConfigured()) {
     const objectName = buildObjectName(filename, prefix);
+    const filePath = path.join(LOCAL_RESUME_STORAGE_DIR, objectName);
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, buffer);
     return {
       bucket: "local-dev",
       contentType,
