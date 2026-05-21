@@ -11,6 +11,33 @@ vi.mock("./client", () => ({
 }));
 
 const originalVercel = process.env.VERCEL;
+const originalS3 = {
+  S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
+  S3_BUCKET: process.env.S3_BUCKET,
+  S3_ENDPOINT: process.env.S3_ENDPOINT,
+  S3_PUBLIC_BASE_URL: process.env.S3_PUBLIC_BASE_URL,
+  S3_REGION: process.env.S3_REGION,
+  S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
+};
+
+function clearS3Env() {
+  delete process.env.S3_ACCESS_KEY_ID;
+  delete process.env.S3_BUCKET;
+  delete process.env.S3_ENDPOINT;
+  delete process.env.S3_PUBLIC_BASE_URL;
+  delete process.env.S3_REGION;
+  delete process.env.S3_SECRET_ACCESS_KEY;
+}
+
+function restoreS3Env() {
+  for (const [key, value] of Object.entries(originalS3)) {
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+}
 
 afterEach(async () => {
   if (originalVercel === undefined) {
@@ -18,11 +45,15 @@ afterEach(async () => {
   } else {
     process.env.VERCEL = originalVercel;
   }
+  restoreS3Env();
+  vi.restoreAllMocks();
   await rm(LOCAL_RESUME_STORAGE_DIR, { force: true, recursive: true });
 });
 
 describe("local resume storage", () => {
   it("writes local-dev uploads and serves them through the resume route", async () => {
+    clearS3Env();
+
     const upload = await uploadFileBuffer({
       buffer: Buffer.from("resume text"),
       contentType: "application/pdf",
@@ -59,6 +90,7 @@ describe("local resume storage", () => {
   });
 
   it("does not use local filesystem fallback on Vercel", async () => {
+    clearS3Env();
     process.env.VERCEL = "1";
 
     await expect(
@@ -68,5 +100,38 @@ describe("local resume storage", () => {
         filename: "Jane Resume.pdf",
       }),
     ).rejects.toThrow("Resume storage is not configured");
+  });
+
+  it("uploads through S3-compatible storage when configured", async () => {
+    process.env.S3_ACCESS_KEY_ID = "test-key";
+    process.env.S3_BUCKET = "resume-bucket";
+    process.env.S3_ENDPOINT = "https://storage.example.test";
+    process.env.S3_PUBLIC_BASE_URL = "https://cdn.example.test/resumes";
+    process.env.S3_REGION = "us-east-1";
+    process.env.S3_SECRET_ACCESS_KEY = "test-secret";
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }));
+
+    const upload = await uploadFileBuffer({
+      buffer: Buffer.from("name,skills\nJane,TypeScript"),
+      contentType: "application/octet-stream",
+      filename: "Jane Resume.csv",
+    });
+
+    expect(upload.bucket).toBe("resume-bucket");
+    expect(upload.contentType).toBe("text/csv; charset=utf-8");
+    expect(upload.url).toBe(`https://cdn.example.test/resumes/${upload.objectName}`);
+    expect(upload.objectName).toMatch(/^resumes\/\d{4}-\d{2}\/jane-resume-/);
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.objectContaining({ host: "storage.example.test" }),
+      expect.objectContaining({
+        method: "PUT",
+        headers: expect.objectContaining({
+          Authorization: expect.stringContaining("AWS4-HMAC-SHA256"),
+          "Content-Type": "text/csv; charset=utf-8",
+        }),
+      }),
+    );
   });
 });

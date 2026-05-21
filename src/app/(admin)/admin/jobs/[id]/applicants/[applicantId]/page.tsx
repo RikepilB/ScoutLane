@@ -20,6 +20,35 @@ function matchBadgeColor(score: number | null): string {
   return "bg-red-50 text-red-700";
 }
 
+function getAppBaseUrl(): string {
+  const rawBaseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    process.env.VERCEL_URL ||
+    "http://localhost:3000";
+  const baseUrl = /^https?:\/\//.test(rawBaseUrl) ? rawBaseUrl : `https://${rawBaseUrl}`;
+  return baseUrl.replace(/\/$/, "");
+}
+
+function getResumeEmbedSrc(resumeUrl: string): string {
+  const isAbsoluteHttp = /^https?:\/\//i.test(resumeUrl);
+  const pathOnly = (() => {
+    try {
+      return new URL(resumeUrl, getAppBaseUrl()).pathname;
+    } catch {
+      return resumeUrl;
+    }
+  })();
+  const canEmbedDirectly = !isAbsoluteHttp || /\.(pdf|csv|txt)$/i.test(pathOnly);
+
+  if (canEmbedDirectly) {
+    return resumeUrl;
+  }
+
+  const absoluteResumeUrl = new URL(resumeUrl, getAppBaseUrl()).toString();
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteResumeUrl)}&embedded=true`;
+}
+
 interface ApplicantDetailPageProps {
   params: Promise<{ id: string; applicantId: string }>;
 }
@@ -79,6 +108,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
       ? Math.round(applicant.score * 100)
       : null;
   const hasParsedData = applicant.parsingStatus === "COMPLETED";
+  const resumeEmbedSrc = applicant.resumeUrl ? getResumeEmbedSrc(applicant.resumeUrl) : null;
 
   const confidenceColors: Record<string, string> = {
     high: "bg-emerald-100 text-emerald-700",
@@ -195,7 +225,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         </div>
       </div>
 
-      {applicant.resumeUrl && (
+      {applicant.resumeUrl && resumeEmbedSrc && (
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -219,7 +249,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-slate-100">
             <iframe
               title={`${applicant.name} resume`}
-              src={`https://docs.google.com/viewer?url=${encodeURIComponent(applicant.resumeUrl)}&embedded=true`}
+              src={resumeEmbedSrc}
               className="h-[720px] w-full bg-white"
             />
           </div>

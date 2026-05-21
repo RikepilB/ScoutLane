@@ -7,12 +7,12 @@ function extension(filename: string): string {
 }
 
 /**
- * Extract plain text from resume bytes (PDF, DOCX, plain text).
+ * Extract plain text from resume bytes (PDF, Word, CSV, or plain text).
  */
 export async function extractTextFromResumeBuffer(buffer: Buffer, filename: string): Promise<string> {
   const ext = extension(filename);
 
-  if (ext === "txt" || ext === "md" || ext === "markdown") {
+  if (ext === "csv" || ext === "txt" || ext === "md" || ext === "markdown") {
     return buffer.toString("utf8");
   }
 
@@ -60,7 +60,7 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, filename: stri
     } catch {
       /* binary .doc often unsupported */
     }
-    throw new Error("Legacy .doc format is not supported. Please upload PDF or DOCX.");
+    throw new Error("Legacy .doc format is not supported. Please upload PDF, DOCX, or CSV.");
   }
 
   const asUtf8 = buffer.toString("utf8");
@@ -68,5 +68,5 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, filename: stri
     return asUtf8.trim();
   }
 
-  throw new Error(`Unsupported resume format (.${ext || "unknown"}). Please upload PDF or DOCX.`);
+  throw new Error(`Unsupported resume format (.${ext || "unknown"}). Please upload PDF, DOCX, or CSV.`);
 }

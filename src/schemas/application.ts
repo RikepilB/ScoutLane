@@ -4,7 +4,17 @@ const acceptedResumeTypes = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/csv",
+  "application/csv",
+  "application/vnd.ms-excel",
 ] as const;
+
+const acceptedResumeExtensions = [".pdf", ".doc", ".docx", ".csv"] as const;
+
+function hasAcceptedResumeExtension(fileName: string): boolean {
+  const normalized = fileName.toLowerCase();
+  return acceptedResumeExtensions.some((extension) => normalized.endsWith(extension));
+}
 
 export const resumeFileSchema = z
   .custom<File>(
@@ -23,10 +33,13 @@ export const resumeFileSchema = z
       });
     }
 
-    if (!acceptedResumeTypes.includes(value.type as (typeof acceptedResumeTypes)[number])) {
+    const hasAcceptedMimeType = acceptedResumeTypes.includes(
+      value.type as (typeof acceptedResumeTypes)[number],
+    );
+    if (!hasAcceptedMimeType && !hasAcceptedResumeExtension(value.name ?? "")) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Resume must be a PDF, DOC, or DOCX file",
+        message: "Resume must be a PDF, DOC, DOCX, or CSV file",
       });
     }
   });

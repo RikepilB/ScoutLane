@@ -30,6 +30,7 @@ export default auth((req) => {
     pathname === "/careers" ||
     pathname.startsWith("/careers/") ||
     pathname.startsWith("/api/public/") ||
+    pathname.startsWith("/api/resumes/") ||
     PUBLIC_FILES.has(pathname);
 
   if (isPublic) return NextResponse.next();
@@ -53,6 +54,6 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    "/((?!api/auth|api/public|_next/static|_next/image|favicon\\.ico|favicon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.(?:json|webmanifest)|careers).*)",
+    "/((?!api/auth|api/public|api/resumes|_next/static|_next/image|favicon\\.ico|favicon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.(?:json|webmanifest)|careers).*)",
   ],
 };

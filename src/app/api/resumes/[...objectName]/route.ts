@@ -9,6 +9,7 @@ const CONTENT_TYPES: Record<string, string> = {
   ".doc": "application/msword",
   ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ".pdf": "application/pdf",
+  ".csv": "text/csv; charset=utf-8",
 };
 
 function resolveLocalResumePath(parts: string[]): string | null {

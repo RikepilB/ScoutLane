@@ -24,6 +24,18 @@ export function getOpenRouterModel(): string {
   return process.env.OPENROUTER_MODEL ?? "deepseek/deepseek-chat-v3.1:free";
 }
 
+export function getOpenRouterModels(): string[] {
+  const models = [
+    getOpenRouterModel(),
+    ...(process.env.OPENROUTER_FALLBACK_MODELS ?? "")
+      .split(",")
+      .map((model) => model.trim())
+      .filter(Boolean),
+    "openrouter/auto",
+  ];
+  return Array.from(new Set(models));
+}
+
 export function stripFences(text: string): string {
   return text
     .trim()
