@@ -1,4 +1,17 @@
+import { createRequire } from "node:module";
 import mammoth from "mammoth";
+
+const require = createRequire(import.meta.url);
+
+type PdfParseModule = {
+  default?: (data: Buffer) => Promise<{ text?: string }>;
+  PDFParse?: {
+    new (input: { data: Uint8Array }): {
+      getText: () => Promise<{ text?: string }>;
+      destroy?: () => Promise<void> | void;
+    };
+  };
+};
 
 function extension(filename: string): string {
   const base = filename.split(/[/\\]/).pop() ?? filename;
@@ -22,23 +35,15 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, filename: stri
   }
 
   if (ext === "pdf") {
-    const mod = await import("pdf-parse");
-    const legacyParse = (mod as { default?: unknown }).default;
+    const mod = require("pdf-parse") as PdfParseModule;
+    const legacyParse = mod.default;
 
     if (typeof legacyParse === "function") {
-      const parsed = await (legacyParse as (data: Buffer) => Promise<{ text?: string }>)(buffer);
+      const parsed = await legacyParse(buffer);
       return (parsed.text ?? "").trim();
     }
 
-    const PDFParse = (mod as {
-      PDFParse?: {
-        new (input: { data: Uint8Array }): {
-          getText: () => Promise<{ text?: string }>;
-          destroy?: () => Promise<void> | void;
-        };
-        setWorker: (workerSrc?: string) => string;
-      };
-    }).PDFParse;
+    const PDFParse = mod.PDFParse;
     if (!PDFParse) {
       throw new Error("PDF parser is unavailable.");
     }

@@ -1,27 +1,19 @@
 // @vitest-environment node
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("pdf-parse", () => ({
-  default: undefined,
-  PDFParse: class {
-    static setWorker(_workerSrc?: string) {
-      return "";
-    }
-    constructor(_input: { data: Uint8Array }) {}
-    async getText() {
-      return { text: "Parsed PDF resume text" };
-    }
-    async destroy() {}
-  },
-}));
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 
 import { extractTextFromResumeBuffer } from "./extractText";
 
 describe("extractTextFromResumeBuffer", () => {
-  it("extracts text through pdf-parse v2 PDFParse", async () => {
-    await expect(
-      extractTextFromResumeBuffer(Buffer.from("%PDF fixture"), "resume.pdf"),
-    ).resolves.toBe("Parsed PDF resume text");
+  it("extracts text through the Node pdf-parse build", async () => {
+    const sample = readFileSync(
+      join(process.cwd(), "docs", "samples of resumes", "sanaa_syed_resume.pdf"),
+    );
+
+    await expect(extractTextFromResumeBuffer(sample, "resume.pdf")).resolves.toContain(
+      "SANAA SYED",
+    );
   });
 
   it("extracts plain text fallback files", async () => {
