@@ -1,6 +1,6 @@
 # Technology Stack
 
-Last reviewed: 2026-05-19.
+Last reviewed: 2026-05-20.
 
 ## Runtime
 
@@ -22,7 +22,7 @@ Last reviewed: 2026-05-19.
 | Queue | pg-boss 12 for durable resume parsing jobs |
 | Storage | Google Cloud Storage with local/dev fallback paths |
 | Email | Resend |
-| AI | OpenRouter via the `openai` SDK; default model is `deepseek/deepseek-chat-v3.1:free` |
+| AI | OpenRouter via the `openai` SDK; default model is `openrouter/auto` with configured fallbacks |
 | Validation | Zod 4 |
 | Forms | react-hook-form and `@hookform/resolvers` |
 | Charts | Recharts |
@@ -92,7 +92,12 @@ AI:
 
 - `OPENROUTER_API_KEY`
 - `OPENROUTER_MODEL`
+- `OPENROUTER_FALLBACK_MODELS`
 - `OPENROUTER_APP_URL`
 - `OPENROUTER_APP_TITLE`
+
+Resume processing:
+
+- `RESUME_PARSE_MODE` (`queue`, `inline`, or `queue-and-inline`; default is `queue`)
 
 See [../.env.example](../.env.example) for concrete placeholders.

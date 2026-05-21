@@ -1,6 +1,6 @@
 # External Integrations
 
-Last reviewed: 2026-05-19.
+Last reviewed: 2026-05-20.
 
 ## Authentication
 
@@ -34,8 +34,11 @@ The current AI provider path is OpenRouter through the `openai` SDK.
 
 - Client: `src/lib/llm/openrouter.ts`
 - Parser: `src/lib/llm/resume.ts`
-- Default model: `deepseek/deepseek-chat-v3.1:free`
+- Default model: `openrouter/auto`
 - Key env var: `OPENROUTER_API_KEY`
+- Optional model env vars: `OPENROUTER_MODEL`, `OPENROUTER_FALLBACK_MODELS`
+
+The parser and match scorer first try JSON mode, then retry the same model without `response_format` before moving to the next fallback model. This protects the app from provider/model combinations that reject JSON mode.
 
 If `OPENROUTER_API_KEY` is missing, parsing degrades to a structured stub instead of crashing the application path.
 
@@ -70,6 +73,7 @@ Resume parsing is durable and async.
 - Command: `pnpm worker:resume`
 - Queue name: `resume.parse`
 - Retry behavior: 3 attempts, 30 second retry delay, 300 second expiry
+- Default submission mode is queued parsing. Vercel deployments without a separate worker should set `RESUME_PARSE_MODE=inline` or use the admin "Parse now" action.
 
 ## Webhooks
 

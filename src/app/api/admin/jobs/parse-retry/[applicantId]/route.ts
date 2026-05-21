@@ -4,6 +4,14 @@ import { auth } from "@/lib/auth/auth";
 import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 import { enqueueResumeParseJob } from "@/server/queues/resume";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Resume parsing failed.";
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ applicantId: string }> },
@@ -46,6 +54,13 @@ export async function POST(
     await prisma.applicant
       .update({ where: { id: applicantId }, data: { parsingStatus: "FAILED" } })
       .catch(() => {});
-    return NextResponse.json({ success: false, status: "FAILED" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        status: "FAILED",
+        error: getErrorMessage(error),
+      },
+      { status: 500 },
+    );
   }
 }

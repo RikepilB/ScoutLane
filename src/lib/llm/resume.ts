@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getOpenRouterClient, getOpenRouterModels, stripFences } from "./openrouter";
+import { createOpenRouterJsonCompletion, getOpenRouterClient, stripFences } from "./openrouter";
 
 export const parsedResumeSchema = z.object({
   summary: z.string().default("Structured parsing stub output"),
@@ -87,28 +87,17 @@ export async function parseResumeFromText(resumeText: string): Promise<ParsedRes
   const prompt = `${PROMPT_BODY}${resumeText}`;
 
   async function callOnce(): Promise<string> {
-    let lastError: unknown;
-    for (const model of getOpenRouterModels()) {
-      try {
-        const completion = await client!.chat.completions.create({
-          model,
-          temperature: 0.1,
-          response_format: { type: "json_object" },
-          messages: [
-            {
-              role: "system",
-              content: "Return ONLY a JSON object. No prose, no markdown, no code fences.",
-            },
-            { role: "user", content: prompt },
-          ],
-        });
-        return completion.choices[0]?.message?.content ?? "";
-      } catch (error) {
-        lastError = error;
-        console.warn(`[parseResumeFromText] OpenRouter model failed: ${model}`, error);
-      }
-    }
-    throw lastError;
+    return createOpenRouterJsonCompletion({
+      client: client!,
+      source: "parseResumeFromText",
+      messages: [
+        {
+          role: "system",
+          content: "Return ONLY a JSON object. No prose, no markdown, no code fences.",
+        },
+        { role: "user", content: prompt },
+      ],
+    });
   }
 
   let raw = await callOnce();

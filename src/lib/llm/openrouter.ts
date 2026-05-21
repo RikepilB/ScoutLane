@@ -2,6 +2,8 @@ import OpenAI from "openai";
 
 let cached: OpenAI | null | undefined;
 
+type ChatMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam;
+
 export function getOpenRouterClient(): OpenAI | null {
   if (cached !== undefined) return cached;
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -21,7 +23,7 @@ export function getOpenRouterClient(): OpenAI | null {
 }
 
 export function getOpenRouterModel(): string {
-  return process.env.OPENROUTER_MODEL ?? "deepseek/deepseek-chat-v3.1:free";
+  return process.env.OPENROUTER_MODEL ?? "openrouter/auto";
 }
 
 export function getOpenRouterModels(): string[] {
@@ -34,6 +36,58 @@ export function getOpenRouterModels(): string[] {
     "openrouter/auto",
   ];
   return Array.from(new Set(models));
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+async function createChatCompletion(input: {
+  client: OpenAI;
+  model: string;
+  messages: ChatMessage[];
+  useJsonMode: boolean;
+}): Promise<string> {
+  const completion = await input.client.chat.completions.create({
+    model: input.model,
+    temperature: 0.1,
+    ...(input.useJsonMode ? { response_format: { type: "json_object" as const } } : {}),
+    messages: input.messages,
+  });
+
+  return completion.choices[0]?.message?.content ?? "";
+}
+
+export async function createOpenRouterJsonCompletion(input: {
+  client: OpenAI;
+  messages: ChatMessage[];
+  source: string;
+}): Promise<string> {
+  let lastError: unknown;
+
+  for (const model of getOpenRouterModels()) {
+    for (const useJsonMode of [true, false]) {
+      try {
+        return await createChatCompletion({
+          client: input.client,
+          model,
+          messages: input.messages,
+          useJsonMode,
+        });
+      } catch (error) {
+        lastError = error;
+        const mode = useJsonMode ? "json-mode" : "plain-json";
+        console.warn(
+          `[${input.source}] OpenRouter model failed: ${model} (${mode}) - ${getErrorMessage(error)}`,
+        );
+      }
+    }
+  }
+
+  throw lastError instanceof Error
+    ? new Error(`OpenRouter request failed after trying configured models: ${lastError.message}`)
+    : new Error("OpenRouter request failed after trying configured models.");
 }
 
 export function stripFences(text: string): string {

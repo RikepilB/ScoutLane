@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { getOpenRouterClient, getOpenRouterModels, stripFences } from "@/lib/llm/openrouter";
+import { createOpenRouterJsonCompletion, getOpenRouterClient, stripFences } from "@/lib/llm/openrouter";
 import type { ParsedResume } from "@/lib/llm/resume";
 
 export const matchResultSchema = z.object({
@@ -126,28 +126,17 @@ ${structuredText}
 `.trim();
 
   async function callOnce(): Promise<string> {
-    let lastError: unknown;
-    for (const model of getOpenRouterModels()) {
-      try {
-        const completion = await client!.chat.completions.create({
-          model,
-          temperature: 0.1,
-          response_format: { type: "json_object" },
-          messages: [
-            {
-              role: "system",
-              content: "Return ONLY a JSON object. No markdown, no prose, no code fences.",
-            },
-            { role: "user", content: prompt },
-          ],
-        });
-        return completion.choices[0]?.message?.content ?? "";
-      } catch (error) {
-        lastError = error;
-        console.warn(`[scoreApplicantForJob] OpenRouter model failed: ${model}`, error);
-      }
-    }
-    throw lastError;
+    return createOpenRouterJsonCompletion({
+      client: client!,
+      source: "scoreApplicantForJob",
+      messages: [
+        {
+          role: "system",
+          content: "Return ONLY a JSON object. No markdown, no prose, no code fences.",
+        },
+        { role: "user", content: prompt },
+      ],
+    });
   }
 
   let raw = await callOnce();
