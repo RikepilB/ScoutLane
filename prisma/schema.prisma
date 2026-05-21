@@ -188,6 +188,18 @@ model Applicant {
   @@index([jobId, createdAt])
 }
 
+model ResumeFile {
+  id          String   @id @default(cuid())
+  objectName  String   @unique
+  filename    String
+  contentType String
+  size        Int
+  data        Bytes
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model ApplicantNote {
   id          String    @id @default(cuid())
   applicantId String

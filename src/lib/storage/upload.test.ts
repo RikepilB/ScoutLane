@@ -10,6 +10,20 @@ vi.mock("./client", () => ({
   isStorageConfigured: () => false,
 }));
 
+const { resumeFileCreate, resumeFileFindUnique } = vi.hoisted(() => ({
+  resumeFileCreate: vi.fn(),
+  resumeFileFindUnique: vi.fn(),
+}));
+
+vi.mock("@/lib/db/prisma", () => ({
+  prisma: {
+    resumeFile: {
+      create: resumeFileCreate,
+      findUnique: resumeFileFindUnique,
+    },
+  },
+}));
+
 const originalVercel = process.env.VERCEL;
 const originalS3 = {
   S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
@@ -46,7 +60,8 @@ afterEach(async () => {
     process.env.VERCEL = originalVercel;
   }
   restoreS3Env();
-  vi.restoreAllMocks();
+  resumeFileCreate.mockReset();
+  resumeFileFindUnique.mockReset();
   await rm(LOCAL_RESUME_STORAGE_DIR, { force: true, recursive: true });
 });
 
@@ -89,17 +104,42 @@ describe("local resume storage", () => {
     expect(response.status).toBe(404);
   });
 
-  it("does not use local filesystem fallback on Vercel", async () => {
+  it("uses database-backed storage on Vercel when object storage is not configured", async () => {
     clearS3Env();
     process.env.VERCEL = "1";
+    resumeFileCreate.mockResolvedValue({});
 
-    await expect(
-      uploadFileBuffer({
-        buffer: Buffer.from("resume text"),
+    const upload = await uploadFileBuffer({
+      buffer: Buffer.from("resume text"),
+      contentType: "application/pdf",
+      filename: "Jane Resume.pdf",
+    });
+
+    expect(upload.bucket).toBe("database");
+    expect(upload.url).toBe(`/api/resumes/${upload.objectName}`);
+    expect(resumeFileCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
         contentType: "application/pdf",
         filename: "Jane Resume.pdf",
+        size: 11,
       }),
-    ).rejects.toThrow("Resume storage is not configured");
+    });
+  });
+
+  it("serves database-backed resumes when no local file exists", async () => {
+    resumeFileFindUnique.mockResolvedValue({
+      contentType: "text/csv; charset=utf-8",
+      data: Buffer.from("name,skills\nJane,TypeScript"),
+      size: 28,
+    });
+
+    const response = await GET(new Request("http://localhost") as never, {
+      params: Promise.resolve({ objectName: ["resumes", "db-resume.csv"] }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("text/csv; charset=utf-8");
+    expect(await response.text()).toBe("name,skills\nJane,TypeScript");
   });
 
   it("uploads through S3-compatible storage when configured", async () => {
