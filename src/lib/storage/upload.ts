@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
+import { prisma } from "@/lib/db/prisma";
 import path from "node:path";
 import { slugify } from "@/lib/slug";
 import { isStorageConfigured, getStorageConfig, getBucket } from "./client";
@@ -137,6 +138,31 @@ function inferResumeContentType(filename: string, contentType: string): string {
   return contentType || "application/octet-stream";
 }
 
+async function uploadDatabaseResumeObject({
+  buffer,
+  contentType,
+  filename,
+  prefix,
+}: Required<UploadBufferInput>): Promise<UploadedFileResult> {
+  const objectName = buildObjectName(filename, prefix);
+  await prisma.resumeFile.create({
+    data: {
+      objectName,
+      filename,
+      contentType,
+      size: buffer.byteLength,
+      data: Uint8Array.from(buffer),
+    },
+  });
+
+  return {
+    bucket: "database",
+    contentType,
+    objectName,
+    url: `/api/resumes/${objectName}`,
+  };
+}
+
 export interface UploadBufferInput {
   buffer: Buffer;
   contentType: string;
@@ -170,7 +196,12 @@ export async function uploadFileBuffer({
 
   if (!isStorageConfigured()) {
     if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-      throw new Error("Resume storage is not configured for this deployment.");
+      return uploadDatabaseResumeObject({
+        buffer,
+        contentType: resolvedContentType,
+        filename,
+        prefix,
+      });
     }
 
     const objectName = buildObjectName(filename, prefix);

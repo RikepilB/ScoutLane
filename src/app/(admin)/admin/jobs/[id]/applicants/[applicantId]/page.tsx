@@ -31,7 +31,6 @@ function getAppBaseUrl(): string {
 }
 
 function getResumeEmbedSrc(resumeUrl: string): string {
-  const isAbsoluteHttp = /^https?:\/\//i.test(resumeUrl);
   const pathOnly = (() => {
     try {
       return new URL(resumeUrl, getAppBaseUrl()).pathname;
@@ -39,7 +38,7 @@ function getResumeEmbedSrc(resumeUrl: string): string {
       return resumeUrl;
     }
   })();
-  const canEmbedDirectly = !isAbsoluteHttp || /\.(pdf|csv|txt)$/i.test(pathOnly);
+  const canEmbedDirectly = /\.(pdf|csv|txt)$/i.test(pathOnly);
 
   if (canEmbedDirectly) {
     return resumeUrl;

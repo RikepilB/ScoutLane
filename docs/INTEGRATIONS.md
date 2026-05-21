@@ -49,7 +49,8 @@ Primary production storage can be Google Cloud Storage or S3-compatible object s
 - Optional public URL override: `GCS_PUBLIC_BASE_URL`
 - S3-compatible env vars: `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_PUBLIC_BASE_URL`
 - Optional S3 region: `S3_REGION` (defaults to `auto` for R2-style providers)
-- Local development falls back to `.data/resumes` and serves files from `/api/resumes/*`; production/Vercel requires GCS or S3-compatible storage.
+- If neither object-store provider is configured in production, resumes are persisted in the `ResumeFile` table and served from `/api/resumes/*`.
+- Local development falls back to `.data/resumes` and serves files from `/api/resumes/*`.
 
 ## Email
 

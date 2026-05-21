@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 import { LOCAL_RESUME_STORAGE_DIR } from "@/lib/storage/upload";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export async function GET(
   { params }: { params: Promise<{ objectName: string[] }> },
 ) {
   const { objectName } = await params;
+  const storedObjectName = objectName.join("/");
   const filePath = resolveLocalResumePath(objectName);
 
   if (!filePath) {
@@ -42,6 +44,22 @@ export async function GET(
       },
     });
   } catch {
-    return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+    const stored = await prisma.resumeFile.findUnique({
+      where: { objectName: storedObjectName },
+      select: { contentType: true, data: true, size: true },
+    });
+
+    if (!stored) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+    }
+
+    return new NextResponse(Buffer.from(stored.data), {
+      headers: {
+        "Cache-Control": "private, max-age=0, no-cache",
+        "Content-Length": String(stored.size),
+        "Content-Type": stored.contentType,
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   }
 }
