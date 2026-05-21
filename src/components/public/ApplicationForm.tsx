@@ -241,7 +241,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                         <Input
                           {...field}
                           type="file"
-                          accept=".pdf,.doc,.docx"
+                          accept=".pdf,.doc,.docx,.csv"
                           className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] file:text-[#0c1529]"
                           onChange={(event) => {
                             onChange(event.target.files?.[0]);
@@ -249,7 +249,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                         />
                         <div className="mt-3 flex items-center gap-2 text-xs text-[#475569]">
                           <Upload className="h-3.5 w-3.5" />
-                          PDF, DOC, or DOCX up to 5 MB
+                          PDF, DOC, DOCX, or CSV up to 5 MB
                         </div>
                       </>
                     )}

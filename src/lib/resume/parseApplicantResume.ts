@@ -71,8 +71,18 @@ export async function parseApplicantResumeFromBuffer(
     select: { data: true },
   });
 
-  const rawText = await extractTextFromResumeBuffer(buffer, filename);
-  const parsed = await parseResumeFromText(rawText.slice(0, 48_000));
+  let rawText: string;
+  let parsed: ParsedResume;
+  try {
+    rawText = await extractTextFromResumeBuffer(buffer, filename);
+    parsed = await parseResumeFromText(rawText.slice(0, 48_000));
+  } catch (error) {
+    await prisma.applicant.update({
+      where: { id: applicantId },
+      data: { parsingStatus: "FAILED" },
+    });
+    throw error;
+  }
 
   await prisma.applicant.update({
     where: { id: applicantId },

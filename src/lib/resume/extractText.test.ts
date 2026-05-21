@@ -29,4 +29,10 @@ describe("extractTextFromResumeBuffer", () => {
       extractTextFromResumeBuffer(Buffer.from("Resume text"), "resume.txt"),
     ).resolves.toBe("Resume text");
   });
+
+  it("extracts CSV resume text", async () => {
+    await expect(
+      extractTextFromResumeBuffer(Buffer.from("name,skills\nJane Doe,TypeScript"), "resume.csv"),
+    ).resolves.toBe("name,skills\nJane Doe,TypeScript");
+  });
 });

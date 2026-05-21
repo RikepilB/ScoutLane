@@ -41,12 +41,15 @@ If `OPENROUTER_API_KEY` is missing, parsing degrades to a structured stub instea
 
 ## File Storage
 
-Primary storage is Google Cloud Storage.
+Primary production storage can be Google Cloud Storage or S3-compatible object storage.
 
 - Upload helper: `src/lib/storage/upload.ts`
 - Client: `src/lib/storage/client.ts`
-- Required env vars: `GCS_PROJECT_ID`, `GCS_BUCKET`, `GCS_CLIENT_EMAIL`, `GCS_PRIVATE_KEY`
+- GCS env vars: `GCS_PROJECT_ID`, `GCS_BUCKET`, `GCS_CLIENT_EMAIL`, `GCS_PRIVATE_KEY`
 - Optional public URL override: `GCS_PUBLIC_BASE_URL`
+- S3-compatible env vars: `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_PUBLIC_BASE_URL`
+- Optional S3 region: `S3_REGION` (defaults to `auto` for R2-style providers)
+- Local development falls back to `.data/resumes` and serves files from `/api/resumes/*`; production/Vercel requires GCS or S3-compatible storage.
 
 ## Email
 
