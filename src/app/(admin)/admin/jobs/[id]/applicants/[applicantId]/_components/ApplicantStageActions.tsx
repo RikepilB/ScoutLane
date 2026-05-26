@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { toast } from "sonner";
 import { moveApplicant } from "@/server/services/pipeline/update";
 
 export function ApplicantStageActions({
@@ -18,9 +19,20 @@ export function ApplicantStageActions({
 
   async function handleChange(stageId: string) {
     if (!stageId || stageId === currentStageId) return;
+    const newStage = stages.find((s) => s.id === stageId);
     start(async () => {
-      await moveApplicant(applicantId, stageId);
-      router.refresh();
+      try {
+        await moveApplicant(applicantId, stageId);
+        router.refresh();
+        toast.success(
+          newStage ? `Moved to ${newStage.name}` : "Stage updated",
+          {
+            description: "Use the Compose email panel below to notify the applicant.",
+          },
+        );
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to update stage");
+      }
     });
   }
 

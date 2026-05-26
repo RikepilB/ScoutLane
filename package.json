@@ -8,6 +8,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "worker:resume": "tsx src/server/workers/resume.ts",
+    "worker:emails": "tsx src/server/workers/emails.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -51,6 +52,7 @@
     "react-hook-form": "7.74.0",
     "recharts": "3.8.0",
     "resend": "6.12.2",
+    "sonner": "^2.0.7",
     "tailwind-merge": "3.5.0",
     "tailwindcss": "4.2.3",
     "zod": "4.4.2"

@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LayoutTemplate,
   LogOut,
+  Mail,
   Settings,
   Users,
   Webhook,
@@ -32,6 +33,7 @@ const adminNav: NavItem[] = [
   { href: "/admin/templates", label: "Templates", icon: LayoutTemplate, matchPrefix: "/admin/templates" },
   { href: "/admin/integrations", label: "Integrations", icon: Webhook, matchPrefix: "/admin/integrations" },
   { href: "/admin/notifications", label: "Notifications", icon: Bell, matchPrefix: "/admin/notifications" },
+  { href: "/admin/email-templates", label: "Email templates", icon: Mail, matchPrefix: "/admin/email-templates" },
   { href: "/admin/settings", label: "Organization", icon: Building2, matchPrefix: "/admin/settings" },
 ];
 

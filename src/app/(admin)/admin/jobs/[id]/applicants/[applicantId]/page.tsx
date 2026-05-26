@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2, Target } from "lucide-react";
 import { ApplicantStageActions } from "./_components/ApplicantStageActions";
+import { ApplicantEmailComposer } from "./_components/ApplicantEmailComposer";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
@@ -456,6 +457,15 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           )}
         </div>
       </div>
+
+      {applicant.email ? (
+        <ApplicantEmailComposer
+          applicantId={applicant.id}
+          applicantName={applicant.name}
+          applicantEmail={applicant.email}
+          jobTitle={applicant.job.title}
+        />
+      ) : null}
 
       <NotesSection
         applicantId={applicant.id}

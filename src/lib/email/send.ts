@@ -1,4 +1,92 @@
-import { getResendClient, getRequiredEnv } from "./client";
+import { prisma } from "@/lib/db/prisma";
+import { getEmailFromOrNull, getResendClientOrNull } from "./client";
+
+const SKIP_REASON = "RESEND_API_KEY or EMAIL_FROM not configured";
+
+export type EmailSendResult =
+  | { ok: true; skipped: false; id: string }
+  | { ok: false; skipped: true; error?: undefined }
+  | { ok: false; skipped: false; error: string };
+
+interface ResendErrorLike {
+  message?: string;
+  name?: string;
+  statusCode?: number;
+}
+
+function stringifyError(error: unknown): string {
+  if (!error) return "Unknown email provider error";
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object") {
+    const e = error as ResendErrorLike;
+    if (e.message) return e.message;
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+  return String(error);
+}
+
+async function logSent(to: string, subject: string): Promise<void> {
+  await prisma.emailLog
+    .create({ data: { to, subject, status: 200, error: null } })
+    .catch((err) => console.error("[email] failed to log sent email:", err));
+}
+
+async function logFailed(to: string, subject: string, error: string): Promise<void> {
+  await prisma.emailLog
+    .create({ data: { to, subject, status: 0, error } })
+    .catch((err) => console.error("[email] failed to log failed email:", err));
+}
+
+async function logSkipped(to: string, subject: string): Promise<void> {
+  await prisma.emailLog
+    .create({ data: { to, subject, status: 0, error: `SKIPPED: ${SKIP_REASON}` } })
+    .catch((err) => console.error("[email] failed to log skipped email:", err));
+}
+
+interface DeliverInput {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+async function deliver({ to, subject, html }: DeliverInput): Promise<EmailSendResult> {
+  const resend = getResendClientOrNull();
+  const from = getEmailFromOrNull();
+
+  if (!resend || !from) {
+    console.warn(`[email] skipping send to ${to}: ${SKIP_REASON}`);
+    await logSkipped(to, subject);
+    return { ok: false, skipped: true };
+  }
+
+  try {
+    const result = await resend.emails.send({ from, to, subject, html });
+    if (result.error) {
+      const errorMessage = stringifyError(result.error);
+      console.error(`[email] resend returned error for ${to}:`, result.error);
+      await logFailed(to, subject, errorMessage);
+      return { ok: false, skipped: false, error: errorMessage };
+    }
+    const id = result.data?.id;
+    if (!id) {
+      const errorMessage = "Resend returned no data and no error";
+      await logFailed(to, subject, errorMessage);
+      return { ok: false, skipped: false, error: errorMessage };
+    }
+    await logSent(to, subject);
+    return { ok: true, skipped: false, id };
+  } catch (err) {
+    const errorMessage = stringifyError(err);
+    console.error(`[email] resend threw for ${to}:`, err);
+    await logFailed(to, subject, errorMessage);
+    return { ok: false, skipped: false, error: errorMessage };
+  }
+}
 
 function escapeHtml(value: string): string {
   return value
@@ -15,18 +103,13 @@ export interface ApplicationConfirmationEmailInput {
   to: string;
 }
 
-export async function sendApplicationConfirmationEmail({
+export function buildApplicationConfirmationEmail({
   applicantName,
   jobTitle,
-  to,
-}: ApplicationConfirmationEmailInput) {
-  const resend = getResendClient();
+}: Omit<ApplicationConfirmationEmailInput, "to">): { subject: string; html: string } {
   const safeName = escapeHtml(applicantName);
   const safeJobTitle = escapeHtml(jobTitle);
-
-  return resend.emails.send({
-    from: getRequiredEnv("EMAIL_FROM"),
-    to,
+  return {
     subject: `Application received for ${jobTitle}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">
@@ -41,27 +124,34 @@ export async function sendApplicationConfirmationEmail({
         </p>
       </div>
     `,
-  });
+  };
 }
 
-export async function sendJobAlertConfirmation(to: string, token: string): Promise<void> {
-  const resend = getResendClient();
+export async function sendApplicationConfirmationEmail({
+  applicantName,
+  jobTitle,
+  to,
+}: ApplicationConfirmationEmailInput): Promise<EmailSendResult> {
+  const { subject, html } = buildApplicationConfirmationEmail({ applicantName, jobTitle });
+  return deliver({ to, subject, html });
+}
+
+export async function sendJobAlertConfirmation(
+  to: string,
+  token: string,
+): Promise<EmailSendResult> {
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const unsubUrl = `${APP_URL}/api/public/job-alerts?token=${token}`;
-
-  await resend.emails.send({
-    from: getRequiredEnv("EMAIL_FROM"),
-    to,
-    subject: "Job alert confirmed — ScoutLane",
-    html: `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:20px;">
+  const subject = "Job alert confirmed — ScoutLane";
+  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:20px;">
       <h2 style="color:#1d4ed8;">ScoutLane Job Alert</h2>
       <p>You are now subscribed to new job notifications from ScoutLane.</p>
       <p>We will email you when new positions are posted.</p>
       <p style="margin-top:20px;font-size:12px;color:#888;">
         <a href="${unsubUrl}" style="color:#888;">Unsubscribe</a>
       </p>
-    </body></html>`,
-  });
+    </body></html>`;
+  return deliver({ to, subject, html });
 }
 
 export async function sendNewJobNotification(
@@ -69,22 +159,60 @@ export async function sendNewJobNotification(
   jobTitle: string,
   jobUrl: string,
   token: string,
-): Promise<void> {
-  const resend = getResendClient();
+): Promise<EmailSendResult> {
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const unsubUrl = `${APP_URL}/api/public/job-alerts?token=${token}`;
-
-  await resend.emails.send({
-    from: getRequiredEnv("EMAIL_FROM"),
-    to,
-    subject: `New job: ${jobTitle} — ScoutLane`,
-    html: `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:20px;">
+  const subject = `New job: ${jobTitle} — ScoutLane`;
+  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:20px;">
       <h2 style="color:#1d4ed8;">New Position at ScoutLane</h2>
       <p><strong>${escapeHtml(jobTitle)}</strong></p>
       <p><a href="${jobUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">View job</a></p>
       <p style="margin-top:20px;font-size:12px;color:#888;">
         <a href="${unsubUrl}" style="color:#888;">Unsubscribe</a>
       </p>
-    </body></html>`,
-  });
+    </body></html>`;
+  return deliver({ to, subject, html });
+}
+
+export interface StatusChangeEmailInput {
+  to: string;
+  subject: string;
+  bodyHtml: string;
+}
+
+export async function sendCustomEmail({
+  to,
+  subject,
+  bodyHtml,
+}: StatusChangeEmailInput): Promise<EmailSendResult> {
+  return deliver({ to, subject, html: bodyHtml });
+}
+
+export interface AdminNewApplicationEmailInput {
+  to: string;
+  jobTitle: string;
+  applicantName: string;
+  applicantEmail: string;
+  jobUrl: string;
+}
+
+export async function sendAdminNewApplicationEmail({
+  to,
+  jobTitle,
+  applicantName,
+  applicantEmail,
+  jobUrl,
+}: AdminNewApplicationEmailInput): Promise<EmailSendResult> {
+  const subject = `New application: ${applicantName} → ${jobTitle}`;
+  const html = `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">
+        <p style="font-size:14px;color:#4b5563;margin:0 0 16px">ScoutLane · New application</p>
+        <h1 style="font-size:22px;line-height:1.3;margin:0 0 16px">${escapeHtml(applicantName)} applied for ${escapeHtml(jobTitle)}</h1>
+        <p style="font-size:15px;line-height:1.6;margin:0 0 8px"><strong>Email:</strong> ${escapeHtml(applicantEmail)}</p>
+        <p style="margin:18px 0 0">
+          <a href="${jobUrl}" style="display:inline-block;background:#1B2CC1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Open in dashboard</a>
+        </p>
+      </div>
+    `;
+  return deliver({ to, subject, html });
 }
