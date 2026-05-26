@@ -4,6 +4,15 @@ import { extractTextFromResumeBuffer } from "@/lib/resume/extractText";
 import { parseResumeFromText, type ParsedResume } from "@/lib/llm/resume";
 import { scoreApplicantInline } from "@/lib/match/scoreApplicant";
 
+function buildFailureData(existing: unknown, errorMessage: string) {
+  const prev = existing && typeof existing === "object" ? { ...(existing as Record<string, unknown>) } : {};
+  return {
+    ...prev,
+    parsingError: errorMessage,
+    parsingFailedAt: new Date().toISOString(),
+  };
+}
+
 function buildParsedApplicantData(existing: unknown, parsed: ParsedResume) {
   const prev = existing && typeof existing === "object" ? { ...(existing as Record<string, unknown>) } : {};
   const customFields = prev.customFields;
@@ -75,11 +84,20 @@ export async function parseApplicantResumeFromBuffer(
   let parsed: ParsedResume;
   try {
     rawText = await extractTextFromResumeBuffer(buffer, filename);
+    if (!rawText || rawText.trim().length === 0) {
+      throw new Error("Empty or unreadable resume — could not extract any text");
+    }
     parsed = await parseResumeFromText(rawText.slice(0, 48_000));
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[parse] failed for applicant ${applicantId}:`, error);
+    const failureData = buildFailureData(existing?.data, errorMessage);
     await prisma.applicant.update({
       where: { id: applicantId },
-      data: { parsingStatus: "FAILED" },
+      data: {
+        parsingStatus: "FAILED",
+        data: failureData as Prisma.InputJsonValue,
+      },
     });
     throw error;
   }
