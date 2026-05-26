@@ -1,14 +1,36 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { extractTextFromResumeBuffer } from "@/lib/resume/extractText";
 import { parseResumeFromText, type ParsedResume } from "@/lib/llm/resume";
 import { scoreApplicantInline } from "@/lib/match/scoreApplicant";
+import { LOCAL_RESUME_STORAGE_DIR } from "@/lib/storage/upload";
+
+const MAX_PARSING_ERROR_LENGTH = 240;
+const PARSING_SECRET_PATTERNS: ReadonlyArray<RegExp> = [
+  /sk-[A-Za-z0-9_-]{16,}/g,
+  /re_[A-Za-z0-9_-]{16,}/g,
+  /Bearer\s+[A-Za-z0-9._-]{16,}/gi,
+  /(api[_-]?key|token|secret|password)[\s:=]+[A-Za-z0-9._-]{8,}/gi,
+];
+
+function sanitizeParsingError(value: string): string {
+  let scrubbed = value;
+  for (const pattern of PARSING_SECRET_PATTERNS) {
+    scrubbed = scrubbed.replace(pattern, "[REDACTED]");
+  }
+  if (scrubbed.length > MAX_PARSING_ERROR_LENGTH) {
+    scrubbed = `${scrubbed.slice(0, MAX_PARSING_ERROR_LENGTH)}… [truncated]`;
+  }
+  return scrubbed;
+}
 
 function buildFailureData(existing: unknown, errorMessage: string) {
   const prev = existing && typeof existing === "object" ? { ...(existing as Record<string, unknown>) } : {};
   return {
     ...prev,
-    parsingError: errorMessage,
+    parsingError: sanitizeParsingError(errorMessage),
     parsingFailedAt: new Date().toISOString(),
   };
 }
@@ -17,6 +39,8 @@ function buildParsedApplicantData(existing: unknown, parsed: ParsedResume) {
   const prev = existing && typeof existing === "object" ? { ...(existing as Record<string, unknown>) } : {};
   const customFields = prev.customFields;
   const next: Record<string, unknown> = { ...prev };
+  delete next.parsingError;
+  delete next.parsingFailedAt;
   if (customFields !== undefined) {
     next.customFields = customFields;
   }
@@ -63,6 +87,58 @@ function resolveResumeUrl(resumeUrl: string): string {
   }
 
   return new URL(resumeUrl, getAppBaseUrl()).toString();
+}
+
+function getResumeObjectName(resumeUrl: string): string | null {
+  const pathname = (() => {
+    try {
+      return new URL(resumeUrl, getAppBaseUrl()).pathname;
+    } catch {
+      return resumeUrl;
+    }
+  })();
+  const prefix = "/api/resumes/";
+  if (!pathname.startsWith(prefix)) return null;
+
+  const objectName = pathname.slice(prefix.length);
+  return objectName.length > 0
+    ? objectName
+        .split("/")
+        .map((segment) => decodeURIComponent(segment))
+        .join("/")
+    : null;
+}
+
+function resolveLocalResumePath(objectName: string): string | null {
+  const root = path.resolve(LOCAL_RESUME_STORAGE_DIR);
+  const filePath = path.resolve(root, ...objectName.split("/"));
+  return filePath === root || !filePath.startsWith(`${root}${path.sep}`) ? null : filePath;
+}
+
+async function readStoredResume(
+  resumeUrl: string,
+): Promise<{ buffer: Buffer; filename: string } | null> {
+  const objectName = getResumeObjectName(resumeUrl);
+  if (!objectName) return null;
+
+  const filePath = resolveLocalResumePath(objectName);
+  if (!filePath) {
+    throw new Error("Invalid resume path.");
+  }
+
+  const filename = objectName.split("/").pop() || "resume.pdf";
+  try {
+    return { buffer: await readFile(filePath), filename };
+  } catch {
+    const stored = await prisma.resumeFile.findUnique({
+      where: { objectName },
+      select: { data: true },
+    });
+    if (!stored) {
+      throw new Error("Could not load stored resume.");
+    }
+    return { buffer: Buffer.from(stored.data), filename };
+  }
 }
 
 export async function parseApplicantResumeFromBuffer(
@@ -118,7 +194,16 @@ export async function parseApplicantResumeFromBuffer(
   }
 }
 
-export async function parseApplicantResumeFromUrl(applicantId: string, resumeUrl: string): Promise<void> {
+export async function parseApplicantResumeFromUrl(
+  applicantId: string,
+  resumeUrl: string,
+): Promise<void> {
+  const storedResume = await readStoredResume(resumeUrl);
+  if (storedResume) {
+    await parseApplicantResumeFromBuffer(applicantId, storedResume.buffer, storedResume.filename);
+    return;
+  }
+
   const filenameFromUrl = (() => {
     try {
       const u = new URL(resumeUrl, "http://localhost");

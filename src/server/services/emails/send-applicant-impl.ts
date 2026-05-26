@@ -2,7 +2,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { sendCustomEmail } from "@/lib/email/send";
+import { sanitizeEmailHtml } from "@/lib/email/sanitize";
 import { requireSession } from "@/server/services/_lib/validate-session";
+
+const ALLOWED_ROLES: ReadonlyArray<string> = ["ADMIN", "RECRUITER", "HIRING_MANAGER"];
 
 const inputSchema = z.object({
   applicantId: z.string().min(1),
@@ -35,6 +38,9 @@ export async function sendApplicantEmailImpl(input: {
   }
 
   const user = await requireSession();
+  if (!ALLOWED_ROLES.includes(user.role)) {
+    return { ok: false, error: "You do not have permission to send emails" };
+  }
   const applicant = await prisma.applicant.findUnique({
     where: { id: parsed.data.applicantId },
     select: {
@@ -51,10 +57,15 @@ export async function sendApplicantEmailImpl(input: {
     return { ok: false, error: "Applicant has no email on file" };
   }
 
+  const sanitizedBody = sanitizeEmailHtml(parsed.data.bodyHtml);
+  if (!sanitizedBody.trim()) {
+    return { ok: false, error: "Message body is empty after sanitization" };
+  }
+
   const result = await sendCustomEmail({
     to: applicant.email,
     subject: parsed.data.subject,
-    bodyHtml: parsed.data.bodyHtml,
+    bodyHtml: sanitizedBody,
   });
 
   if (result.skipped) {

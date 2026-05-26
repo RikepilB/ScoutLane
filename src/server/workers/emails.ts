@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import type { Job } from "pg-boss";
 import {
   sendAdminNewApplicationEmail,
@@ -34,20 +36,20 @@ async function main() {
 
   await boss.work<EmailJob>(
     EMAIL_SEND_QUEUE,
-    { batchSize: 5 },
+    { batchSize: 1 },
     async (jobs: Job<EmailJob>[]) => {
-      for (const job of jobs) {
-        const result = await dispatch(job.data);
-        if (result.skipped) {
-          console.warn(`[email-worker] skipped ${job.data.kind} for ${job.data.payload.to}`);
-          continue;
-        }
-        if (!result.ok) {
-          console.error(
-            `[email-worker] ${job.data.kind} failed for ${job.data.payload.to}: ${result.error}`,
-          );
-          throw new Error(`Email send failed: ${result.error}`);
-        }
+      const [job] = jobs;
+      if (!job) return;
+      const result = await dispatch(job.data);
+      if (result.skipped) {
+        console.warn(`[email-worker] skipped ${job.data.kind} for ${job.data.payload.to}`);
+        return;
+      }
+      if (!result.ok) {
+        console.error(
+          `[email-worker] ${job.data.kind} failed for ${job.data.payload.to}: ${result.error}`,
+        );
+        throw new Error(`Email send failed: ${result.error}`);
       }
     },
   );

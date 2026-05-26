@@ -65,9 +65,13 @@ export async function notifySubscribers(jobTitle: string, jobSlug: string): Prom
   });
 
   for (const alert of alerts) {
-    const result = await sendNewJobNotification(alert.email, jobTitle, url, alert.token);
-    if (!result.ok && !result.skipped) {
-      console.error(`[job-alerts] notify failed for ${alert.email}:`, result.error);
+    try {
+      const result = await sendNewJobNotification(alert.email, jobTitle, url, alert.token);
+      if (!result.ok && !result.skipped) {
+        console.error(`[job-alerts] notify failed for ${alert.email}:`, result.error);
+      }
+    } catch (error) {
+      console.error(`[job-alerts] notify threw for ${alert.email}:`, error);
     }
   }
 }

@@ -41,7 +41,12 @@ beforeEach(() => {
 });
 
 function seedSession() {
-  requireSessionMock.mockResolvedValue({ id: "user-1", organizationId: "org-1" });
+  requireSessionMock.mockResolvedValue({
+    id: "user-1",
+    email: "admin@example.com",
+    role: "ADMIN",
+    organizationId: "org-1",
+  });
 }
 
 function seedApplicant(overrides: Partial<{ email: string | null; organizationId: string }> = {}) {
@@ -140,6 +145,56 @@ describe("sendApplicantEmailImpl", () => {
 
     expect(result.ok).toBe(false);
     expect(result.error).toBeDefined();
+    expect(sendCustomEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the session user has no allowed role", async () => {
+    requireSessionMock.mockResolvedValue({
+      id: "user-1",
+      email: "viewer@example.com",
+      role: "VIEWER",
+      organizationId: "org-1",
+    });
+    seedApplicant();
+
+    const result = await sendApplicantEmailImpl({
+      applicantId: "applicant-1",
+      subject: "Welcome",
+      bodyHtml: "<p>Hi</p>",
+    });
+
+    expect(result).toEqual({ ok: false, error: "You do not have permission to send emails" });
+    expect(sendCustomEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("strips script tags and event handlers from bodyHtml before sending", async () => {
+    seedSession();
+    seedApplicant();
+    sendCustomEmailMock.mockResolvedValue({ ok: true, skipped: false, id: "msg-1" });
+
+    await sendApplicantEmailImpl({
+      applicantId: "applicant-1",
+      subject: "Welcome",
+      bodyHtml: '<p>Hi <img src=x onerror="alert(1)"></p><script>alert(2)</script>',
+    });
+
+    const callArgs = sendCustomEmailMock.mock.calls[0][0];
+    expect(callArgs.bodyHtml).not.toContain("<script");
+    expect(callArgs.bodyHtml).not.toContain("onerror");
+    expect(callArgs.bodyHtml).toContain("<p>Hi");
+  });
+
+  it("rejects when bodyHtml is empty after sanitization", async () => {
+    seedSession();
+    seedApplicant();
+
+    const result = await sendApplicantEmailImpl({
+      applicantId: "applicant-1",
+      subject: "Welcome",
+      bodyHtml: "<script>alert(1)</script>",
+    });
+
+    expect(result).toEqual({ ok: false, error: "Message body is empty after sanitization" });
     expect(sendCustomEmailMock).not.toHaveBeenCalled();
   });
 });

@@ -41,24 +41,26 @@ Put it in `.env`:
 RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
-### 1.3 Verify a sending domain
+### 1.3 Set the sending address (local development)
 
-Until a domain is verified Resend only lets you send to the email address that owns the Resend account — fine for one developer, blocking for real applicants.
+For local development without a custom domain, use Resend's shared test domain. No DNS setup is needed.
+
+```
+EMAIL_FROM="ScoutLane <onboarding@resend.dev>"
+```
+
+**Limitation:** the free tier only delivers to the email address that owns your Resend account. This is fine for local testing where you submit applications using that same email address.
+
+### 1.4 Verify a sending domain (production)
+
+For production, verify your own domain so emails can reach any recipient.
 
 1. Open https://resend.com/domains.
 2. Click **Add domain**, enter the domain you own (e.g. `scoutlane.com`).
 3. Resend shows DNS records (SPF, DKIM, optional DMARC). Add them in your registrar's DNS panel. Propagation usually takes 5–30 minutes.
 4. When all records turn green, the domain is verified.
 
-### 1.4 Set the sending address
-
-`EMAIL_FROM` must be an address on the verified domain.
-
-```
-EMAIL_FROM="noreply@scoutlane.com"
-```
-
-You can use a friendly name:
+Set `EMAIL_FROM` to an address on the verified domain:
 
 ```
 EMAIL_FROM="ScoutLane <noreply@scoutlane.com>"
@@ -156,9 +158,9 @@ Resume parsing uses OpenRouter through the OpenAI-compatible SDK. If `OPENROUTER
 
 ```
 OPENROUTER_API_KEY="sk-or-v1-xxxxxxxxxxxxxxxxxxxx"
-# Optional. Defaults to "openrouter/auto" — leave unset unless you want to pin a model.
-OPENROUTER_MODEL="anthropic/claude-3.5-sonnet"
-OPENROUTER_FALLBACK_MODELS="openai/gpt-4o-mini,google/gemini-pro-1.5"
+# Optional. Defaults to the current free OpenRouter fallback used by ScoutLane.
+OPENROUTER_MODEL="openrouter/owl-alpha"
+OPENROUTER_FALLBACK_MODELS="openrouter/free,openrouter/auto"
 ```
 
 ### 3.3 What happens when parsing fails

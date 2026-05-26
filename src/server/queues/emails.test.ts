@@ -49,10 +49,10 @@ describe("enqueueEmailJob", () => {
 });
 
 describe("enqueueAdminNotificationEmails", () => {
-  it("enqueues one job per admin in parallel", async () => {
+  it("enqueues one job per admin and returns enqueued + failed buckets", async () => {
     const { enqueueAdminNotificationEmails } = await import("./emails");
 
-    await enqueueAdminNotificationEmails({
+    const result = await enqueueAdminNotificationEmails({
       adminEmails: ["a@b.com", "c@d.com", "e@f.com"],
       jobTitle: "Backend",
       applicantName: "Sam",
@@ -63,12 +63,34 @@ describe("enqueueAdminNotificationEmails", () => {
     expect(sendMock).toHaveBeenCalledTimes(3);
     const recipients = sendMock.mock.calls.map((call) => call[1].payload.to);
     expect(recipients).toEqual(["a@b.com", "c@d.com", "e@f.com"]);
+    expect(result.enqueued).toEqual(["a@b.com", "c@d.com", "e@f.com"]);
+    expect(result.failed).toEqual([]);
+  });
+
+  it("does not short-circuit when one enqueue fails — reports the failure and still enqueues the rest", async () => {
+    const { enqueueAdminNotificationEmails } = await import("./emails");
+    sendMock
+      .mockResolvedValueOnce("job-a")
+      .mockRejectedValueOnce(new Error("boom"))
+      .mockResolvedValueOnce("job-c");
+
+    const result = await enqueueAdminNotificationEmails({
+      adminEmails: ["a@b.com", "c@d.com", "e@f.com"],
+      jobTitle: "Backend",
+      applicantName: "Sam",
+      applicantEmail: "sam@example.com",
+      jobUrl: "https://app",
+    });
+
+    expect(sendMock).toHaveBeenCalledTimes(3);
+    expect(result.enqueued).toEqual(["a@b.com", "e@f.com"]);
+    expect(result.failed).toEqual([{ to: "c@d.com", error: "boom" }]);
   });
 
   it("does nothing when there are no admins", async () => {
     const { enqueueAdminNotificationEmails } = await import("./emails");
 
-    await enqueueAdminNotificationEmails({
+    const result = await enqueueAdminNotificationEmails({
       adminEmails: [],
       jobTitle: "Backend",
       applicantName: "Sam",
@@ -77,6 +99,7 @@ describe("enqueueAdminNotificationEmails", () => {
     });
 
     expect(sendMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ enqueued: [], failed: [] });
   });
 });
 

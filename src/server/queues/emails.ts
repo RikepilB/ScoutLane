@@ -70,14 +70,23 @@ export async function getEmailQueue(): Promise<PgBoss> {
     });
   }
 
-  globalForBoss.emailBossStart ??= globalForBoss.emailBoss.start().then(async (boss: PgBoss) => {
-    await boss.createQueue(EMAIL_SEND_QUEUE, {
-      retryLimit: 3,
-      retryDelay: 60,
-      expireInSeconds: 300,
+  if (!globalForBoss.emailBossStart) {
+    const startPromise = globalForBoss.emailBoss.start().then(async (boss: PgBoss) => {
+      await boss.createQueue(EMAIL_SEND_QUEUE, {
+        retryLimit: 3,
+        retryDelay: 60,
+        expireInSeconds: 300,
+      });
+      return boss;
     });
-    return boss;
-  });
+    startPromise.catch(() => {
+      if (globalForBoss.emailBossStart === startPromise) {
+        delete globalForBoss.emailBossStart;
+        delete globalForBoss.emailBoss;
+      }
+    });
+    globalForBoss.emailBossStart = startPromise;
+  }
 
   return globalForBoss.emailBossStart;
 }
@@ -99,10 +108,15 @@ export interface AdminNotificationFanOutInput {
   jobUrl: string;
 }
 
+export interface AdminFanOutResult {
+  enqueued: string[];
+  failed: Array<{ to: string; error: string }>;
+}
+
 export async function enqueueAdminNotificationEmails(
   input: AdminNotificationFanOutInput,
-): Promise<void> {
-  await Promise.all(
+): Promise<AdminFanOutResult> {
+  const settled = await Promise.allSettled(
     input.adminEmails.map((to) =>
       enqueueEmailJob({
         kind: "admin-new-application",
@@ -113,7 +127,23 @@ export async function enqueueAdminNotificationEmails(
           applicantEmail: input.applicantEmail,
           jobUrl: input.jobUrl,
         },
-      }),
+      }).then(() => to),
     ),
   );
+
+  const enqueued: string[] = [];
+  const failed: Array<{ to: string; error: string }> = [];
+  settled.forEach((outcome, idx) => {
+    const to = input.adminEmails[idx];
+    if (outcome.status === "fulfilled") {
+      enqueued.push(to);
+    } else {
+      const reason = outcome.reason;
+      const message = reason instanceof Error ? reason.message : String(reason);
+      console.error(`[email-queue] failed to enqueue admin-new-application for ${to}:`, reason);
+      failed.push({ to, error: message });
+    }
+  });
+
+  return { enqueued, failed };
 }

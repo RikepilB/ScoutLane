@@ -4,6 +4,10 @@ let cached: OpenAI | null | undefined;
 
 type ChatMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam;
 
+const DEFAULT_OPENROUTER_MODEL = "openrouter/owl-alpha";
+const BUILT_IN_FALLBACK_MODELS = ["openrouter/free", "openrouter/auto"];
+const DEFAULT_OPENROUTER_TIMEOUT_MS = 20_000;
+
 export function getOpenRouterClient(): OpenAI | null {
   if (cached !== undefined) return cached;
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -23,7 +27,7 @@ export function getOpenRouterClient(): OpenAI | null {
 }
 
 export function getOpenRouterModel(): string {
-  return process.env.OPENROUTER_MODEL ?? "openrouter/auto";
+  return process.env.OPENROUTER_MODEL ?? DEFAULT_OPENROUTER_MODEL;
 }
 
 export function getOpenRouterModels(): string[] {
@@ -33,9 +37,15 @@ export function getOpenRouterModels(): string[] {
       .split(",")
       .map((model) => model.trim())
       .filter(Boolean),
-    "openrouter/auto",
+    DEFAULT_OPENROUTER_MODEL,
+    ...BUILT_IN_FALLBACK_MODELS,
   ];
   return Array.from(new Set(models));
+}
+
+function getOpenRouterTimeoutMs(): number {
+  const value = Number(process.env.OPENROUTER_TIMEOUT_MS);
+  return Number.isFinite(value) && value > 0 ? value : DEFAULT_OPENROUTER_TIMEOUT_MS;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -49,12 +59,15 @@ async function createChatCompletion(input: {
   messages: ChatMessage[];
   useJsonMode: boolean;
 }): Promise<string> {
-  const completion = await input.client.chat.completions.create({
-    model: input.model,
-    temperature: 0.1,
-    ...(input.useJsonMode ? { response_format: { type: "json_object" as const } } : {}),
-    messages: input.messages,
-  });
+  const completion = await input.client.chat.completions.create(
+    {
+      model: input.model,
+      temperature: 0.1,
+      ...(input.useJsonMode ? { response_format: { type: "json_object" as const } } : {}),
+      messages: input.messages,
+    },
+    { signal: AbortSignal.timeout(getOpenRouterTimeoutMs()) },
+  );
 
   return completion.choices[0]?.message?.content ?? "";
 }

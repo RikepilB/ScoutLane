@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { prisma } from "@/lib/db/prisma";
 import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 import type { Job } from "pg-boss";

@@ -14,20 +14,40 @@ interface ResendErrorLike {
   statusCode?: number;
 }
 
-function stringifyError(error: unknown): string {
-  if (!error) return "Unknown email provider error";
-  if (typeof error === "string") return error;
-  if (error instanceof Error) return error.message;
-  if (typeof error === "object") {
-    const e = error as ResendErrorLike;
-    if (e.message) return e.message;
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return String(error);
-    }
+const MAX_ERROR_LENGTH = 500;
+const SECRET_PATTERNS: ReadonlyArray<RegExp> = [
+  /sk-[A-Za-z0-9_-]{16,}/g,
+  /re_[A-Za-z0-9_-]{16,}/g,
+  /ghp_[A-Za-z0-9_-]{16,}/g,
+  /Bearer\s+[A-Za-z0-9._-]{16,}/gi,
+  /(api[_-]?key|token|secret|password)[\s:=]+[A-Za-z0-9._-]{8,}/gi,
+];
+
+function scrubSecrets(value: string): string {
+  let scrubbed = value;
+  for (const pattern of SECRET_PATTERNS) {
+    scrubbed = scrubbed.replace(pattern, "[REDACTED]");
   }
-  return String(error);
+  return scrubbed;
+}
+
+function truncate(value: string): string {
+  if (value.length <= MAX_ERROR_LENGTH) return value;
+  return `${value.slice(0, MAX_ERROR_LENGTH)}… [truncated]`;
+}
+
+function stringifyError(error: unknown): string {
+  let raw: string;
+  if (!error) raw = "Unknown email provider error";
+  else if (typeof error === "string") raw = error;
+  else if (error instanceof Error) raw = error.message || error.name || "Error";
+  else if (typeof error === "object") {
+    const e = error as ResendErrorLike;
+    raw = e.message ?? `Email provider error${e.statusCode ? ` (HTTP ${e.statusCode})` : ""}`;
+  } else {
+    raw = String(error);
+  }
+  return truncate(scrubSecrets(raw));
 }
 
 async function logSent(to: string, subject: string): Promise<void> {

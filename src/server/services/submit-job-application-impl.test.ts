@@ -12,7 +12,7 @@ const {
   canAcceptApplicationsMock,
   enqueueResumeParseJobMock,
   enqueueAdminNotificationEmailsMock,
-  sendApplicationConfirmationEmailMock,
+  enqueueEmailJobMock,
   parseApplicantResumeFromBufferMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
@@ -26,7 +26,7 @@ const {
   canAcceptApplicationsMock: vi.fn(),
   enqueueResumeParseJobMock: vi.fn(),
   enqueueAdminNotificationEmailsMock: vi.fn(),
-  sendApplicationConfirmationEmailMock: vi.fn(),
+  enqueueEmailJobMock: vi.fn(),
   parseApplicantResumeFromBufferMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }));
@@ -44,10 +44,6 @@ vi.mock("@/lib/db/prisma", () => ({
   },
 }));
 
-vi.mock("@/lib/email/send", () => ({
-  sendApplicationConfirmationEmail: sendApplicationConfirmationEmailMock,
-}));
-
 vi.mock("@/lib/storage/upload", () => ({
   uploadFileBuffer: uploadFileBufferMock,
 }));
@@ -62,6 +58,7 @@ vi.mock("@/lib/resume/parseApplicantResume", () => ({
 
 vi.mock("@/server/queues/emails", () => ({
   enqueueAdminNotificationEmails: enqueueAdminNotificationEmailsMock,
+  enqueueEmailJob: enqueueEmailJobMock,
 }));
 
 vi.mock("@/server/queues/resume", () => ({
@@ -137,9 +134,13 @@ function seedHappyPath(admins: string[] = ["admin@example.com"]) {
   applicantCreate.mockResolvedValue({ id: "applicant-1" });
   applicantUpdate.mockResolvedValue({});
   enqueueResumeParseJobMock.mockResolvedValue("resume-job-1");
-  enqueueAdminNotificationEmailsMock.mockResolvedValue(undefined);
-  sendApplicationConfirmationEmailMock.mockResolvedValue({ ok: true, id: "conf-1" });
+  enqueueAdminNotificationEmailsMock.mockResolvedValue({
+    enqueued: admins,
+    failed: [],
+  });
+  enqueueEmailJobMock.mockResolvedValue("conf-job-1");
   parseApplicantResumeFromBufferMock.mockResolvedValue(undefined);
+  emailLogCreate.mockResolvedValue({});
 }
 
 beforeEach(() => {
@@ -182,27 +183,55 @@ describe("submitJobApplicationImpl — admin fan-out via queue (Codex fix)", () 
     expect(enqueueAdminNotificationEmailsMock).not.toHaveBeenCalled();
   });
 
-  it("warns the applicant when the confirmation email could not be delivered", async () => {
+  it("enqueues the applicant confirmation via pg-boss instead of awaiting Resend in the request path", async () => {
     seedHappyPath();
-    sendApplicationConfirmationEmailMock.mockResolvedValue({
-      ok: false,
-      skipped: false,
-      error: "Domain not verified",
-    });
 
-    const result = await submitJobApplicationImpl(buildFormData());
+    await submitJobApplicationImpl(buildFormData());
 
-    expect(result.success).toBe(true);
-    expect(result.warning).toContain("confirmation email could not be sent");
+    expect(enqueueEmailJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "applicant-confirmation",
+        payload: expect.objectContaining({
+          to: "sam@example.com",
+          applicantName: "Sam Smith",
+          jobTitle: "Backend Engineer",
+        }),
+      }),
+    );
   });
 
-  it("warns the applicant when the confirmation email is skipped (RESEND_API_KEY missing)", async () => {
+  it("warns the applicant and writes an EmailLog row when confirmation enqueue fails", async () => {
     seedHappyPath();
-    sendApplicationConfirmationEmailMock.mockResolvedValue({ ok: false, skipped: true });
+    enqueueEmailJobMock.mockRejectedValueOnce(new Error("pg-boss down"));
 
     const result = await submitJobApplicationImpl(buildFormData());
 
     expect(result.success).toBe(true);
-    expect(result.warning).toContain("confirmation email could not be sent");
+    expect(result.warning).toContain("could not be queued");
+    expect(emailLogCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          to: "sam@example.com",
+          status: 0,
+          error: expect.stringContaining("ENQUEUE_FAILED"),
+        }),
+      }),
+    );
+  });
+
+  it("writes an EmailLog row for each admin enqueue failure surfaced by enqueueAdminNotificationEmails", async () => {
+    seedHappyPath(["a@example.com", "b@example.com"]);
+    enqueueAdminNotificationEmailsMock.mockResolvedValue({
+      enqueued: ["a@example.com"],
+      failed: [{ to: "b@example.com", error: "boom" }],
+    });
+
+    await submitJobApplicationImpl(buildFormData());
+
+    const adminLogCall = emailLogCreate.mock.calls.find(
+      (call) => call[0]?.data?.to === "b@example.com",
+    );
+    expect(adminLogCall).toBeDefined();
+    expect(adminLogCall![0].data.error).toContain("ENQUEUE_FAILED");
   });
 });

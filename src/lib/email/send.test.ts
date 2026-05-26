@@ -146,3 +146,70 @@ describe("sendApplicationConfirmationEmail", () => {
     expect(result).toEqual({ ok: true, skipped: false, id: "conf-1" });
   });
 });
+
+describe("error scrubbing + truncation", () => {
+  it("redacts secret-like patterns from Resend error messages before persisting", async () => {
+    sendMock.mockResolvedValue({
+      data: null,
+      error: {
+        message: "Auth failed: api_key=sk-or-v1-aaaaaaaaaaaaaaaaaaaaaaaa is invalid",
+        statusCode: 401,
+      },
+    });
+
+    const result = await sendCustomEmail({
+      to: "applicant@example.com",
+      subject: "Hello",
+      bodyHtml: "<p>hi</p>",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok && !result.skipped) {
+      expect(result.error).not.toContain("sk-or-v1-");
+      expect(result.error).toContain("[REDACTED]");
+    }
+    const logCall = emailLogCreateMock.mock.calls.find(
+      (call) => call[0]?.data?.to === "applicant@example.com",
+    );
+    expect(logCall![0].data.error).not.toContain("sk-or-v1-");
+  });
+
+  it("truncates excessively long error messages", async () => {
+    const huge = "X".repeat(2000);
+    sendMock.mockResolvedValue({ data: null, error: { message: huge } });
+
+    const result = await sendCustomEmail({
+      to: "a@b.com",
+      subject: "Hi",
+      bodyHtml: "<p>x</p>",
+    });
+
+    if (!result.ok && !result.skipped) {
+      expect(result.error.length).toBeLessThanOrEqual(600);
+      expect(result.error).toContain("[truncated]");
+    } else {
+      throw new Error("expected an error result");
+    }
+  });
+
+  it("does not JSON.stringify the raw error object (avoids leaking headers and tokens)", async () => {
+    sendMock.mockResolvedValue({
+      data: null,
+      error: {
+        statusCode: 500,
+        headers: { authorization: "Bearer secrettokenvaluethatshouldnotleak" },
+      },
+    });
+
+    const result = await sendCustomEmail({
+      to: "a@b.com",
+      subject: "Hi",
+      bodyHtml: "<p>x</p>",
+    });
+
+    if (!result.ok && !result.skipped) {
+      expect(result.error).not.toContain("authorization");
+      expect(result.error).not.toContain("secrettokenvalue");
+    }
+  });
+});
