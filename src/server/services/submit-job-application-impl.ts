@@ -5,6 +5,7 @@ import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
 import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
+import { enqueueAdminNotificationEmails } from "@/server/queues/emails";
 import { enqueueResumeParseJob } from "@/server/queues/resume";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
@@ -50,6 +51,17 @@ export async function submitJobApplicationImpl(
   const email = parsed.data.email.trim().toLowerCase();
   const job = await prisma.job.findUnique({
     where: { slug: jobSlug },
+    include: {
+      organization: {
+        select: {
+          id: true,
+          users: {
+            where: { role: "ADMIN" },
+            select: { email: true },
+          },
+        },
+      },
+    },
   });
 
   if (!job) {
@@ -180,28 +192,34 @@ export async function submitJobApplicationImpl(
         : "Your application was submitted, but resume parsing could not be completed.";
   }
 
-  try {
-    await sendApplicationConfirmationEmail({
-      applicantName,
-      jobTitle: job.title,
-      to: email,
-    });
-  } catch (error) {
-    console.error("Failed to send application confirmation email:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    await prisma.emailLog
-      .create({
-        data: {
-          to: email,
-          subject: `Application received for ${job.title}`,
-          status: 0,
-          error: errorMessage,
-        },
-      })
-      .catch((logErr) => console.error("Failed to log email error:", logErr));
+  const confirmationResult = await sendApplicationConfirmationEmail({
+    applicantName,
+    jobTitle: job.title,
+    to: email,
+  });
+  if (!confirmationResult.ok) {
     warning = warning
       ? `${warning} The confirmation email could not be sent.`
       : "Your application was submitted, but the confirmation email could not be sent.";
+  }
+
+  const adminEmails = job.organization?.users
+    .map((u) => u.email)
+    .filter((value): value is string => Boolean(value)) ?? [];
+  if (adminEmails.length > 0) {
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+    const dashboardUrl = `${appUrl}/admin/jobs/${job.id}/applicants/${applicant.id}`;
+    try {
+      await enqueueAdminNotificationEmails({
+        adminEmails,
+        jobTitle: job.title,
+        applicantName,
+        applicantEmail: email,
+        jobUrl: dashboardUrl,
+      });
+    } catch (error) {
+      console.error("Failed to enqueue admin notification emails:", error);
+    }
   }
 
   revalidatePath(`/careers/${job.slug}`);
