@@ -4,10 +4,21 @@ import Credentials from "next-auth/providers/credentials";
 
 export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER";
 
+export function isGoogleAuthConfigured(): boolean {
+  return (
+    Boolean(process.env.AUTH_GOOGLE_ID?.trim()) ||
+    Boolean(process.env.GOOGLE_CLIENT_ID?.trim())
+  );
+}
+
+export function isDevLoginAllowed(): boolean {
+  return process.env.NODE_ENV === "development" || !isGoogleAuthConfigured();
+}
+
 export default {
   providers: [
     Google,
-    ...(process.env.NODE_ENV === "development" || !process.env.AUTH_GOOGLE_ID
+    ...(isDevLoginAllowed()
       ? [
           Credentials({
             id: "dev",

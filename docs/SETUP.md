@@ -116,15 +116,33 @@ When `AUTH_GOOGLE_ID` is empty the dev-only Credentials provider is enabled, so 
 
 ### 2.4 Set env vars
 
+Two naming conventions are recognized (in order of priority):
+
+**Canonical (preferred by NextAuth v5):**
+
 ```
 AUTH_GOOGLE_ID="123456789012-abcdefg.apps.googleusercontent.com"
 AUTH_GOOGLE_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxx"
+```
+
+**Fallback (also works — NextAuth's Google provider reads these internally):**
+
+```
+GOOGLE_CLIENT_ID="123456789012-abcdefg.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxx"
+```
+
+Either pair is accepted. If you set both, `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` takes priority.
+
+```
 AUTH_SECRET="<generate with: openssl rand -base64 32>"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 INITIAL_ADMIN_EMAIL="you@example.com"
 ```
 
 `INITIAL_ADMIN_EMAIL` is auto-promoted to the `ADMIN` role on first login. Everyone else lands as `RECRUITER` and can be promoted from the admin settings page.
+
+**When neither pair is set**, the dev-only Credentials provider is available for local sign-in with any email address. In production, set at least one pair so the dev provider is suppressed and only Google OAuth is accepted.
 
 ### 2.5 Local check
 
