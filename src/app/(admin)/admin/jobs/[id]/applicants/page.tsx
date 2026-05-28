@@ -40,19 +40,6 @@ function getSkills(data: unknown): string[] {
   return extractFromData(data, "skills");
 }
 
-function matchesSearch(a: { name: string; email: string | null; data: unknown }, q: string): boolean {
-  const needle = q.trim().toLowerCase();
-  if (!needle) return true;
-  const hay = [
-    a.name,
-    a.email ?? "",
-    JSON.stringify(a.data ?? {}).toLowerCase(),
-  ]
-    .join(" ")
-    .toLowerCase();
-  return hay.includes(needle);
-}
-
 export default async function ApplicantsListPage({ params, searchParams }: ApplicantsPageProps) {
   const { id } = await params;
   const filters = await searchParams;
@@ -77,6 +64,28 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
 
   if (filters.stageId && filters.stageId !== "all") {
     where.pipelineStageId = filters.stageId;
+  }
+
+  if (filters.status && filters.status !== "all") {
+    (where as Record<string, unknown>).status = filters.status;
+  }
+
+  if (filters.search?.trim()) {
+    where.OR = [
+      { name: { contains: filters.search.trim(), mode: "insensitive" } },
+      { email: { contains: filters.search.trim(), mode: "insensitive" } },
+    ];
+  }
+
+  if (filters.scoreMin || filters.scoreMax) {
+    const scoreFilter: { gte?: number; lte?: number } = {};
+    const min = parseFloat(filters.scoreMin ?? "");
+    const max = parseFloat(filters.scoreMax ?? "");
+    if (!Number.isNaN(min)) scoreFilter.gte = min;
+    if (!Number.isNaN(max)) scoreFilter.lte = max;
+    if (Object.keys(scoreFilter).length > 0) {
+      where.score = scoreFilter;
+    }
   }
 
   const createdFilter: { gte?: Date; lte?: Date } = {};
@@ -105,6 +114,8 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     orderBy = { [sortField]: sortDir } as Prisma.ApplicantOrderByWithRelationInput;
   } else if (sortField === "createdAt") {
     orderBy = { createdAt: sortDir };
+  } else if (sortField === "interviewDate") {
+    orderBy = { interviewDate: sortDir };
   } else if (sortField === "pipelineStage") {
     orderBy = { pipelineStage: { name: sortDir } };
   }
@@ -118,10 +129,6 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     include: { pipelineStage: { select: { id: true, name: true } } },
     orderBy,
   });
-
-  if (filters.search) {
-    rawApplicants = rawApplicants.filter((a) => matchesSearch(a, filters.search));
-  }
 
   let applicants = rawApplicants.map((a) => ({
     ...a,
@@ -260,6 +267,33 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
             );
           })}
         </div>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="flex items-center text-[11px] font-medium text-muted-foreground">Status:</span>
+          <Link
+            href={buildHref({ status: undefined })}
+            className={`rounded-full px-3 py-1.5 font-medium ${
+              !filters.status || filters.status === "all"
+                ? "bg-slate-950 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            All
+          </Link>
+          {["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"].map((s) => {
+            const active = filters.status === s;
+            return (
+              <Link
+                key={s}
+                href={buildHref({ status: s })}
+                className={`rounded-full px-3 py-1.5 font-medium ${
+                  active ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {s.charAt(0) + s.slice(1).toLowerCase()}
+              </Link>
+            );
+          })}
+        </div>
         <Link
           href={`/api/admin/jobs/${id}/applicants/export`}
           className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-slate-800 hover:bg-muted/30"
@@ -332,6 +366,32 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
           </div>
         )}
         <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium text-muted-foreground">Score min</label>
+          <input
+            type="number"
+            name="scoreMin"
+            step="0.01"
+            min="0"
+            max="1"
+            placeholder="0.0"
+            defaultValue={filters.scoreMin ?? ""}
+            className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium text-muted-foreground">Score max</label>
+          <input
+            type="number"
+            name="scoreMax"
+            step="0.01"
+            min="0"
+            max="1"
+            placeholder="1.0"
+            defaultValue={filters.scoreMax ?? ""}
+            className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
           <label className="text-[11px] font-medium text-muted-foreground">Applied from</label>
           <input
             type="date"
@@ -372,6 +432,10 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
             <option value="institution-desc">Institution Z–A</option>
             <option value="degree-asc">Degree A–Z</option>
             <option value="degree-desc">Degree Z–A</option>
+            <option value="score-desc">Score (high)</option>
+            <option value="score-asc">Score (low)</option>
+            <option value="interviewDate-desc">Interview (newest)</option>
+            <option value="interviewDate-asc">Interview (oldest)</option>
             <option value="pipelineStage-asc">Stage A–Z</option>
             <option value="pipelineStage-desc">Stage Z–A</option>
           </select>

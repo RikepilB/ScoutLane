@@ -35,6 +35,11 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
     salary: formData.get("salary") ?? undefined,
     status: formData.get("status"),
     templateId: formData.get("templateId") ?? undefined,
+    slug: formData.get("slug") ?? undefined,
+    department: formData.get("department") ?? undefined,
+    whatYouWillDo: formData.get("whatYouWillDo") ?? undefined,
+    requirements: formData.get("requirements") ?? undefined,
+    toolsAndSkills: formData.get("toolsAndSkills") ?? undefined,
   });
 
   if (!parsed.success) {
