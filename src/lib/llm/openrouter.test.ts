@@ -22,17 +22,23 @@ afterEach(() => {
 });
 
 describe("OpenRouter model selection", () => {
-  it("uses OpenRouter automatic routing as the default model", () => {
+  it("uses a current free OpenRouter model as the default model", () => {
     delete process.env.OPENROUTER_MODEL;
 
-    expect(getOpenRouterModel()).toBe("openrouter/auto");
+    expect(getOpenRouterModel()).toBe("openrouter/owl-alpha");
   });
 
-  it("deduplicates configured models and keeps automatic routing as fallback", () => {
+  it("deduplicates configured models and keeps built-in fallbacks", () => {
     process.env.OPENROUTER_MODEL = "model-a";
     process.env.OPENROUTER_FALLBACK_MODELS = "model-b, model-a, openrouter/auto";
 
-    expect(getOpenRouterModels()).toEqual(["model-a", "model-b", "openrouter/auto"]);
+    expect(getOpenRouterModels()).toEqual([
+      "model-a",
+      "model-b",
+      "openrouter/auto",
+      "openrouter/owl-alpha",
+      "openrouter/free",
+    ]);
   });
 });
 
@@ -66,12 +72,14 @@ describe("createOpenRouterJsonCompletion", () => {
         model: "model-a",
         response_format: { type: "json_object" },
       }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(create).toHaveBeenNthCalledWith(
       2,
       expect.not.objectContaining({
         response_format: expect.anything(),
       }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
 });

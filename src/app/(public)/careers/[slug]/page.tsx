@@ -305,19 +305,6 @@ export default async function JobApplicationPage({ params }: Props) {
               ) : null}
             </div>
 
-            {/* About ScoutLane */}
-            <div className="rounded-2xl border border-[#cbd5e1] bg-white p-6 shadow-[0_18px_45px_rgba(9,21,64,0.08)] sm:p-8"
-              style={{
-                background: "linear-gradient(135deg, #ffffff 0%, #f7fbff 100%)",
-              }}>
-              <h2 className="mb-3 text-[22px] font-medium tracking-[-0.015em] text-[#0c1529]"
-                style={{ fontFamily: "var(--font-display)" }}>
-                About ScoutLane
-              </h2>
-              <p className="max-w-3xl text-[15px] leading-8 text-[#334155]">
-                ScoutLane is an AI-powered recruitment platform that helps companies streamline their hiring process. From posting jobs with custom application forms to intelligent resume parsing and pipeline management, ScoutLane provides everything hiring teams need to find and evaluate top talent.
-              </p>
-            </div>
           </section>
 
           {/* Sidebar */}

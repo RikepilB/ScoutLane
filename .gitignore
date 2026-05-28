@@ -17,6 +17,8 @@
 !/docs/README.md
 !/docs/session-reports/
 !/docs/session-reports/*.md
+!/docs/SETUP.md
+!/docs/SMOKE.md
 !/docs/STACK.md
 !/docs/TESTING.md
 !/docs/UX-TEST-PROTOCOL.md

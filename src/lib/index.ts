@@ -1,4 +1,3 @@
-export { getResendClient } from "./email/client";
 export { sendApplicationConfirmationEmail } from "./email/send";
 export { uploadFileBuffer, uploadResumeFile } from "./storage/upload";
 export { getJobStatus, getJobPersistence, canAcceptApplications } from "./jobs/status";

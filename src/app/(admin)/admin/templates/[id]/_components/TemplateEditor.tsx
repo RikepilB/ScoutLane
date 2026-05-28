@@ -335,19 +335,17 @@ export function TemplateEditor({
             </label>
           </section>
 
-          <section className="grid gap-5 sm:grid-cols-2">
-            <label className="space-y-2 text-sm font-medium">
-              Pipeline stages
-              <Textarea
-                name="stageNames"
-                className="min-h-44"
-                defaultValue={template.stageNames.join("\n")}
-                required
-              />
-              <span className="block text-xs font-normal text-muted-foreground">
-                One stage per line.
-              </span>
-            </label>
+          <label className="space-y-2 text-sm font-medium">
+            Pipeline stages (one per line)
+            <Textarea
+              name="stageNames"
+              className="min-h-24"
+              defaultValue={template.stageNames.join("\n")}
+              placeholder="New&#10;Screening&#10;Interview&#10;Offer&#10;Hired"
+            />
+          </label>
+
+          <section>
             <QuestionsEditor defaultValue={template.questions as string[]} />
           </section>
 

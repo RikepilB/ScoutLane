@@ -1,10 +1,10 @@
 import { Buffer } from "node:buffer";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
-import { sendApplicationConfirmationEmail } from "@/lib/email/send";
 import { canAcceptApplications } from "@/lib/jobs/status";
 import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
+import { enqueueAdminNotificationEmails, enqueueEmailJob } from "@/server/queues/emails";
 import { enqueueResumeParseJob } from "@/server/queues/resume";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
@@ -24,7 +24,7 @@ export function getResumeProcessingMode(): ResumeProcessingMode {
   if (raw === "queue" || raw === "queue-and-inline" || raw === "inline") {
     return raw;
   }
-  return "queue";
+  return "queue-and-inline";
 }
 
 export async function submitJobApplicationImpl(
@@ -50,6 +50,17 @@ export async function submitJobApplicationImpl(
   const email = parsed.data.email.trim().toLowerCase();
   const job = await prisma.job.findUnique({
     where: { slug: jobSlug },
+    include: {
+      organization: {
+        select: {
+          id: true,
+          users: {
+            where: { role: { in: ["ADMIN", "RECRUITER", "HIRING_MANAGER"] } },
+            select: { email: true },
+          },
+        },
+      },
+    },
   });
 
   if (!job) {
@@ -181,27 +192,74 @@ export async function submitJobApplicationImpl(
   }
 
   try {
-    await sendApplicationConfirmationEmail({
-      applicantName,
-      jobTitle: job.title,
-      to: email,
+    await enqueueEmailJob({
+      kind: "applicant-confirmation",
+      payload: { to: email, applicantName, jobTitle: job.title },
     });
   } catch (error) {
-    console.error("Failed to send application confirmation email:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("[submit] failed to enqueue applicant confirmation email:", error);
     await prisma.emailLog
       .create({
         data: {
           to: email,
           subject: `Application received for ${job.title}`,
           status: 0,
-          error: errorMessage,
+          error: "ENQUEUE_FAILED: applicant-confirmation",
         },
       })
-      .catch((logErr) => console.error("Failed to log email error:", logErr));
+      .catch(() => {});
     warning = warning
-      ? `${warning} The confirmation email could not be sent.`
-      : "Your application was submitted, but the confirmation email could not be sent.";
+      ? `${warning} The confirmation email could not be queued.`
+      : "Your application was submitted, but the confirmation email could not be queued.";
+  }
+
+  const adminEmails = job.organization?.users
+    .map((u) => u.email)
+    .filter((value): value is string => Boolean(value)) ?? [];
+  if (adminEmails.length > 0) {
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+    const dashboardUrl = `${appUrl}/admin/jobs/${job.id}/applicants/${applicant.id}`;
+    try {
+      const fanOut = await enqueueAdminNotificationEmails({
+        adminEmails,
+        jobTitle: job.title,
+        applicantName,
+        applicantEmail: email,
+        jobUrl: dashboardUrl,
+      });
+      if (fanOut.failed.length > 0) {
+        await Promise.all(
+          fanOut.failed.map(({ to, error: enqueueError }) =>
+            prisma.emailLog
+              .create({
+                data: {
+                  to,
+                  subject: `New application: ${applicantName} → ${job.title}`,
+                  status: 0,
+                  error: `ENQUEUE_FAILED: ${enqueueError}`,
+                },
+              })
+              .catch(() => {}),
+          ),
+        );
+      }
+    } catch (error) {
+      console.error("Failed to enqueue admin notification emails:", error);
+      await Promise.all(
+        adminEmails.map((to) =>
+          prisma.emailLog
+            .create({
+              data: {
+                to,
+                subject: `New application: ${applicantName} → ${job.title}`,
+                status: 0,
+                error: "ENQUEUE_FAILED: admin-new-application (queue unreachable)",
+              },
+            })
+            .catch(() => {}),
+        ),
+      );
+    }
   }
 
   revalidatePath(`/careers/${job.slug}`);
