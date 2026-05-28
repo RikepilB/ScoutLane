@@ -190,8 +190,8 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
               </h1>
 
               {/* Subtitle */}
-              <p className="mb-8 max-w-[480px] text-[15px] leading-[22px] text-[#f1f5f9]/70">
-                Explore our open positions and find the role that matches your skills and ambitions.
+              <p className="mb-8 max-w-[520px] text-[15px] leading-[22px] text-[#f1f5f9]/70">
+                ScoutLane helps companies post jobs, parse resumes, and run their hiring pipeline. Explore the roles open today and find one that matches your skills.
               </p>
 
               {/* Meta line */}

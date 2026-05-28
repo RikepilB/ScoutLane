@@ -1,13 +1,16 @@
 import { Resend } from "resend";
 
-function getRequiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not configured`);
-  return value;
+export function getResendClientOrNull(): Resend | null {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
 }
 
-export function getResendClient(): Resend {
-  return new Resend(getRequiredEnv("RESEND_API_KEY"));
+export function getEmailFromOrNull(): string | null {
+  const value = process.env.EMAIL_FROM;
+  return value && value.trim().length > 0 ? value : null;
 }
 
-export { getRequiredEnv };
+export function isEmailConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY) && Boolean(process.env.EMAIL_FROM);
+}

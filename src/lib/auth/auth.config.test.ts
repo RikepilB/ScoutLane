@@ -1,9 +1,59 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, afterEach, vi } from "vitest";
+import { isDevLoginAllowed, isGoogleAuthConfigured } from "@/lib/auth/auth.config";
 import authConfig, { type AdminRole } from "@/lib/auth/auth.config";
 
 const jwtCallback = authConfig.callbacks!.jwt!;
 const sessionCallback = authConfig.callbacks!.session!;
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
+describe("isGoogleAuthConfigured", () => {
+  it("returns true when AUTH_GOOGLE_ID is set", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    expect(isGoogleAuthConfigured()).toBe(true);
+  });
+
+  it("returns true when GOOGLE_CLIENT_ID is set (fallback)", () => {
+    vi.stubEnv("GOOGLE_CLIENT_ID", "some-id");
+    expect(isGoogleAuthConfigured()).toBe(true);
+  });
+
+  it("returns false when neither AUTH_GOOGLE_ID nor GOOGLE_CLIENT_ID is set", () => {
+    expect(isGoogleAuthConfigured()).toBe(false);
+  });
+
+  it("returns false when AUTH_GOOGLE_ID is empty string", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "");
+    expect(isGoogleAuthConfigured()).toBe(false);
+  });
+});
+
+describe("isDevLoginAllowed", () => {
+  it("allows dev login in development regardless of Google config", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    expect(isDevLoginAllowed()).toBe(true);
+  });
+
+  it("disallows dev login in production when Google auth is configured via AUTH_GOOGLE_ID", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    expect(isDevLoginAllowed()).toBe(false);
+  });
+
+  it("disallows dev login in production when Google auth is configured via GOOGLE_CLIENT_ID", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("GOOGLE_CLIENT_ID", "some-id");
+    expect(isDevLoginAllowed()).toBe(false);
+  });
+
+  it("allows dev login in production when Google auth is NOT configured", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(isDevLoginAllowed()).toBe(true);
+  });
+});
 
 describe("authConfig.callbacks.jwt", () => {
   it("copies role and userId from user on first sign-in", async () => {

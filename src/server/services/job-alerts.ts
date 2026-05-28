@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db/prisma";
+import { isEmailConfigured } from "@/lib/email/client";
 import { sendJobAlertConfirmation, sendNewJobNotification } from "@/lib/email/send";
 
 export async function subscribe(email: string): Promise<{ success: boolean; message: string }> {
@@ -18,13 +19,19 @@ export async function subscribe(email: string): Promise<{ success: boolean; mess
       create: { email: normalized, token },
     });
 
-    try {
-      await sendJobAlertConfirmation(normalized, token);
-    } catch (e) {
-      console.error("[job-alerts] confirmation email failed:", e);
+    if (isEmailConfigured()) {
+      const result = await sendJobAlertConfirmation(normalized, token);
+      if (!result.ok && !result.skipped) {
+        console.error("[job-alerts] confirmation email failed:", result.error);
+      }
     }
 
-    return { success: true, message: "Subscribed! Check your email to confirm." };
+    return {
+      success: true,
+      message: isEmailConfigured()
+        ? "Subscribed! Check your email to confirm."
+        : "Subscribed!",
+    };
   } catch (e) {
     console.error("[job-alerts] subscribe failed:", e);
     return { success: false, message: "Something went wrong. Please try again." };
@@ -44,6 +51,11 @@ export async function unsubscribe(token: string): Promise<boolean> {
 }
 
 export async function notifySubscribers(jobTitle: string, jobSlug: string): Promise<void> {
+  if (!isEmailConfigured()) {
+    console.warn("[job-alerts] skipping notifySubscribers: email not configured");
+    return;
+  }
+
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const url = `${APP_URL}/careers/${jobSlug}`;
 
@@ -54,9 +66,12 @@ export async function notifySubscribers(jobTitle: string, jobSlug: string): Prom
 
   for (const alert of alerts) {
     try {
-      await sendNewJobNotification(alert.email, jobTitle, url, alert.token);
-    } catch (e) {
-      console.error(`[job-alerts] notify failed for ${alert.email}:`, e);
+      const result = await sendNewJobNotification(alert.email, jobTitle, url, alert.token);
+      if (!result.ok && !result.skipped) {
+        console.error(`[job-alerts] notify failed for ${alert.email}:`, result.error);
+      }
+    } catch (error) {
+      console.error(`[job-alerts] notify threw for ${alert.email}:`, error);
     }
   }
 }

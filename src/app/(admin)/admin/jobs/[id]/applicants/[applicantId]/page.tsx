@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { ArrowLeft, Mail, Phone, FileText, Building, GraduationCap, Wrench, RefreshCw, Loader2, Target } from "lucide-react";
 import { ApplicantStageActions } from "./_components/ApplicantStageActions";
+import { ApplicantEmailComposer } from "./_components/ApplicantEmailComposer";
 import { ApplicantStatusBadge } from "@/components/admin/ApplicantStatusBadge";
 import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
@@ -30,7 +31,7 @@ function getAppBaseUrl(): string {
   return baseUrl.replace(/\/$/, "");
 }
 
-function getResumeEmbedSrc(resumeUrl: string): string {
+function getResumeEmbedSrc(resumeUrl: string): string | null {
   const pathOnly = (() => {
     try {
       return new URL(resumeUrl, getAppBaseUrl()).pathname;
@@ -44,8 +45,7 @@ function getResumeEmbedSrc(resumeUrl: string): string {
     return resumeUrl;
   }
 
-  const absoluteResumeUrl = new URL(resumeUrl, getAppBaseUrl()).toString();
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteResumeUrl)}&embedded=true`;
+  return null;
 }
 
 interface ApplicantDetailPageProps {
@@ -224,13 +224,15 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         </div>
       </div>
 
-      {applicant.resumeUrl && resumeEmbedSrc && (
+      {applicant.resumeUrl && (
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-semibold text-slate-900">Resume</h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                Embedded preview with the original file kept available.
+                {resumeEmbedSrc
+                  ? "Embedded preview with the original file kept available."
+                  : "This file type cannot be previewed inline. Download or open in a new tab."}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -245,16 +247,30 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
               </a>
             </div>
           </div>
-          <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-slate-100">
-            <iframe
-              title={`${applicant.name} resume`}
-              src={resumeEmbedSrc}
-              className="h-[720px] w-full bg-white"
-            />
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            If the embedded preview does not load, open the resume in a new tab using the button above.
-          </p>
+          {resumeEmbedSrc ? (
+            <>
+              <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-slate-100">
+                <iframe
+                  title={`${applicant.name} resume`}
+                  src={resumeEmbedSrc}
+                  className="h-[720px] w-full bg-white"
+                />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                If the embedded preview does not load, open the resume in a new tab using the button above.
+              </p>
+            </>
+          ) : (
+            <div className="mt-4 rounded-xl border border-dashed border-border/70 bg-slate-50 p-8 text-center">
+              <FileText className="mx-auto h-8 w-8 text-slate-300" />
+              <p className="mt-2 text-sm text-slate-500">
+                Preview is not available for this file type.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Word documents (.docx, .doc) must be opened in a compatible application.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -456,6 +472,15 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           )}
         </div>
       </div>
+
+      {applicant.email ? (
+        <ApplicantEmailComposer
+          applicantId={applicant.id}
+          applicantName={applicant.name}
+          applicantEmail={applicant.email}
+          jobTitle={applicant.job.title}
+        />
+      ) : null}
 
       <NotesSection
         applicantId={applicant.id}

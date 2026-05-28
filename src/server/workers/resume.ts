@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { prisma } from "@/lib/db/prisma";
 import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
 import type { Job } from "pg-boss";
@@ -22,7 +24,12 @@ async function main() {
         try {
           await parseApplicantResumeFromUrl(job.data.applicantId, job.data.resumeUrl);
         } catch (error) {
-          console.error("[resume-worker] parse failed:", error);
+          const message = error instanceof Error ? error.message : String(error);
+          const stack = error instanceof Error ? error.stack : undefined;
+          console.error(
+            `[resume-worker] parse failed for applicant ${job.data.applicantId}: ${message}`,
+            { stack, resumeUrl: job.data.resumeUrl },
+          );
           await prisma.applicant
             .update({
               where: { id: job.data.applicantId },
