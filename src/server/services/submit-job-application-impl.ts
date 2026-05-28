@@ -24,7 +24,7 @@ export function getResumeProcessingMode(): ResumeProcessingMode {
   if (raw === "queue" || raw === "queue-and-inline" || raw === "inline") {
     return raw;
   }
-  return "queue";
+  return "queue-and-inline";
 }
 
 export async function submitJobApplicationImpl(

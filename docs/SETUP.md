@@ -180,14 +180,21 @@ ScoutLane runs two long-running worker processes off the web server. They cannot
 
 Both workers share the same `DATABASE_URL` as the web app (pg-boss stores jobs in PostgreSQL). On startup they create their queues if missing and run forever.
 
+**Resume parsing mode:** `RESUME_PARSE_MODE` controls how resume parsing runs. The default is `"queue-and-inline"` — parsing happens immediately during submission AND gets enqueued for redundancy. In production with high traffic, switch to `"queue"` to avoid blocking application submissions, and run `pnpm worker:resume` on a persistent host.
+
 ### 4.1 Local dev
 
-Open three terminals:
+With the default `RESUME_PARSE_MODE=queue-and-inline`, you only need the email worker for local dev:
 
 ```
 pnpm dev
-pnpm worker:resume
 pnpm worker:emails
+```
+
+If you switch to `RESUME_PARSE_MODE=queue`, also start the resume worker:
+
+```
+pnpm worker:resume
 ```
 
 ### 4.2 Hosted (recommended on Render)
@@ -203,8 +210,9 @@ After deploying or rotating keys, **restart both workers** so the new envs take 
 
 ### 4.3 What happens without the workers
 
-- `enqueueResumeParseJob` returns immediately; the row stays in `PENDING` forever.
-- `enqueueEmailJob` returns immediately; admin notification and applicant confirmation emails are never sent — the applicant submission still succeeds.
+- With `RESUME_PARSE_MODE=queue-and-inline` (default), parsing happens inline during submission — the resume worker is optional for redundancy only.
+- With `RESUME_PARSE_MODE=queue`, `enqueueResumeParseJob` returns immediately; the row stays in `PENDING` until the resume worker picks it up.
+- `enqueueEmailJob` returns immediately; admin notification and applicant confirmation emails are never sent without the email worker — the applicant submission still succeeds.
 
 Both are visible in `/admin/notifications` (parsing failures + email skips).
 

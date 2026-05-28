@@ -85,9 +85,9 @@ afterEach(() => {
 });
 
 describe("resume processing mode", () => {
-  it("keeps queued parsing as the default", () => {
+  it("defaults to queue-and-inline parsing for immediate results", () => {
     delete process.env.RESUME_PARSE_MODE;
-    expect(getResumeProcessingMode()).toBe("queue");
+    expect(getResumeProcessingMode()).toBe("queue-and-inline");
   });
 
   it("allows explicit inline parsing for local diagnostics", () => {
@@ -95,9 +95,9 @@ describe("resume processing mode", () => {
     expect(getResumeProcessingMode()).toBe("inline");
   });
 
-  it("falls back to queued parsing for invalid values", () => {
+  it("falls back to queue-and-inline parsing for invalid values", () => {
     process.env.RESUME_PARSE_MODE = "unknown";
-    expect(getResumeProcessingMode()).toBe("queue");
+    expect(getResumeProcessingMode()).toBe("queue-and-inline");
   });
 });
 
