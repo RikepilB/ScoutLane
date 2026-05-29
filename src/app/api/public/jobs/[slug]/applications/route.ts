@@ -3,8 +3,13 @@ import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { canAcceptApplications } from "@/lib/jobs/status";
 import { DUPLICATE_APPLICATION_MESSAGE } from "@/schemas/application";
+import { clientIpFromHeaders, createRateLimiter } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
+
+// ~10 application submissions per minute per IP. Shared across requests in this
+// runtime instance; see src/lib/rate-limit.ts for production considerations.
+const applicationRateLimiter = createRateLimiter({ limit: 10, windowMs: 60_000 });
 
 const publicApplicationSchema = z.object({
   firstName: z
@@ -34,6 +39,15 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const ip = clientIpFromHeaders(request.headers);
+    const rate = applicationRateLimiter.check(ip);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Too many requests. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((rate.resetAt - Date.now()) / 1000)) } },
+      );
+    }
+
     const { slug } = await params;
 
     const body = await request.json();
