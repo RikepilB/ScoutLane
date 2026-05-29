@@ -10,7 +10,9 @@
 /docs/*
 !/docs/API.md
 !/docs/ARCHITECTURE.md
+!/docs/ASSESSMENT-PROGRESS.md
 !/docs/CLAUDE.md
+!/docs/SECURITY-AUDIT.md
 !/docs/HANDOFF.md
 !/docs/INTEGRATIONS.md
 !/docs/PROJECT-GUIDE.md
