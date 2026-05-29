@@ -11,13 +11,15 @@ afterEach(() => {
 });
 
 describe("isGoogleAuthConfigured", () => {
-  it("returns true when AUTH_GOOGLE_ID is set", () => {
+  it("returns true when AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET are set", () => {
     vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "some-secret");
     expect(isGoogleAuthConfigured()).toBe(true);
   });
 
-  it("returns true when GOOGLE_CLIENT_ID is set (fallback)", () => {
+  it("returns true when GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set", () => {
     vi.stubEnv("GOOGLE_CLIENT_ID", "some-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "some-secret");
     expect(isGoogleAuthConfigured()).toBe(true);
   });
 
@@ -27,6 +29,12 @@ describe("isGoogleAuthConfigured", () => {
 
   it("returns false when AUTH_GOOGLE_ID is empty string", () => {
     vi.stubEnv("AUTH_GOOGLE_ID", "");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "some-secret");
+    expect(isGoogleAuthConfigured()).toBe(false);
+  });
+
+  it("returns false when only ID is set without secret", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
     expect(isGoogleAuthConfigured()).toBe(false);
   });
 });
@@ -40,12 +48,14 @@ describe("isDevLoginAllowed", () => {
   it("disallows dev login in production when Google auth is configured via AUTH_GOOGLE_ID", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "some-secret");
     expect(isDevLoginAllowed()).toBe(false);
   });
 
   it("disallows dev login in production when Google auth is configured via GOOGLE_CLIENT_ID", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("GOOGLE_CLIENT_ID", "some-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "some-secret");
     expect(isDevLoginAllowed()).toBe(false);
   });
 

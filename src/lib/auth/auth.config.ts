@@ -5,10 +5,9 @@ import Credentials from "next-auth/providers/credentials";
 export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER";
 
 export function isGoogleAuthConfigured(): boolean {
-  return (
-    Boolean(process.env.AUTH_GOOGLE_ID?.trim()) ||
-    Boolean(process.env.GOOGLE_CLIENT_ID?.trim())
-  );
+  const id = process.env.AUTH_GOOGLE_ID?.trim() || process.env.GOOGLE_CLIENT_ID?.trim();
+  const secret = process.env.AUTH_GOOGLE_SECRET?.trim() || process.env.GOOGLE_CLIENT_SECRET?.trim();
+  return Boolean(id && secret);
 }
 
 export function isDevLoginAllowed(): boolean {
@@ -17,10 +16,14 @@ export function isDevLoginAllowed(): boolean {
 
 export default {
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET,
-    }),
+    ...(isGoogleAuthConfigured()
+      ? [
+          Google({
+            clientId: process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
     ...(isDevLoginAllowed()
       ? [
           Credentials({
