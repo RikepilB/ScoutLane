@@ -7,7 +7,7 @@ import { useState } from "react";
 type CustomFieldRow = {
   id: string;
   label: string;
-  type: "text" | "textarea" | "select" | "file";
+  type: "text" | "textarea" | "select";
   required: boolean;
   options?: string[];
 };

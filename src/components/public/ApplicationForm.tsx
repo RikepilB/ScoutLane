@@ -21,7 +21,7 @@ interface CustomField {
   id: string;
   label: string;
   options?: string[];
-  type: "text" | "textarea" | "select" | "file";
+  type: "text" | "textarea" | "select";
   required: boolean;
 }
 
@@ -289,8 +289,8 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 </select>
               ) : (
                 <input
-                  type={field.type === "file" ? "file" : "text"}
-                  value={field.type !== "file" ? (customValues[field.id] ?? "") : undefined}
+                  type="text"
+                  value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
                   className="flex h-11 w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm placeholder:text-[#64748b] focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
                   placeholder={`Enter ${field.label.toLowerCase()}`}

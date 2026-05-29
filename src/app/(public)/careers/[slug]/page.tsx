@@ -101,7 +101,7 @@ export default async function JobApplicationPage({ params }: Props) {
   const status = getJobStatus(job);
 
   const customFields = (job.customFields ?? []) as Array<{
-    id: string; label: string; options?: string[]; type: "text" | "textarea" | "select" | "file"; required: boolean;
+    id: string; label: string; options?: string[]; type: "text" | "textarea" | "select"; required: boolean;
   }>;
 
   const requirementsList = (job.requirements ?? []) as string[];
