@@ -74,36 +74,41 @@ interface DeliverInput {
   html: string;
 }
 
+function sanitizeSubject(value: string): string {
+  return value.replace(/[\r\n]+/g, " ").trim();
+}
+
 async function deliver({ to, subject, html }: DeliverInput): Promise<EmailSendResult> {
   const resend = getResendClientOrNull();
   const from = getEmailFromOrNull();
+  const safeSubject = sanitizeSubject(subject);
 
   if (!resend || !from) {
     console.warn(`[email] skipping send to ${to}: ${SKIP_REASON}`);
-    await logSkipped(to, subject);
+    await logSkipped(to, safeSubject);
     return { ok: false, skipped: true };
   }
 
   try {
-    const result = await resend.emails.send({ from, to, subject, html });
+    const result = await resend.emails.send({ from, to, subject: safeSubject, html });
     if (result.error) {
       const errorMessage = stringifyError(result.error);
-      console.error(`[email] resend returned error for ${to}:`, result.error);
-      await logFailed(to, subject, errorMessage);
+      console.error(`[email] resend returned error for ${to}: ${errorMessage}`);
+      await logFailed(to, safeSubject, errorMessage);
       return { ok: false, skipped: false, error: errorMessage };
     }
     const id = result.data?.id;
     if (!id) {
       const errorMessage = "Resend returned no data and no error";
-      await logFailed(to, subject, errorMessage);
+      await logFailed(to, safeSubject, errorMessage);
       return { ok: false, skipped: false, error: errorMessage };
     }
-    await logSent(to, subject);
+    await logSent(to, safeSubject);
     return { ok: true, skipped: false, id };
   } catch (err) {
     const errorMessage = stringifyError(err);
-    console.error(`[email] resend threw for ${to}:`, err);
-    await logFailed(to, subject, errorMessage);
+    console.error(`[email] resend threw for ${to}: ${errorMessage}`);
+    await logFailed(to, safeSubject, errorMessage);
     return { ok: false, skipped: false, error: errorMessage };
   }
 }

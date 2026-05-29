@@ -127,7 +127,10 @@ export async function enqueueAdminNotificationEmails(
           applicantEmail: input.applicantEmail,
           jobUrl: input.jobUrl,
         },
-      }).then(() => to),
+      }).then((jobId) => {
+        if (!jobId) throw new Error("Queue accepted no job id");
+        return to;
+      }),
     ),
   );
 

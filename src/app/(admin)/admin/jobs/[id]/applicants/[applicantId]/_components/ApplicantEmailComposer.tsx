@@ -119,21 +119,25 @@ export function ApplicantEmailComposer({
       return;
     }
     start(async () => {
-      const result = await sendApplicantEmail({
-        applicantId,
-        subject: subject.trim(),
-        bodyHtml,
-      });
-      if (result.ok) {
-        toast.success(`Email sent to ${applicantEmail}`);
-        setSubject("");
-        setBodyHtml("");
-        setTemplateKey("custom");
-        setShowPreview(false);
-      } else if (result.skipped) {
-        toast.warning(result.error ?? "Email skipped — service not configured");
-      } else {
-        toast.error(result.error ?? "Failed to send email");
+      try {
+        const result = await sendApplicantEmail({
+          applicantId,
+          subject: subject.trim(),
+          bodyHtml,
+        });
+        if (result.ok) {
+          toast.success(`Email sent to ${applicantEmail}`);
+          setSubject("");
+          setBodyHtml("");
+          setTemplateKey("custom");
+          setShowPreview(false);
+        } else if (result.skipped) {
+          toast.warning(result.error ?? "Email skipped — service not configured");
+        } else {
+          toast.error(result.error ?? "Failed to send email");
+        }
+      } catch {
+        toast.error("Failed to send email");
       }
     });
   }
