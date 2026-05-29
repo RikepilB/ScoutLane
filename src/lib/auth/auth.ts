@@ -2,8 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db/prisma";
 import authConfig from "./auth.config";
-
-const initialAdminEmail = process.env.INITIAL_ADMIN_EMAIL?.toLowerCase().trim();
+import { handleSignIn } from "./sign-in";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as ReturnType<typeof PrismaAdapter>,
@@ -11,27 +10,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user, account }) {
-      if (account?.provider === "dev") return true;
-      const email = user.email?.toLowerCase().trim();
-      if (!email) return false;
-
-      if (initialAdminEmail && email === initialAdminEmail) {
-        try {
-          await prisma.user.upsert({
-            where: { email },
-            create: {
-              email,
-              name: user.name ?? null,
-              image: user.image ?? null,
-              role: "ADMIN",
-            },
-            update: { role: "ADMIN" },
-          });
-        } catch {
-          return true;
-        }
-      }
-      return true;
+      return handleSignIn({ user, account });
     },
     async jwt(params) {
       const token = await authConfig.callbacks!.jwt!(params);
