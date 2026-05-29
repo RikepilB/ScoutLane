@@ -17,6 +17,9 @@ export default defineConfig({
         url: "http://127.0.0.1:3000",
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
+        // Offload resume parsing to the queue so the public apply submit returns
+        // promptly in E2E (default mode parses inline via OpenRouter).
+        env: { RESUME_PARSE_MODE: "queue" },
       },
   projects: [
     {

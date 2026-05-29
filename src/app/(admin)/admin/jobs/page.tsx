@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { ExternalLink, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import type { JobStatus } from "@/schemas/job";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { StatusBadge } from "@/components/admin/StatusBadge";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { JobRowActions } from "@/components/admin/JobRowActions";
+import { JobCard } from "@/components/admin/JobCard";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
@@ -132,81 +131,21 @@ export default async function JobsListPage({ searchParams }: PageProps) {
             actionHref={filter === "all" ? "/admin/jobs/new" : undefined}
           />
         ) : (
-          <div className="animate-fade-up animate-fade-up-delay-2 overflow-hidden rounded-2xl border border-[#d4d9df] bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
-            <table className="w-full text-[13.5px]">
-              <thead>
-                <tr className="border-b border-[#d4d9df]">
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Title
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Status
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Applicants
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Location
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Type
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.10em] text-[#5f8ea0]"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    Created
-                  </th>
-                  <th className="px-4 py-2.5" />
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((job) => (
-                  <tr key={job.id} className="border-b border-[rgba(9,21,64,0.06)] transition-colors hover:bg-[#f1f5f9]">
-                    <td className="px-4 py-3.5">
-                      <Link
-                        href={`/admin/jobs/${job.id}`}
-                        className="text-[13.5px] font-medium text-[#0c1529] transition-colors hover:text-[#1B2CC1]"
-                      >
-                        {job.title}
-                      </Link>
-                      <div className="mt-0.5 flex items-center gap-1 text-[11px] text-[#5f8ea0]"
-                        style={{ fontFamily: "var(--font-mono)" }}>
-                        <span className="truncate">/{job.slug}</span>
-                        <Link
-                          href={`/careers/${job.slug}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex shrink-0 text-[#5f8ea0]/60 hover:text-[#5f8ea0]"
-                          title="Open public page"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <StatusBadge status={job.status} />
-                    </td>
-                    <td className="px-4 py-3.5 text-[13px] text-[#394050]">{job._count.applicants}</td>
-                    <td className="px-4 py-3.5 text-[13px] text-[#394050]">
-                      {job.location ?? <span className="text-[#5f8ea0]">—</span>}
-                    </td>
-                    <td className="px-4 py-3.5 text-[13px] text-[#394050]">
-                      {job.type ?? <span className="text-[#5f8ea0]">—</span>}
-                    </td>
-                    <td className="px-4 py-3.5 text-[13px] text-[#5f8ea0]">
-                      {formatDate(job.createdAt)}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <JobRowActions jobId={job.id} status={job.status} role={user?.role} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="animate-fade-up animate-fade-up-delay-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((job) => (
+              <JobCard
+                key={job.id}
+                id={job.id}
+                title={job.title}
+                slug={job.slug}
+                status={job.status}
+                applicantCount={job._count.applicants}
+                location={job.location}
+                type={job.type}
+                createdAt={formatDate(job.createdAt)}
+                role={user?.role as "ADMIN" | "RECRUITER" | "HIRING_MANAGER" | undefined}
+              />
+            ))}
           </div>
         )}
       </div>

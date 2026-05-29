@@ -21,6 +21,8 @@ Use this directory as the project handoff and implementation reference. Start wi
 | [INTEGRATIONS.md](./INTEGRATIONS.md) | External services: auth, database, storage, email, AI, webhooks, workers. |
 | [TESTING.md](./TESTING.md) | Unit, API, component, and E2E testing strategy. |
 | [UX-TEST-PROTOCOL.md](./UX-TEST-PROTOCOL.md) | Automated and moderated UX validation protocol. |
+| [ASSESSMENT-PROGRESS.md](./ASSESSMENT-PROGRESS.md) | Take-home requirement scoreboard: done / partial / remaining. |
+| [SECURITY-AUDIT.md](./SECURITY-AUDIT.md) | Security evidence, remaining risk, and next proof needed. |
 | [CLAUDE.md](./CLAUDE.md) | Claude/agent operating context for this project. |
 
 ## Session Reports
