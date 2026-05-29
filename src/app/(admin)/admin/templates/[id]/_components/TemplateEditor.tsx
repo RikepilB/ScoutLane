@@ -39,7 +39,7 @@ interface TemplateData {
 type CustomFieldRow = {
   id: string;
   label: string;
-  type: "text" | "textarea" | "select" | "file";
+  type: "text" | "textarea" | "select";
   required: boolean;
   options?: string[];
 };
@@ -437,7 +437,6 @@ export function TemplateEditor({
                       <option value="text">Text</option>
                       <option value="textarea">Textarea</option>
                       <option value="select">Select</option>
-                      <option value="file">File</option>
                     </select>
                   </div>
                   {field.type === "select" && (

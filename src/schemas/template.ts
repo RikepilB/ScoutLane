@@ -53,7 +53,7 @@ export const templateSchema = z.object({
       z.object({
         id: z.string(),
         label: z.string(),
-        type: z.enum(["text", "textarea", "select", "file"]),
+        type: z.enum(["text", "textarea", "select"]),
         required: z.boolean(),
         options: z.array(z.string()).optional(),
       }),
