@@ -108,15 +108,15 @@ Limiter: `src/lib/rate-limit.ts` (unit-tested, `src/lib/rate-limit.test.ts`).
 
 ### Dependency advisories — `pnpm audit --prod` (2026-05-28)
 
-`4 vulnerabilities: 1 high, 3 moderate.`
+Initial scan: `4 vulnerabilities: 1 high, 3 moderate.` After applying the `next` patch bump (below): **`3 vulnerabilities: 3 moderate`** — the high is resolved.
 
-| Severity | Package | Vulnerable | Patched | Note |
+| Severity | Package | Vulnerable | Patched | Status |
 |---|---|---|---|---|
-| **high** | `next` | `>=16.0.0 <16.2.6` (installed **16.2.5**) | `>=16.2.6` | Middleware / Proxy bypass in App Router (GHSA-26hh-7cqf-hhc6). **Directly affects the admin auth boundary.** Recommended fix: bump to `next@16.2.6` (patch) and re-verify build + middleware. |
-| moderate | `uuid` | `<11.1.1` | `>=11.1.1` | Transitive via `@google-cloud/storage` and `resend>svix` (GHSA-w5hq-g745-h8pq). Not on a user-input path here. |
-| moderate | (transitive) | — | — | Remaining moderates are transitive; see full `pnpm audit --prod`. |
+| ~~high~~ → fixed | `next` | `>=16.0.0 <16.2.6` | `>=16.2.6` | **FIXED** — bumped `next` 16.2.5 → **16.2.6** (GHSA-26hh-7cqf-hhc6, middleware/proxy bypass). Re-verified: typecheck + 124 tests + build pass. |
+| moderate | `uuid` | `<11.1.1` | `>=11.1.1` | Open — transitive via `@google-cloud/storage`, `resend>svix` (GHSA-w5hq-g745-h8pq). Not on a user-input path. No direct upgrade without bumping those parents. |
+| moderate (×2) | (transitive) | — | — | Open — transitive; see full `pnpm audit --prod`. |
 
-**Next proof needed:** apply the `next` patch bump, re-run `pnpm audit --prod`, record the reduced result.
+**Remaining risk:** 3 moderate transitive advisories (`uuid`) with no direct fix. **Next proof needed:** upstream `@google-cloud/storage` / `svix` releases that pull `uuid >= 11.1.1`.
 
 ### Secret scan (2026-05-28)
 
