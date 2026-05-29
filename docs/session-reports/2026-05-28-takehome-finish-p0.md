@@ -14,18 +14,25 @@ Verbatim from the user's `/goal`: ship the take-home submission finish plan — 
 
 Gate: `pnpm typecheck` clean · `pnpm lint` clean (1 pre-existing font warning) · `pnpm test -- --run` 124 passing · `pnpm build` succeeds.
 
-## What's still open
+- **next bump (DONE)** — `next` 16.2.5 → 16.2.6, closing the high middleware/proxy-bypass advisory (GHSA-26hh-7cqf-hhc6). `pnpm audit --prod` now 3 moderate (transitive `uuid`) only. Commit `7fbe50d`.
+- **G9 (DONE)** — `tests/e2e/smoke.spec.ts`: added public-apply-with-resume + admin-applicants-list/CSV tests, a minimal PDF fixture, and `RESUME_PARSE_MODE=queue` in the playwright webServer env so apply submit returns promptly (default mode parses inline via OpenRouter). Also fixed the pre-existing careers-landing test path (`/` not `/careers`). **Full smoke suite 7/7 green** (chromium, workers=1, against a seeded DB). Commit `c5cc90d`.
 
-- **G5** — user: GCP OAuth client + Vercel envs (Production + Preview).
-- **G7** — user: Vercel envs + Render workers + Resend; verify end-to-end on hosted URL.
+## What's still open (all user-manual)
+
+- **G5** — GCP OAuth client + Vercel envs (Production + Preview).
+- **G7** — Vercel envs + Render workers + Resend; verify end-to-end on hosted URL.
 - **G8** — Codespaces cold-clone verify.
-- **G9** — extend `tests/e2e/smoke.spec.ts` (apply with fixture PDF + applicants list/CSV).
 - **G10** — README + recorded demo + `v1.0.0-takehome` tag + prod PR.
-- **Dep advisory** — bump `next` 16.2.5 → 16.2.6 (high, middleware/proxy bypass, auth-relevant).
+
+## Commits (this session)
+
+`3b964a1` G3 file-field · `456662d` G4 dev upsert · `a27251b` G6 rate-limit+audit · `6139594` G1 docs · `7fbe50d` next 16.2.6 bump · `c5cc90d` G9 e2e. (G2 field-drop fix landed inside the external `23f16fc`.)
+
+Final gate: `pnpm typecheck` clean · `pnpm lint` clean (1 pre-existing font warning) · `pnpm test -- --run` 124 passing · `pnpm build` succeeds · `pnpm test:e2e` (chromium) 7/7.
 
 ## Next recommended action
 
-Get commit approval for the G1–G6 batch, then apply the `next@16.2.6` patch bump (auth-relevant high advisory) and continue with G9.
+All agent-side P0 code is committed and green; hand off to the user for G5/G7/G8/G10 (deploy + demo + tag), then open PR #79 → main.
 
 ## Risks/blockers encountered
 
