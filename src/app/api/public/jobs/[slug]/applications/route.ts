@@ -42,9 +42,12 @@ export async function POST(
     const ip = clientIpFromHeaders(request.headers);
     const rate = applicationRateLimiter.check(ip);
     if (!rate.allowed) {
+      // Clamp to >=1s: time elapsed between the check and here can drive the
+      // raw delta to zero or negative, which is an invalid Retry-After value.
+      const retryAfter = Math.max(1, Math.ceil((rate.resetAt - Date.now()) / 1000));
       return NextResponse.json(
         { success: false, error: "Too many requests. Please try again shortly." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil((rate.resetAt - Date.now()) / 1000)) } },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } },
       );
     }
 
