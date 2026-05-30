@@ -13,7 +13,7 @@ Goal IDs map to the take-home finish plan. Status reflects code in branch `feat/
 | G3 | Resolve custom `file` field type (removed; resume upload is the only file mechanism) | P0 | Done — form builder, ApplicationForm, templates, schema |
 | G4 | Persist `User` row on dev sign-in (ADMIN upsert + org) | P0 | Done — `sign-in.ts` + test |
 | G5 | Production Google OAuth (GCP client + Vercel envs) | P0 | Open — user manual (GCP + Vercel) |
-| G6 | Security audit evidence + per-IP rate limit | P0 | Done — `rate-limit.ts` + audit doc; **1 high dep advisory open (`next` patch)** |
+| G6 | Security audit evidence + per-IP rate limit | P0 | Done — `rate-limit.ts` + audit doc; advisory resolved (next bumped to 16.2.6) |
 | G7 | Hosted deploy verified end-to-end (Vercel + Render workers + Resend) | P0 | Open — user manual |
 | G8 | Codespaces cold-clone verify | P1 | Open |
 | G9 | Extend e2e smoke (apply with fixture + applicants list/CSV) | P1 | Open |
