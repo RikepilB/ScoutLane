@@ -11,6 +11,25 @@ interface ApplicantsPageProps {
   searchParams: Promise<Record<string, string>>;
 }
 
+// Allowed applicant status filter values — mirrors the `ApplicationStatus`
+// enum. Used to render the status chips AND to guard the value before it
+// reaches Prisma, since an unknown status would raise a query validation error.
+const APPLICATION_STATUSES = [
+  "NEW",
+  "REVIEWING",
+  "SHORTLISTED",
+  "INTERVIEW",
+  "OFFERED",
+  "REJECTED",
+  "WITHDRAWN",
+] as const;
+
+type ApplicationStatusFilter = (typeof APPLICATION_STATUSES)[number];
+
+function isApplicationStatus(value: string): value is ApplicationStatusFilter {
+  return (APPLICATION_STATUSES as readonly string[]).includes(value);
+}
+
 function extractFromData(data: unknown, field: string): string[] {
   if (!data || typeof data !== "object") return [];
   const d = data as Record<string, unknown>;
@@ -66,8 +85,8 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     where.pipelineStageId = filters.stageId;
   }
 
-  if (filters.status && filters.status !== "all") {
-    (where as Record<string, unknown>).status = filters.status;
+  if (filters.status && filters.status !== "all" && isApplicationStatus(filters.status)) {
+    where.status = filters.status;
   }
 
   if (filters.search?.trim()) {
@@ -279,7 +298,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
           >
             All
           </Link>
-          {["NEW", "REVIEWING", "SHORTLISTED", "INTERVIEW", "OFFERED", "REJECTED", "WITHDRAWN"].map((s) => {
+          {APPLICATION_STATUSES.map((s) => {
             const active = filters.status === s;
             return (
               <Link
@@ -455,6 +474,9 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
         </div>
         {filters.stageId && filters.stageId !== "all" ? (
           <input type="hidden" name="stageId" value={filters.stageId} />
+        ) : null}
+        {filters.status && filters.status !== "all" ? (
+          <input type="hidden" name="status" value={filters.status} />
         ) : null}
         <button
           type="submit"
