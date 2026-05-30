@@ -24,7 +24,11 @@ export function getResumeProcessingMode(): ResumeProcessingMode {
   if (raw === "queue" || raw === "queue-and-inline" || raw === "inline") {
     return raw;
   }
-  return "queue-and-inline";
+  // Default to async queue-only: the applicant must never wait for resume
+  // parsing to finish before seeing their submission confirmation. The
+  // `worker:resume` process picks up the job and parsing runs in the
+  // background (applicant shows a "Parsing…" state until it completes).
+  return "queue";
 }
 
 export async function submitJobApplicationImpl(
