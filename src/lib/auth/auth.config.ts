@@ -4,10 +4,61 @@ import Credentials from "next-auth/providers/credentials";
 
 export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER";
 
+/**
+ * Resolves the Google OAuth credentials from either the NextAuth-native
+ * (`AUTH_GOOGLE_*`) or the legacy (`GOOGLE_CLIENT_*`) env names, preferring the
+ * native ones. Empty strings are treated as unset so a blank `AUTH_GOOGLE_ID=""`
+ * transparently falls back to `GOOGLE_CLIENT_ID`.
+ */
+export function resolveGoogleCredentials(): {
+  clientId: string;
+  clientSecret: string;
+  idSource: "AUTH_GOOGLE_ID" | "GOOGLE_CLIENT_ID" | null;
+  secretSource: "AUTH_GOOGLE_SECRET" | "GOOGLE_CLIENT_SECRET" | null;
+} {
+  const authId = process.env.AUTH_GOOGLE_ID?.trim();
+  const legacyId = process.env.GOOGLE_CLIENT_ID?.trim();
+  const authSecret = process.env.AUTH_GOOGLE_SECRET?.trim();
+  const legacySecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+  return {
+    clientId: authId || legacyId || "",
+    clientSecret: authSecret || legacySecret || "",
+    idSource: authId ? "AUTH_GOOGLE_ID" : legacyId ? "GOOGLE_CLIENT_ID" : null,
+    secretSource: authSecret
+      ? "AUTH_GOOGLE_SECRET"
+      : legacySecret
+        ? "GOOGLE_CLIENT_SECRET"
+        : null,
+  };
+}
+
 export function isGoogleAuthConfigured(): boolean {
-  return (
-    Boolean(process.env.AUTH_GOOGLE_ID?.trim()) ||
-    Boolean(process.env.GOOGLE_CLIENT_ID?.trim())
+  const { clientId, clientSecret } = resolveGoogleCredentials();
+  return Boolean(clientId && clientSecret);
+}
+
+/**
+ * Dev-only visibility into which Google credentials the running process
+ * actually resolved. Surfaces a stale/wrong/empty `client_id` (the usual cause
+ * of Google's `invalid_client` / "OAuth client was not found") in the server
+ * log instead of failing silently at the consent screen. Never logs the secret.
+ */
+export function logGoogleAuthDiagnostics(): void {
+  if (process.env.NODE_ENV !== "development") return;
+  const { clientId, clientSecret, idSource, secretSource } = resolveGoogleCredentials();
+  if (!clientId && !clientSecret) return; // dev-login-only setup; nothing to report
+  const idPrefix = clientId ? `${clientId.split("-")[0]}…(${clientId.length} chars)` : "(empty)";
+  if (!clientId || !clientSecret) {
+    console.warn(
+      `[auth] Partial Google OAuth credentials: clientId=${idPrefix} from ${idSource ?? "none"}, ` +
+        `secret ${secretSource ? "set from " + secretSource : "MISSING"}. ` +
+        "Google sign-in will be disabled until both are set.",
+    );
+    return;
+  }
+  console.warn(
+    `[auth] Google OAuth using clientId prefix ${idPrefix} (source ${idSource}, secret source ${secretSource}). ` +
+      "If sign-in returns invalid_client, this prefix must match an existing OAuth client in Google Cloud Console.",
   );
 }
 
@@ -15,12 +66,18 @@ export function isDevLoginAllowed(): boolean {
   return process.env.NODE_ENV === "development" || !isGoogleAuthConfigured();
 }
 
+logGoogleAuthDiagnostics();
+
 export default {
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET,
-    }),
+    ...(isGoogleAuthConfigured()
+      ? [
+          Google({
+            clientId: resolveGoogleCredentials().clientId,
+            clientSecret: resolveGoogleCredentials().clientSecret,
+          }),
+        ]
+      : []),
     ...(isDevLoginAllowed()
       ? [
           Credentials({

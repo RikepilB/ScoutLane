@@ -12,6 +12,7 @@ import { RescoreButton } from "./_components/RescoreButton";
 import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
 import { DeleteApplicantButton } from "./_components/DeleteApplicantButton";
 import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
+import { canEmbedResume } from "@/lib/resume/preview";
 
 function matchBadgeColor(score: number | null): string {
   if (score === null) return "bg-slate-100 text-slate-500";
@@ -31,21 +32,35 @@ function getAppBaseUrl(): string {
   return baseUrl.replace(/\/$/, "");
 }
 
-function getResumeEmbedSrc(resumeUrl: string): string | null {
-  const pathOnly = (() => {
-    try {
-      return new URL(resumeUrl, getAppBaseUrl()).pathname;
-    } catch {
-      return resumeUrl;
-    }
-  })();
-  const canEmbedDirectly = /\.(pdf|csv|txt)$/i.test(pathOnly);
-
-  if (canEmbedDirectly) {
+function getResumePathname(resumeUrl: string): string {
+  try {
+    return new URL(resumeUrl, getAppBaseUrl()).pathname;
+  } catch {
     return resumeUrl;
   }
+}
 
-  return null;
+/**
+ * Extracts the stored object name from a locally-served resume URL
+ * (`/api/resumes/<objectName>`) so we can look up its content type. Returns
+ * null for externally-hosted URLs (e.g. signed GCS object URLs).
+ */
+function getResumeObjectName(resumeUrl: string): string | null {
+  const pathname = getResumePathname(resumeUrl);
+  const prefix = "/api/resumes/";
+  if (!pathname.startsWith(prefix)) return null;
+  const objectName = pathname.slice(prefix.length);
+  if (!objectName) return null;
+  return objectName
+    .split("/")
+    .map((segment) => {
+      try {
+        return decodeURIComponent(segment);
+      } catch {
+        return segment;
+      }
+    })
+    .join("/");
 }
 
 interface ApplicantDetailPageProps {
@@ -107,7 +122,27 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
       ? Math.round(applicant.score * 100)
       : null;
   const hasParsedData = applicant.parsingStatus === "COMPLETED";
-  const resumeEmbedSrc = applicant.resumeUrl ? getResumeEmbedSrc(applicant.resumeUrl) : null;
+
+  // Decide inline preview by the stored MIME type (resume URLs frequently lack
+  // a usable extension), falling back to the URL extension for externally
+  // hosted files. PDFs/text embed; Word documents are download-only.
+  const resumeObjectName = applicant.resumeUrl
+    ? getResumeObjectName(applicant.resumeUrl)
+    : null;
+  const resumeFile = resumeObjectName
+    ? await prisma.resumeFile.findUnique({
+        where: { objectName: resumeObjectName },
+        select: { contentType: true },
+      })
+    : null;
+  const resumeEmbedSrc =
+    applicant.resumeUrl &&
+    canEmbedResume({
+      contentType: resumeFile?.contentType,
+      pathname: getResumePathname(applicant.resumeUrl),
+    })
+      ? applicant.resumeUrl
+      : null;
 
   const confidenceColors: Record<string, string> = {
     high: "bg-emerald-100 text-emerald-700",

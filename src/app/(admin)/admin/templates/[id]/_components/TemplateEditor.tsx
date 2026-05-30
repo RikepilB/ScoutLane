@@ -335,15 +335,17 @@ export function TemplateEditor({
             </label>
           </section>
 
-          <label className="space-y-2 text-sm font-medium">
-            Pipeline stages (one per line)
-            <Textarea
-              name="stageNames"
-              className="min-h-24"
-              defaultValue={template.stageNames.join("\n")}
-              placeholder="New&#10;Screening&#10;Interview&#10;Offer&#10;Hired"
-            />
-          </label>
+          {/*
+            Pipeline stages are not hand-edited on the template form — they are
+            managed per job in the pipeline view. The template's stage set is
+            preserved on save via this hidden field so existing stages are not
+            dropped when the template is updated.
+          */}
+          <input
+            type="hidden"
+            name="stageNames"
+            value={template.stageNames.join("\n")}
+          />
 
           <section>
             <QuestionsEditor defaultValue={template.questions as string[]} />

@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it, afterEach, vi } from "vitest";
-import { isDevLoginAllowed, isGoogleAuthConfigured } from "@/lib/auth/auth.config";
+import {
+  isDevLoginAllowed,
+  isGoogleAuthConfigured,
+  resolveGoogleCredentials,
+} from "@/lib/auth/auth.config";
 import authConfig, { type AdminRole } from "@/lib/auth/auth.config";
 
 const jwtCallback = authConfig.callbacks!.jwt!;
@@ -11,13 +15,15 @@ afterEach(() => {
 });
 
 describe("isGoogleAuthConfigured", () => {
-  it("returns true when AUTH_GOOGLE_ID is set", () => {
+  it("returns true when AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET are set", () => {
     vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "some-secret");
     expect(isGoogleAuthConfigured()).toBe(true);
   });
 
-  it("returns true when GOOGLE_CLIENT_ID is set (fallback)", () => {
+  it("returns true when GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set", () => {
     vi.stubEnv("GOOGLE_CLIENT_ID", "some-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "some-secret");
     expect(isGoogleAuthConfigured()).toBe(true);
   });
 
@@ -27,7 +33,55 @@ describe("isGoogleAuthConfigured", () => {
 
   it("returns false when AUTH_GOOGLE_ID is empty string", () => {
     vi.stubEnv("AUTH_GOOGLE_ID", "");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "some-secret");
     expect(isGoogleAuthConfigured()).toBe(false);
+  });
+
+  it("returns false when only ID is set without secret", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    expect(isGoogleAuthConfigured()).toBe(false);
+  });
+});
+
+describe("resolveGoogleCredentials", () => {
+  it("prefers AUTH_GOOGLE_* over legacy GOOGLE_CLIENT_*", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "auth-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "auth-secret");
+    vi.stubEnv("GOOGLE_CLIENT_ID", "legacy-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "legacy-secret");
+    const r = resolveGoogleCredentials();
+    expect(r.clientId).toBe("auth-id");
+    expect(r.clientSecret).toBe("auth-secret");
+    expect(r.idSource).toBe("AUTH_GOOGLE_ID");
+    expect(r.secretSource).toBe("AUTH_GOOGLE_SECRET");
+  });
+
+  it("falls back to GOOGLE_CLIENT_* when AUTH_GOOGLE_ID is empty string", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "");
+    vi.stubEnv("GOOGLE_CLIENT_ID", "legacy-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "legacy-secret");
+    const r = resolveGoogleCredentials();
+    expect(r.clientId).toBe("legacy-id");
+    expect(r.clientSecret).toBe("legacy-secret");
+    expect(r.idSource).toBe("GOOGLE_CLIENT_ID");
+    expect(r.secretSource).toBe("GOOGLE_CLIENT_SECRET");
+  });
+
+  it("returns empty strings and null sources when nothing is set", () => {
+    const r = resolveGoogleCredentials();
+    expect(r.clientId).toBe("");
+    expect(r.clientSecret).toBe("");
+    expect(r.idSource).toBeNull();
+    expect(r.secretSource).toBeNull();
+  });
+
+  it("trims surrounding whitespace from values", () => {
+    vi.stubEnv("AUTH_GOOGLE_ID", "  spaced-id  ");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "  spaced-secret  ");
+    const r = resolveGoogleCredentials();
+    expect(r.clientId).toBe("spaced-id");
+    expect(r.clientSecret).toBe("spaced-secret");
   });
 });
 
@@ -40,12 +94,14 @@ describe("isDevLoginAllowed", () => {
   it("disallows dev login in production when Google auth is configured via AUTH_GOOGLE_ID", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("AUTH_GOOGLE_ID", "some-id");
+    vi.stubEnv("AUTH_GOOGLE_SECRET", "some-secret");
     expect(isDevLoginAllowed()).toBe(false);
   });
 
   it("disallows dev login in production when Google auth is configured via GOOGLE_CLIENT_ID", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("GOOGLE_CLIENT_ID", "some-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "some-secret");
     expect(isDevLoginAllowed()).toBe(false);
   });
 
