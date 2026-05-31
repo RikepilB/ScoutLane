@@ -49,25 +49,25 @@ describe("POST /api/admin/jobs/[id]/applicants/[applicantId]/move", () => {
     expect(moveApplicant).not.toHaveBeenCalled();
   });
 
-  it("delegates to moveApplicantImpl and returns 200 on success", async () => {
+  it("delegates to moveApplicantImpl (with route jobId) and returns 200 on success", async () => {
     getCurrentUser.mockResolvedValue({ id: "u1", organizationId: "org1" });
     moveApplicant.mockResolvedValue({ success: true });
     const res = await POST(req({ targetStageId: "s2" }), ctx);
-    expect(moveApplicant).toHaveBeenCalledWith("a1", "s2");
+    expect(moveApplicant).toHaveBeenCalledWith("a1", "s2", "job1");
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ success: true });
   });
 
-  it("maps 'Applicant not found' to 404", async () => {
+  it("maps code NOT_FOUND to 404", async () => {
     getCurrentUser.mockResolvedValue({ id: "u1", organizationId: "org1" });
-    moveApplicant.mockResolvedValue({ success: false, error: "Applicant not found" });
+    moveApplicant.mockResolvedValue({ success: false, code: "NOT_FOUND", error: "Applicant not found" });
     const res = await POST(req({ targetStageId: "s2" }), ctx);
     expect(res.status).toBe(404);
   });
 
-  it("maps other service errors to 400", async () => {
+  it("maps other service errors (e.g. INVALID_STAGE) to 400", async () => {
     getCurrentUser.mockResolvedValue({ id: "u1", organizationId: "org1" });
-    moveApplicant.mockResolvedValue({ success: false, error: "Invalid stage" });
+    moveApplicant.mockResolvedValue({ success: false, code: "INVALID_STAGE", error: "Invalid stage" });
     const res = await POST(req({ targetStageId: "bad" }), ctx);
     expect(res.status).toBe(400);
   });

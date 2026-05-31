@@ -14,7 +14,7 @@ const bodySchema = z.object({ targetStageId: z.string().min(1, "targetStageId is
  * org scoping, logs the transition, and dispatches webhooks/integrations).
  */
 export async function POST(request: Request, { params }: RouteProps) {
-  const { applicantId } = await params;
+  const { id: jobId, applicantId } = await params;
 
   const user = await getCurrentUserWithOrganization();
   if (!user) {
@@ -32,9 +32,11 @@ export async function POST(request: Request, { params }: RouteProps) {
     );
   }
 
-  const result = await moveApplicantImpl(applicantId, parsed.data.targetStageId);
+  // Pass the route's jobId so the service rejects an applicant that belongs to a
+  // different job (defense-in-depth on top of the org-scoping it already does).
+  const result = await moveApplicantImpl(applicantId, parsed.data.targetStageId, jobId);
   if (!result.success) {
-    const status = result.error === "Applicant not found" ? 404 : 400;
+    const status = result.code === "NOT_FOUND" ? 404 : 400;
     return Response.json(result, { status });
   }
 

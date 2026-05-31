@@ -24,7 +24,18 @@ function deriveStatus(stageName: string): ApplicationStatus {
   return stageNameToStatus[stageName.toUpperCase()] ?? "REVIEWING";
 }
 
-export async function moveApplicantImpl(applicantId: string, newStageId: string) {
+/**
+ * Moves an applicant to a new pipeline stage.
+ *
+ * @param expectedJobId Optional defense-in-depth: when provided (e.g. from a
+ * REST route's `[id]` segment) the applicant's `jobId` must match, otherwise the
+ * move is rejected as not-found. Org-scoping is always enforced via the session.
+ */
+export async function moveApplicantImpl(
+  applicantId: string,
+  newStageId: string,
+  expectedJobId?: string,
+) {
   const user = await requireSession();
 
   const existing = await prisma.applicant.findUnique({
@@ -43,8 +54,12 @@ export async function moveApplicantImpl(applicantId: string, newStageId: string)
       },
     },
   });
-  if (!existing || existing.job.organizationId !== user.organizationId) {
-    return { success: false, error: "Applicant not found" };
+  if (
+    !existing ||
+    existing.job.organizationId !== user.organizationId ||
+    (expectedJobId !== undefined && existing.jobId !== expectedJobId)
+  ) {
+    return { success: false, code: "NOT_FOUND" as const, error: "Applicant not found" };
   }
 
   const newStage = await prisma.pipelineStage.findUnique({
@@ -52,7 +67,7 @@ export async function moveApplicantImpl(applicantId: string, newStageId: string)
     select: { id: true, name: true, jobId: true },
   });
   if (!newStage || newStage.jobId !== existing.jobId) {
-    return { success: false, error: "Invalid stage" };
+    return { success: false, code: "INVALID_STAGE" as const, error: "Invalid stage" };
   }
 
   if (existing.pipelineStageId === newStageId) {
