@@ -1,6 +1,4 @@
 // @vitest-environment node
-import { mkdir, rm, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
@@ -10,6 +8,7 @@ const {
   extractTextMock,
   parseResumeMock,
   scoreApplicantMock,
+  readFileMock,
 } = vi.hoisted(() => ({
   applicantUpdate: vi.fn(),
   applicantFindUnique: vi.fn(),
@@ -17,7 +16,16 @@ const {
   extractTextMock: vi.fn(),
   parseResumeMock: vi.fn(),
   scoreApplicantMock: vi.fn(),
+  readFileMock: vi.fn(),
 }));
+
+// Mock only the filesystem read the SUT performs. Using a real shared directory
+// here races with `upload.test.ts`, which recursively deletes
+// `LOCAL_RESUME_STORAGE_DIR` between this test's write and read (flaky in CI).
+vi.mock("node:fs/promises", async (importActual) => {
+  const actual = await importActual<typeof import("node:fs/promises")>();
+  return { ...actual, readFile: readFileMock };
+});
 
 vi.mock("@/lib/db/prisma", () => ({
   prisma: {
@@ -48,7 +56,6 @@ import {
   parseApplicantResumeFromBuffer,
   parseApplicantResumeFromUrl,
 } from "./parseApplicantResume";
-import { LOCAL_RESUME_STORAGE_DIR } from "@/lib/storage/upload";
 
 beforeEach(() => {
   applicantUpdate.mockReset();
@@ -57,6 +64,7 @@ beforeEach(() => {
   extractTextMock.mockReset();
   parseResumeMock.mockReset();
   scoreApplicantMock.mockReset();
+  readFileMock.mockReset();
   applicantUpdate.mockResolvedValue({});
   scoreApplicantMock.mockResolvedValue(undefined);
 });
@@ -118,11 +126,9 @@ describe("parseApplicantResumeFromBuffer", () => {
 describe("parseApplicantResumeFromUrl", () => {
   it("loads local app resume URLs from storage without depending on NEXT_PUBLIC_APP_URL", async () => {
     const objectName = "resumes/2026-05/local-resume.pdf";
-    const filePath = path.join(LOCAL_RESUME_STORAGE_DIR, objectName);
     const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
     process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
-    await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(filePath, Buffer.from("pdf bytes"));
+    readFileMock.mockResolvedValue(Buffer.from("pdf bytes"));
     applicantFindUnique.mockResolvedValue({ data: null });
     extractTextMock.mockResolvedValue("Resume text body");
     parseResumeMock.mockResolvedValue(PARSED_RESUME);
@@ -137,9 +143,11 @@ describe("parseApplicantResumeFromUrl", () => {
         process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
       }
       fetchMock.mockRestore();
-      await rm(filePath, { force: true });
     }
 
+    // The SUT reads from the local storage path; we assert it never falls back
+    // to network fetch or the DB blob.
+    expect(readFileMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
     expect(extractTextMock).toHaveBeenCalledWith(
       Buffer.from("pdf bytes"),
