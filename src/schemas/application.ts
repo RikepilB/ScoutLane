@@ -1,20 +1,9 @@
 import { z } from "zod";
-
-const acceptedResumeTypes = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "text/csv",
-  "application/csv",
-  "application/vnd.ms-excel",
-] as const;
-
-const acceptedResumeExtensions = [".pdf", ".doc", ".docx", ".csv"] as const;
-
-function hasAcceptedResumeExtension(fileName: string): boolean {
-  const normalized = fileName.toLowerCase();
-  return acceptedResumeExtensions.some((extension) => normalized.endsWith(extension));
-}
+import {
+  MAX_RESUME_BYTES,
+  hasAllowedResumeExtension,
+  isAllowedResumeMime,
+} from "@/lib/storage/upload-limits";
 
 export const resumeFileSchema = z
   .custom<File>(
@@ -26,17 +15,14 @@ export const resumeFileSchema = z
       return;
     }
 
-    if (value.size > 5 * 1024 * 1024) {
+    if (value.size > MAX_RESUME_BYTES) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Resume file must be 5 MB or smaller",
       });
     }
 
-    const hasAcceptedMimeType = acceptedResumeTypes.includes(
-      value.type as (typeof acceptedResumeTypes)[number],
-    );
-    if (!hasAcceptedMimeType && !hasAcceptedResumeExtension(value.name ?? "")) {
+    if (!isAllowedResumeMime(value.type) && !hasAllowedResumeExtension(value.name ?? "")) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Resume must be a PDF, DOC, DOCX, or CSV file",
