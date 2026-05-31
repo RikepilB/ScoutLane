@@ -7,6 +7,20 @@ const optionalShortString = (max: number, label: string) =>
     .optional()
     .or(z.literal("").transform(() => undefined));
 
+/** A single application form field configured on a job/template. */
+export const customFieldSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  type: z.enum(["text", "textarea", "select"]),
+  required: z.boolean(),
+  options: z.array(z.string()).optional(),
+});
+
+/** Ordered list of configured application form fields. */
+export const customFieldsSchema = z.array(customFieldSchema).max(50);
+
+export type CustomFieldInput = z.infer<typeof customFieldSchema>;
+
 export const templateSchema = z.object({
   name: z
     .string()
@@ -48,16 +62,7 @@ export const templateSchema = z.object({
     )
     .min(1, "Add at least one assessment question")
     .max(12, "Templates can include up to 12 screening questions"),
-  customFields: z
-    .array(
-      z.object({
-        id: z.string(),
-        label: z.string(),
-        type: z.enum(["text", "textarea", "select"]),
-        required: z.boolean(),
-        options: z.array(z.string()).optional(),
-      }),
-    )
+  customFields: customFieldsSchema
     .optional()
     .default([]),
   department: optionalShortString(80, "Department"),

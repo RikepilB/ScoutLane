@@ -104,7 +104,12 @@ Limiter: `src/lib/rate-limit.ts` (unit-tested, `src/lib/rate-limit.test.ts`).
 
 ### Upload caps + content type
 
-`resumeFileSchema` (`src/schemas/application.ts`) enforces **5 MB** max + MIME/extension allowlist (PDF/DOC/DOCX/CSV). Custom application fields are now text-only — the `file` custom-field type was removed (resume upload is the only file mechanism). **Remaining risk:** no magic-byte sniffing. **Next proof needed:** content-sniff the uploaded buffer (`file-type`).
+Limits are centralized in `src/lib/storage/upload-limits.ts` (single source of truth): **5 MB** max + MIME/extension allowlist (PDF/DOC/DOCX/CSV). They are enforced at two layers:
+
+1. **Request boundary** — `resumeFileSchema` (`src/schemas/application.ts`) consumes the shared constants and rejects on submit.
+2. **Storage layer (defense-in-depth)** — `uploadResumeFile` (`src/lib/storage/upload.ts`) re-asserts via `assertResumeUploadAllowed`, so any future caller of the storage entrypoint cannot bypass the guard.
+
+Unit-tested in `src/lib/storage/upload-limits.test.ts` (size cap, empty file, MIME/extension allow + reject). Custom application fields are text-only — the `file` custom-field type was removed (resume upload is the only file mechanism). **Remaining risk:** no magic-byte sniffing (trusts the declared MIME/extension). **Next proof needed:** content-sniff the uploaded buffer (`file-type`).
 
 ### Dependency advisories — `pnpm audit --prod` (2026-05-28)
 
