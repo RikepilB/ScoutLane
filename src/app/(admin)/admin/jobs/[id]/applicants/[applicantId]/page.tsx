@@ -10,6 +10,7 @@ import { NotesSection } from "./_components/NotesSection";
 import { RetryParsingButton } from "./_components/RetryParsingButton";
 import { RescoreButton } from "./_components/RescoreButton";
 import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
+import { ApplicantCustomFields, type ConfiguredCustomField } from "./_components/ApplicantCustomFields";
 import { DeleteApplicantButton } from "./_components/DeleteApplicantButton";
 import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
 import { canEmbedResume } from "@/lib/resume/preview";
@@ -78,7 +79,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
   const applicant = await prisma.applicant.findFirst({
     where: { id: applicantId, jobId, job: { organizationId } },
     include: {
-      job: { select: { title: true, slug: true } },
+      job: { select: { title: true, slug: true, customFields: true } },
       pipelineStage: { select: { id: true, name: true } },
       noteEntries: {
         orderBy: { createdAt: "desc" },
@@ -116,6 +117,12 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
       scoredAt?: string;
     };
   };
+
+  const submittedCustomFields =
+    (applicant.data as { customFields?: Record<string, string> } | null)?.customFields ?? {};
+  const configuredCustomFields = (Array.isArray(applicant.job.customFields)
+    ? applicant.job.customFields
+    : []) as ConfiguredCustomField[];
 
   const matchScorePct =
     applicant.score !== null && applicant.score !== undefined
@@ -470,6 +477,11 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           </div>
         </div>
       )}
+
+      <ApplicantCustomFields
+        configured={configuredCustomFields}
+        submitted={submittedCustomFields}
+      />
 
       <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
         <h3 className="text-sm font-semibold text-slate-900">Activity timeline</h3>

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import path from "node:path";
 import { slugify } from "@/lib/slug";
 import { isStorageConfigured, getStorageConfig, getBucket } from "./client";
+import { assertResumeUploadAllowed } from "./upload-limits";
 
 export const LOCAL_RESUME_STORAGE_DIR = path.join(process.cwd(), ".data", "resumes");
 
@@ -237,11 +238,16 @@ export async function uploadFileBuffer({
 }
 
 export async function uploadResumeFile(file: File): Promise<UploadedFileResult> {
+  const filename = file.name || "resume.pdf";
+  // Defense-in-depth: re-assert the request-boundary limits so any caller of
+  // this storage entrypoint cannot bypass the size/type guard.
+  assertResumeUploadAllowed({ size: file.size, mime: file.type, filename });
+
   const buffer = Buffer.from(await file.arrayBuffer());
 
   return uploadFileBuffer({
     buffer,
     contentType: file.type || "application/octet-stream",
-    filename: file.name || "resume.pdf",
+    filename,
   });
 }

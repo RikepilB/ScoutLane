@@ -73,6 +73,36 @@ Response:
 { "customFields": [] }
 ```
 
+### `POST /api/admin/jobs/[id]/form`
+
+Saves the job's application form fields. Authenticated + org-scoped. Body is
+validated with the shared `customFieldsSchema` (`src/schemas/template.ts`).
+Accepts either a bare array or `{ "customFields": [...] }`.
+
+Body:
+
+```json
+{ "customFields": [{ "id": "city", "label": "City", "type": "text", "required": false }] }
+```
+
+Responses: `200 { success: true }`, `400` invalid fields, `401`/`403` auth,
+`404` job not found / not in org. Delegates to `saveCustomFieldsImpl`.
+
+### `POST /api/admin/jobs/[id]/applicants/[applicantId]/move`
+
+REST parity for the Kanban move. Authenticated + org-scoped. Delegates to
+`moveApplicantImpl`, which updates stage/status, creates a `StageTransition`,
+and dispatches active webhooks + the per-stage integration.
+
+Body:
+
+```json
+{ "targetStageId": "stage_id" }
+```
+
+Responses: `200 { success: true }`, `400` invalid body / invalid stage,
+`401`/`403` auth, `404` applicant not found / not in org.
+
 ### `GET /api/admin/jobs/[id]/pipeline`
 
 Returns ordered pipeline stages with applicants grouped into each stage.
@@ -219,9 +249,9 @@ Flow:
 |---|---|---|---|
 | Create/update/delete jobs | Server Actions | Yes: authenticated job command endpoints | P1 |
 | Publish/close/archive jobs | Server Actions/service logic | Yes: explicit status endpoints or job update command | P1 |
-| Custom job form fields | REST read + Server Action save | Yes: authenticated write endpoint with schema validation | P0 |
+| Custom job form fields | REST read + write (`POST .../form`) + Server Action | Done: authenticated write endpoint with `customFieldsSchema` validation | Done |
 | Pipeline stage CRUD/reorder | Server Actions | Yes: stage create/update/delete/reorder endpoints | P1 |
-| Move applicant | Server Action | Yes: audited move endpoint that creates `StageTransition` | P0 |
+| Move applicant | REST (`POST .../move`) + Server Action | Done: audited move endpoint creates `StageTransition` + dispatches webhooks/integration | Done |
 | Applicant notes/interview date | Server Actions | Yes: note and applicant update endpoints | P1 |
 | Parsed resume correction | Server Action | Yes: JSON/schema-safe correction endpoint | P1 |
 | Parse retry | REST | Already REST exposed | Done |
