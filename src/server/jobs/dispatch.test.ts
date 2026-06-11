@@ -166,4 +166,23 @@ describe("dispatchAdminNotificationEmails", () => {
     );
     expect(result).toEqual({ enqueued: ["a@x.com", "b@x.com"], failed: [] });
   });
+
+  it("keeps the fan-out result empty on inline send failures (they land in EmailLog)", async () => {
+    process.env.JOB_RUNNER = "inline";
+    dispatchEmailJobMock.mockResolvedValue({ ok: false, skipped: false, error: "Send failed" });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const result = await dispatchAdminNotificationEmails(input);
+      await flushInlineTasks();
+
+      // Inline delivery is fire-and-forget post-response: failures are logged
+      // to EmailLog by the send functions, never surfaced to the caller.
+      expect(dispatchEmailJobMock).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({ enqueued: ["a@x.com", "b@x.com"], failed: [] });
+      expect(consoleError).toHaveBeenCalledTimes(2);
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
 });

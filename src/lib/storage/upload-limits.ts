@@ -16,9 +16,10 @@ export const ALLOWED_RESUME_MIME = [
   "text/csv",
   "application/csv",
   "application/vnd.ms-excel",
+  "text/plain",
 ] as const;
 
-export const ALLOWED_RESUME_EXTENSIONS = [".pdf", ".doc", ".docx", ".csv"] as const;
+export const ALLOWED_RESUME_EXTENSIONS = [".pdf", ".doc", ".docx", ".csv", ".txt"] as const;
 
 export function hasAllowedResumeExtension(filename: string): boolean {
   const normalized = filename.toLowerCase();
