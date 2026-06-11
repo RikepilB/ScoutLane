@@ -1,17 +1,25 @@
-import { createRequire } from "node:module";
 import mammoth from "mammoth";
 
-const require = createRequire(import.meta.url);
+type PdfParseCtor = new (input: { data: Uint8Array }) => {
+  getText: () => Promise<{ text?: string }>;
+  destroy?: () => Promise<void> | void;
+};
 
 type PdfParseModule = {
-  default?: (data: Buffer) => Promise<{ text?: string }>;
-  PDFParse?: {
-    new (input: { data: Uint8Array }): {
-      getText: () => Promise<{ text?: string }>;
-      destroy?: () => Promise<void> | void;
-    };
-  };
+  default?: ((data: Buffer) => Promise<{ text?: string }>) | { PDFParse?: PdfParseCtor };
+  PDFParse?: PdfParseCtor;
 };
+
+// pdf-parse is listed in next.config.ts `serverExternalPackages`, so both
+// webpack and Turbopack leave this dynamic import external and Node resolves
+// the real package at runtime. (A createRequire(import.meta.url) + require()
+// combo broke under the Next bundler — see commit history.)
+let pdfParsePromise: Promise<PdfParseModule> | null = null;
+
+function loadPdfParse(): Promise<PdfParseModule> {
+  pdfParsePromise ??= import("pdf-parse") as Promise<PdfParseModule>;
+  return pdfParsePromise;
+}
 
 function extension(filename: string): string {
   const base = filename.split(/[/\\]/).pop() ?? filename;
@@ -35,15 +43,15 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, filename: stri
   }
 
   if (ext === "pdf") {
-    const mod = require("pdf-parse") as PdfParseModule;
-    const legacyParse = mod.default;
+    const mod = await loadPdfParse();
 
-    if (typeof legacyParse === "function") {
-      const parsed = await legacyParse(buffer);
+    if (typeof mod.default === "function") {
+      const parsed = await mod.default(buffer);
       return (parsed.text ?? "").trim();
     }
 
-    const PDFParse = mod.PDFParse;
+    const PDFParse =
+      mod.PDFParse ?? (typeof mod.default === "object" ? mod.default?.PDFParse : undefined);
     if (!PDFParse) {
       throw new Error("PDF parser is unavailable.");
     }

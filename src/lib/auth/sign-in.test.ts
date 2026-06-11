@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { userUpsert, orgFindFirst, orgCreate } = vi.hoisted(() => ({
+const { userUpsert, userFindUnique, orgFindFirst, orgCreate } = vi.hoisted(() => ({
   userUpsert: vi.fn(),
+  userFindUnique: vi.fn(),
   orgFindFirst: vi.fn(),
   orgCreate: vi.fn(),
 }));
 
 vi.mock("@/lib/db/prisma", () => ({
   prisma: {
-    user: { upsert: userUpsert },
+    user: { upsert: userUpsert, findUnique: userFindUnique },
     organization: { findFirst: orgFindFirst, create: orgCreate },
   },
 }));
@@ -17,10 +18,13 @@ import { handleSignIn } from "./sign-in";
 
 beforeEach(() => {
   userUpsert.mockReset();
+  userFindUnique.mockReset();
   orgFindFirst.mockReset();
   orgCreate.mockReset();
   orgFindFirst.mockResolvedValue({ id: "org-1" });
+  userFindUnique.mockResolvedValue(null);
   userUpsert.mockResolvedValue({ id: "u1", email: "dev@scoutlane.local", role: "ADMIN" });
+  delete process.env.AUTH_ALLOWED_EMAIL_DOMAIN;
 });
 
 describe("handleSignIn — dev provider", () => {
@@ -78,11 +82,80 @@ describe("handleSignIn — Google provider", () => {
         user: { email: "boss@scoutlane.com", name: "Boss" },
         account: { provider: "google" },
       });
-      expect(userUpsert).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { email: "boss@scoutlane.com" } }),
-      );
+      const arg = userUpsert.mock.calls[0][0];
+      expect(arg.where).toEqual({ email: "boss@scoutlane.com" });
+      expect(arg.create).toEqual(expect.objectContaining({ role: "ADMIN" }));
+      expect(arg.update).toEqual(expect.objectContaining({ role: "ADMIN" }));
     } finally {
       delete process.env.INITIAL_ADMIN_EMAIL;
     }
+  });
+
+  it("upserts a regular Google user as RECRUITER with an organization attached", async () => {
+    const ok = await handleSignIn({
+      user: { email: "Jane@Example.com", name: "Jane" },
+      account: { provider: "google" },
+    });
+
+    expect(ok).toBe(true);
+    const arg = userUpsert.mock.calls[0][0];
+    expect(arg.where).toEqual({ email: "jane@example.com" });
+    expect(arg.create).toEqual(
+      expect.objectContaining({ role: "RECRUITER", organizationId: "org-1" }),
+    );
+    expect(arg.update).not.toHaveProperty("role");
+  });
+
+  it("never reassigns an existing organization membership", async () => {
+    userFindUnique.mockResolvedValue({ organizationId: "org-existing" });
+
+    await handleSignIn({
+      user: { email: "jane@example.com" },
+      account: { provider: "google" },
+    });
+
+    const arg = userUpsert.mock.calls[0][0];
+    expect(arg.update).not.toHaveProperty("organizationId");
+    expect(orgFindFirst).not.toHaveBeenCalled();
+  });
+
+  it("attaches an organization to a user that has none", async () => {
+    userFindUnique.mockResolvedValue({ organizationId: null });
+
+    await handleSignIn({
+      user: { email: "jane@example.com" },
+      account: { provider: "google" },
+    });
+
+    const arg = userUpsert.mock.calls[0][0];
+    expect(arg.update).toEqual(expect.objectContaining({ organizationId: "org-1" }));
+  });
+
+  it("does not block sign-in when the DB is unavailable", async () => {
+    userFindUnique.mockRejectedValue(new Error("db down"));
+
+    const ok = await handleSignIn({
+      user: { email: "jane@example.com" },
+      account: { provider: "google" },
+    });
+
+    expect(ok).toBe(true);
+  });
+
+  it("rejects emails outside AUTH_ALLOWED_EMAIL_DOMAIN when set", async () => {
+    process.env.AUTH_ALLOWED_EMAIL_DOMAIN = "scoutlane.com";
+
+    const rejected = await handleSignIn({
+      user: { email: "stranger@gmail.com" },
+      account: { provider: "google" },
+    });
+    const allowed = await handleSignIn({
+      user: { email: "jane@scoutlane.com" },
+      account: { provider: "google" },
+    });
+
+    expect(rejected).toBe(false);
+    expect(allowed).toBe(true);
+    expect(userUpsert).toHaveBeenCalledTimes(1);
   });
 });

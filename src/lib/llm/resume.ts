@@ -67,6 +67,9 @@ For confidence: use "high" when the field is clearly stated in the resume,
 If a field is null, set its confidence to "low".
 
 Only use information present in the resume. Use null or empty arrays when missing.
+Output exactly the listed keys and no others.
+Lowercase the email. graduationYear must be a 4-digit year string when known.
+Deduplicate skills and use canonical names (e.g. "TypeScript", not "typescript" or "TS").
 
 Resume:
 `;

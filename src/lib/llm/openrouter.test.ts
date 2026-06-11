@@ -22,10 +22,10 @@ afterEach(() => {
 });
 
 describe("OpenRouter model selection", () => {
-  it("uses a current free OpenRouter model as the default model", () => {
+  it("uses Gemini 2.5 Flash as the default model", () => {
     delete process.env.OPENROUTER_MODEL;
 
-    expect(getOpenRouterModel()).toBe("openrouter/owl-alpha");
+    expect(getOpenRouterModel()).toBe("google/gemini-2.5-flash");
   });
 
   it("deduplicates configured models and keeps built-in fallbacks", () => {
@@ -36,8 +36,8 @@ describe("OpenRouter model selection", () => {
       "model-a",
       "model-b",
       "openrouter/auto",
-      "openrouter/owl-alpha",
-      "openrouter/free",
+      "google/gemini-2.5-flash",
+      "google/gemini-2.5-flash-lite",
     ]);
   });
 });

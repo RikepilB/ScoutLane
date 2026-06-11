@@ -4,8 +4,11 @@ import { prisma } from "@/lib/db/prisma";
 import { canAcceptApplications } from "@/lib/jobs/status";
 import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
-import { enqueueAdminNotificationEmails, enqueueEmailJob } from "@/server/queues/emails";
-import { enqueueResumeParseJob } from "@/server/queues/resume";
+import {
+  dispatchAdminNotificationEmails,
+  dispatchEmail,
+  dispatchResumeParse,
+} from "@/server/jobs/dispatch";
 import {
   DUPLICATE_APPLICATION_MESSAGE,
   type ApplicationActionResult,
@@ -175,9 +178,11 @@ export async function submitJobApplicationImpl(
 
   try {
     if (resumeProcessingMode === "queue" || resumeProcessingMode === "queue-and-inline") {
-      await enqueueResumeParseJob({
+      await dispatchResumeParse({
         applicantId: applicant.id,
         resumeUrl: upload.url,
+        buffer: resumeBuffer,
+        filename: resumeFilename,
       });
     }
 
@@ -196,7 +201,7 @@ export async function submitJobApplicationImpl(
   }
 
   try {
-    await enqueueEmailJob({
+    await dispatchEmail({
       kind: "applicant-confirmation",
       payload: { to: email, applicantName, jobTitle: job.title },
     });
@@ -224,7 +229,7 @@ export async function submitJobApplicationImpl(
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
     const dashboardUrl = `${appUrl}/admin/jobs/${job.id}/applicants/${applicant.id}`;
     try {
-      const fanOut = await enqueueAdminNotificationEmails({
+      const fanOut = await dispatchAdminNotificationEmails({
         adminEmails,
         jobTitle: job.title,
         applicantName,

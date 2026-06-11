@@ -56,13 +56,12 @@ vi.mock("@/lib/resume/parseApplicantResume", () => ({
   parseApplicantResumeFromBuffer: parseApplicantResumeFromBufferMock,
 }));
 
-vi.mock("@/server/queues/emails", () => ({
-  enqueueAdminNotificationEmails: enqueueAdminNotificationEmailsMock,
-  enqueueEmailJob: enqueueEmailJobMock,
-}));
-
-vi.mock("@/server/queues/resume", () => ({
-  enqueueResumeParseJob: enqueueResumeParseJobMock,
+// The impl now routes background work through the job dispatcher, which
+// either enqueues to pg-boss (worker mode) or runs inline via after().
+vi.mock("@/server/jobs/dispatch", () => ({
+  dispatchAdminNotificationEmails: enqueueAdminNotificationEmailsMock,
+  dispatchEmail: enqueueEmailJobMock,
+  dispatchResumeParse: enqueueResumeParseJobMock,
 }));
 
 vi.mock("next/cache", () => ({

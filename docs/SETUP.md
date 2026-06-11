@@ -132,7 +132,15 @@ GOOGLE_CLIENT_ID="123456789012-abcdefg.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxx"
 ```
 
-Either pair is accepted. If you set both, `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` takes priority.
+Either pair is accepted. If you set both, `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` takes priority. **Do not keep both pairs around** — a stale value in the losing convention is the classic cause of `invalid_client` after rotating credentials. The dev server logs a `[auth]` warning when both are set with different values.
+
+Optional: restrict who can sign in by email domain:
+
+```
+AUTH_ALLOWED_EMAIL_DOMAIN="yourcompany.com"
+```
+
+When set, Google sign-ins from any other domain are rejected. Leave unset to accept any Google account (they land as `RECRUITER`).
 
 ```
 AUTH_SECRET="<generate with: openssl rand -base64 32>"
@@ -157,6 +165,13 @@ pnpm dev
 
 If you see "Error 400: redirect_uri_mismatch" the URI you used does not match what is configured in Google Cloud — re-check `NEXT_PUBLIC_APP_URL` and the redirect URIs you saved.
 
+**Troubleshooting `invalid_client` / "OAuth client was not found":**
+
+1. Check the dev server log for the `[auth] Google OAuth using clientId prefix …` line — that prefix must match an OAuth client that still exists under **APIs & Services → Credentials** in the GCP project. If the client was deleted, create a new one (§2.3) and update the env vars.
+2. If the log warns that both `AUTH_GOOGLE_ID` and `GOOGLE_CLIENT_ID` are set with different values, delete the stale one — `AUTH_GOOGLE_ID` wins.
+3. Empty strings count as unset: `AUTH_GOOGLE_ID=""` silently falls back to `GOOGLE_CLIENT_ID`. Keep exactly one pair populated.
+4. On Vercel, set `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, and `NEXT_PUBLIC_APP_URL` in the project's environment variables and redeploy — env edits do not apply to running deployments.
+
 ### 2.6 Disabling the dev provider in production
 
 The dev Credentials provider is only registered when `NODE_ENV === "development"` OR `AUTH_GOOGLE_ID` is empty. In production, **always** set a real `AUTH_GOOGLE_ID` so the dev provider is suppressed.
@@ -177,8 +192,8 @@ Resume parsing uses OpenRouter through the OpenAI-compatible SDK. If `OPENROUTER
 ```
 OPENROUTER_API_KEY="sk-or-v1-xxxxxxxxxxxxxxxxxxxx"
 # Optional. Defaults to the current free OpenRouter fallback used by ScoutLane.
-OPENROUTER_MODEL="openrouter/owl-alpha"
-OPENROUTER_FALLBACK_MODELS="openrouter/free,openrouter/auto"
+OPENROUTER_MODEL="google/gemini-2.5-flash"
+OPENROUTER_FALLBACK_MODELS="google/gemini-2.5-flash-lite,openrouter/auto"
 ```
 
 ### 3.3 What happens when parsing fails
@@ -187,32 +202,43 @@ The applicant row is updated with `parsingStatus="FAILED"` and the error message
 
 ---
 
-## 4. Background workers
+## 4. Background jobs
 
-ScoutLane runs two long-running worker processes off the web server. They cannot run on Vercel serverless — host them on Render, Railway, Fly, or any process supervisor with persistent execution.
+Resume parsing and email delivery go through a job dispatcher (`src/server/jobs/dispatch.ts`) with two execution modes, controlled by `JOB_RUNNER`:
+
+| Mode | How it runs | When |
+|---|---|---|
+| `inline` | After the HTTP response in the same serverless invocation, via `next/server` `after()`. No worker process needed. | **Default on Vercel.** |
+| `worker` | Enqueued to pg-boss; long-running workers process the queue. | **Default elsewhere.** Requires the workers below. |
+
+**Vercel deployments need no worker** — leave `JOB_RUNNER` unset and parsing + emails run inline after each response. Note the inline LLM call is bounded by the function's `maxDuration` (60s on the apply route); if it gets cut, the admin Retry button re-runs parsing.
+
+### Worker mode processes
 
 | Process | Command | Triggered by |
 |---|---|---|
-| Resume parser | `pnpm worker:resume` | New applications → `enqueueResumeParseJob` |
-| Email sender | `pnpm worker:emails` | New applications, admin sends, job alerts → `enqueueEmailJob` |
+| Resume parser | `pnpm worker:resume` | New applications → resume parse jobs |
+| Email sender | `pnpm worker:emails` | New applications → confirmation + admin notification jobs |
 
 Both workers share the same `DATABASE_URL` as the web app (pg-boss stores jobs in PostgreSQL). On startup they create their queues if missing and run forever.
 
-**Resume parsing mode:** `RESUME_PARSE_MODE` controls how resume parsing runs. The default is `"queue-and-inline"` — parsing happens immediately during submission AND gets enqueued for redundancy. In production with high traffic, switch to `"queue"` to avoid blocking application submissions, and run `pnpm worker:resume` on a persistent host.
+**Resume parsing mode:** `RESUME_PARSE_MODE` controls how parsing is triggered on submission. The default is `"queue"` — the applicant never waits; the dispatcher runs it via `JOB_RUNNER`. `"inline"` parses synchronously inside the request (local diagnostics), `"queue-and-inline"` does both.
 
 ### 4.1 Local dev
 
-With the default `RESUME_PARSE_MODE=queue-and-inline`, you only need the email worker for local dev:
+Simplest local setup — no workers at all:
+
+```
+JOB_RUNNER=inline
+pnpm dev
+```
+
+Or keep `JOB_RUNNER=worker` (the non-Vercel default) and run both workers:
 
 ```
 pnpm dev
-pnpm worker:emails
-```
-
-If you switch to `RESUME_PARSE_MODE=queue`, also start the resume worker:
-
-```
 pnpm worker:resume
+pnpm worker:emails
 ```
 
 ### 4.2 Hosted (recommended on Render)

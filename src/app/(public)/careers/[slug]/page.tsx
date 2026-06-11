@@ -9,6 +9,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin, Briefcase, DollarSign, ArrowLeft, Building, LogIn } from "lucide-react";
 
+// Inline job runner work (resume parse + email sends via after()) can outlive
+// the default serverless duration; give the apply action room to finish.
+export const maxDuration = 60;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
