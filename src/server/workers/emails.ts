@@ -1,35 +1,8 @@
 import "dotenv/config";
 
 import type { Job } from "pg-boss";
-import {
-  sendAdminNewApplicationEmail,
-  sendApplicationConfirmationEmail,
-  sendCustomEmail,
-  sendJobAlertConfirmation,
-  sendNewJobNotification,
-  type EmailSendResult,
-} from "@/lib/email/send";
 import { EMAIL_SEND_QUEUE, getEmailQueue, type EmailJob } from "@/server/queues/emails";
-
-async function dispatch(job: EmailJob): Promise<EmailSendResult> {
-  switch (job.kind) {
-    case "admin-new-application":
-      return sendAdminNewApplicationEmail(job.payload);
-    case "applicant-confirmation":
-      return sendApplicationConfirmationEmail(job.payload);
-    case "custom":
-      return sendCustomEmail(job.payload);
-    case "job-alert-confirmation":
-      return sendJobAlertConfirmation(job.payload.to, job.payload.token);
-    case "new-job-notification":
-      return sendNewJobNotification(
-        job.payload.to,
-        job.payload.jobTitle,
-        job.payload.jobUrl,
-        job.payload.token,
-      );
-  }
-}
+import { dispatchEmailJob } from "@/server/services/emails/dispatch-email-job";
 
 async function main() {
   const boss = await getEmailQueue();
@@ -40,7 +13,7 @@ async function main() {
     async (jobs: Job<EmailJob>[]) => {
       const [job] = jobs;
       if (!job) return;
-      const result = await dispatch(job.data);
+      const result = await dispatchEmailJob(job.data);
       if (result.skipped) {
         console.warn(`[email-worker] skipped ${job.data.kind} for ${job.data.payload.to}`);
         return;

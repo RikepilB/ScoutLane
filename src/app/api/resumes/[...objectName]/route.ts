@@ -1,65 +1,48 @@
-import { readFile, stat } from "node:fs/promises";
-import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
-import { LOCAL_RESUME_STORAGE_DIR } from "@/lib/storage/upload";
+import { canEmbedResume } from "@/lib/resume/preview";
+import { buildContentDisposition, readResumeObject } from "@/lib/resume/storage-read";
 
 export const dynamic = "force-dynamic";
 
-const CONTENT_TYPES: Record<string, string> = {
-  ".doc": "application/msword",
-  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ".pdf": "application/pdf",
-  ".csv": "text/csv; charset=utf-8",
-};
-
-function resolveLocalResumePath(parts: string[]): string | null {
-  const root = path.resolve(LOCAL_RESUME_STORAGE_DIR);
-  const filePath = path.resolve(root, ...parts);
-  return filePath === root || !filePath.startsWith(`${root}${path.sep}`) ? null : filePath;
-}
-
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ objectName: string[] }> },
 ) {
   const { objectName } = await params;
   const storedObjectName = objectName.join("/");
-  const filePath = resolveLocalResumePath(objectName);
 
-  if (!filePath) {
+  let resume;
+  try {
+    resume = await readResumeObject(storedObjectName);
+  } catch {
     return NextResponse.json({ error: "Invalid resume path" }, { status: 400 });
   }
 
-  try {
-    const [file, info] = await Promise.all([readFile(filePath), stat(filePath)]);
-    const ext = path.extname(filePath).toLowerCase();
-
-    return new NextResponse(file, {
-      headers: {
-        "Cache-Control": "private, max-age=0, no-cache",
-        "Content-Length": String(info.size),
-        "Content-Type": CONTENT_TYPES[ext] ?? "application/octet-stream",
-        "X-Content-Type-Options": "nosniff",
+  if (!resume) {
+    return NextResponse.json(
+      {
+        error:
+          "Resume file not found. It may have been uploaded in a different environment or before durable storage was enabled.",
       },
-    });
-  } catch {
-    const stored = await prisma.resumeFile.findUnique({
-      where: { objectName: storedObjectName },
-      select: { contentType: true, data: true, size: true },
-    });
-
-    if (!stored) {
-      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
-    }
-
-    return new NextResponse(Buffer.from(stored.data), {
-      headers: {
-        "Cache-Control": "private, max-age=0, no-cache",
-        "Content-Length": String(stored.size),
-        "Content-Type": stored.contentType,
-        "X-Content-Type-Options": "nosniff",
-      },
-    });
+      { status: 404 },
+    );
   }
+
+  // request.nextUrl is absent when invoked with a plain Request (e.g. tests).
+  const requestUrl = request.nextUrl ?? new URL(request.url);
+  const forceDownload = requestUrl.searchParams.get("download") === "1";
+  const disposition =
+    !forceDownload && canEmbedResume({ contentType: resume.contentType })
+      ? "inline"
+      : "attachment";
+
+  return new NextResponse(new Uint8Array(resume.buffer), {
+    headers: {
+      "Cache-Control": "private, max-age=0, no-cache",
+      "Content-Disposition": buildContentDisposition(disposition, resume.filename),
+      "Content-Length": String(resume.size),
+      "Content-Type": resume.contentType,
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
 }

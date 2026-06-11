@@ -19,6 +19,36 @@ const EMBEDDABLE_CONTENT_TYPES: ReadonlySet<string> = new Set([
 
 const EMBEDDABLE_EXTENSIONS = /\.(pdf|csv|txt)$/i;
 
+const DOCX_CONTENT_TYPES: ReadonlySet<string> = new Set([
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+const DOCX_EXTENSION = /\.docx$/i;
+
+export type ResumePreviewKind = "native" | "docx-html" | "none";
+
+/**
+ * Decides how the admin UI previews a resume: `native` renders the original
+ * file in an iframe (PDF/text), `docx-html` renders the server-converted HTML
+ * preview route, `none` falls back to download-only.
+ */
+export function getResumePreviewKind(input: {
+  contentType?: string | null;
+  pathname?: string | null;
+}): ResumePreviewKind {
+  if (canEmbedResume(input)) {
+    return "native";
+  }
+  const contentType = input.contentType?.split(";")[0]?.trim().toLowerCase();
+  if (contentType && DOCX_CONTENT_TYPES.has(contentType)) {
+    return "docx-html";
+  }
+  if (!contentType && input.pathname && DOCX_EXTENSION.test(input.pathname)) {
+    return "docx-html";
+  }
+  return "none";
+}
+
 export function canEmbedResume(input: {
   contentType?: string | null;
   pathname?: string | null;
