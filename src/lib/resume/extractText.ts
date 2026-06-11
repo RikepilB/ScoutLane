@@ -19,15 +19,31 @@ let domGlobalsPromise: Promise<void> | null = null;
 function ensurePdfDomGlobals(): Promise<void> {
   domGlobalsPromise ??= (async () => {
     const g = globalThis as Record<string, unknown>;
-    if (typeof g.DOMMatrix !== "undefined") return;
-    try {
-      const canvas = await import("@napi-rs/canvas");
-      g.DOMMatrix ??= canvas.DOMMatrix;
-      g.ImageData ??= canvas.ImageData;
-      g.Path2D ??= canvas.Path2D;
-    } catch (err) {
-      // Parsing of text-only PDFs may still succeed without the polyfill.
-      console.warn("[extractText] canvas polyfill unavailable:", err);
+    if (typeof g.DOMMatrix === "undefined") {
+      try {
+        const canvas = await import("@napi-rs/canvas");
+        g.DOMMatrix ??= canvas.DOMMatrix;
+        g.ImageData ??= canvas.ImageData;
+        g.Path2D ??= canvas.Path2D;
+      } catch (err) {
+        // Parsing of text-only PDFs may still succeed without the polyfill.
+        console.warn("[extractText] canvas polyfill unavailable:", err);
+      }
+    }
+    // Vercel's file tracer never sees pdfjs's runtime-computed worker import,
+    // so pdf.worker.mjs is missing from the deployed bundle and every parse
+    // dies with `Setting up fake worker failed: "Cannot find module ..."`.
+    // Importing the worker eagerly fixes both halves: the literal specifier
+    // gets the file traced into the bundle, and the module sets
+    // globalThis.pdfjsWorker, which pdfjs prefers over importing workerSrc.
+    // The version must match pdf-parse's transitive pdfjs-dist (pinned exact
+    // in package.json).
+    if (typeof g.pdfjsWorker === "undefined") {
+      try {
+        await import("pdfjs-dist/legacy/build/pdf.worker.mjs");
+      } catch (err) {
+        console.warn("[extractText] pdfjs worker preload failed:", err);
+      }
     }
   })();
   return domGlobalsPromise;
