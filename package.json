@@ -50,6 +50,7 @@
     "next-auth": "5.0.0-beta.30",
     "openai": "^6.0.0",
     "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "5.4.296",
     "pg": "8.19.0",
     "pg-boss": "^12.18.2",
     "postcss": "8.5.13",
