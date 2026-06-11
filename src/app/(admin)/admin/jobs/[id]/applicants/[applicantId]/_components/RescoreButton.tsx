@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 interface RescoreButtonProps {
   applicantId: string;
@@ -15,8 +16,20 @@ export function RescoreButton({ applicantId, disabled }: RescoreButtonProps) {
 
   function handleClick() {
     startTransition(async () => {
-      await fetch(`/api/admin/applicants/${applicantId}/rescore`, { method: "POST" });
-      router.refresh();
+      try {
+        const response = await fetch(`/api/admin/applicants/${applicantId}/rescore`, {
+          method: "POST",
+        });
+        if (!response.ok) {
+          const body = (await response.json().catch(() => null)) as { error?: string } | null;
+          toast.error(body?.error ?? "Re-scoring failed.");
+          return;
+        }
+        toast.success("Match score updated.");
+        router.refresh();
+      } catch {
+        toast.error("Re-scoring failed. Check your connection and try again.");
+      }
     });
   }
 
