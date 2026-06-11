@@ -177,8 +177,8 @@ Resume parsing uses OpenRouter through the OpenAI-compatible SDK. If `OPENROUTER
 ```
 OPENROUTER_API_KEY="sk-or-v1-xxxxxxxxxxxxxxxxxxxx"
 # Optional. Defaults to the current free OpenRouter fallback used by ScoutLane.
-OPENROUTER_MODEL="openrouter/owl-alpha"
-OPENROUTER_FALLBACK_MODELS="openrouter/free,openrouter/auto"
+OPENROUTER_MODEL="google/gemini-2.5-flash"
+OPENROUTER_FALLBACK_MODELS="google/gemini-2.5-flash-lite,openrouter/auto"
 ```
 
 ### 3.3 What happens when parsing fails

@@ -4,8 +4,8 @@ let cached: OpenAI | null | undefined;
 
 type ChatMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam;
 
-const DEFAULT_OPENROUTER_MODEL = "openrouter/owl-alpha";
-const BUILT_IN_FALLBACK_MODELS = ["openrouter/free", "openrouter/auto"];
+const DEFAULT_OPENROUTER_MODEL = "google/gemini-2.5-flash";
+const BUILT_IN_FALLBACK_MODELS = ["google/gemini-2.5-flash-lite", "openrouter/auto"];
 const DEFAULT_OPENROUTER_TIMEOUT_MS = 20_000;
 
 export function getOpenRouterClient(): OpenAI | null {
