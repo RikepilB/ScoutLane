@@ -67,7 +67,8 @@ export async function dispatchEmail(job: EmailJob): Promise<void> {
  * Fans out admin "new application" notifications. In `worker` mode the queue
  * reports per-recipient enqueue failures; in `inline` mode delivery happens
  * post-response, so there is nothing to report yet (send failures land in
- * EmailLog).
+ * EmailLog). Inline sends run sequentially inside a single after() task —
+ * parallel sends trip Resend's requests-per-second limit.
  */
 export async function dispatchAdminNotificationEmails(
   input: AdminNotificationFanOutInput,
@@ -76,18 +77,27 @@ export async function dispatchAdminNotificationEmails(
     return enqueueAdminNotificationEmails(input);
   }
 
-  for (const to of input.adminEmails) {
-    await dispatchEmail({
-      kind: "admin-new-application",
-      payload: {
-        to,
-        jobTitle: input.jobTitle,
-        applicantName: input.applicantName,
-        applicantEmail: input.applicantEmail,
-        jobUrl: input.jobUrl,
-      },
-    });
-  }
+  const jobs: EmailJob[] = input.adminEmails.map((to) => ({
+    kind: "admin-new-application",
+    payload: {
+      to,
+      jobTitle: input.jobTitle,
+      applicantName: input.applicantName,
+      applicantEmail: input.applicantEmail,
+      jobUrl: input.jobUrl,
+    },
+  }));
+
+  runAfterResponse("email-admin-fan-out", async () => {
+    for (const job of jobs) {
+      const result = await dispatchEmailJob(job);
+      if (result.skipped) {
+        console.warn(`[jobs:email] skipped ${job.kind} for ${job.payload.to}`);
+      } else if (!result.ok) {
+        console.error(`[jobs:email] ${job.kind} failed for ${job.payload.to}: ${result.error}`);
+      }
+    }
+  });
 
   return { enqueued: [...input.adminEmails], failed: [] };
 }
