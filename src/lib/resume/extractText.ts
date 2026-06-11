@@ -10,6 +10,29 @@ type PdfParseModule = {
   PDFParse?: PdfParseCtor;
 };
 
+// pdfjs (inside pdf-parse) references browser canvas globals that Node does
+// not provide. On Vercel's runtime this surfaced as "ReferenceError: DOMMatrix
+// is not defined" and failed every PDF parse, so the globals are polyfilled
+// from @napi-rs/canvas before pdf-parse loads.
+let domGlobalsPromise: Promise<void> | null = null;
+
+function ensurePdfDomGlobals(): Promise<void> {
+  domGlobalsPromise ??= (async () => {
+    const g = globalThis as Record<string, unknown>;
+    if (typeof g.DOMMatrix !== "undefined") return;
+    try {
+      const canvas = await import("@napi-rs/canvas");
+      g.DOMMatrix ??= canvas.DOMMatrix;
+      g.ImageData ??= canvas.ImageData;
+      g.Path2D ??= canvas.Path2D;
+    } catch (err) {
+      // Parsing of text-only PDFs may still succeed without the polyfill.
+      console.warn("[extractText] canvas polyfill unavailable:", err);
+    }
+  })();
+  return domGlobalsPromise;
+}
+
 // pdf-parse is listed in next.config.ts `serverExternalPackages`, so both
 // webpack and Turbopack leave this dynamic import external and Node resolves
 // the real package at runtime. (A createRequire(import.meta.url) + require()
@@ -17,7 +40,9 @@ type PdfParseModule = {
 let pdfParsePromise: Promise<PdfParseModule> | null = null;
 
 function loadPdfParse(): Promise<PdfParseModule> {
-  pdfParsePromise ??= import("pdf-parse") as Promise<PdfParseModule>;
+  pdfParsePromise ??= ensurePdfDomGlobals().then(
+    () => import("pdf-parse") as Promise<PdfParseModule>,
+  );
   return pdfParsePromise;
 }
 
