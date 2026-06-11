@@ -47,6 +47,27 @@ export function logGoogleAuthDiagnostics(): void {
   if (process.env.NODE_ENV !== "development") return;
   const { clientId, clientSecret, idSource, secretSource } = resolveGoogleCredentials();
   if (!clientId && !clientSecret) return; // dev-login-only setup; nothing to report
+
+  // A stale value in the losing convention is a classic source of
+  // invalid_client: the dev edits one var while the other (older) one wins
+  // in a different environment. Never log the values themselves.
+  const authId = process.env.AUTH_GOOGLE_ID?.trim();
+  const legacyId = process.env.GOOGLE_CLIENT_ID?.trim();
+  if (authId && legacyId && authId !== legacyId) {
+    console.warn(
+      "[auth] Both AUTH_GOOGLE_ID and GOOGLE_CLIENT_ID are set with different values; " +
+        "AUTH_GOOGLE_ID wins. Remove the stale variable to avoid invalid_client surprises.",
+    );
+  }
+  const authSecret = process.env.AUTH_GOOGLE_SECRET?.trim();
+  const legacySecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+  if (authSecret && legacySecret && authSecret !== legacySecret) {
+    console.warn(
+      "[auth] Both AUTH_GOOGLE_SECRET and GOOGLE_CLIENT_SECRET are set with different values; " +
+        "AUTH_GOOGLE_SECRET wins. Remove the stale variable.",
+    );
+  }
+
   const idPrefix = clientId ? `${clientId.split("-")[0]}…(${clientId.length} chars)` : "(empty)";
   if (!clientId || !clientSecret) {
     console.warn(

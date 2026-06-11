@@ -132,7 +132,15 @@ GOOGLE_CLIENT_ID="123456789012-abcdefg.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxx"
 ```
 
-Either pair is accepted. If you set both, `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` takes priority.
+Either pair is accepted. If you set both, `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` takes priority. **Do not keep both pairs around** — a stale value in the losing convention is the classic cause of `invalid_client` after rotating credentials. The dev server logs a `[auth]` warning when both are set with different values.
+
+Optional: restrict who can sign in by email domain:
+
+```
+AUTH_ALLOWED_EMAIL_DOMAIN="yourcompany.com"
+```
+
+When set, Google sign-ins from any other domain are rejected. Leave unset to accept any Google account (they land as `RECRUITER`).
 
 ```
 AUTH_SECRET="<generate with: openssl rand -base64 32>"
@@ -156,6 +164,13 @@ pnpm dev
 - You should be redirected to `/admin`.
 
 If you see "Error 400: redirect_uri_mismatch" the URI you used does not match what is configured in Google Cloud — re-check `NEXT_PUBLIC_APP_URL` and the redirect URIs you saved.
+
+**Troubleshooting `invalid_client` / "OAuth client was not found":**
+
+1. Check the dev server log for the `[auth] Google OAuth using clientId prefix …` line — that prefix must match an OAuth client that still exists under **APIs & Services → Credentials** in the GCP project. If the client was deleted, create a new one (§2.3) and update the env vars.
+2. If the log warns that both `AUTH_GOOGLE_ID` and `GOOGLE_CLIENT_ID` are set with different values, delete the stale one — `AUTH_GOOGLE_ID` wins.
+3. Empty strings count as unset: `AUTH_GOOGLE_ID=""` silently falls back to `GOOGLE_CLIENT_ID`. Keep exactly one pair populated.
+4. On Vercel, set `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, and `NEXT_PUBLIC_APP_URL` in the project's environment variables and redeploy — env edits do not apply to running deployments.
 
 ### 2.6 Disabling the dev provider in production
 
