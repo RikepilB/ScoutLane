@@ -13,7 +13,7 @@ import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEdit
 import { ApplicantCustomFields, type ConfiguredCustomField } from "./_components/ApplicantCustomFields";
 import { DeleteApplicantButton } from "./_components/DeleteApplicantButton";
 import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
-import { canEmbedResume } from "@/lib/resume/preview";
+import { getResumePreviewKind } from "@/lib/resume/preview";
 
 function matchBadgeColor(score: number | null): string {
   if (score === null) return "bg-slate-100 text-slate-500";
@@ -132,7 +132,8 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
 
   // Decide inline preview by the stored MIME type (resume URLs frequently lack
   // a usable extension), falling back to the URL extension for externally
-  // hosted files. PDFs/text embed; Word documents are download-only.
+  // hosted files. PDFs/text embed natively; Word documents render through the
+  // sanitized HTML preview route.
   const resumeObjectName = applicant.resumeUrl
     ? getResumeObjectName(applicant.resumeUrl)
     : null;
@@ -142,14 +143,19 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
         select: { contentType: true },
       })
     : null;
+  const resumePreviewKind = applicant.resumeUrl
+    ? getResumePreviewKind({
+        contentType: resumeFile?.contentType,
+        pathname: getResumePathname(applicant.resumeUrl),
+      })
+    : "none";
   const resumeEmbedSrc =
-    applicant.resumeUrl &&
-    canEmbedResume({
-      contentType: resumeFile?.contentType,
-      pathname: getResumePathname(applicant.resumeUrl),
-    })
+    resumePreviewKind === "native"
       ? applicant.resumeUrl
-      : null;
+      : resumePreviewKind === "docx-html" && resumeObjectName
+        ? `/api/resumes/preview/${resumeObjectName}`
+        : null;
+  const resumeEmbedSandbox = resumePreviewKind === "docx-html" ? "" : undefined;
 
   const confidenceColors: Record<string, string> = {
     high: "bg-emerald-100 text-emerald-700",
@@ -295,6 +301,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
                 <iframe
                   title={`${applicant.name} resume`}
                   src={resumeEmbedSrc}
+                  sandbox={resumeEmbedSandbox}
                   className="h-[720px] w-full bg-white"
                 />
               </div>
