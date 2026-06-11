@@ -71,6 +71,8 @@ coverage/
 .coverage
 .nyc_output
 .playwright-report/
+playwright-report/
+.playwright-mcp/
 test-results/
 .vitest/
 .eslintcache
