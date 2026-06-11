@@ -1,11 +1,9 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { extractTextFromResumeBuffer } from "@/lib/resume/extractText";
+import { readResumeObject } from "@/lib/resume/storage-read";
 import { parseResumeFromText, type ParsedResume } from "@/lib/llm/resume";
 import { scoreApplicantInline } from "@/lib/match/scoreApplicant";
-import { LOCAL_RESUME_STORAGE_DIR } from "@/lib/storage/upload";
 
 const MAX_PARSING_ERROR_LENGTH = 240;
 const PARSING_SECRET_PATTERNS: ReadonlyArray<RegExp> = [
@@ -109,36 +107,17 @@ function getResumeObjectName(resumeUrl: string): string | null {
     : null;
 }
 
-function resolveLocalResumePath(objectName: string): string | null {
-  const root = path.resolve(LOCAL_RESUME_STORAGE_DIR);
-  const filePath = path.resolve(root, ...objectName.split("/"));
-  return filePath === root || !filePath.startsWith(`${root}${path.sep}`) ? null : filePath;
-}
-
 async function readStoredResume(
   resumeUrl: string,
 ): Promise<{ buffer: Buffer; filename: string } | null> {
   const objectName = getResumeObjectName(resumeUrl);
   if (!objectName) return null;
 
-  const filePath = resolveLocalResumePath(objectName);
-  if (!filePath) {
-    throw new Error("Invalid resume path.");
+  const stored = await readResumeObject(objectName);
+  if (!stored) {
+    throw new Error("Could not load stored resume.");
   }
-
-  const filename = objectName.split("/").pop() || "resume.pdf";
-  try {
-    return { buffer: await readFile(filePath), filename };
-  } catch {
-    const stored = await prisma.resumeFile.findUnique({
-      where: { objectName },
-      select: { data: true },
-    });
-    if (!stored) {
-      throw new Error("Could not load stored resume.");
-    }
-    return { buffer: Buffer.from(stored.data), filename };
-  }
+  return { buffer: stored.buffer, filename: stored.filename };
 }
 
 export async function parseApplicantResumeFromBuffer(
