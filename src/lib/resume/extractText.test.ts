@@ -5,11 +5,20 @@ import { describe, expect, it } from "vitest";
 
 import { extractTextFromResumeBuffer } from "./extractText";
 
+const FIXTURE_PDF = join(__dirname, "__fixtures__", "sample-resume.pdf");
 const SAMPLE_PDF = join(process.cwd(), "docs", "samples of resumes", "sanaa_syed_resume.pdf");
 
 describe("extractTextFromResumeBuffer", () => {
+  it("extracts text from the committed PDF fixture", async () => {
+    const fixture = readFileSync(FIXTURE_PDF);
+
+    await expect(extractTextFromResumeBuffer(fixture, "resume.pdf")).resolves.toContain(
+      "SCOUTLANE FIXTURE RESUME",
+    );
+  });
+
   it.skipIf(!existsSync(SAMPLE_PDF))(
-    "extracts text through the Node pdf-parse build",
+    "extracts text from a real local sample resume",
     async () => {
       const sample = readFileSync(SAMPLE_PDF);
 
