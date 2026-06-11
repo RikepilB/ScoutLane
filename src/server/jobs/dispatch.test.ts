@@ -72,6 +72,12 @@ async function flushInlineTasks(): Promise<void> {
   await new Promise((resolve) => setImmediate(resolve));
 }
 
+// The inline admin fan-out paces consecutive sends with a real 300ms timer
+// (Resend rate limit), so flushing setImmediate alone is not enough.
+async function flushPacedFanOut(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+}
+
 describe("dispatchResumeParse", () => {
   it("enqueues to pg-boss in worker mode", async () => {
     process.env.JOB_RUNNER = "worker";
@@ -155,7 +161,7 @@ describe("dispatchAdminNotificationEmails", () => {
     process.env.JOB_RUNNER = "inline";
 
     const result = await dispatchAdminNotificationEmails(input);
-    await flushInlineTasks();
+    await flushPacedFanOut();
 
     expect(dispatchEmailJobMock).toHaveBeenCalledTimes(2);
     expect(dispatchEmailJobMock).toHaveBeenCalledWith(
@@ -174,7 +180,7 @@ describe("dispatchAdminNotificationEmails", () => {
 
     try {
       const result = await dispatchAdminNotificationEmails(input);
-      await flushInlineTasks();
+      await flushPacedFanOut();
 
       // Inline delivery is fire-and-forget post-response: failures are logged
       // to EmailLog by the send functions, never surfaced to the caller.
