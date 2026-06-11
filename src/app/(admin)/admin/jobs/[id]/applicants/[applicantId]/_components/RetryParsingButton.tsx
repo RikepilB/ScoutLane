@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface RetryParsingButtonProps {
   applicantId: string;
@@ -26,6 +27,9 @@ export function RetryParsingButton({ applicantId, status }: RetryParsingButtonPr
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
       if (!response.ok) {
         setError(body?.error ?? "Resume parsing failed.");
+        toast.error(body?.error ?? "Resume parsing failed.");
+      } else {
+        toast.success("Resume parsed. Refreshing applicant data…");
       }
       router.refresh();
     });

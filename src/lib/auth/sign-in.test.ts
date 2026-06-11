@@ -158,4 +158,26 @@ describe("handleSignIn — Google provider", () => {
     expect(allowed).toBe(true);
     expect(userUpsert).toHaveBeenCalledTimes(1);
   });
+
+  it("blocks lookalike domains that merely end with the allowed domain", async () => {
+    process.env.AUTH_ALLOWED_EMAIL_DOMAIN = "scoutlane.com";
+
+    const rejected = await handleSignIn({
+      user: { email: "attacker@fakescoutlane.com" },
+      account: { provider: "google" },
+    });
+    const subdomainRejected = await handleSignIn({
+      user: { email: "attacker@evil.scoutlane.com" },
+      account: { provider: "google" },
+    });
+    const allowed = await handleSignIn({
+      user: { email: "jane@scoutlane.com" },
+      account: { provider: "google" },
+    });
+
+    expect(rejected).toBe(false);
+    expect(subdomainRejected).toBe(false);
+    expect(allowed).toBe(true);
+    expect(userUpsert).toHaveBeenCalledTimes(1);
+  });
 });

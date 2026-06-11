@@ -254,9 +254,10 @@ After deploying or rotating keys, **restart both workers** so the new envs take 
 
 ### 4.3 What happens without the workers
 
-- With `RESUME_PARSE_MODE=queue-and-inline` (default), parsing happens inline during submission — the resume worker is optional for redundancy only.
-- With `RESUME_PARSE_MODE=queue`, `enqueueResumeParseJob` returns immediately; the row stays in `PENDING` until the resume worker picks it up.
-- `enqueueEmailJob` returns immediately; admin notification and applicant confirmation emails are never sent without the email worker — the applicant submission still succeeds.
+- With `JOB_RUNNER=inline` (default on Vercel), no workers are needed: resume parsing and email delivery run after the response in the same serverless invocation.
+- With `RESUME_PARSE_MODE=queue` (default), parsing is deferred to the job runner: in `worker` mode the row stays in `PENDING` until the resume worker picks it up; in `inline` mode it completes post-response.
+- `RESUME_PARSE_MODE=queue-and-inline` additionally parses during submission — redundant unless you want a synchronous result alongside the queue.
+- In `worker` mode, `enqueueEmailJob` returns immediately; admin notification and applicant confirmation emails are never sent without the email worker — the applicant submission still succeeds.
 
 Both are visible in `/admin/notifications` (parsing failures + email skips).
 

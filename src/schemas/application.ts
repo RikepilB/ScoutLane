@@ -25,7 +25,7 @@ export const resumeFileSchema = z
     if (!isAllowedResumeMime(value.type) && !hasAllowedResumeExtension(value.name ?? "")) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Resume must be a PDF, DOC, DOCX, or CSV file",
+        message: "Resume must be a PDF, DOC, DOCX, TXT, or CSV file",
       });
     }
   });

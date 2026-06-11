@@ -8,11 +8,27 @@ import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 interface SignInFormProps {
   showDevLogin: boolean;
+  googleEnabled: boolean;
 }
 
-export function SignInForm({ showDevLogin }: SignInFormProps) {
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  AccessDenied:
+    "Sign-in was denied. Your account is not allowed to access this workspace.",
+  OAuthCallbackError:
+    "Google sign-in could not be completed. Please try again.",
+  OAuthSignInError: "Could not start Google sign-in. Please try again.",
+  Configuration:
+    "Sign-in is misconfigured on the server. Contact an administrator.",
+  Verification: "The sign-in link is no longer valid. Please try again.",
+};
+
+export function SignInForm({ showDevLogin, googleEnabled }: SignInFormProps) {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+  const errorCode = searchParams.get("error");
+  const errorMessage = errorCode
+    ? AUTH_ERROR_MESSAGES[errorCode] ?? "Sign-in failed. Please try again."
+    : null;
   const [email, setEmail] = useState("admin@scoutlane.local");
   const [loading, setLoading] = useState(false);
 
@@ -48,6 +64,23 @@ export function SignInForm({ showDevLogin }: SignInFormProps) {
           </div>
 
           <div className="rounded-2xl border border-slate-700/60 bg-slate-900/60 p-6 backdrop-blur-sm">
+            {errorMessage && (
+              <div
+                role="alert"
+                className="mb-3 rounded-xl border border-red-500/40 bg-red-950/40 px-3 py-2.5 text-sm text-red-300"
+              >
+                {errorMessage}
+              </div>
+            )}
+
+            {!googleEnabled && !showDevLogin && (
+              <p className="mb-3 rounded-xl border border-amber-500/40 bg-amber-950/40 px-3 py-2.5 text-sm text-amber-300">
+                Sign-in is not configured on this deployment. An administrator
+                must set the Google OAuth environment variables.
+              </p>
+            )}
+
+            {googleEnabled && (
             <button
               onClick={() => signIn("google", { redirectTo: callbackUrl })}
               className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-600 bg-white px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
@@ -60,6 +93,7 @@ export function SignInForm({ showDevLogin }: SignInFormProps) {
               </svg>
               Sign in with Google
             </button>
+            )}
 
             {showDevLogin && (
               <>
