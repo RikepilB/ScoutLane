@@ -89,7 +89,13 @@ export async function dispatchAdminNotificationEmails(
   }));
 
   runAfterResponse("email-admin-fan-out", async () => {
-    for (const job of jobs) {
+    for (const [index, job] of jobs.entries()) {
+      // Sequential alone is not enough: rejected sends return in ~50ms, so a
+      // burst of admins (+ the applicant confirmation) still trips Resend's
+      // requests-per-second cap. Pace consecutive sends.
+      if (index > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
       const result = await dispatchEmailJob(job);
       if (result.skipped) {
         console.warn(`[jobs:email] skipped ${job.kind} for ${job.payload.to}`);
