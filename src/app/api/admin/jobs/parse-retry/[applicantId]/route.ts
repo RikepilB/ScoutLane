@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { parseApplicantResumeFromUrl } from "@/lib/resume/parseApplicantResume";
-import { enqueueResumeParseJob } from "@/server/queues/resume";
+import { dispatchResumeParse } from "@/server/jobs/dispatch";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -47,7 +47,7 @@ export async function POST(
       return NextResponse.json({ success: true, status: "COMPLETED" });
     }
 
-    await enqueueResumeParseJob({ applicantId, resumeUrl: applicant.resumeUrl });
+    await dispatchResumeParse({ applicantId, resumeUrl: applicant.resumeUrl });
     return NextResponse.json({ success: true, status: "PENDING" });
   } catch (error) {
     console.error("[parse-retry] parse failed:", error);

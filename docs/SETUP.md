@@ -187,32 +187,43 @@ The applicant row is updated with `parsingStatus="FAILED"` and the error message
 
 ---
 
-## 4. Background workers
+## 4. Background jobs
 
-ScoutLane runs two long-running worker processes off the web server. They cannot run on Vercel serverless — host them on Render, Railway, Fly, or any process supervisor with persistent execution.
+Resume parsing and email delivery go through a job dispatcher (`src/server/jobs/dispatch.ts`) with two execution modes, controlled by `JOB_RUNNER`:
+
+| Mode | How it runs | When |
+|---|---|---|
+| `inline` | After the HTTP response in the same serverless invocation, via `next/server` `after()`. No worker process needed. | **Default on Vercel.** |
+| `worker` | Enqueued to pg-boss; long-running workers process the queue. | **Default elsewhere.** Requires the workers below. |
+
+**Vercel deployments need no worker** — leave `JOB_RUNNER` unset and parsing + emails run inline after each response. Note the inline LLM call is bounded by the function's `maxDuration` (60s on the apply route); if it gets cut, the admin Retry button re-runs parsing.
+
+### Worker mode processes
 
 | Process | Command | Triggered by |
 |---|---|---|
-| Resume parser | `pnpm worker:resume` | New applications → `enqueueResumeParseJob` |
-| Email sender | `pnpm worker:emails` | New applications, admin sends, job alerts → `enqueueEmailJob` |
+| Resume parser | `pnpm worker:resume` | New applications → resume parse jobs |
+| Email sender | `pnpm worker:emails` | New applications → confirmation + admin notification jobs |
 
 Both workers share the same `DATABASE_URL` as the web app (pg-boss stores jobs in PostgreSQL). On startup they create their queues if missing and run forever.
 
-**Resume parsing mode:** `RESUME_PARSE_MODE` controls how resume parsing runs. The default is `"queue-and-inline"` — parsing happens immediately during submission AND gets enqueued for redundancy. In production with high traffic, switch to `"queue"` to avoid blocking application submissions, and run `pnpm worker:resume` on a persistent host.
+**Resume parsing mode:** `RESUME_PARSE_MODE` controls how parsing is triggered on submission. The default is `"queue"` — the applicant never waits; the dispatcher runs it via `JOB_RUNNER`. `"inline"` parses synchronously inside the request (local diagnostics), `"queue-and-inline"` does both.
 
 ### 4.1 Local dev
 
-With the default `RESUME_PARSE_MODE=queue-and-inline`, you only need the email worker for local dev:
+Simplest local setup — no workers at all:
+
+```
+JOB_RUNNER=inline
+pnpm dev
+```
+
+Or keep `JOB_RUNNER=worker` (the non-Vercel default) and run both workers:
 
 ```
 pnpm dev
-pnpm worker:emails
-```
-
-If you switch to `RESUME_PARSE_MODE=queue`, also start the resume worker:
-
-```
 pnpm worker:resume
+pnpm worker:emails
 ```
 
 ### 4.2 Hosted (recommended on Render)

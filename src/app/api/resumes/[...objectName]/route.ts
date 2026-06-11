@@ -28,7 +28,9 @@ export async function GET(
     );
   }
 
-  const forceDownload = request.nextUrl.searchParams.get("download") === "1";
+  // request.nextUrl is absent when invoked with a plain Request (e.g. tests).
+  const requestUrl = request.nextUrl ?? new URL(request.url);
+  const forceDownload = requestUrl.searchParams.get("download") === "1";
   const disposition =
     !forceDownload && canEmbedResume({ contentType: resume.contentType })
       ? "inline"
