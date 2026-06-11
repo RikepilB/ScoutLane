@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Stage {
   id: string;
@@ -27,15 +28,25 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      await fetch(`/api/admin/jobs/${jobId}/integrations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stageId, endpointUrl, apiKey, includeQuestions }),
-      });
-      setShowForm(false);
-      setEndpointUrl("");
-      setApiKey("");
-      router.refresh();
+      try {
+        const res = await fetch(`/api/admin/jobs/${jobId}/integrations`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stageId, endpointUrl, apiKey, includeQuestions }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          toast.error(body?.error ?? "Could not save the integration.");
+          return;
+        }
+        toast.success("Integration added.");
+        setShowForm(false);
+        setEndpointUrl("");
+        setApiKey("");
+        router.refresh();
+      } catch {
+        toast.error("Could not save the integration. Check your connection.");
+      }
     });
   }
 

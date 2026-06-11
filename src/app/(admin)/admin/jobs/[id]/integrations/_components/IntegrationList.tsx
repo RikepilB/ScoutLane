@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Log {
   id: string;
@@ -43,15 +44,39 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
 
   async function handleDelete(id: string) {
     startTransition(async () => {
-      await fetch(`/api/admin/jobs/integrations/${id}`, { method: "DELETE" });
-      router.refresh();
+      try {
+        const res = await fetch(`/api/admin/jobs/integrations/${id}`, { method: "DELETE" });
+        if (!res.ok) {
+          toast.error("Could not delete the integration.");
+          return;
+        }
+        toast.success("Integration deleted.");
+        router.refresh();
+      } catch {
+        toast.error("Could not delete the integration. Check your connection.");
+      }
     });
   }
 
   async function postAction(integrationId: string, action: "test" | "retry") {
     startTransition(async () => {
-      await fetch(`/api/admin/jobs/integrations/${integrationId}?action=${action}`, { method: "POST" });
-      router.refresh();
+      try {
+        const res = await fetch(`/api/admin/jobs/integrations/${integrationId}?action=${action}`, {
+          method: "POST",
+        });
+        if (!res.ok) {
+          toast.error(action === "test" ? "Test call failed to send." : "Retry failed to send.");
+          return;
+        }
+        toast.success(
+          action === "test"
+            ? "Test call sent. Check the log below for the response."
+            : "Retry sent. Check the log below for the response.",
+        );
+        router.refresh();
+      } catch {
+        toast.error("Request failed. Check your connection.");
+      }
     });
   }
 
