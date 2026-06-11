@@ -83,8 +83,17 @@ export function logGoogleAuthDiagnostics(): void {
   );
 }
 
+/**
+ * The dev credentials provider hands out ADMIN sessions to any email, so it
+ * must never be reachable on a public deployment. It is enabled only in
+ * `next dev`, or when `ALLOW_DEV_LOGIN=1` is set explicitly (local prod-build
+ * smoke tests). Missing Google credentials no longer enable it implicitly —
+ * that combination previously exposed admin sign-in on production.
+ */
 export function isDevLoginAllowed(): boolean {
-  return process.env.NODE_ENV === "development" || !isGoogleAuthConfigured();
+  return (
+    process.env.NODE_ENV === "development" || process.env.ALLOW_DEV_LOGIN === "1"
+  );
 }
 
 logGoogleAuthDiagnostics();

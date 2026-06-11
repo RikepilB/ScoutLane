@@ -105,9 +105,21 @@ describe("isDevLoginAllowed", () => {
     expect(isDevLoginAllowed()).toBe(false);
   });
 
-  it("allows dev login in production when Google auth is NOT configured", () => {
+  it("disallows dev login in production even when Google auth is NOT configured", () => {
     vi.stubEnv("NODE_ENV", "production");
+    expect(isDevLoginAllowed()).toBe(false);
+  });
+
+  it("allows dev login in production only with the explicit ALLOW_DEV_LOGIN=1 escape hatch", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("ALLOW_DEV_LOGIN", "1");
     expect(isDevLoginAllowed()).toBe(true);
+  });
+
+  it("ignores ALLOW_DEV_LOGIN values other than \"1\"", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("ALLOW_DEV_LOGIN", "true");
+    expect(isDevLoginAllowed()).toBe(false);
   });
 });
 
