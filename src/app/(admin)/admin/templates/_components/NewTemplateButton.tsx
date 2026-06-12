@@ -3,6 +3,7 @@
 import { Loader2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createTemplate } from "@/server/services/templates";
 
@@ -20,9 +21,13 @@ export function NewTemplateButton({
 
   function handleClick() {
     startTransition(async () => {
-      const { id } = await createTemplate();
-      router.push(`/admin/templates/${id}`);
-      router.refresh();
+      try {
+        const { id } = await createTemplate();
+        router.push(`/admin/templates/${id}`);
+        router.refresh();
+      } catch {
+        toast.error("Could not create the template. Try again.");
+      }
     });
   }
 

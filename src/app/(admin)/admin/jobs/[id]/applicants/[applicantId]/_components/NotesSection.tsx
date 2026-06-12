@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Pencil, Plus, Save, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { createApplicantNote, deleteApplicantNote, updateApplicantNote } from "@/server/services/applicants/notes";
 
 interface NoteRow {
@@ -29,9 +30,14 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
     const text = draft.trim();
     if (!text) return;
     startTransition(async () => {
-      await createApplicantNote(applicantId, text);
-      setDraft("");
-      router.refresh();
+      try {
+        await createApplicantNote(applicantId, text);
+        setDraft("");
+        toast.success("Note added.");
+        router.refresh();
+      } catch {
+        toast.error("Could not add the note. Try again.");
+      }
     });
   }
 
@@ -42,17 +48,27 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
 
   function handleSave(noteId: string) {
     startTransition(async () => {
-      await updateApplicantNote(noteId, editBody);
-      setEditingId(null);
-      router.refresh();
+      try {
+        await updateApplicantNote(noteId, editBody);
+        setEditingId(null);
+        toast.success("Note saved.");
+        router.refresh();
+      } catch {
+        toast.error("Could not save the note. Try again.");
+      }
     });
   }
 
   function handleDelete(noteId: string) {
     if (!confirm("Delete this note?")) return;
     startTransition(async () => {
-      await deleteApplicantNote(noteId);
-      router.refresh();
+      try {
+        await deleteApplicantNote(noteId);
+        toast.success("Note deleted.");
+        router.refresh();
+      } catch {
+        toast.error("Could not delete the note. Try again.");
+      }
     });
   }
 

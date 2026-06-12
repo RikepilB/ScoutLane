@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { moveApplicant } from "@/server/services/pipeline/update";
 import { KanbanBoard, type Stage } from "@/components/pipeline/KanbanBoard";
 import { KanbanColumn } from "@/components/pipeline/KanbanColumn";
@@ -25,12 +26,19 @@ export default function PipelinePage({ params }: PipelinePageProps) {
 
   const fetchStages = useCallback(async (id: string) => {
     setLoading(true);
-    const res = await fetch(`/api/admin/jobs/${id}/pipeline`);
-    if (res.ok) {
-      const data = await res.json();
-      setStages(data);
+    try {
+      const res = await fetch(`/api/admin/jobs/${id}/pipeline`);
+      if (res.ok) {
+        const data = await res.json();
+        setStages(data);
+      } else {
+        toast.error("Failed to load the pipeline. Try refreshing.");
+      }
+    } catch {
+      toast.error("Failed to load the pipeline. Check your connection.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -49,13 +57,26 @@ export default function PipelinePage({ params }: PipelinePageProps) {
   const handleMoveApplicant = useCallback(
     async (applicantId: string, _fromStageId: string, toStageId: string) => {
       if (!jobId) return;
-      const result = await moveApplicant(applicantId, toStageId);
-      if (result.success) {
+      try {
+        const result = await moveApplicant(applicantId, toStageId);
+        if (result.success) {
+          const stageName = stages.find((s) => s.id === toStageId)?.name;
+          if (!("unchanged" in result && result.unchanged)) {
+            toast.success(stageName ? `Moved to ${stageName}.` : "Applicant moved.");
+          }
+          fetchStages(jobId);
+          router.refresh();
+        } else {
+          toast.error("error" in result && result.error ? result.error : "Could not move the applicant.");
+          // Re-fetch so the dropped card snaps back to its real column.
+          fetchStages(jobId);
+        }
+      } catch {
+        toast.error("Could not move the applicant. Check your connection and try again.");
         fetchStages(jobId);
-        router.refresh();
       }
     },
-    [jobId, router, fetchStages],
+    [jobId, router, fetchStages, stages],
   );
 
   if (loading) {

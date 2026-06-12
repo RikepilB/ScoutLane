@@ -19,8 +19,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { toast } from "sonner";
 import { createStage, updateStage, deleteStage, reorderStages } from "@/server/services/pipeline/stages";
-import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, GripVertical } from "lucide-react";
 
 interface Stage {
   id: string;
@@ -70,10 +71,18 @@ function SortableStageItem({
           type="text"
           defaultValue={stage.name}
           className="flex-1 rounded-lg border border-border/70 bg-white px-2 py-1 text-sm outline-none focus:border-sky-500"
-          onBlur={(e) => onRename(stage.id, e.target.value)}
+          onBlur={(e) => {
+            // Escape marks the input cancelled; the blur fired by unmounting must not save.
+            if (e.currentTarget.dataset.cancelled === "1") return;
+            onRename(stage.id, e.currentTarget.value);
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") onRename(stage.id, (e.target as HTMLInputElement).value);
-            if (e.key === "Escape") onCancelEdit();
+            // Enter delegates to blur so rename runs exactly once.
+            if (e.key === "Enter") e.currentTarget.blur();
+            if (e.key === "Escape") {
+              e.currentTarget.dataset.cancelled = "1";
+              onCancelEdit();
+            }
           }}
           autoFocus
         />
@@ -107,17 +116,39 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  const [adding, setAdding] = useState(false);
+
   async function handleAdd() {
-    if (!newName.trim()) return;
-    await createStage(jobId, newName.trim(), newColor);
-    setNewName("");
-    router.refresh();
+    const name = newName.trim();
+    if (!name || adding) return;
+    setAdding(true);
+    try {
+      await createStage(jobId, name, newColor);
+      setNewName("");
+      toast.success(`Stage "${name}" added.`);
+      router.refresh();
+    } catch {
+      toast.error("Could not add the stage. Try again.");
+    } finally {
+      setAdding(false);
+    }
   }
 
   async function handleRename(stageId: string, name: string) {
-    await updateStage(stageId, { name });
-    setEditingId(null);
-    router.refresh();
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === stages.find((s) => s.id === stageId)?.name) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      await updateStage(stageId, { name: trimmed });
+      toast.success("Stage renamed.");
+      router.refresh();
+    } catch {
+      toast.error("Could not rename the stage. Try again.");
+    } finally {
+      setEditingId(null);
+    }
   }
 
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
@@ -129,9 +160,15 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
   async function handleConfirmDelete(reassignToStageName: string) {
     if (!pendingDelete) return;
     const reassignToStatus = reassignToStageName.toUpperCase();
-    await deleteStage(pendingDelete.id, reassignToStatus);
-    setPendingDelete(null);
-    router.refresh();
+    try {
+      await deleteStage(pendingDelete.id, reassignToStatus);
+      toast.success(`Stage "${pendingDelete.name}" deleted.`);
+      router.refresh();
+    } catch {
+      toast.error("Could not delete the stage. Try again.");
+    } finally {
+      setPendingDelete(null);
+    }
   }
 
   function handleCancelDelete() {
@@ -146,10 +183,16 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
     const newIndex = stages.findIndex((s) => s.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
 
+    const previous = stages;
     const reordered = arrayMove(stages, oldIndex, newIndex).map((s, i) => ({ ...s, order: i }));
     setStages(reordered);
-    await reorderStages(reordered.map((s) => ({ id: s.id, order: s.order })));
-    router.refresh();
+    try {
+      await reorderStages(reordered.map((s) => ({ id: s.id, order: s.order })));
+      router.refresh();
+    } catch {
+      setStages(previous);
+      toast.error("Could not reorder stages. Try again.");
+    }
   }
 
   const presetColors = [
@@ -190,11 +233,11 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
           <button
             type="button"
             onClick={handleAdd}
-            disabled={!newName.trim()}
+            disabled={!newName.trim() || adding}
             className="inline-flex items-center gap-1 rounded-lg bg-slate-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
           >
-            <Plus className="h-4 w-4" />
-            Add
+            {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            {adding ? "Adding…" : "Add"}
           </button>
         </div>
       </div>
