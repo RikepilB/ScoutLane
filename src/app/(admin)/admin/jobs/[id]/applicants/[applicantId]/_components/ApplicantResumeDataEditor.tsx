@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
+import { toast } from "sonner";
 import { saveApplicantResumeDataJson } from "@/server/services/applicants/update";
 
 interface ApplicantResumeDataEditorProps {
@@ -20,9 +21,20 @@ export function ApplicantResumeDataEditor({ applicantId, initialData }: Applican
   }, [initialData]);
 
   function handleSave() {
+    try {
+      JSON.parse(text);
+    } catch {
+      toast.error("Invalid JSON. Fix the syntax and try again.");
+      return;
+    }
     start(async () => {
-      await saveApplicantResumeDataJson(applicantId, text);
-      router.refresh();
+      try {
+        await saveApplicantResumeDataJson(applicantId, text);
+        toast.success("Applicant data saved.");
+        router.refresh();
+      } catch {
+        toast.error("Could not save the applicant data. Try again.");
+      }
     });
   }
 
