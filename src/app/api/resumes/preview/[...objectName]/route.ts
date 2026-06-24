@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
-import { auth } from "@/lib/auth/auth";
+import { authorizeResumeRequest } from "@/lib/resume/access";
 import { convertDocxToSafeHtml } from "@/lib/resume/docx-preview";
 import { readResumeObject } from "@/lib/resume/storage-read";
 
@@ -13,27 +12,19 @@ const DOCX_CONTENT_TYPE =
 /**
  * Renders a stored DOCX resume as sanitized HTML for the admin inline preview.
  * The middleware matcher excludes /api/resumes, so authentication is enforced
- * here: a signed-in user with an organization is required.
+ * here: a signed-in user whose organization owns the requested resume.
  */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ objectName: string[] }> },
 ) {
-  const session = await auth();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { organizationId: true },
-  });
-  if (!user?.organizationId) {
-    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-  }
-
   const { objectName } = await params;
   const storedObjectName = objectName.join("/");
+
+  const access = await authorizeResumeRequest(storedObjectName);
+  if (!access.ok) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
+  }
 
   let resume;
   try {

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { rm } from "node:fs/promises";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/resumes/[...objectName]/route";
 import { LOCAL_RESUME_STORAGE_DIR, uploadFileBuffer } from "./upload";
 
@@ -10,9 +10,18 @@ vi.mock("./client", () => ({
   isStorageConfigured: () => false,
 }));
 
-const { resumeFileCreate, resumeFileFindUnique } = vi.hoisted(() => ({
+const {
+  resumeFileCreate,
+  resumeFileFindUnique,
+  userFindUnique,
+  applicantFindFirst,
+  mockAuth,
+} = vi.hoisted(() => ({
   resumeFileCreate: vi.fn(),
   resumeFileFindUnique: vi.fn(),
+  userFindUnique: vi.fn(),
+  applicantFindFirst: vi.fn(),
+  mockAuth: vi.fn(),
 }));
 
 vi.mock("@/lib/db/prisma", () => ({
@@ -21,8 +30,20 @@ vi.mock("@/lib/db/prisma", () => ({
       create: resumeFileCreate,
       findUnique: resumeFileFindUnique,
     },
+    user: { findUnique: userFindUnique },
+    applicant: { findFirst: applicantFindFirst },
   },
 }));
+
+// Mocked so the resume route's authorization gate passes and next-auth is never
+// loaded in the node test env; the gate itself is covered by access.test.ts.
+vi.mock("@/lib/auth/auth", () => ({ auth: mockAuth }));
+
+beforeEach(() => {
+  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+  userFindUnique.mockResolvedValue({ organizationId: "org-1" });
+  applicantFindFirst.mockResolvedValue({ id: "a1" });
+});
 
 const originalVercel = process.env.VERCEL;
 const originalS3 = {
