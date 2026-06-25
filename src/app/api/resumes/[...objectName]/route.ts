@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authorizeResumeRequest } from "@/lib/resume/access";
 import { canEmbedResume } from "@/lib/resume/preview";
 import { buildContentDisposition, readResumeObject } from "@/lib/resume/storage-read";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(
@@ -10,6 +12,12 @@ export async function GET(
 ) {
   const { objectName } = await params;
   const storedObjectName = objectName.join("/");
+
+  // Resume files contain candidate PII — only the owning workspace may read them.
+  const access = await authorizeResumeRequest(storedObjectName);
+  if (!access.ok) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
+  }
 
   let resume;
   try {
