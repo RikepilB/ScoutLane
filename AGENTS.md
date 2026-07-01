@@ -4,7 +4,7 @@
 
 ScoutLane is a Next.js 16 recruitment platform using React 19, Prisma, and TypeScript. Main app routes live in `src/app`, reusable UI in `src/components`, shared utilities in `src/lib`, server-side workflows in `src/server`, validation schemas in `src/schemas`, and shared types in `src/types`. Prisma schema, migrations, and seed data are in `prisma`. Static assets belong in `public`. Unit and integration tests are colocated as `*.test.ts` or `*.test.tsx`; browser tests live in `tests/e2e`.
 
-Read `docs/HANDOFF.md` before larger changes. Add or update `docs/session-reports/*.md` when a task changes architecture, auth, parsing, email, subscriptions, or deployment behavior.
+Read `docs/handoff/HANDOFF.md` (the handoff-tree father) before larger changes — or invoke the `handoff-context` skill to load full context via Explore/Plan subagents. Record session work in the handoff tree at `docs/handoff/<YYYY-MM-DD>-<name>/HANDOFF.md` and update the father's `## Current state` + `## Session index` (append, never overwrite). This supersedes the old `docs/HANDOFF.md` + `docs/session-reports/`.
 
 ## Build, Test, and Development Commands
 
