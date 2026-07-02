@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { AnimatedBackground } from "@/components/public/AnimatedBackground";
 
 interface SignInFormProps {
   showDevLogin: boolean;
