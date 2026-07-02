@@ -17,20 +17,13 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { slugify } from "@/lib/slug/slugify";
-import { DEPARTMENTS } from "@/lib/jobs/departments";
-import { jobCreationSchema, jobStatusValues } from "@/schemas/job";
+import { jobCreationSchema } from "@/schemas/job";
 import { createJob } from "@/server/services/jobs/create";
+import { NewJobRoleStep } from "./NewJobRoleStep";
+import { NewJobDetailsStep } from "./NewJobDetailsStep";
+import { NewJobLaunchStep } from "./NewJobLaunchStep";
 
 type FormValues = z.input<typeof jobCreationSchema>;
 
@@ -88,7 +81,6 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
 
   const watchedTitle = form.watch("title");
   const watchedDescription = form.watch("description");
-  const watchedWhatYouWillDo = form.watch("whatYouWillDo");
   const watchedLocation = form.watch("location");
   const watchedType = form.watch("type");
   const watchedSalary = form.watch("salary");
@@ -220,291 +212,23 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
                 </div>
               </div>
 
-              {step === 0 ? (
-                <div className="space-y-5">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Job title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Senior Frontend Engineer" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe the role, expectations, and requirements."
-                            className="min-h-32"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 mb-4">
-                      Structured sections (appear on public job page)
-                    </p>
-
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="whatYouWillDo"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>What you&apos;ll do</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Describe the day-to-day responsibilities. Markdown supported."
-                                className="min-h-28"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="requirements"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Requirements (one per line)</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder={`3+ years with React and TypeScript
-Experience with Node.js and PostgreSQL
-Strong CS fundamentals`}
-                                className="min-h-24"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="toolsAndSkills"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tools &amp; Skills (one per line)</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder={`React\nTypeScript\nNext.js\nDocker\nAWS`}
-                                className="min-h-24"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
+              {step === 0 ? <NewJobRoleStep control={form.control} /> : null}
 
               {step === 1 ? (
-                <div className="space-y-5">
-                  <FormField
-                    control={form.control}
-                    name="department"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Department</FormLabel>
-                        <FormControl>
-                          <select
-                            {...field}
-                            className="flex h-10 w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                          >
-                            <option value="">None</option>
-                            {DEPARTMENTS.map((d) => (
-                              <option key={d} value={d}>
-                                {d}
-                              </option>
-                            ))}
-                          </select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="location"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Location</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Remote, Lima, Hybrid" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Full-time, Contract, Part-time" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="salary"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Salary</FormLabel>
-                          <FormControl>
-                            <Input placeholder="$80k-$120k, Negotiable, etc." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="slug"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>URL slug</FormLabel>
-                          <FormControl>
-                            <Input placeholder="senior-frontend-engineer" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="rounded-xl border border-border/70 bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Public URL
-                    </p>
-                    <p className="mt-1 break-all text-sm font-medium text-slate-900">
-                      /careers/{watchedSlug || "job-slug"}
-                    </p>
-                  </div>
-                </div>
+                <NewJobDetailsStep control={form.control} watchedSlug={watchedSlug} />
               ) : null}
 
               {step === 2 ? (
-                <div className="space-y-5">
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <FormControl>
-                          <div className="grid gap-3 sm:grid-cols-3">
-                            {jobStatusValues.map((status) => (
-                              <label
-                                key={status}
-                                className={`cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${
-                                  field.value === status
-                                    ? "border-slate-950 bg-slate-950 text-white"
-                                    : "border-border/70 bg-white text-slate-700 hover:bg-slate-50"
-                                }`}
-                              >
-                                <input
-                                  type="radio"
-                                  className="sr-only"
-                                  value={status}
-                                  checked={field.value === status}
-                                  onChange={() => field.onChange(status)}
-                                />
-                                <span className="font-semibold capitalize">{status}</span>
-                                <span
-                                  className={`mt-1 block text-xs ${
-                                    field.value === status ? "text-slate-300" : "text-slate-500"
-                                  }`}
-                                >
-                                  {status === "draft"
-                                    ? "Keep private while configuring."
-                                    : status === "active"
-                                      ? "Publish and accept applicants."
-                                      : "Keep data but close intake."}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="rounded-xl border border-border/70 bg-slate-50 p-5">
-                    <h3 className="text-sm font-semibold text-slate-900">Review</h3>
-                    <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-                      <div>
-                        <dt className="text-xs uppercase tracking-wide text-slate-500">Title</dt>
-                        <dd className="mt-1 font-medium text-slate-900">
-                          {watchedTitle || "Untitled job"}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wide text-slate-500">Status</dt>
-                        <dd className="mt-1 font-medium capitalize text-slate-900">
-                          {watchedStatus}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wide text-slate-500">
-                          Location
-                        </dt>
-                        <dd className="mt-1 text-slate-800">{watchedLocation || "Not set"}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wide text-slate-500">Type</dt>
-                        <dd className="mt-1 text-slate-800">{watchedType || "Not set"}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wide text-slate-500">Salary</dt>
-                        <dd className="mt-1 text-slate-800">{watchedSalary || "Not set"}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wide text-slate-500">Slug</dt>
-                        <dd className="mt-1 break-all text-slate-800">
-                          {watchedSlug || "Not set"}
-                        </dd>
-                      </div>
-                    </dl>
-                    <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
-                      {watchedDescription || "No description yet."}
-                    </p>
-                  </div>
-                </div>
+                <NewJobLaunchStep
+                  control={form.control}
+                  watchedTitle={watchedTitle}
+                  watchedStatus={watchedStatus}
+                  watchedLocation={watchedLocation}
+                  watchedType={watchedType}
+                  watchedSalary={watchedSalary}
+                  watchedSlug={watchedSlug}
+                  watchedDescription={watchedDescription}
+                />
               ) : null}
             </section>
           </div>
