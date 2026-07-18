@@ -95,7 +95,8 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
       <div>
         <label className="mb-1 block text-xs text-muted-foreground">API key (Bearer token)</label>
         <input
-          type="text"
+          type="password"
+          autoComplete="off"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder="sk-..."
