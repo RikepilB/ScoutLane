@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
+import type { ApplicationStatus } from "@/generated/prisma/enums";
 
 async function assertJobAccess(jobId: string, organizationId: string) {
   const job = await prisma.job.findFirst({
@@ -18,7 +19,12 @@ async function assertStageAccess(stageId: string, organizationId: string) {
   if (!stage || stage.job.organizationId !== organizationId) throw new Error("Stage not found");
 }
 
-export async function createStageImpl(jobId: string, name: string, color?: string) {
+export async function createStageImpl(
+  jobId: string,
+  name: string,
+  color?: string,
+  status: ApplicationStatus = "REVIEWING",
+) {
   const user = await requireSession();
   await assertJobAccess(jobId, user.organizationId);
 
@@ -33,6 +39,7 @@ export async function createStageImpl(jobId: string, name: string, color?: strin
       jobId,
       name,
       color: color ?? "#6366f1",
+      status,
       order: (maxOrder?.order ?? -1) + 1,
     },
   });
@@ -40,7 +47,10 @@ export async function createStageImpl(jobId: string, name: string, color?: strin
   revalidatePath(`/admin/jobs/${jobId}/stages`);
 }
 
-export async function updateStageImpl(stageId: string, data: { name?: string; color?: string; order?: number }) {
+export async function updateStageImpl(
+  stageId: string,
+  data: { name?: string; color?: string; order?: number; status?: ApplicationStatus },
+) {
   const user = await requireSession();
   await assertStageAccess(stageId, user.organizationId);
 

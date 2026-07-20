@@ -11,6 +11,7 @@ enum UserRole {
   ADMIN
   RECRUITER
   HIRING_MANAGER
+  GUEST
 }
 
 enum ApplicationStatus {
@@ -182,10 +183,25 @@ model Applicant {
 
   transitions StageTransition[]
   noteEntries ApplicantNote[]
+  attachments ApplicantAttachment[]
 
   @@unique([jobId, email])
   @@index([jobId, pipelineStageId])
   @@index([jobId, createdAt])
+}
+
+model ApplicantAttachment {
+  id        String    @id @default(cuid())
+  applicantId String
+  applicant  Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  fieldId   String
+  filename  String
+  objectName String   @unique
+  contentType String
+  size      Int
+  createdAt DateTime  @default(now())
+
+  @@index([applicantId, fieldId])
 }
 
 model ResumeFile {
@@ -220,6 +236,7 @@ model PipelineStage {
   name      String
   order     Int
   color     String?
+  status    ApplicationStatus @default(REVIEWING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

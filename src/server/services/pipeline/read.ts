@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireSession } from "@/server/services/_lib/validate-session";
 
 export async function getPipelineData(jobId: string) {
-  const user = await requireSession();
+  const user = await requireSession({ allowGuest: true });
 
   const job = await prisma.job.findFirst({
     where: { id: jobId, organizationId: user.organizationId },

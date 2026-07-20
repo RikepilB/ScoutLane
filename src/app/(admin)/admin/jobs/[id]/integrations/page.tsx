@@ -12,14 +12,21 @@ export default async function IntegrationsPage({ params }: IntegrationsPageProps
   const { id } = await params;
   const user = await getCurrentUserWithOrganization();
   const organizationId = user?.organizationId;
-  if (!organizationId) notFound();
+  if (!organizationId || user.role === "GUEST") notFound();
 
   const job = await prisma.job.findFirst({
     where: { id, organizationId },
     include: {
       stages: { orderBy: { order: "asc" } },
       integrations: {
-        include: {
+        select: {
+          id: true,
+          endpointUrl: true,
+          active: true,
+          includeQuestions: true,
+          lastSuccessAt: true,
+          lastFailureAt: true,
+          failureCount: true,
           stage: { select: { name: true } },
           logs: { orderBy: { createdAt: "desc" }, take: 10 },
         },

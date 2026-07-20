@@ -5,7 +5,7 @@ import authConfig from "@/lib/auth/auth.config";
 const { auth } = NextAuth(authConfig);
 
 /** Roles that may use the internal workspace (`/admin`, `/api/admin`). */
-const WORKSPACE_ROLES = new Set(["ADMIN", "RECRUITER", "HIRING_MANAGER"]);
+const WORKSPACE_ROLES = new Set(["ADMIN", "RECRUITER", "HIRING_MANAGER", "GUEST"]);
 
 const PUBLIC_FILES = new Set([
   "/robots.txt",

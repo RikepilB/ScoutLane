@@ -31,6 +31,9 @@ export function createRateLimiter(options: RateLimiterOptions) {
   return {
     check(key: string): RateLimitResult {
       const t = now();
+      for (const [counterKey, counter] of counters) {
+        if (t >= counter.resetAt) counters.delete(counterKey);
+      }
       const existing = counters.get(key);
 
       if (!existing || t >= existing.resetAt) {
@@ -58,7 +61,13 @@ type HeaderGetter = { get(name: string): string | null };
 
 /** Extract a best-effort client IP from request headers. */
 export function clientIpFromHeaders(headers: HeaderGetter): string {
+  const vercelForwarded = headers.get("x-vercel-forwarded-for");
+  if (vercelForwarded) return vercelForwarded.trim();
+
+  const realIp = headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
   const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]?.trim() || "unknown";
-  return headers.get("x-real-ip")?.trim() || "unknown";
+  if (forwarded) return forwarded.split(",").at(-1)?.trim() || "unknown";
+  return "unknown";
 }

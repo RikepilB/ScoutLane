@@ -1,3 +1,6 @@
+# foglamp codebase-scan output (contains a secret edit token)
+/.foglamp/
+
 # Project-specific (root-only ad-hoc planning files)
 /CLAUDE.md
 /PLAN.md
@@ -19,6 +22,8 @@
 !/docs/README.md
 !/docs/session-reports/
 !/docs/session-reports/*.md
+!/docs/superpowers/
+!/docs/superpowers/**
 !/docs/SETUP.md
 !/docs/SMOKE.md
 !/docs/STACK.md

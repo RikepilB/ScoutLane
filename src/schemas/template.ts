@@ -8,13 +8,23 @@ const optionalShortString = (max: number, label: string) =>
     .or(z.literal("").transform(() => undefined));
 
 /** A single application form field configured on a job/template. */
-export const customFieldSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  type: z.enum(["text", "textarea", "select"]),
-  required: z.boolean(),
-  options: z.array(z.string()).optional(),
-});
+export const customFieldSchema = z
+  .object({
+    id: z.string(),
+    label: z.string(),
+    type: z.enum(["text", "textarea", "select", "file"]),
+    required: z.boolean(),
+    options: z.array(z.string()).optional(),
+  })
+  .superRefine((field, ctx) => {
+    if (field.type === "select" && !field.options?.some((option) => option.trim().length > 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["options"],
+        message: "Select fields must include at least one option",
+      });
+    }
+  });
 
 /** Ordered list of configured application form fields. */
 export const customFieldsSchema = z.array(customFieldSchema).max(50);

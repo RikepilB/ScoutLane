@@ -28,6 +28,7 @@ interface Stage {
   name: string;
   color: string | null;
   order: number;
+  status: "NEW" | "REVIEWING" | "SHORTLISTED" | "INTERVIEW" | "OFFERED" | "REJECTED" | "WITHDRAWN";
 }
 
 function SortableStageItem({
@@ -109,6 +110,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
     setStages(initialStages);
   }, [initialStages]);
   const [newColor, setNewColor] = useState("#6366f1");
+  const [newStatus, setNewStatus] = useState<Stage["status"]>("REVIEWING");
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -123,7 +125,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
     if (!name || adding) return;
     setAdding(true);
     try {
-      await createStage(jobId, name, newColor);
+      await createStage(jobId, name, newColor, newStatus);
       setNewName("");
       toast.success(`Stage "${name}" added.`);
       router.refresh();
@@ -157,11 +159,10 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
     setPendingDelete({ id: stageId, name: stageName });
   }
 
-  async function handleConfirmDelete(reassignToStageName: string) {
+  async function handleConfirmDelete(reassignToStageId: string) {
     if (!pendingDelete) return;
-    const reassignToStatus = reassignToStageName.toUpperCase();
     try {
-      await deleteStage(pendingDelete.id, reassignToStatus);
+      await deleteStage(pendingDelete.id, reassignToStageId);
       toast.success(`Stage "${pendingDelete.name}" deleted.`);
       router.refresh();
     } catch {
@@ -230,6 +231,22 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
               ))}
             </div>
           </div>
+          <label className="text-xs text-muted-foreground">
+            Applicant status
+            <select
+              value={newStatus}
+              onChange={(e) => setNewStatus(e.target.value as Stage["status"])}
+              className="mt-1 block rounded-lg border border-border/70 bg-white px-2 py-2 text-sm text-slate-900"
+            >
+              <option value="NEW">New</option>
+              <option value="REVIEWING">Reviewing</option>
+              <option value="SHORTLISTED">Shortlisted</option>
+              <option value="INTERVIEW">Interview</option>
+              <option value="OFFERED">Offered</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="WITHDRAWN">Withdrawn</option>
+            </select>
+          </label>
           <button
             type="button"
             onClick={handleAdd}
@@ -279,11 +296,11 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                   Move applicants to:
                   <select
                     className="mt-1 flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-                    defaultValue={stages.find(s => s.id !== pendingDelete.id)?.name ?? ""}
+                    defaultValue={stages.find(s => s.id !== pendingDelete.id)?.id ?? ""}
                     id="reassign-stage-select"
                   >
                     {stages.filter(s => s.id !== pendingDelete.id).map(s => (
-                      <option key={s.id} value={s.name}>{s.name}</option>
+                      <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
                   </select>
                 </label>
@@ -312,7 +329,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleConfirmDelete(pendingDelete.name)}
+                    onClick={() => handleConfirmDelete("")}
                     className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
                   >
                     Delete

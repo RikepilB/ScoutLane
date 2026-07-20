@@ -1,11 +1,19 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
-const INTEGRATION_KEY = process.env.INTEGRATION_KEY_SECRET || "";
+function integrationKey(): string {
+  const key = process.env.INTEGRATION_KEY_SECRET;
+  if (!key && process.env.NODE_ENV === "production") {
+    throw new Error("INTEGRATION_KEY_SECRET must be configured in production.");
+  }
+  return key ?? "";
+}
 
 export function signPayload(payload: string): string {
-  return createHmac("sha256", INTEGRATION_KEY).update(payload).digest("hex");
+  return createHmac("sha256", integrationKey()).update(payload).digest("hex");
 }
 
 export function verifyPayload(payload: string, signature: string): boolean {
-  return createHmac("sha256", INTEGRATION_KEY).update(payload).digest("hex") === signature;
+  const expected = Buffer.from(signPayload(payload), "hex");
+  const received = Buffer.from(signature, "hex");
+  return expected.length === received.length && timingSafeEqual(expected, received);
 }

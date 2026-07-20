@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/db/prisma";
 import { Webhook } from "lucide-react";
+import { notFound } from "next/navigation";
+import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 
 export const dynamic = "force-dynamic";
 
 export default async function GlobalIntegrationsPage() {
+  const user = await getCurrentUserWithOrganization();
+  if (!user?.organizationId || user.role === "GUEST") notFound();
+
   const integrations = await prisma.jobIntegration.findMany({
+    where: { job: { organizationId: user.organizationId } },
     include: {
       job: { select: { id: true, title: true, slug: true } },
       stage: { select: { name: true } },

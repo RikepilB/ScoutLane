@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
+import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
+import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 export async function POST(
   request: NextRequest,
@@ -23,6 +25,21 @@ export async function POST(
   if (!user?.organizationId) {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
+  try {
+    assertNotGuest(user);
+  } catch {
+    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
+  }
+
+  let validatedEndpointUrl: string;
+  try {
+    validatedEndpointUrl = await validateEgressUrl(endpointUrl);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Invalid endpoint URL" },
+      { status: 400 },
+    );
+  }
 
   const job = await prisma.job.findFirst({
     where: { id: jobId, organizationId: user.organizationId },
@@ -43,12 +60,13 @@ export async function POST(
     data: {
       jobId,
       stageId,
-      endpointUrl,
+      endpointUrl: validatedEndpointUrl,
       apiKey: apiKey ?? "",
       includeQuestions: includeQuestions ?? false,
       active: true,
     },
   });
 
-  return NextResponse.json({ success: true, integration }, { status: 201 });
+  const { apiKey: _apiKey, ...safeIntegration } = integration;
+  return NextResponse.json({ success: true, integration: safeIntegration }, { status: 201 });
 }

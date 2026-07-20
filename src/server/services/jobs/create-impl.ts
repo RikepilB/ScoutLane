@@ -64,6 +64,9 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
   if (!currentUser) {
     return { success: false, error: "Your user record could not be found." };
   }
+  if (currentUser.role === "GUEST") {
+    return { success: false, error: "Guests have read-only access." };
+  }
 
   const organizationId =
     currentUser.organizationId ??

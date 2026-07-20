@@ -42,7 +42,13 @@ async function main() {
     create: { email: "hiring@scoutlane.local", name: "Alex Manager", organizationId: org.id, role: "HIRING_MANAGER" },
   });
 
-  console.log(`  Users: ${admin.email}, ${recruiter.email}, ${hiringManager.email}`);
+  const guest = await prisma.user.upsert({
+    where: { email: "guest@scoutlane.local" },
+    update: { organizationId: org.id, role: "GUEST" },
+    create: { email: "guest@scoutlane.local", name: "Guest", organizationId: org.id, role: "GUEST" },
+  });
+
+  console.log(`  Users: ${admin.email}, ${recruiter.email}, ${hiringManager.email}, ${guest.email}`);
 
   // ── Templates ─────────────────────────────────────────────────────────────
   const templateRecords: { id: string; name: string }[] = [];

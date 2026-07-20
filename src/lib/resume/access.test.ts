@@ -7,6 +7,7 @@ const { prismaMock, mockAuth } = vi.hoisted(() => {
     prismaMock: {
       user: { findUnique: fn() },
       applicant: { findFirst: fn() },
+      applicantAttachment: { findFirst: fn() },
     },
     mockAuth: fn(),
   };
@@ -21,6 +22,7 @@ beforeEach(() => {
   mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
   prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1" });
   prismaMock.applicant.findFirst.mockResolvedValue({ id: "a1" });
+  prismaMock.applicantAttachment.findFirst.mockResolvedValue(null);
 });
 
 afterEach(() => {
@@ -45,7 +47,22 @@ describe("resumeObjectBelongsToOrg", () => {
     expect(await resumeObjectBelongsToOrg("obj.pdf", "org-1")).toBe(true);
 
     prismaMock.applicant.findFirst.mockResolvedValueOnce(null);
+    prismaMock.applicantAttachment.findFirst.mockResolvedValueOnce(null);
     expect(await resumeObjectBelongsToOrg("obj.pdf", "org-1")).toBe(false);
+  });
+
+  it("allows a custom-field attachment owned by the organization", async () => {
+    prismaMock.applicant.findFirst.mockResolvedValueOnce(null);
+    prismaMock.applicantAttachment.findFirst.mockResolvedValueOnce({ id: "attachment-1" });
+
+    await expect(resumeObjectBelongsToOrg("custom-fields/portfolio.pdf", "org-1")).resolves.toBe(true);
+    expect(prismaMock.applicantAttachment.findFirst).toHaveBeenCalledWith({
+      where: {
+        objectName: "custom-fields/portfolio.pdf",
+        applicant: { job: { is: { organizationId: "org-1" } } },
+      },
+      select: { id: true },
+    });
   });
 
   it("rejects empty object name or org without querying", async () => {
@@ -72,6 +89,7 @@ describe("authorizeResumeRequest", () => {
 
   it("returns 404 when the resume is not owned by the user's organization", async () => {
     prismaMock.applicant.findFirst.mockResolvedValueOnce(null);
+    prismaMock.applicantAttachment.findFirst.mockResolvedValueOnce(null);
     const result = await authorizeResumeRequest("obj.pdf");
     expect(result).toEqual({ ok: false, status: 404, error: "Resume file not found." });
   });

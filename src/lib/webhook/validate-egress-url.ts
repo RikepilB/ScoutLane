@@ -1,0 +1,65 @@
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
+
+const BLOCKED_HOSTNAMES = new Set([
+  "localhost",
+  "metadata",
+  "metadata.google.internal",
+  "metadata.google.internal.",
+]);
+
+function isBlockedIpv4(address: string): boolean {
+  const [first, second] = address.split(".").map(Number);
+  return (
+    first === 0 ||
+    first === 10 ||
+    first === 127 ||
+    first >= 224 ||
+    (first === 100 && second >= 64 && second <= 127) ||
+    (first === 169 && second === 254) ||
+    (first === 172 && second >= 16 && second <= 31) ||
+    (first === 192 && second === 0) ||
+    (first === 192 && second === 168)
+  );
+}
+
+function isBlockedIpv6(address: string): boolean {
+  const normalized = address.toLowerCase();
+  return normalized === "::" || normalized === "::1" || normalized.startsWith("fe80:") ||
+    normalized.startsWith("fc") || normalized.startsWith("fd");
+}
+
+export function isBlockedIpAddress(address: string): boolean {
+  const family = isIP(address);
+  if (family === 4) return isBlockedIpv4(address);
+  if (family === 6) return isBlockedIpv6(address);
+  return true;
+}
+
+/**
+ * Validates a customer-controlled destination before an outbound integration call.
+ * Resolve hostnames as well as literal IPs so private and metadata networks are never targets.
+ */
+export async function validateEgressUrl(value: string): Promise<string> {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error("Endpoint URL must be a valid HTTPS URL.");
+  }
+
+  if (url.protocol !== "https:" || url.username || url.password || BLOCKED_HOSTNAMES.has(url.hostname)) {
+    throw new Error("Endpoint URL must be a public HTTPS URL.");
+  }
+
+  const literalFamily = isIP(url.hostname);
+  const addresses = literalFamily
+    ? [{ address: url.hostname }]
+    : await lookup(url.hostname, { all: true, verbatim: true });
+
+  if (addresses.length === 0 || addresses.some(({ address }) => isBlockedIpAddress(address))) {
+    throw new Error("Endpoint URL must not resolve to a private network.");
+  }
+
+  return url.toString();
+}

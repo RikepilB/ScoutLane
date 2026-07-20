@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { subscribe, unsubscribe } from "@/server/services/job-alerts";
+import { clientIpFromHeaders, createRateLimiter } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().email().max(254),
 });
 
+const jobAlertRateLimiter = createRateLimiter({ limit: 10, windowMs: 60_000 });
+
 export async function POST(request: NextRequest) {
   try {
+    const rate = jobAlertRateLimiter.check(clientIpFromHeaders(request.headers));
+    if (!rate.allowed) {
+      const retryAfter = Math.max(1, Math.ceil((rate.resetAt - Date.now()) / 1000));
+      return NextResponse.json(
+        { error: "Too many requests. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } },
+      );
+    }
+
     const body = schema.safeParse(await request.json());
     if (!body.success) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });

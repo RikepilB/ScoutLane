@@ -37,6 +37,11 @@ export function SignInForm({ showDevLogin, googleEnabled }: SignInFormProps) {
     await signIn("dev", { email, redirectTo: callbackUrl });
   };
 
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    await signIn("guest", { redirectTo: callbackUrl });
+  };
+
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden w-1/2 lg:block">
@@ -94,6 +99,17 @@ export function SignInForm({ showDevLogin, googleEnabled }: SignInFormProps) {
               Sign in with Google
             </button>
             )}
+
+            <button
+              onClick={handleGuestLogin}
+              disabled={loading}
+              className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-800/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700/60 disabled:opacity-50"
+            >
+              {loading ? "..." : "Continue as Guest"}
+            </button>
+            <p className="mb-3 text-center text-xs text-slate-500">
+              View-only demo access — no sign-up needed.
+            </p>
 
             {showDevLogin && (
               <>

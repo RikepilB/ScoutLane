@@ -103,6 +103,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                   <option value="text">Text</option>
                   <option value="textarea">Textarea</option>
                   <option value="select">Select</option>
+                  <option value="file">File upload</option>
                 </select>
               </div>
               {field.type === "select" && (
