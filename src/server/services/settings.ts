@@ -23,6 +23,7 @@ export async function updateMyProfile(
 ): Promise<SettingsActionResult> {
   const user = await getCurrentUserWithOrganization();
   if (!user) return { success: false, error: "Not authenticated" };
+  if (user.role === "GUEST") return { success: false, error: "Guests have read-only access." };
 
   const parsed = userProfileSelfSchema.safeParse({
     name: String(formData.get("name") ?? ""),

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
+import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
+import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 export async function POST(
   request: NextRequest,
@@ -19,6 +21,11 @@ export async function POST(
   if (!user?.organizationId) {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
+  try {
+    assertNotGuest(user);
+  } catch {
+    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
+  }
 
   const integration = await prisma.jobIntegration.findUnique({
     where: { id: integrationId },
@@ -27,6 +34,15 @@ export async function POST(
 
   if (!integration || integration.job.organizationId !== user.organizationId) {
     return NextResponse.json({ error: "Integration not found" }, { status: 404 });
+  }
+
+  try {
+    await validateEgressUrl(integration.endpointUrl);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Invalid endpoint URL" },
+      { status: 400 },
+    );
   }
 
   if (action === "test") {
@@ -62,6 +78,8 @@ export async function POST(
           ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
         },
         body: JSON.stringify(payload),
+        redirect: "manual",
+        signal: AbortSignal.timeout(10_000),
       });
       const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;
 
@@ -119,6 +137,8 @@ export async function POST(
           ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
         },
         body: last.requestBody,
+        redirect: "manual",
+        signal: AbortSignal.timeout(10_000),
       });
       const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;
 
@@ -176,6 +196,11 @@ export async function DELETE(
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!user?.organizationId) {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  }
+  try {
+    assertNotGuest(user);
+  } catch {
+    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
   }
 
   const integration = await prisma.jobIntegration.findUnique({

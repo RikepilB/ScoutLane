@@ -7,6 +7,7 @@ const { prismaMock, mockAuth, readResumeObject } = vi.hoisted(() => {
     prismaMock: {
       user: { findUnique: fn() },
       applicant: { findFirst: fn() },
+      applicantAttachment: { findFirst: fn() },
     },
     mockAuth: fn(),
     readResumeObject: fn(),
@@ -32,6 +33,7 @@ beforeEach(() => {
   mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
   prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1" });
   prismaMock.applicant.findFirst.mockResolvedValue({ id: "a1" });
+  prismaMock.applicantAttachment.findFirst.mockResolvedValue(null);
   readResumeObject.mockResolvedValue({
     buffer: Buffer.from("%PDF-1.4 fake"),
     contentType: "application/pdf",
@@ -56,6 +58,7 @@ describe("GET /api/resumes/[...objectName] authorization", () => {
 
   it("returns 404 when the resume belongs to another organization", async () => {
     prismaMock.applicant.findFirst.mockResolvedValueOnce(null);
+    prismaMock.applicantAttachment.findFirst.mockResolvedValueOnce(null);
 
     const response = await call(["resumes", "2026-06", "ada-uuid.pdf"]);
 

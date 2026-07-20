@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
+import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 function csvEscape(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return "";
@@ -24,6 +25,11 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!user?.organizationId) {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  }
+  try {
+    assertNotGuest(user);
+  } catch {
+    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
   }
 
   const job = await prisma.job.findFirst({

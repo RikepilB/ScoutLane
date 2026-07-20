@@ -1,28 +1,9 @@
 import { revalidatePath } from "next/cache";
-import type { ApplicationStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db/prisma";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { dispatchWebhook } from "@/lib/webhook";
+import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
 import { requireSession } from "@/server/services/_lib/validate-session";
-
-const stageNameToStatus: Record<string, ApplicationStatus> = {
-  APPLIED: "NEW",
-  NEW: "NEW",
-  SCREENING: "REVIEWING",
-  REVIEWING: "REVIEWING",
-  ASSESSMENT: "REVIEWING",
-  SHORTLISTED: "SHORTLISTED",
-  INTERVIEW: "INTERVIEW",
-  OFFER: "OFFERED",
-  OFFERED: "OFFERED",
-  HIRED: "OFFERED",
-  REJECTED: "REJECTED",
-  WITHDRAWN: "WITHDRAWN",
-};
-
-function deriveStatus(stageName: string): ApplicationStatus {
-  return stageNameToStatus[stageName.toUpperCase()] ?? "REVIEWING";
-}
 
 /**
  * Moves an applicant to a new pipeline stage.
@@ -64,7 +45,7 @@ export async function moveApplicantImpl(
 
   const newStage = await prisma.pipelineStage.findUnique({
     where: { id: newStageId },
-    select: { id: true, name: true, jobId: true },
+    select: { id: true, name: true, jobId: true, status: true },
   });
   if (!newStage || newStage.jobId !== existing.jobId) {
     return { success: false, code: "INVALID_STAGE" as const, error: "Invalid stage" };
@@ -81,14 +62,13 @@ export async function moveApplicantImpl(
       })
     : null;
 
-  const derivedStatus = deriveStatus(newStage.name);
   const now = new Date();
 
   const applicant = await prisma.applicant.update({
     where: { id: applicantId },
     data: {
       pipelineStageId: newStageId,
-      status: derivedStatus,
+      status: newStage.status,
       lastStageChangeAt: now,
     },
     include: { job: { select: { title: true } } },
@@ -115,7 +95,7 @@ export async function moveApplicantImpl(
       email: applicant.email,
       stageId: newStage.id,
       stageName: newStage.name,
-      status: derivedStatus,
+      status: newStage.status,
       jobTitle: applicant.job.title,
     }).catch(() => {});
   }
@@ -160,6 +140,7 @@ export async function moveApplicantImpl(
 
     if (!duplicateSuccess) {
       try {
+        await validateEgressUrl(integration.endpointUrl);
         const response = await fetch(integration.endpointUrl, {
           method: "POST",
           headers: {
@@ -167,6 +148,8 @@ export async function moveApplicantImpl(
             ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
           },
           body: JSON.stringify(payload),
+          redirect: "manual",
+          signal: AbortSignal.timeout(10_000),
         });
 
         const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { signPayload } from "./sign";
+import { validateEgressUrl } from "./validate-egress-url";
 
 interface DispatchResult {
   success: boolean;
@@ -30,10 +31,13 @@ export async function dispatchWebhook(webhookId: string, event: string, data: un
   };
 
   try {
+    await validateEgressUrl(webhook.url);
     const response = await fetch(webhook.url, {
       method: "POST",
       headers,
       body: payload,
+      redirect: "manual",
+      signal: AbortSignal.timeout(10_000),
     });
 
     await prisma.webhookLog.create({

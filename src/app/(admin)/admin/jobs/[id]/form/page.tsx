@@ -23,7 +23,7 @@ import { saveCustomFields } from "@/server/services/jobs/update";
 export interface CustomField {
   id: string;
   label: string;
-  type: "text" | "textarea" | "select";
+  type: "text" | "textarea" | "select" | "file";
   required: boolean;
   options?: string[];
 }
@@ -87,6 +87,7 @@ function SortableFieldRow({
             <option value="text">Text</option>
             <option value="textarea">Textarea</option>
             <option value="select">Select</option>
+            <option value="file">File upload</option>
           </select>
         </div>
         {field.type === "select" && (
@@ -130,6 +131,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
   const [fields, setFields] = useState<CustomField[]>([]);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     params.then((p) => {
@@ -179,16 +181,25 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
   async function handleSave() {
     if (!jobId) return;
     setSaving(true);
+    setSaveError(null);
     const normalized = fields.map((f) =>
       f.type === "select"
         ? { ...f, options: (f.options ?? []).map((o) => o.trim()).filter(Boolean) }
         : f,
     );
-    await saveCustomFields(jobId, normalized);
-    setFields(normalized);
-    setDirty(false);
-    setSaving(false);
-    router.refresh();
+    try {
+      const result = await saveCustomFields(jobId, normalized);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      setFields(normalized);
+      setDirty(false);
+      router.refresh();
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save custom fields.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -210,6 +221,12 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
           {saving ? "Saving..." : "Save"}
         </button>
       </div>
+
+      {saveError ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {saveError}
+        </p>
+      ) : null}
 
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-slate-900">Default fields</h3>

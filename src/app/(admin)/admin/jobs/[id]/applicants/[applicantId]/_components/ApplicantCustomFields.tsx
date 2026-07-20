@@ -3,7 +3,7 @@ import { ClipboardList } from "lucide-react";
 export type ConfiguredCustomField = {
   id: string;
   label: string;
-  type?: "text" | "textarea" | "select";
+  type?: "text" | "textarea" | "select" | "file";
   required?: boolean;
   options?: string[];
 };
@@ -40,6 +40,16 @@ export function ApplicantCustomFields({ configured, submitted }: ApplicantCustom
           return (
             <div key={field.id}>
               <dt className="text-xs font-medium text-muted-foreground">{field.label}</dt>
+              {hasValue && field.type === "file" ? (
+                <a
+                  href={value}
+                  className="mt-1 inline-block text-sm text-blue-700 underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Download file
+                </a>
+              ) : null}
               <dd className="mt-0.5 whitespace-pre-wrap text-sm text-slate-900">
                 {hasValue ? value : "—"}
               </dd>

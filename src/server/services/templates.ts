@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/prisma";
 import { templateSchema } from "@/schemas/template";
 import type { Prisma } from "@/generated/prisma/client";
 import { getCurrentUserWithOrganization } from "./current-user";
+import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 const defaultTemplateStages = [
   "Applied",
@@ -69,6 +70,7 @@ function formDataToTemplateInput(formData: FormData) {
 export async function createTemplate(): Promise<{ id: string }> {
   const user = await getCurrentUserWithOrganization();
   if (!user) redirect("/signin?callbackUrl=/admin/templates");
+  assertNotGuest(user);
 
   const template = await prisma.jobTemplate.create({
     data: {
@@ -96,6 +98,7 @@ export async function createTemplate(): Promise<{ id: string }> {
 export async function updateTemplate(id: string, formData: FormData) {
   const user = await getCurrentUserWithOrganization();
   if (!user) redirect("/signin?callbackUrl=/admin/templates");
+  assertNotGuest(user);
 
   const parsed = formDataToTemplateInput(formData);
   if (!parsed.success) {
@@ -138,6 +141,7 @@ export async function updateTemplate(id: string, formData: FormData) {
 export async function deleteTemplate(id: string) {
   const user = await getCurrentUserWithOrganization();
   if (!user) redirect("/signin?callbackUrl=/admin/templates");
+  assertNotGuest(user);
 
   await prisma.jobTemplate.deleteMany({
     where: {

@@ -6,6 +6,7 @@ const {
   applicantFindFirst,
   applicantCreate,
   applicantUpdate,
+  applicantAttachmentCreate,
   pipelineStageFindFirst,
   emailLogCreate,
   uploadFileBufferMock,
@@ -20,6 +21,7 @@ const {
   applicantFindFirst: vi.fn(),
   applicantCreate: vi.fn(),
   applicantUpdate: vi.fn(),
+  applicantAttachmentCreate: vi.fn(),
   pipelineStageFindFirst: vi.fn(),
   emailLogCreate: vi.fn(),
   uploadFileBufferMock: vi.fn(),
@@ -39,6 +41,7 @@ vi.mock("@/lib/db/prisma", () => ({
       create: applicantCreate,
       update: applicantUpdate,
     },
+    applicantAttachment: { create: applicantAttachmentCreate },
     pipelineStage: { findFirst: pipelineStageFindFirst },
     emailLog: { create: emailLogCreate },
   },
@@ -81,6 +84,95 @@ afterEach(() => {
   } else {
     process.env.RESUME_PARSE_MODE = originalMode;
   }
+});
+
+describe("custom application fields", () => {
+  it("rejects a missing required custom field on the server", async () => {
+    seedHappyPath();
+    jobFindUnique.mockResolvedValueOnce({
+      id: "job-1",
+      title: "Backend Engineer",
+      slug: "backend-engineer",
+      customFields: [{ id: "location", label: "Location", type: "select", required: true, options: ["Remote"] }],
+      archived: false,
+      published: true,
+      organization: { id: "org-1", users: [] },
+    });
+
+    const result = await submitJobApplicationImpl(buildFormData());
+
+    expect(result).toEqual({ success: false, error: "Location is required." });
+    expect(applicantCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects a select value outside the configured options", async () => {
+    seedHappyPath();
+    jobFindUnique.mockResolvedValueOnce({
+      id: "job-1",
+      title: "Backend Engineer",
+      slug: "backend-engineer",
+      customFields: [{ id: "location", label: "Location", type: "select", required: false, options: ["Remote"] }],
+      archived: false,
+      published: true,
+      organization: { id: "org-1", users: [] },
+    });
+    const formData = buildFormData();
+    formData.set("customFields", JSON.stringify({ location: "Unlisted" }));
+
+    const result = await submitJobApplicationImpl(formData);
+
+    expect(result).toEqual({ success: false, error: "Invalid selection for Location." });
+    expect(applicantCreate).not.toHaveBeenCalled();
+  });
+
+  it("uploads a custom file and records it against the applicant", async () => {
+    seedHappyPath([]);
+    jobFindUnique.mockResolvedValueOnce({
+      id: "job-1",
+      title: "Backend Engineer",
+      slug: "backend-engineer",
+      customFields: [{ id: "portfolio", label: "Portfolio", type: "file", required: true }],
+      archived: false,
+      published: true,
+      organization: { id: "org-1", users: [] },
+    });
+    uploadFileBufferMock
+      .mockResolvedValueOnce({
+        url: "/api/resumes/custom-fields/portfolio.pdf",
+        objectName: "custom-fields/portfolio.pdf",
+        contentType: "application/pdf",
+      })
+      .mockResolvedValueOnce({
+        url: "/api/resumes/resumes/resume.pdf",
+        objectName: "resumes/resume.pdf",
+        contentType: "application/pdf",
+      });
+    const formData = buildFormData();
+    formData.set(
+      "customFile:portfolio",
+      new File([new Uint8Array([0x25, 0x50, 0x44, 0x46])], "portfolio.pdf", {
+        type: "application/pdf",
+      }),
+    );
+
+    const result = await submitJobApplicationImpl(formData);
+
+    expect(result.success).toBe(true);
+    expect(applicantAttachmentCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        applicantId: "applicant-1",
+        fieldId: "portfolio",
+        objectName: "custom-fields/portfolio.pdf",
+      }),
+    });
+    expect(applicantCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          data: { customFields: { portfolio: "/api/resumes/custom-fields/portfolio.pdf" } },
+        }),
+      }),
+    );
+  });
 });
 
 describe("resume processing mode", () => {
@@ -137,6 +229,7 @@ function seedHappyPath(admins: string[] = ["admin@example.com"]) {
   pipelineStageFindFirst.mockResolvedValue({ id: "stage-1" });
   applicantCreate.mockResolvedValue({ id: "applicant-1" });
   applicantUpdate.mockResolvedValue({});
+  applicantAttachmentCreate.mockResolvedValue({});
   enqueueResumeParseJobMock.mockResolvedValue("resume-job-1");
   enqueueAdminNotificationEmailsMock.mockResolvedValue({
     enqueued: admins,

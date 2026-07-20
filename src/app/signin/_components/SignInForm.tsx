@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { AnimatedBackground } from "@/components/public/AnimatedBackground";
 
 interface SignInFormProps {
   showDevLogin: boolean;
@@ -35,6 +35,11 @@ export function SignInForm({ showDevLogin, googleEnabled }: SignInFormProps) {
   const handleDevLogin = async () => {
     setLoading(true);
     await signIn("dev", { email, redirectTo: callbackUrl });
+  };
+
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    await signIn("guest", { redirectTo: callbackUrl });
   };
 
   return (
@@ -94,6 +99,17 @@ export function SignInForm({ showDevLogin, googleEnabled }: SignInFormProps) {
               Sign in with Google
             </button>
             )}
+
+            <button
+              onClick={handleGuestLogin}
+              disabled={loading}
+              className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-800/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700/60 disabled:opacity-50"
+            >
+              {loading ? "..." : "Continue as Guest"}
+            </button>
+            <p className="mb-3 text-center text-xs text-slate-500">
+              View-only demo access — no sign-up needed.
+            </p>
 
             {showDevLogin && (
               <>

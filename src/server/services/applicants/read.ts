@@ -12,7 +12,7 @@ interface GetApplicantsParams {
 }
 
 export async function getApplicants({ jobId, search, status, sortBy = "createdAt", sortOrder = "desc" }: GetApplicantsParams) {
-  const user = await requireSession();
+  const user = await requireSession({ allowGuest: true });
 
   const where: any = { jobId, job: { organizationId: user.organizationId } };
 
@@ -39,7 +39,7 @@ export async function getApplicants({ jobId, search, status, sortBy = "createdAt
 }
 
 export async function getApplicantDetail(applicantId: string) {
-  const user = await requireSession();
+  const user = await requireSession({ allowGuest: true });
 
   const applicant = await prisma.applicant.findUnique({
     where: { id: applicantId },
