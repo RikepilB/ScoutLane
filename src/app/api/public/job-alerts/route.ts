@@ -7,11 +7,14 @@ const schema = z.object({
   email: z.string().email().max(254),
 });
 
+// ~10 subscribe attempts per minute per IP. Shared across requests in this
+// runtime instance; see src/lib/rate-limit.ts for production considerations.
 const jobAlertRateLimiter = createRateLimiter({ limit: 10, windowMs: 60_000 });
 
 export async function POST(request: NextRequest) {
   try {
-    const rate = jobAlertRateLimiter.check(clientIpFromHeaders(request.headers));
+    const ip = clientIpFromHeaders(request.headers);
+    const rate = jobAlertRateLimiter.check(ip);
     if (!rate.allowed) {
       const retryAfter = Math.max(1, Math.ceil((rate.resetAt - Date.now()) / 1000));
       return NextResponse.json(

@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { deriveStageStatus } from "@/lib/jobs/deriveStageStatus";
 import { requireSession } from "@/server/services/_lib/validate-session";
 import type { ApplicationStatus } from "@/generated/prisma/enums";
 
@@ -23,7 +24,7 @@ export async function createStageImpl(
   jobId: string,
   name: string,
   color?: string,
-  status: ApplicationStatus = "REVIEWING",
+  status: ApplicationStatus = deriveStageStatus(name),
 ) {
   const user = await requireSession();
   await assertJobAccess(jobId, user.organizationId);
@@ -69,19 +70,31 @@ export async function deleteStageImpl(stageId: string, reassignToStageId?: strin
   if (!stage) throw new Error("Stage not found");
 
   let targetStageId = reassignToStageId ?? null;
+  let targetStatus: ApplicationStatus | null = null;
   if (!targetStageId) {
     const fallback = await prisma.pipelineStage.findFirst({
       where: { jobId: stage.jobId, id: { not: stageId } },
       orderBy: { order: "asc" },
-      select: { id: true },
+      select: { id: true, status: true },
     });
     targetStageId = fallback?.id ?? null;
+    targetStatus = fallback?.status ?? null;
+  } else {
+    const target = await prisma.pipelineStage.findUnique({
+      where: { id: targetStageId },
+      select: { status: true },
+    });
+    targetStatus = target?.status ?? null;
   }
 
   if (targetStageId) {
     await prisma.applicant.updateMany({
       where: { jobId: stage.jobId, pipelineStageId: stageId },
-      data: { pipelineStageId: targetStageId, lastStageChangeAt: new Date() },
+      data: {
+        pipelineStageId: targetStageId,
+        lastStageChangeAt: new Date(),
+        ...(targetStatus ? { status: targetStatus } : {}),
+      },
     });
   }
 

@@ -10,12 +10,18 @@ describe("isBlockedIpAddress", () => {
     "169.254.169.254",
     "::1",
     "fe80::1",
+    "fe90::1",
+    "febf::1",
     "fd00::1",
+    "fc00::1",
+    "::ffff:127.0.0.1",
+    "::ffff:169.254.169.254",
+    "::ffff:7f00:1",
   ])("blocks private or local address %s", (address) => {
     expect(isBlockedIpAddress(address)).toBe(true);
   });
 
-  it.each(["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111"])(
+  it.each(["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111", "fec0::1", "::ffff:8.8.8.8"])(
     "allows public address %s",
     (address) => {
       expect(isBlockedIpAddress(address)).toBe(false);

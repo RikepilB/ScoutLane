@@ -140,6 +140,7 @@ async function main() {
     await prisma.pipelineStage.createMany({
       data: STAGE_NAMES.map((name, i) => ({
         jobId: job.id, name, order: i, color: STAGE_COLORS[i],
+        status: STAGE_STATUS_MAP[name] ?? "REVIEWING",
       })),
     });
 

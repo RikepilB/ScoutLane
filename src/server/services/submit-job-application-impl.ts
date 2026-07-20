@@ -130,7 +130,7 @@ export async function submitJobApplicationImpl(
     };
   }
 
-  const customFileUploads: Array<{
+  let customFileUploads: Array<{
     fieldId: string;
     filename: string;
     contentType: string;
@@ -139,34 +139,45 @@ export async function submitJobApplicationImpl(
     url: string;
   }> = [];
 
-  for (const field of configuredCustomFields) {
-    if (field.type !== "file") continue;
-    const file = formData.get(`customFile:${field.id}`);
-    if (!(file instanceof File) || file.size === 0) continue;
+  const pendingFileFields = configuredCustomFields
+    .filter((field) => field.type === "file")
+    .map((field) => ({ field, file: formData.get(`customFile:${field.id}`) }))
+    .filter((entry): entry is { field: (typeof configuredCustomFields)[number]; file: File } =>
+      entry.file instanceof File && entry.file.size > 0,
+    );
 
-    try {
-      assertResumeUploadAllowed({ size: file.size, mime: file.type, filename: file.name });
-      const uploaded = await uploadFileBuffer({
-        buffer: Buffer.from(await file.arrayBuffer()),
-        contentType: file.type || "application/octet-stream",
-        filename: file.name || "attachment",
-        prefix: "custom-fields",
-      });
-      customFileUploads.push({
-        fieldId: field.id,
-        filename: file.name || "attachment",
-        contentType: uploaded.contentType,
-        size: file.size,
-        objectName: uploaded.objectName,
-        url: uploaded.url,
-      });
-      customFields[field.id] = uploaded.url;
-    } catch (error) {
-      return {
-        success: false,
-        error: `${field.label}: ${error instanceof Error ? error.message : "File upload failed."}`,
-      };
-    }
+  try {
+    customFileUploads = await Promise.all(
+      pendingFileFields.map(async ({ field, file }) => {
+        try {
+          assertResumeUploadAllowed({ size: file.size, mime: file.type, filename: file.name });
+          const uploaded = await uploadFileBuffer({
+            buffer: Buffer.from(await file.arrayBuffer()),
+            contentType: file.type || "application/octet-stream",
+            filename: file.name || "attachment",
+            prefix: "custom-fields",
+          });
+          customFields[field.id] = uploaded.url;
+          return {
+            fieldId: field.id,
+            filename: file.name || "attachment",
+            contentType: uploaded.contentType,
+            size: file.size,
+            objectName: uploaded.objectName,
+            url: uploaded.url,
+          };
+        } catch (error) {
+          throw new Error(
+            `${field.label}: ${error instanceof Error ? error.message : "File upload failed."}`,
+          );
+        }
+      }),
+    );
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "File upload failed.",
+    };
   }
 
   const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());

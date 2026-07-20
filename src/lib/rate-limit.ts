@@ -23,16 +23,24 @@ type RateLimitResult = {
 
 type Counter = { count: number; resetAt: number };
 
+/** Sweep stale counters every N checks instead of on every single request. */
+const SWEEP_INTERVAL = 128;
+
 export function createRateLimiter(options: RateLimiterOptions) {
   const { limit, windowMs } = options;
   const now = options.now ?? Date.now;
   const counters = new Map<string, Counter>();
+  let checksSinceSweep = 0;
 
   return {
     check(key: string): RateLimitResult {
       const t = now();
-      for (const [counterKey, counter] of counters) {
-        if (t >= counter.resetAt) counters.delete(counterKey);
+      checksSinceSweep += 1;
+      if (checksSinceSweep >= SWEEP_INTERVAL) {
+        checksSinceSweep = 0;
+        for (const [counterKey, counter] of counters) {
+          if (t >= counter.resetAt) counters.delete(counterKey);
+        }
       }
       const existing = counters.get(key);
 

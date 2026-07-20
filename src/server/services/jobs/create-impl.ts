@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
+import { deriveStageStatus } from "@/lib/jobs/deriveStageStatus";
 import { getJobPersistence } from "@/lib/jobs/status";
 import { buildJobSlug } from "@/lib/slug";
 import type { JobActionResult } from "@/schemas/job";
@@ -126,6 +127,7 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
         create: stageNames.map((name: string, index: number) => ({
           name,
           order: index,
+          status: deriveStageStatus(name),
         })),
       },
     },
