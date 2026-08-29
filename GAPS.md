@@ -43,6 +43,18 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   `apiKey`) before passing to the client component. Single-file change.
 
 ### G3. Integration `apiKey` stored plaintext at rest (issue #103)
+- **Status (2026-08-29): Code resolved and deployed** via PR #124 — `apiKey`/webhook
+  `secret` now encrypted at rest (AES-256-GCM, `src/lib/security/integration-secrets.ts`),
+  with an additive migration script (`pnpm db:encrypt-integration-secrets`) that only
+  touches legacy plaintext rows (idempotent, transactional). `decryptSecret` deliberately
+  passes through un-migrated plaintext, so existing integrations keep working either way.
+  **Still open:** `INTEGRATION_SECRETS_ENCRYPTION_KEY` isn't confirmed set in Vercel prod —
+  without it, *new* integration/webhook secret writes throw (reads of already-plaintext
+  rows are unaffected). Needs the key set + the migration script run against prod once it
+  is; both require prod credentials this agent doesn't have. A follow-up branch
+  `fix/encrypt-integration-secrets` (worktree `C:/tmp/ScoutLane-encrypt-secrets`, unmerged,
+  not reviewed as part of this pass) adds key-rotation support
+  (`INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY`) and response-body redaction on top.
 - **What:** `JobIntegration.apiKey` and `endpointUrl` are stored unencrypted and sent as
   `Authorization: Bearer` on outbound calls.
 - **Where:** `prisma/schema.prisma:263`; written at
@@ -214,11 +226,17 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 - **Status (2026-07-17 WIP):** The `/admin/integrations` exposure is resolved in the current
   uncommitted worktree. The `/admin` dashboard query still requires separate verification.
 - **What:** The `/admin` dashboard and `/admin/integrations` page run counts/lists across
-  ALL organizations, unlike every other admin page which scopes by `organizationId`.
-- **Where:** `src/app/(admin)/admin/page.tsx` (counts/groupBy), `.../admin/integrations/page.tsx`.
+  ALL organizations, unlike every other admin page which scopes by `organizationId`. Same
+  pattern in `/admin/notifications`: `EmailLog` has no `organizationId` column at all (the
+  model itself isn't tenant-scoped), so its failed-email panel is unconditionally global —
+  every org sees every other org's failed applicant emails.
+- **Where:** `src/app/(admin)/admin/page.tsx` (counts/groupBy), `.../admin/integrations/page.tsx`,
+  `.../admin/notifications/page.tsx:58-62` (`prisma.emailLog.findMany`, no org filter — the
+  other two queries on that page already gate on `organizationId`).
 - **Why:** In a real multi-tenant deployment this leaks cross-org aggregates.
 - **Fix:** Add `where: { organizationId }` (via `getCurrentUserWithOrganization`) to those
-  page queries, matching the jobs/applicants pages.
+  page queries, matching the jobs/applicants pages. `EmailLog` needs a schema migration
+  (add `organizationId`, backfill, then filter) since it currently has no tenant column.
 
 ---
 
