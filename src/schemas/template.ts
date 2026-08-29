@@ -14,7 +14,10 @@ export const customFieldSchema = z
     label: z.string(),
     type: z.enum(["text", "textarea", "select", "file"]),
     required: z.boolean(),
-    options: z.array(z.string()).optional(),
+    options: z
+      .array(z.string())
+      .transform((options) => options.map((option) => option.trim()).filter(Boolean))
+      .optional(),
   })
   .superRefine((field, ctx) => {
     if (field.type === "select" && !field.options?.some((option) => option.trim().length > 0)) {

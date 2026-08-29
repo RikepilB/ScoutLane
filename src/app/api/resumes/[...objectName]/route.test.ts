@@ -73,4 +73,14 @@ describe("GET /api/resumes/[...objectName] authorization", () => {
     expect(response.headers.get("Content-Type")).toBe("application/pdf");
     expect(readResumeObject).toHaveBeenCalledWith("resumes/2026-06/ada-uuid.pdf");
   });
+
+  it("serves a custom-field attachment owned by the caller's organization", async () => {
+    prismaMock.applicant.findFirst.mockResolvedValueOnce(null);
+    prismaMock.applicantAttachment.findFirst.mockResolvedValueOnce({ id: "attachment-1" });
+
+    const response = await call(["custom-fields", "2026-06", "portfolio-uuid.pdf"]);
+
+    expect(response.status).toBe(200);
+    expect(readResumeObject).toHaveBeenCalledWith("custom-fields/2026-06/portfolio-uuid.pdf");
+  });
 });
