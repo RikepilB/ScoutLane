@@ -150,9 +150,15 @@ export async function submitJobApplicationImpl(
     customFileUploads = await Promise.all(
       pendingFileFields.map(async ({ field, file }) => {
         try {
-          assertResumeUploadAllowed({ size: file.size, mime: file.type, filename: file.name });
+          const fileBuffer = Buffer.from(await file.arrayBuffer());
+          assertResumeUploadAllowed({
+            size: file.size,
+            mime: file.type,
+            filename: file.name,
+            head: fileBuffer,
+          });
           const uploaded = await uploadFileBuffer({
-            buffer: Buffer.from(await file.arrayBuffer()),
+            buffer: fileBuffer,
             contentType: file.type || "application/octet-stream",
             filename: file.name || "attachment",
             prefix: "custom-fields",
@@ -188,6 +194,7 @@ export async function submitJobApplicationImpl(
       size: resumeFile.size,
       mime: resumeFile.type,
       filename: resumeFilename,
+      head: resumeBuffer,
     });
   } catch (error) {
     return {
@@ -298,7 +305,12 @@ export async function submitJobApplicationImpl(
   try {
     await dispatchEmail({
       kind: "applicant-confirmation",
-      payload: { to: email, applicantName, jobTitle: job.title },
+      payload: {
+        to: email,
+        applicantName,
+        jobTitle: job.title,
+        organizationId: job.organization?.id,
+      },
     });
   } catch (error) {
     console.error("[submit] failed to enqueue applicant confirmation email:", error);
@@ -309,6 +321,7 @@ export async function submitJobApplicationImpl(
           subject: `Application received for ${job.title}`,
           status: 0,
           error: "ENQUEUE_FAILED: applicant-confirmation",
+          organizationId: job.organization?.id,
         },
       })
       .catch(() => {});
@@ -330,6 +343,7 @@ export async function submitJobApplicationImpl(
         applicantName,
         applicantEmail: email,
         jobUrl: dashboardUrl,
+        organizationId: job.organization?.id,
       });
       if (fanOut.failed.length > 0) {
         await Promise.all(
@@ -341,6 +355,7 @@ export async function submitJobApplicationImpl(
                   subject: `New application: ${applicantName} → ${job.title}`,
                   status: 0,
                   error: `ENQUEUE_FAILED: ${enqueueError}`,
+                  organizationId: job.organization?.id,
                 },
               })
               .catch(() => {}),
@@ -358,6 +373,7 @@ export async function submitJobApplicationImpl(
                 subject: `New application: ${applicantName} → ${job.title}`,
                 status: 0,
                 error: "ENQUEUE_FAILED: admin-new-application (queue unreachable)",
+                organizationId: job.organization?.id,
               },
             })
             .catch(() => {}),
@@ -369,3 +385,4 @@ export async function submitJobApplicationImpl(
   revalidatePath(`/careers/${job.slug}`);
   return { success: true, warning };
 }
+

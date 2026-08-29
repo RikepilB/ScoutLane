@@ -239,11 +239,11 @@ export async function uploadFileBuffer({
 
 export async function uploadResumeFile(file: File): Promise<UploadedFileResult> {
   const filename = file.name || "resume.pdf";
-  // Defense-in-depth: re-assert the request-boundary limits so any caller of
-  // this storage entrypoint cannot bypass the size/type guard.
-  assertResumeUploadAllowed({ size: file.size, mime: file.type, filename });
-
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Defense-in-depth: re-assert the request-boundary limits (size, type, and
+  // content magic) so any caller of this storage entrypoint cannot bypass them.
+  assertResumeUploadAllowed({ size: file.size, mime: file.type, filename, head: buffer });
 
   return uploadFileBuffer({
     buffer,

@@ -34,6 +34,41 @@ export interface ResumeUploadCandidate {
   size: number;
   mime: string;
   filename: string;
+  /** Optional first bytes of the file for magic-byte validation. */
+  head?: Uint8Array;
+}
+
+const PDF_MAGIC = "%PDF-";
+const DOCX_MAGIC = "PK";
+const OLE2_MAGIC = [0xd0, 0xcf, 0x11, 0xe0];
+
+const HEAD_LENGTH = 8;
+
+function startsWithAscii(bytes: Uint8Array, prefix: string): boolean {
+  for (let i = 0; i < prefix.length; i++) {
+    if (bytes[i] === undefined || bytes[i] !== prefix.charCodeAt(i)) return false;
+  }
+  return true;
+}
+
+function startsWithBytes(bytes: Uint8Array, magic: Array<number>): boolean {
+  for (let i = 0; i < magic.length; i++) {
+    if (bytes[i] === undefined || bytes[i] !== magic[i]) return false;
+  }
+  return true;
+}
+
+/**
+ * Content sniffing: if the image/type is a known binary format, the actual
+ * bytes must match it. Text formats (txt/csv) and unknown heads are accepted —
+ * the primary defense is still the MIME/extension allowlist.
+ */
+export function sniffResumeMagic(head: Uint8Array | undefined, extension: string): boolean {
+  if (!head || head.byteLength === 0) return true;
+  if (extension === ".pdf") return startsWithAscii(head, PDF_MAGIC);
+  if (extension === ".docx") return startsWithAscii(head, DOCX_MAGIC);
+  if (extension === ".doc") return startsWithBytes(head, OLE2_MAGIC);
+  return true;
 }
 
 /**
@@ -41,7 +76,7 @@ export interface ResumeUploadCandidate {
  * MIME type nor an allowed extension. Mirrors the request-boundary rules so the
  * storage layer is safe to call directly.
  */
-export function assertResumeUploadAllowed({ size, mime, filename }: ResumeUploadCandidate): void {
+export function assertResumeUploadAllowed({ size, mime, filename, head }: ResumeUploadCandidate): void {
   if (size <= 0) {
     throw new Error("Resume file is empty.");
   }
@@ -52,5 +87,12 @@ export function assertResumeUploadAllowed({ size, mime, filename }: ResumeUpload
   }
   if (!isAllowedResumeMime(mime) && !hasAllowedResumeExtension(filename)) {
     throw new Error(`Unsupported resume file type: ${mime || "unknown"} (${filename}).`);
+  }
+  const normalized = filename.toLowerCase();
+  const extension = ALLOWED_RESUME_EXTENSIONS.find((ext) => normalized.endsWith(ext)) ?? "";
+  if (!sniffResumeMagic(head, extension)) {
+    throw new Error(
+      `File content does not match its declared type (${mime || "unknown"} / ${extension || filename}).`,
+    );
   }
 }
