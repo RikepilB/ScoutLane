@@ -7,10 +7,20 @@
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)](https://www.prisma.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
-[![Auth.js](https://img.shields.io/badge/Auth.js-v5-7C3AED)](https://authjs.dev)
+[![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?logo=clerk)](https://clerk.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Live demo:** [scoutlane.vercel.app](https://scoutlane.vercel.app)
+
+---
+
+## Auth: One-Click Demo + Clerk Invites
+
+- **Demo Admin** — `/signin?as=admin` mints a temporary session for `admin@scoutlane.local`
+- **Demo Recruiter** — `/signin?as=recruiter` mints a temporary session for `recruiter@scoutlane.local`
+- **Demo Guest** — `/signin` → "Continue as Guest" (`guest@scoutlane.local`, read-only)
+- **Clerk Invites** — Admins add users via Clerk Dashboard; they sign in at `/signin` with their Clerk account
+- **No Signup** — Public careers board requires no account; admin workspace requires Clerk sign-in or demo buttons
 
 ---
 
@@ -26,8 +36,9 @@
 - **Job Templates** — reusable templates with stages, descriptions, and screening questions
 - **External Integrations** — webhook dispatch on pipeline stage transitions
 - **Email Notifications** — instant confirmation emails via Resend
-- **Role-Based Access** — ADMIN / RECRUITER / HIRING_MANAGER roles with middleware guards
-- **Team Management** — organization settings and team member role assignment
+- **Guest Demo Access** — one-click read-only workspace tour for recruiters
+- **Clerk Authentication** — invitation-only sign-up; Google/email via Clerk Dashboard
+- **Role-Based Access** — ADMIN / RECRUITER / HIRING_MANAGER / GUEST with server-side enforcement
 
 ---
 
@@ -35,7 +46,8 @@
 
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — system design, request flow, directory map, auth model, end-to-end flows, known sharp edges.
 - [`docs/API.md`](./docs/API.md) — REST endpoint reference and Server Action catalog, plus webhook / per-stage integration payloads.
-- [`docs/PROJECT-GUIDE.md`](./docs/PROJECT-GUIDE.md) — product guide, feature inventory, user flows, and demo plan.
+- [`docs/PRODUCT-SPEC.md`](./docs/PRODUCT-SPEC.md) — current product spec, personas, features, demo script.
+- [`docs/PROJECT-GUIDE.md`](./docs/PROJECT-GUIDE.md) — user flows, admin manual, demo plan.
 - [`docs/TESTING.md`](./docs/TESTING.md) — current test files, commands, and next coverage priorities.
 - [`docs/HANDOFF.md`](./docs/HANDOFF.md) — latest implementation handoff, verification notes, known warnings, and recommended next steps.
 
@@ -49,7 +61,7 @@
 | **Language** | TypeScript 5 (strict) |
 | **Database** | PostgreSQL 16 |
 | **ORM** | Prisma 7 with `@prisma/adapter-pg` |
-| **Auth** | Auth.js v5 (NextAuth) — JWT strategy, Google OAuth + Dev login |
+| **Auth** | Clerk — invitation-only sign-up, guest demo, Prisma role sync |
 | **UI** | Tailwind CSS v4 + shadcn/ui components |
 | **Forms** | react-hook-form + Zod 4 validation |
 | **Charts** | Recharts |
@@ -78,7 +90,7 @@ cd ScoutLane
 
 # 2. Environment
 cp .env.example .env
-# Edit .env — at minimum set AUTH_SECRET and NEXT_PUBLIC_APP_URL
+# Edit .env — at minimum set Clerk keys and NEXT_PUBLIC_APP_URL (see .env.example)
 
 # 3. Start PostgreSQL
 docker compose up -d
@@ -96,7 +108,11 @@ pnpm db:seed
 pnpm dev
 ```
 
-Visit **http://localhost:3000** — go to `/signin` and enter any email to log in as ADMIN.
+Visit **http://localhost:3000**:
+- **Home** `/` — landing page with harness demo and one-click admin/recruiter entry
+- **Job board** `/jobs` — browse published jobs
+- **Apply** `/careers/[slug]` — submit an application
+- **Sign in** `/signin` — choose Admin, Recruiter, Guest, or Clerk invite
 
 ### Environment Variables
 
@@ -104,10 +120,10 @@ Visit **http://localhost:3000** — go to `/signin` and enter any email to log i
 |----------|----------|-------------|
 | `DATABASE_URL` | ✅ | PostgreSQL connection string |
 | `DIRECT_URL` | ✅ | Direct connection for migrations |
-| `AUTH_SECRET` | ✅ | Random 32-char base64 (`openssl rand -base64 32`) |
-| `AUTH_GOOGLE_ID` | for OAuth | Google OAuth client ID |
-| `AUTH_GOOGLE_SECRET` | for OAuth | Google OAuth client secret |
-| `INITIAL_ADMIN_EMAIL` | ✅ | Admin email for first-user bootstrap |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | ✅ | Clerk publishable key |
+| `CLERK_SECRET_KEY` | ✅ | Clerk secret key |
+| `CLERK_WEBHOOK_SECRET` | recommended | Webhook signing secret (user sync) |
+| `INITIAL_ADMIN_EMAIL` | ✅ | Email promoted to ADMIN on first sign-in |
 | `NEXT_PUBLIC_APP_URL` | ✅ | Public URL of the app |
 | `GCS_PROJECT_ID` | for uploads | Google Cloud project ID |
 | `GCS_BUCKET` | for uploads | GCS bucket name |
@@ -179,7 +195,7 @@ src/
 │   ├── public/                  # Application form
 │   └── admin/                   # Job form, status badges, etc.
 ├── lib/
-│   ├── auth/                    # Auth.js (Edge-safe config + full instance)
+│   ├── auth/                    # Clerk session sync + Prisma role mapping
 │   ├── db/                      # Prisma client
 │   ├── email/                   # Resend email sender
 │   ├── llm/                     # OpenRouter/OpenAI-compatible wrappers
@@ -222,11 +238,13 @@ CI: `lint → typecheck → test → build`
 
 ## Auth Notes
 
-- **Session strategy is JWT**, not database sessions (`strategy: "jwt"`)
-- **Two auth files:** `auth.config.ts` (Edge-safe, no Prisma — used by middleware) and `auth.ts` (full instance with PrismaAdapter — used by API routes and server actions)
-- **Middleware** only allows `ADMIN` role for `/admin/*`; `RECRUITER` and `HIRING_MANAGER` are redirected to `/access-denied`
-- **Dev login** (`NODE_ENV=development`): enter any email at `/signin` → logged in as `ADMIN`
-- **Production**: configure `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET` for Google OAuth; falls back to dev login if not configured
+- **Identity:** [Clerk](https://clerk.com) — invitation-only sign-up in production; configure Google/email in Clerk Dashboard.
+- **Roles:** Stored in Postgres (`User.role`): `ADMIN`, `RECRUITER`, `HIRING_MANAGER`, `GUEST`.
+- **Guest demo:** `/signin` → **Continue as Guest** → read-only `GUEST` session.
+- **First admin:** `INITIAL_ADMIN_EMAIL` is promoted to `ADMIN` on first Clerk sign-in sync.
+- **Middleware:** `clerkMiddleware` protects non-public routes; role checks also run in services via `requireSession()`.
+
+See [`docs/PRODUCT-SPEC.md`](./docs/PRODUCT-SPEC.md) §4 for full auth setup.
 
 ---
 
