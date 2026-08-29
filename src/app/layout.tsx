@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -13,6 +14,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const clerkPk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  const tree = (
+    <>
+      {children}
+      <Toaster position="top-right" richColors closeButton />
+    </>
+  );
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -24,8 +34,17 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
-        <Toaster position="top-right" richColors closeButton />
+        {clerkPk ? (
+          <ClerkProvider
+            signInUrl="/signin"
+            signInFallbackRedirectUrl="/admin"
+            afterSignOutUrl="/"
+          >
+            {tree}
+          </ClerkProvider>
+        ) : (
+          tree
+        )}
       </body>
     </html>
   );
