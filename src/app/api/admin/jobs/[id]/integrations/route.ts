@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
+import { encryptSecret } from "@/lib/security/integration-secrets";
 import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 export async function POST(
@@ -56,16 +57,24 @@ export async function POST(
     return NextResponse.json({ error: "Stage not found" }, { status: 404 });
   }
 
-  const integration = await prisma.jobIntegration.create({
-    data: {
-      jobId,
-      stageId,
-      endpointUrl: validatedEndpointUrl,
-      apiKey: apiKey ?? "",
-      includeQuestions: includeQuestions ?? false,
-      active: true,
-    },
-  });
+  let integration;
+  try {
+    integration = await prisma.jobIntegration.create({
+      data: {
+        jobId,
+        stageId,
+        endpointUrl: validatedEndpointUrl,
+        apiKey: encryptSecret(apiKey ?? ""),
+        includeQuestions: includeQuestions ?? false,
+        active: true,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("INTEGRATION_SECRETS_ENCRYPTION_KEY")) {
+      return NextResponse.json({ error: "Integration secret encryption is not configured" }, { status: 503 });
+    }
+    throw error;
+  }
 
   const { apiKey: _apiKey, ...safeIntegration } = integration;
   return NextResponse.json({ success: true, integration: safeIntegration }, { status: 201 });

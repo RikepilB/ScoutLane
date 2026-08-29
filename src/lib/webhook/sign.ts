@@ -8,8 +8,8 @@ function integrationKey(): string {
   return key ?? "";
 }
 
-export function signPayload(payload: string): string {
-  return createHmac("sha256", integrationKey()).update(payload).digest("hex");
+export function signPayload(payload: string, webhookSecret?: string): string {
+  return createHmac("sha256", webhookSecret || integrationKey()).update(payload).digest("hex");
 }
 
 export function verifyPayload(payload: string, signature: string): boolean {

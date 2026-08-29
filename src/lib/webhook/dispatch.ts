@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { signPayload } from "./sign";
 import { validateEgressUrl } from "./validate-egress-url";
+import { decryptSecret } from "@/lib/security/integration-secrets";
 
 interface DispatchResult {
   success: boolean;
@@ -22,7 +23,7 @@ export async function dispatchWebhook(webhookId: string, event: string, data: un
     data,
   });
 
-  const signature = signPayload(payload);
+  const signature = signPayload(payload, decryptSecret(webhook.secret ?? ""));
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

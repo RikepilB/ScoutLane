@@ -19,6 +19,7 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "db:seed": "prisma db seed",
+    "db:encrypt-integration-secrets": "tsx prisma/encrypt-integration-secrets.ts",
     "db:studio": "prisma studio",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
