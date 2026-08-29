@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isJobShortlinkPath } from "@/lib/auth/public-routes";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -28,7 +29,7 @@ function passthroughMiddleware(_req: NextRequest) {
 
 export default process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   ? clerkMiddleware(async (auth, req) => {
-      if (isPublicRoute(req)) {
+      if (isPublicRoute(req) || isJobShortlinkPath(req.nextUrl.pathname)) {
         return NextResponse.next();
       }
 

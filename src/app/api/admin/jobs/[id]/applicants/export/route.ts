@@ -2,13 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { assertNotGuest } from "@/server/services/_lib/validate-session";
-
-function csvEscape(value: string | number | null | undefined): string {
-  if (value === null || value === undefined) return "";
-  const s = String(value);
-  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-  return s;
-}
+import { csvEscape } from "@/lib/utils/csv";
 
 interface RouteProps {
   params: Promise<{ id: string }>;

@@ -50,21 +50,21 @@ function stringifyError(error: unknown): string {
   return truncate(scrubSecrets(raw));
 }
 
-async function logSent(to: string, subject: string): Promise<void> {
+async function logSent(to: string, subject: string, organizationId?: string): Promise<void> {
   await prisma.emailLog
-    .create({ data: { to, subject, status: 200, error: null } })
+    .create({ data: { to, subject, status: 200, error: null, organizationId } })
     .catch((err) => console.error("[email] failed to log sent email:", err));
 }
 
-async function logFailed(to: string, subject: string, error: string): Promise<void> {
+async function logFailed(to: string, subject: string, error: string, organizationId?: string): Promise<void> {
   await prisma.emailLog
-    .create({ data: { to, subject, status: 0, error } })
+    .create({ data: { to, subject, status: 0, error, organizationId } })
     .catch((err) => console.error("[email] failed to log failed email:", err));
 }
 
-async function logSkipped(to: string, subject: string): Promise<void> {
+async function logSkipped(to: string, subject: string, organizationId?: string): Promise<void> {
   await prisma.emailLog
-    .create({ data: { to, subject, status: 0, error: `SKIPPED: ${SKIP_REASON}` } })
+    .create({ data: { to, subject, status: 0, error: `SKIPPED: ${SKIP_REASON}`, organizationId } })
     .catch((err) => console.error("[email] failed to log skipped email:", err));
 }
 
@@ -72,20 +72,21 @@ interface DeliverInput {
   to: string;
   subject: string;
   html: string;
+  organizationId?: string;
 }
 
 function sanitizeSubject(value: string): string {
   return value.replace(/[\r\n]+/g, " ").trim();
 }
 
-async function deliver({ to, subject, html }: DeliverInput): Promise<EmailSendResult> {
+async function deliver({ to, subject, html, organizationId }: DeliverInput): Promise<EmailSendResult> {
   const resend = getResendClientOrNull();
   const from = getEmailFromOrNull();
   const safeSubject = sanitizeSubject(subject);
 
   if (!resend || !from) {
     console.warn(`[email] skipping send to ${to}: ${SKIP_REASON}`);
-    await logSkipped(to, safeSubject);
+    await logSkipped(to, safeSubject, organizationId);
     return { ok: false, skipped: true };
   }
 
@@ -94,21 +95,21 @@ async function deliver({ to, subject, html }: DeliverInput): Promise<EmailSendRe
     if (result.error) {
       const errorMessage = stringifyError(result.error);
       console.error(`[email] resend returned error for ${to}: ${errorMessage}`);
-      await logFailed(to, safeSubject, errorMessage);
+      await logFailed(to, safeSubject, errorMessage, organizationId);
       return { ok: false, skipped: false, error: errorMessage };
     }
     const id = result.data?.id;
     if (!id) {
       const errorMessage = "Resend returned no data and no error";
-      await logFailed(to, safeSubject, errorMessage);
+      await logFailed(to, safeSubject, errorMessage, organizationId);
       return { ok: false, skipped: false, error: errorMessage };
     }
-    await logSent(to, safeSubject);
+    await logSent(to, safeSubject, organizationId);
     return { ok: true, skipped: false, id };
   } catch (err) {
     const errorMessage = stringifyError(err);
     console.error(`[email] resend threw for ${to}: ${errorMessage}`);
-    await logFailed(to, safeSubject, errorMessage);
+    await logFailed(to, safeSubject, errorMessage, organizationId);
     return { ok: false, skipped: false, error: errorMessage };
   }
 }
@@ -126,6 +127,7 @@ export interface ApplicationConfirmationEmailInput {
   applicantName: string;
   jobTitle: string;
   to: string;
+  organizationId?: string;
 }
 
 export function buildApplicationConfirmationEmail({
@@ -156,9 +158,10 @@ export async function sendApplicationConfirmationEmail({
   applicantName,
   jobTitle,
   to,
+  organizationId,
 }: ApplicationConfirmationEmailInput): Promise<EmailSendResult> {
   const { subject, html } = buildApplicationConfirmationEmail({ applicantName, jobTitle });
-  return deliver({ to, subject, html });
+  return deliver({ to, subject, html, organizationId });
 }
 
 export async function sendJobAlertConfirmation(
@@ -203,14 +206,16 @@ export interface StatusChangeEmailInput {
   to: string;
   subject: string;
   bodyHtml: string;
+  organizationId?: string;
 }
 
 export async function sendCustomEmail({
   to,
   subject,
   bodyHtml,
+  organizationId,
 }: StatusChangeEmailInput): Promise<EmailSendResult> {
-  return deliver({ to, subject, html: bodyHtml });
+  return deliver({ to, subject, html: bodyHtml, organizationId });
 }
 
 export interface AdminNewApplicationEmailInput {
@@ -219,6 +224,7 @@ export interface AdminNewApplicationEmailInput {
   applicantName: string;
   applicantEmail: string;
   jobUrl: string;
+  organizationId?: string;
 }
 
 export async function sendAdminNewApplicationEmail({
@@ -227,6 +233,7 @@ export async function sendAdminNewApplicationEmail({
   applicantName,
   applicantEmail,
   jobUrl,
+  organizationId,
 }: AdminNewApplicationEmailInput): Promise<EmailSendResult> {
   const subject = `New application: ${applicantName} → ${jobTitle}`;
   const html = `
@@ -239,5 +246,5 @@ export async function sendAdminNewApplicationEmail({
         </p>
       </div>
     `;
-  return deliver({ to, subject, html });
+  return deliver({ to, subject, html, organizationId });
 }

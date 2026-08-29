@@ -185,7 +185,7 @@ describe("custom application fields", () => {
     const formData = buildFormData();
     formData.set(
       "customFile:portfolio",
-      new File([new Uint8Array([0x25, 0x50, 0x44, 0x46])], "portfolio.pdf", {
+      new File([new TextEncoder().encode("%PDF-1.7")], "portfolio.pdf", {
         type: "application/pdf",
       }),
     );
@@ -241,7 +241,7 @@ function buildFormData(overrides: Partial<{ jobSlug: string; email: string }> = 
   fd.set("jobSlug", overrides.jobSlug ?? "backend-engineer");
   fd.set(
     "resumeFile",
-    new File([new Uint8Array([0x25, 0x50, 0x44, 0x46])], "resume.pdf", {
+    new File([new TextEncoder().encode("%PDF-1.7")], "resume.pdf", {
       type: "application/pdf",
     }),
   );

@@ -56,11 +56,13 @@ export default async function NotificationsPage() {
           },
         })
       : [],
-    prisma.emailLog.findMany({
-      where: { status: { lt: 200 } },
-      orderBy: { createdAt: "desc" },
-      take: 12,
-    }),
+    organizationId
+      ? prisma.emailLog.findMany({
+          where: { status: { lt: 200 }, organizationId },
+          orderBy: { createdAt: "desc" },
+          take: 12,
+        })
+      : [],
   ]);
 
   const totalIssues = failedParsing.length + failedIntegrations.length + failedEmails.length;

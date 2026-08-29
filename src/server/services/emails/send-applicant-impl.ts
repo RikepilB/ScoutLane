@@ -66,6 +66,7 @@ export async function sendApplicantEmailImpl(input: {
     to: applicant.email,
     subject: parsed.data.subject,
     bodyHtml: sanitizedBody,
+    organizationId: applicant.job.organizationId,
   });
 
   if (result.skipped) {
