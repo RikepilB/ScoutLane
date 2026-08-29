@@ -49,7 +49,7 @@ describe("POST /api/admin/jobs/[id]/form", () => {
   it("returns 400 when a field has an invalid type", async () => {
     getCurrentUser.mockResolvedValue({ id: "u1", organizationId: "org1" });
     const res = await POST(
-      req({ customFields: [{ id: "x", label: "X", type: "file", required: false }] }),
+      req({ customFields: [{ id: "x", label: "X", type: "not-a-field", required: false }] }),
       ctx,
     );
     expect(res.status).toBe(400);

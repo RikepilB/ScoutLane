@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { templateSchema } from "./template";
+import { customFieldsSchema, templateSchema } from "./template";
 
 describe("templateSchema customFields", () => {
   it("accepts valid customFields array", () => {
@@ -22,5 +22,13 @@ describe("templateSchema customFields", () => {
       customFields: [],
     });
     expect(result.success).toBe(true);
+  });
+
+  it("requires at least one option for select fields", () => {
+    const result = customFieldsSchema.safeParse([
+      { id: "location", label: "Location", type: "select", required: false, options: [] },
+    ]);
+
+    expect(result.success).toBe(false);
   });
 });

@@ -21,7 +21,7 @@ interface CustomField {
   id: string;
   label: string;
   options?: string[];
-  type: "text" | "textarea" | "select";
+  type: "text" | "textarea" | "select" | "file";
   required: boolean;
 }
 
@@ -36,6 +36,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
+  const [customFiles, setCustomFiles] = useState<Record<string, File>>({});
 
   const form = useForm<JobApplicationInput>({
     resolver: zodResolver(jobApplicationSchema),
@@ -73,6 +74,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
 
     const missingCustomField = customFields.find((field) => {
       if (!field.required) return false;
+      if (field.type === "file") return !(customFiles[field.id] instanceof File);
       const value = customValues[field.id];
       return typeof value !== "string" || value.trim().length === 0;
     });
@@ -89,6 +91,9 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
     formData.set("phone", values.phone);
     formData.set("resumeFile", values.resumeFile);
     formData.set("customFields", JSON.stringify(customValues));
+    for (const [fieldId, file] of Object.entries(customFiles)) {
+      formData.set(`customFile:${fieldId}`, file);
+    }
 
     startTransition(async () => {
       const result = await submitJobApplication(formData);
@@ -118,6 +123,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
 
       form.reset();
       setCustomValues({});
+      setCustomFiles({});
       setSuccessMessage("Application submitted successfully.");
       setWarningMessage(result.warning ?? null);
     });
@@ -266,7 +272,23 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 {field.label}
                 {field.required && <span className="text-destructive ml-1">*</span>}
               </label>
-              {field.type === "textarea" ? (
+              {field.type === "file" ? (
+                <Input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.csv,.txt"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    setCustomFiles((prev) => {
+                      if (!file) {
+                        const { [field.id]: _removed, ...rest } = prev;
+                        return rest;
+                      }
+                      return { ...prev, [field.id]: file };
+                    });
+                  }}
+                  className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] file:text-[#0c1529]"
+                />
+              ) : field.type === "textarea" ? (
                 <textarea
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}

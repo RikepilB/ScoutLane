@@ -34,6 +34,12 @@ function getAllowedEmailDomain(): string | undefined {
  * - Dev Credentials provider: upsert an ADMIN `User` row (and an org) so admin
  *   Server Actions that look up the user by email always succeed locally. A DB
  *   failure here must never block dev sign-in.
+ * - Guest Credentials provider: upsert the fixed-identity guest user with role
+ *   `GUEST` forced on both create AND update. Must NOT fall through to the
+ *   generic Google/OAuth path below — that path defaults new users to
+ *   RECRUITER, which would silently escalate the read-only guest identity to
+ *   a full workspace role on any database where it hasn't been seeded yet
+ *   (fresh prod deploy, CI, post-`prisma:reset`).
  * - Google provider: optionally gate by `AUTH_ALLOWED_EMAIL_DOMAIN`, promote
  *   `INITIAL_ADMIN_EMAIL` to ADMIN, and upsert every signed-in user with an
  *   organization attached (the Prisma adapter creates users without one, which
@@ -60,6 +66,27 @@ export async function handleSignIn({ user, account }: SignInParams): Promise<boo
       });
     } catch {
       // Dev sign-in must never be blocked by a transient DB error.
+    }
+    return true;
+  }
+
+  if (account?.provider === "guest") {
+    if (!email) return true;
+    try {
+      const organizationId = await resolveOrganizationId();
+      await prisma.user.upsert({
+        where: { email },
+        create: {
+          email,
+          name: user.name ?? "Guest",
+          image: user.image ?? null,
+          role: "GUEST",
+          ...(organizationId ? { organizationId } : {}),
+        },
+        update: { role: "GUEST" },
+      });
+    } catch {
+      // Guest sign-in must never be blocked by a transient DB error.
     }
     return true;
   }

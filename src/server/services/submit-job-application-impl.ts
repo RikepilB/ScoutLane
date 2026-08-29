@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { canAcceptApplications } from "@/lib/jobs/status";
 import { parseApplicantResumeFromBuffer } from "@/lib/resume/parseApplicantResume";
 import { uploadFileBuffer } from "@/lib/storage/upload";
+import { assertResumeUploadAllowed } from "@/lib/storage/upload-limits";
 import {
   dispatchAdminNotificationEmails,
   dispatchEmail,
@@ -19,7 +20,9 @@ type ResumeProcessingMode = "inline" | "queue" | "queue-and-inline";
 type PublicCustomField = {
   id: string;
   label: string;
+  type?: "text" | "textarea" | "select" | "file";
   required?: boolean;
+  options?: string[];
 };
 
 export function getResumeProcessingMode(): ResumeProcessingMode {
@@ -91,6 +94,10 @@ export async function submitJobApplicationImpl(
     : [];
   const missingCustomField = configuredCustomFields.find((field) => {
     if (!field.required) return false;
+    if (field.type === "file") {
+      const file = formData.get(`customFile:${field.id}`);
+      return !(file instanceof File) || file.size === 0;
+    }
     const value = customFields[field.id];
     return typeof value !== "string" || value.trim().length === 0;
   });
@@ -98,8 +105,97 @@ export async function submitJobApplicationImpl(
     return { success: false, error: `${missingCustomField.label} is required.` };
   }
 
+  const invalidSelectField = configuredCustomFields.find((field) => {
+    if (field.type !== "select") return false;
+    const value = customFields[field.id];
+    return typeof value === "string" && value.length > 0 && !field.options?.includes(value);
+  });
+  if (invalidSelectField) {
+    return { success: false, error: `Invalid selection for ${invalidSelectField.label}.` };
+  }
+
+  const existingApplicant = await prisma.applicant.findFirst({
+    where: {
+      jobId: job.id,
+      email: { equals: email, mode: "insensitive" },
+    },
+    select: { id: true },
+  });
+
+  if (existingApplicant) {
+    return {
+      success: false,
+      field: "email",
+      error: DUPLICATE_APPLICATION_MESSAGE,
+    };
+  }
+
+  let customFileUploads: Array<{
+    fieldId: string;
+    filename: string;
+    contentType: string;
+    size: number;
+    objectName: string;
+    url: string;
+  }> = [];
+
+  const pendingFileFields = configuredCustomFields
+    .filter((field) => field.type === "file")
+    .map((field) => ({ field, file: formData.get(`customFile:${field.id}`) }))
+    .filter((entry): entry is { field: (typeof configuredCustomFields)[number]; file: File } =>
+      entry.file instanceof File && entry.file.size > 0,
+    );
+
+  try {
+    customFileUploads = await Promise.all(
+      pendingFileFields.map(async ({ field, file }) => {
+        try {
+          assertResumeUploadAllowed({ size: file.size, mime: file.type, filename: file.name });
+          const uploaded = await uploadFileBuffer({
+            buffer: Buffer.from(await file.arrayBuffer()),
+            contentType: file.type || "application/octet-stream",
+            filename: file.name || "attachment",
+            prefix: "custom-fields",
+          });
+          customFields[field.id] = uploaded.url;
+          return {
+            fieldId: field.id,
+            filename: file.name || "attachment",
+            contentType: uploaded.contentType,
+            size: file.size,
+            objectName: uploaded.objectName,
+            url: uploaded.url,
+          };
+        } catch (error) {
+          throw new Error(
+            `${field.label}: ${error instanceof Error ? error.message : "File upload failed."}`,
+          );
+        }
+      }),
+    );
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "File upload failed.",
+    };
+  }
+
   const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
   const resumeFilename = resumeFile.name || "resume.pdf";
+
+  try {
+    assertResumeUploadAllowed({
+      size: resumeFile.size,
+      mime: resumeFile.type,
+      filename: resumeFilename,
+    });
+  } catch (error) {
+    return {
+      success: false,
+      field: "resumeFile",
+      error: error instanceof Error ? error.message : "Invalid resume file.",
+    };
+  }
 
   let upload;
   try {
@@ -118,22 +214,6 @@ export async function submitJobApplicationImpl(
     };
   }
   const applicantName = `${firstName} ${lastName}`.trim();
-
-  const existingApplicant = await prisma.applicant.findFirst({
-    where: {
-      jobId: job.id,
-      email: { equals: email, mode: "insensitive" },
-    },
-    select: { id: true },
-  });
-
-  if (existingApplicant) {
-    return {
-      success: false,
-      field: "email",
-      error: DUPLICATE_APPLICATION_MESSAGE,
-    };
-  }
 
   const firstStage = await prisma.pipelineStage.findFirst({
     where: { jobId: job.id },
@@ -172,6 +252,21 @@ export async function submitJobApplicationImpl(
     }
     throw e;
   }
+
+  await Promise.all(
+    customFileUploads.map((attachment) =>
+      prisma.applicantAttachment.create({
+        data: {
+          applicantId: applicant.id,
+          fieldId: attachment.fieldId,
+          filename: attachment.filename,
+          objectName: attachment.objectName,
+          contentType: attachment.contentType,
+          size: attachment.size,
+        },
+      }),
+    ),
+  );
 
   let warning: string | undefined;
   const resumeProcessingMode = getResumeProcessingMode();

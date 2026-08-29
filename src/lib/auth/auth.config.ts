@@ -2,7 +2,10 @@ import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
-export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER";
+export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER" | "GUEST";
+
+/** Fixed identity for the public "Continue as Guest" demo login. Seeded in prisma/seed.ts. */
+export const GUEST_EMAIL = "guest@scoutlane.local";
 
 /**
  * Resolves the Google OAuth credentials from either the NextAuth-native
@@ -108,6 +111,22 @@ export default {
           }),
         ]
       : []),
+    // Fixed-identity guest login: no email/password prompt, no arbitrary identity,
+    // always mapped to the seeded GUEST role (read-only, enforced server-side in
+    // requireSession()). Safe to enable unconditionally, including on prod.
+    Credentials({
+      id: "guest",
+      name: "Guest",
+      credentials: {},
+      async authorize() {
+        return {
+          id: "guest-demo-user",
+          email: GUEST_EMAIL,
+          name: "Guest",
+          role: "GUEST" as const,
+        };
+      },
+    }),
     ...(isDevLoginAllowed()
       ? [
           Credentials({

@@ -8,11 +8,10 @@ import { prisma } from "@/lib/db/prisma";
  */
 
 /**
- * Returns true when an applicant whose resume resolves to `objectName` belongs to
- * the given organization. Database/local-dev uploads store the resume URL as the
- * canonical `/api/resumes/<objectName>` (slugged, so segments need no encoding),
- * which lets us match exactly. Externally-hosted resumes (GCS/S3) use absolute
- * URLs and are never served by this route.
+ * Returns true when a resume or custom-field attachment resolves to `objectName`
+ * and belongs to the given organization. Database/local-dev uploads use the
+ * canonical `/api/resumes/<objectName>` URL; externally-hosted files are never
+ * served by this route.
  */
 export async function resumeObjectBelongsToOrg(
   objectName: string,
@@ -20,7 +19,7 @@ export async function resumeObjectBelongsToOrg(
 ): Promise<boolean> {
   if (!objectName || !organizationId) return false;
 
-  const match = await prisma.applicant.findFirst({
+  const resumeMatch = await prisma.applicant.findFirst({
     where: {
       resumeUrl: `/api/resumes/${objectName}`,
       job: { is: { organizationId } },
@@ -28,7 +27,17 @@ export async function resumeObjectBelongsToOrg(
     select: { id: true },
   });
 
-  return match !== null;
+  if (resumeMatch) return true;
+
+  const attachmentMatch = await prisma.applicantAttachment.findFirst({
+    where: {
+      objectName,
+      applicant: { job: { is: { organizationId } } },
+    },
+    select: { id: true },
+  });
+
+  return attachmentMatch !== null;
 }
 
 export type ResumeAccess =

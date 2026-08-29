@@ -1,62 +1,15 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { Search, GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
-import { SkillsMultiSelect } from "@/components/applicants/SkillsMultiSelect";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
+import { isApplicationStatus, getFirstInstitution, getFirstDegree, getSkills } from "./_lib/applicant-filters";
+import { ApplicantsToolbar } from "./_components/ApplicantsToolbar";
+import { ApplicantsFilterForm } from "./_components/ApplicantsFilterForm";
+import { ApplicantsTable } from "./_components/ApplicantsTable";
 
 interface ApplicantsPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string>>;
-}
-
-// Allowed applicant status filter values — mirrors the `ApplicationStatus`
-// enum. Used to render the status chips AND to guard the value before it
-// reaches Prisma, since an unknown status would raise a query validation error.
-const APPLICATION_STATUSES = [
-  "NEW",
-  "REVIEWING",
-  "SHORTLISTED",
-  "INTERVIEW",
-  "OFFERED",
-  "REJECTED",
-  "WITHDRAWN",
-] as const;
-
-type ApplicationStatusFilter = (typeof APPLICATION_STATUSES)[number];
-
-function isApplicationStatus(value: string): value is ApplicationStatusFilter {
-  return (APPLICATION_STATUSES as readonly string[]).includes(value);
-}
-
-function extractFromData(data: unknown, field: string): string[] {
-  if (!data || typeof data !== "object") return [];
-  const d = data as Record<string, unknown>;
-  if (field === "institution") {
-    const edu = d.education as Array<{ institution?: string }> | undefined;
-    return (edu?.map((e) => e.institution).filter(Boolean) as string[]) ?? [];
-  }
-  if (field === "degree") {
-    const edu = d.education as Array<{ field?: string; degree?: string }> | undefined;
-    return (edu?.map((e) => e.field ?? e.degree).filter(Boolean) as string[]) ?? [];
-  }
-  if (field === "skills") {
-    return (d.skills as string[]) ?? [];
-  }
-  return [];
-}
-
-function getFirstInstitution(data: unknown): string | null {
-  return extractFromData(data, "institution")[0] ?? null;
-}
-
-function getFirstDegree(data: unknown): string | null {
-  return extractFromData(data, "degree")[0] ?? null;
-}
-
-function getSkills(data: unknown): string[] {
-  return extractFromData(data, "skills");
 }
 
 export default async function ApplicantsListPage({ params, searchParams }: ApplicantsPageProps) {
@@ -239,364 +192,33 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
-  function formatDate(date: Date) {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(date);
-  }
-
-  function buildHref(updates: Record<string, string | undefined>): string {
-    const params = new URLSearchParams();
-    const current = { ...filters, ...updates };
-    Object.entries(current).forEach(([k, v]) => {
-      if (v && v !== "all") params.set(k, v);
-    });
-    const qs = params.toString();
-    return `/admin/jobs/${id}/applicants${qs ? `?${qs}` : ""}`;
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2 text-xs">
-          <Link
-            href={buildHref({ stageId: undefined })}
-            className={`rounded-full px-3 py-1.5 font-medium ${
-              !filters.stageId || filters.stageId === "all"
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            All stages
-          </Link>
-          {stages.map((s: (typeof stages)[number]) => {
-            const active = filters.stageId === s.id;
-            return (
-              <Link
-                key={s.id}
-                href={buildHref({ stageId: s.id })}
-                className={`rounded-full px-3 py-1.5 font-medium ${
-                  active ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {s.name}
-              </Link>
-            );
-          })}
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className="flex items-center text-[11px] font-medium text-muted-foreground">Status:</span>
-          <Link
-            href={buildHref({ status: undefined })}
-            className={`rounded-full px-3 py-1.5 font-medium ${
-              !filters.status || filters.status === "all"
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            All
-          </Link>
-          {APPLICATION_STATUSES.map((s) => {
-            const active = filters.status === s;
-            return (
-              <Link
-                key={s}
-                href={buildHref({ status: s })}
-                className={`rounded-full px-3 py-1.5 font-medium ${
-                  active ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {s.charAt(0) + s.slice(1).toLowerCase()}
-              </Link>
-            );
-          })}
-        </div>
-        <Link
-          href={`/api/admin/jobs/${id}/applicants/export`}
-          className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-slate-800 hover:bg-muted/30"
-        >
-          Export CSV
-        </Link>
-      </div>
+      <ApplicantsToolbar
+        jobId={id}
+        filters={filters}
+        stages={stages}
+        sortedStats={sortedStats}
+        totalApplicants={totalApplicants}
+      />
 
-      {sortedStats.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-medium text-slate-700">
-            <span className="font-semibold text-slate-950">{totalApplicants}</span> Total
-          </div>
-          {sortedStats.map((s) => (
-            <div
-              key={s.name}
-              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-medium text-slate-700"
-            >
-              <span className="font-semibold text-slate-950">{s.count}</span> {s.name}
-            </div>
-          ))}
-        </div>
-      ) : null}
+      <ApplicantsFilterForm
+        filters={filters}
+        allInstitutions={allInstitutions}
+        allDegrees={allDegrees}
+        allSkills={allSkills}
+      />
 
-      <form
-        method="get"
-        className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:flex-row sm:flex-wrap sm:items-end"
-      >
-        <div className="relative min-w-[200px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            name="search"
-            defaultValue={filters.search || ""}
-            placeholder="Search name, email, skills, parsed resume…"
-            className="w-full rounded-xl border border-border/70 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-sky-500"
-          />
-        </div>
-        {allInstitutions.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium text-muted-foreground">Institution</label>
-            <select
-              name="institution"
-              defaultValue={filters.institution ?? ""}
-              className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-            >
-              <option value="">Any</option>
-              {allInstitutions.map((inst) => (
-                <option key={inst} value={inst}>
-                  {inst}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        {allDegrees.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium text-muted-foreground">Field / degree</label>
-            <select
-              name="degree"
-              defaultValue={filters.degree ?? ""}
-              className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-            >
-              <option value="">Any</option>
-              {allDegrees.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Score min</label>
-          <input
-            type="number"
-            name="scoreMin"
-            step="0.01"
-            min="0"
-            max="1"
-            placeholder="0.0"
-            defaultValue={filters.scoreMin ?? ""}
-            className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Score max</label>
-          <input
-            type="number"
-            name="scoreMax"
-            step="0.01"
-            min="0"
-            max="1"
-            placeholder="1.0"
-            defaultValue={filters.scoreMax ?? ""}
-            className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Applied from</label>
-          <input
-            type="date"
-            name="dateFrom"
-            defaultValue={filters.dateFrom ?? ""}
-            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Applied to</label>
-          <input
-            type="date"
-            name="dateTo"
-            defaultValue={filters.dateTo ?? ""}
-            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Skills contains</label>
-          <SkillsMultiSelect
-            name="skills"
-            defaultValue={filters.skills ?? ""}
-            availableSkills={allSkills}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Sort</label>
-          <select
-            name="sort"
-            defaultValue={filters.sort ?? "createdAt-desc"}
-            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-          >
-            <option value="createdAt-desc">Applied (newest)</option>
-            <option value="createdAt-asc">Applied (oldest)</option>
-            <option value="name-asc">Name A–Z</option>
-            <option value="name-desc">Name Z–A</option>
-            <option value="institution-asc">Institution A–Z</option>
-            <option value="institution-desc">Institution Z–A</option>
-            <option value="degree-asc">Degree A–Z</option>
-            <option value="degree-desc">Degree Z–A</option>
-            <option value="score-desc">Score (high)</option>
-            <option value="score-asc">Score (low)</option>
-            <option value="interviewDate-desc">Interview (newest)</option>
-            <option value="interviewDate-asc">Interview (oldest)</option>
-            <option value="pipelineStage-asc">Stage A–Z</option>
-            <option value="pipelineStage-desc">Stage Z–A</option>
-          </select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium text-muted-foreground">Group</label>
-          <select
-            name="group"
-            defaultValue={filters.group ?? ""}
-            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
-          >
-            <option value="">None</option>
-            <option value="institution">Institution</option>
-            <option value="degree">Degree / field</option>
-            <option value="pipelineStage">Pipeline stage</option>
-          </select>
-        </div>
-        {filters.stageId && filters.stageId !== "all" ? (
-          <input type="hidden" name="stageId" value={filters.stageId} />
-        ) : null}
-        {filters.status && filters.status !== "all" ? (
-          <input type="hidden" name="status" value={filters.status} />
-        ) : null}
-        <button
-          type="submit"
-          className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white hover:bg-slate-800"
-        >
-          Apply filters
-        </button>
-      </form>
-
-      {applicants.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-10 text-center text-sm text-muted-foreground">
-          No applicants found.
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-5 py-3 font-medium">Name</th>
-                <th className="px-5 py-3 font-medium">Institution</th>
-                <th className="px-5 py-3 font-medium">Program</th>
-                <th className="px-5 py-3 font-medium">Stage</th>
-                <th className="px-5 py-3 font-medium">Score</th>
-                <th className="px-5 py-3 font-medium">Applied</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {applicants.map((a: any) => {
-                if (a.isGroup) {
-                  return (
-                    <tr key={a.groupKey} className="bg-muted/30">
-                      <td colSpan={6} className="px-5 py-3 text-xs font-semibold text-muted-foreground">
-                        <GraduationCap className="mr-1.5 inline h-3.5 w-3.5" />
-                        {a.groupKey} — {a.count} applicant{a.count !== 1 ? "s" : ""}
-                      </td>
-                    </tr>
-                  );
-                }
-                return (
-                  <tr key={a.id} className="hover:bg-muted/20">
-                    <td className="px-5 py-4">
-                      <Link
-                        href={`/admin/jobs/${id}/applicants/${a.id}`}
-                        className="font-medium text-slate-950 hover:underline"
-                      >
-                        {a.name}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-4 text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <GraduationCap className="h-3 w-3 shrink-0" />
-                        <span className="truncate">{a.institution ?? "—"}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-muted-foreground">
-                      <span className="truncate">{a.degree ?? "—"}</span>
-                    </td>
-                    <td className="px-5 py-4 text-muted-foreground">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800">
-                        {a.pipelineStage?.name ?? (firstStageId ? "Unassigned" : "—")}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      {a.score ? (
-                        <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700">
-                          {a.score}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-muted-foreground">{formatDate(a.createdAt)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {totalApplicants > 0 && (
-        <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>
-            Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, totalApplicants)} of {totalApplicants} applicants
-          </p>
-          <div className="flex items-center gap-2">
-            {page > 1 ? (
-              <Link
-                href={buildHref({ page: String(page - 1), pageSize: String(pageSize) })}
-                className="inline-flex items-center gap-1 rounded-lg border border-border/70 px-3 py-1.5 text-xs font-medium hover:bg-muted/30"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                Previous
-              </Link>
-            ) : (
-              <span className="inline-flex items-center gap-1 rounded-lg border border-border/30 px-3 py-1.5 text-xs font-medium text-muted-foreground/40 cursor-not-allowed">
-                <ChevronLeft className="h-3.5 w-3.5" />
-                Previous
-              </span>
-            )}
-            <span className="text-xs">
-              Page {page} of {totalPages}
-            </span>
-            {page < totalPages ? (
-              <Link
-                href={buildHref({ page: String(page + 1), pageSize: String(pageSize) })}
-                className="inline-flex items-center gap-1 rounded-lg border border-border/70 px-3 py-1.5 text-xs font-medium hover:bg-muted/30"
-              >
-                Next
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
-            ) : (
-              <span className="inline-flex items-center gap-1 rounded-lg border border-border/30 px-3 py-1.5 text-xs font-medium text-muted-foreground/40 cursor-not-allowed">
-                Next
-                <ChevronRight className="h-3.5 w-3.5" />
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+      <ApplicantsTable
+        applicants={applicants}
+        jobId={id}
+        firstStageId={firstStageId}
+        filters={filters}
+        page={page}
+        pageSize={pageSize}
+        totalApplicants={totalApplicants}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

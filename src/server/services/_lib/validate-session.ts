@@ -12,7 +12,16 @@ function assertUser(user: unknown): asserts user is AuthenticatedUser {
   if (!user) throw new Error("Not authenticated");
 }
 
-export async function requireSession(): Promise<AuthenticatedUser> {
+/** Throws unless the user holds a non-GUEST role. Call at the top of every mutation. */
+export function assertNotGuest(user: { role: string }): void {
+  if (user.role === "GUEST") {
+    throw new Error("Guests have read-only access.");
+  }
+}
+
+export async function requireSession(
+  opts: { allowGuest?: boolean } = {},
+): Promise<AuthenticatedUser> {
   const session = await auth();
   const email = session?.user?.email;
   if (!email) throw new Error("Not authenticated");
@@ -23,6 +32,7 @@ export async function requireSession(): Promise<AuthenticatedUser> {
   });
   if (!user) throw new Error("User not found");
   if (!user.organizationId) throw new Error("User has no organization");
+  if (!opts.allowGuest) assertNotGuest(user);
 
   return {
     id: user.id,

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { StageDistributionChart, ApplicantTrendChart } from "@/components/dashboard/Charts";
+import { requireSession } from "@/server/services/_lib/validate-session";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,10 @@ function StatCard({ label, value, hint, icon: Icon, accent }: StatCardProps) {
 }
 
 export default async function AdminDashboardPage() {
+  const { organizationId } = await requireSession({ allowGuest: true });
+
   const jobs = await prisma.job.findMany({
+    where: { organizationId },
     include: { _count: { select: { applicants: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -52,18 +56,19 @@ export default async function AdminDashboardPage() {
 
   const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const newApplicantsThisWeek = await prisma.applicant.count({
-    where: { createdAt: { gte: oneWeekAgo } },
+    where: { createdAt: { gte: oneWeekAgo }, job: { organizationId } },
   });
 
   const stageDistribution = await prisma.applicant.groupBy({
     by: ["status"],
+    where: { job: { organizationId } },
     _count: { id: true },
     orderBy: { _count: { id: "desc" } },
   });
 
   const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
   const dailyCounts: Array<{ createdAt: Date }> = await prisma.applicant.findMany({
-    where: { createdAt: { gte: fourteenDaysAgo } },
+    where: { createdAt: { gte: fourteenDaysAgo }, job: { organizationId } },
     select: { createdAt: true },
     orderBy: { createdAt: "asc" },
   });

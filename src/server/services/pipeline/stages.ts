@@ -1,8 +1,13 @@
 "use server";
 
-export async function createStage(jobId: string, name: string, color?: string) {
+export async function createStage(
+  jobId: string,
+  name: string,
+  color?: string,
+  status?: import("@/generated/prisma/enums").ApplicationStatus,
+) {
   const { createStageImpl } = await import("./stages-impl");
-  return createStageImpl(jobId, name, color);
+  return createStageImpl(jobId, name, color, status);
 }
 
 export async function updateStage(stageId: string, data: { name?: string; color?: string; order?: number }) {

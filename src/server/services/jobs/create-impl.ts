@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
+import { deriveStageStatus } from "@/lib/jobs/deriveStageStatus";
 import { getJobPersistence } from "@/lib/jobs/status";
 import { buildJobSlug } from "@/lib/slug";
 import type { JobActionResult } from "@/schemas/job";
@@ -64,6 +65,9 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
   if (!currentUser) {
     return { success: false, error: "Your user record could not be found." };
   }
+  if (currentUser.role === "GUEST") {
+    return { success: false, error: "Guests have read-only access." };
+  }
 
   const organizationId =
     currentUser.organizationId ??
@@ -123,6 +127,7 @@ export async function createJobImpl(formData: FormData): Promise<JobActionResult
         create: stageNames.map((name: string, index: number) => ({
           name,
           order: index,
+          status: deriveStageStatus(name),
         })),
       },
     },

@@ -25,6 +25,11 @@ export default async function AdminLayout({
       <Sidebar user={user} />
       <div className="flex min-h-screen flex-1 flex-col">
         <MobileNav user={user} />
+        {user.role === "GUEST" && (
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
+            Viewing as Guest — read-only. Changes are disabled in this demo.
+          </div>
+        )}
         <main className="flex-1">{children}</main>
       </div>
     </div>
