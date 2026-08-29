@@ -11,6 +11,7 @@ export type EmailJob =
         applicantName: string;
         applicantEmail: string;
         jobUrl: string;
+        organizationId?: string;
       };
     }
   | {
@@ -19,6 +20,7 @@ export type EmailJob =
         to: string;
         applicantName: string;
         jobTitle: string;
+        organizationId?: string;
       };
     }
   | {
@@ -27,6 +29,7 @@ export type EmailJob =
         to: string;
         subject: string;
         bodyHtml: string;
+        organizationId?: string;
       };
     }
   | {
@@ -106,6 +109,7 @@ export interface AdminNotificationFanOutInput {
   applicantName: string;
   applicantEmail: string;
   jobUrl: string;
+  organizationId?: string;
 }
 
 export interface AdminFanOutResult {
@@ -126,6 +130,7 @@ export async function enqueueAdminNotificationEmails(
           applicantName: input.applicantName,
           applicantEmail: input.applicantEmail,
           jobUrl: input.jobUrl,
+          organizationId: input.organizationId,
         },
       }).then((jobId) => {
         if (!jobId) throw new Error("Queue accepted no job id");

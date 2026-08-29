@@ -85,6 +85,7 @@ export async function dispatchAdminNotificationEmails(
       applicantName: input.applicantName,
       applicantEmail: input.applicantEmail,
       jobUrl: input.jobUrl,
+      organizationId: input.organizationId,
     },
   }));
 

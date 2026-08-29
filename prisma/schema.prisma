@@ -41,6 +41,7 @@ model Organization {
   users     User[]
   jobs      Job[]
   templates JobTemplate[]
+  emailLogs EmailLog[]
 }
 
 model User {
@@ -318,12 +319,16 @@ model IntegrationLog {
 }
 
 model EmailLog {
-  id        String   @id @default(cuid())
-  to        String
-  subject   String
-  status    Int
-  error     String?
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  to             String
+  subject        String
+  status         Int
+  error          String?
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
 }
 
 model JobAlert {
