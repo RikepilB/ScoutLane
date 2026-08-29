@@ -6,6 +6,7 @@ import pg from "pg";
 import { STAGE_NAMES, STAGE_COLORS, STAGE_STATUS_MAP, generateParsedData } from "./seed-constants";
 import { templateSeeds } from "./seed-templates";
 import { jobsData } from "./seed-jobs";
+import { encryptSecret } from "../src/lib/security/integration-secrets";
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -112,7 +113,7 @@ async function main() {
     data: {
       id: "seed-webhook-1",
       url: "https://webhook.site/demo-endpoint",
-      secret: "demo-secret-key",
+      secret: encryptSecret("demo-secret-key"),
       events: ["applicant.status_changed", "applicant.created"],
       active: true,
     },
@@ -161,7 +162,7 @@ async function main() {
             jobId: job.id,
             stageId: interviewStage.id,
             endpointUrl: "https://assessment-api.demo/start",
-            apiKey: "sk-demo-integration-key",
+            apiKey: encryptSecret("sk-demo-integration-key"),
             includeQuestions: true,
             active: true,
           },

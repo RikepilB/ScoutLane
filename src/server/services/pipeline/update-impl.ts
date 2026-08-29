@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { dispatchWebhook } from "@/lib/webhook";
 import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
+import { decryptSecret } from "@/lib/security/integration-secrets";
 import { requireSession } from "@/server/services/_lib/validate-session";
 
 /**
@@ -140,12 +141,13 @@ export async function moveApplicantImpl(
 
     if (!duplicateSuccess) {
       try {
+        const apiKey = decryptSecret(integration.apiKey);
         await validateEgressUrl(integration.endpointUrl);
         const response = await fetch(integration.endpointUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
+            ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
           },
           body: JSON.stringify(payload),
           redirect: "manual",

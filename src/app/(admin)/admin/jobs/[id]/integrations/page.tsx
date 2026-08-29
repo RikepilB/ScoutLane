@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { IntegrationForm } from "./_components/IntegrationForm";
 import { IntegrationList } from "./_components/IntegrationList";
+import { decryptSecret, maskSecret } from "@/lib/security/integration-secrets";
 
 interface IntegrationsPageProps {
   params: Promise<{ id: string }>;
@@ -22,6 +23,7 @@ export default async function IntegrationsPage({ params }: IntegrationsPageProps
         select: {
           id: true,
           endpointUrl: true,
+          apiKey: true,
           active: true,
           includeQuestions: true,
           lastSuccessAt: true,
@@ -51,7 +53,12 @@ export default async function IntegrationsPage({ params }: IntegrationsPageProps
 
       <IntegrationForm jobId={id} stages={job.stages} />
 
-      <IntegrationList integrations={job.integrations} />
+      <IntegrationList
+        integrations={job.integrations.map(({ apiKey, ...integration }) => ({
+          ...integration,
+          apiKeyMasked: maskSecret(decryptSecret(apiKey)),
+        }))}
+      />
     </div>
   );
 }
