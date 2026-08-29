@@ -125,6 +125,41 @@ describe("custom application fields", () => {
     expect(applicantCreate).not.toHaveBeenCalled();
   });
 
+  it("saves a configured select value and strips unconfigured values", async () => {
+    seedHappyPath();
+    jobFindUnique.mockResolvedValueOnce({
+      id: "job-1",
+      title: "Backend Engineer",
+      slug: "backend-engineer",
+      customFields: [{ id: "location", label: "Location", type: "select", required: true, options: ["Remote"] }],
+      archived: false,
+      published: true,
+      organization: { id: "org-1", users: [] },
+    });
+    const formData = buildFormData();
+    formData.set("customFields", JSON.stringify({ location: "Remote", injected: "ignore me" }));
+
+    const result = await submitJobApplicationImpl(formData);
+
+    expect(result.success).toBe(true);
+    expect(applicantCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ data: { customFields: { location: "Remote" } } }),
+      }),
+    );
+  });
+
+  it("rejects a non-string custom field value payload", async () => {
+    seedHappyPath();
+    const formData = buildFormData();
+    formData.set("customFields", JSON.stringify({ location: { city: "Remote" } }));
+
+    const result = await submitJobApplicationImpl(formData);
+
+    expect(result).toEqual({ success: false, error: "Invalid custom application fields." });
+    expect(applicantCreate).not.toHaveBeenCalled();
+  });
+
   it("uploads a custom file and records it against the applicant", async () => {
     seedHappyPath([]);
     jobFindUnique.mockResolvedValueOnce({

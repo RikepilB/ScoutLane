@@ -31,4 +31,17 @@ describe("templateSchema customFields", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("trims persisted select options and removes blank entries", () => {
+    const result = customFieldsSchema.safeParse([
+      { id: "location", label: "Location", type: "select", required: true, options: [" Remote "] },
+    ]);
+
+    expect(result).toMatchObject({ success: true, data: [{ options: ["Remote"] }] });
+    expect(
+      customFieldsSchema.parse([
+        { id: "location", label: "Location", type: "select", required: true, options: ["Remote", " "] },
+      ]),
+    ).toMatchObject([{ options: ["Remote"] }]);
+  });
 });

@@ -74,7 +74,10 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
 
     const missingCustomField = customFields.find((field) => {
       if (!field.required) return false;
-      if (field.type === "file") return !(customFiles[field.id] instanceof File);
+      if (field.type === "file") {
+        const file = customFiles[field.id];
+        return !(file instanceof File) || file.size === 0;
+      }
       const value = customValues[field.id];
       return typeof value !== "string" || value.trim().length === 0;
     });
@@ -276,6 +279,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 <Input
                   type="file"
                   accept=".pdf,.doc,.docx,.csv,.txt"
+                  required={field.required}
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     setCustomFiles((prev) => {
@@ -290,6 +294,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 />
               ) : field.type === "textarea" ? (
                 <textarea
+                  required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
                   rows={4}
@@ -298,6 +303,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 />
               ) : field.type === "select" ? (
                 <select
+                  required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
                   className="flex h-11 w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
@@ -312,6 +318,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
               ) : (
                 <input
                   type="text"
+                  required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
                   className="flex h-11 w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm placeholder:text-[#64748b] focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
