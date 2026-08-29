@@ -98,6 +98,11 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   first — may be by-design for the take-home.
 
 ### G6. Rate limiter is bypassable and incomplete
+- **Status (2026-08-29): Resolved** — the public job-alerts route now uses the shared
+  `createRateLimiter` (10/min/IP), and `clientIpFromHeaders` trusts
+  `x-vercel-forwarded-for` first and the *rightmost* `x-forwarded-for` hop as fallback
+  (instead of the spoofable leftmost). Redis-backing across instances remains a larger
+  follow-up if the app grows beyond a single serverless instance.
 - **What:** (a) client IP is taken from the *leftmost* `x-forwarded-for`, which the
   client controls — rotate it to defeat the limiter. (b) In-memory per-instance, resets
   on cold start, doesn't span serverless instances. (c) The public job-alerts subscribe
@@ -110,6 +115,12 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   or a Vercel header) instead of the leftmost XFF. Redis-backing is a larger follow-up.
 
 ### G7. Resume upload accepts client-declared type only (no content sniffing)
+- **Status (2026-08-29): Resolved** — `assertResumeUploadAllowed` (src/lib/storage/upload-limits.ts)
+  now sniffs magic bytes when a head buffer is provided: PDFs must start with
+  `%PDF-`, DOCX must be ZIP-based, legacy .doc must be OLE2; text formats pass
+  unscrutinized. Wired at every upload site (storage-layer `uploadResumeFile`,
+  the primary submit path, and custom-file fields), so even direct
+  `uploadFileBuffer` callers hit the same guard.
 - **What:** A file is accepted if its MIME **or** extension matches — both client-supplied;
   no magic-byte validation. Worse, the primary submit path uploads via `uploadFileBuffer`
   directly, bypassing the `assertResumeUploadAllowed` storage-layer guard, relying solely
@@ -124,6 +135,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   `assertResumeUploadAllowed`, and call that guard from the primary submit path.
 
 ### G8. CSV export — formula injection not neutralized
+- **Status (2026-08-29): Resolved** — `csvEscape` moved to src/lib/utils/csv.ts and
+  now prefixes `=`, `+`, `-`, `@` and leading tab/CR fields with `'` before quoting.
+  Export route imports the shared helper; covered by unit tests.
 - **What:** `csvEscape` quotes `",\n` but doesn't neutralize leading `= + - @`. Applicant
   `name`/`email`/custom values flow into the export → Excel/Sheets formula injection.
 - **Where:** `src/app/api/admin/jobs/[id]/applicants/export/route.ts:5-10,57-69`.
@@ -136,6 +150,10 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟠 Test coverage
 
 ### G9. Middleware and the central auth gate are untested
+- **Status (2026-08-29): Partially resolved** — the shortlink classification
+  logic (`src/lib/auth/public-routes.ts`) is now extracted and unit-tested
+  (`public-routes.test.ts`); the Clerk middleware wrapper itself and
+  `requireSession` remain untested.
 - **What:** `src/middleware.ts` (public allowlist, unauth→/signin, non-role→/access-denied)
   has **no test** — only the underlying `auth.config.ts` helpers are unit-tested. The
   reusable `requireSession()` gate and `getCurrentUserWithOrganization()` are also untested
@@ -215,6 +233,10 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 - **Fix:** Mirror the emails.ts cleanup in resume.ts (clear the cached promise on failure).
 
 ### G16. `/[slug]` shortlink is auth-gated by accident; `/careers` has no page
+- **Status (2026-08-29): Resolved** — `src/lib/auth/public-routes.ts` classifies bare
+  single-segment paths as public (excluding every top-level app root and static file),
+  so anonymous visitors can follow `/my-job-slug` → `/careers/my-job-slug`. A bare
+  `/careers` now renders the public job board (same component as `/jobs`).
 - **What:** The bare `/{slug}` public shortlink is NOT in the middleware public allowlist,
   so anonymous visitors get redirected to `/signin` instead of the job. Separately, a bare
   `/careers` is whitelisted but has no `page.tsx` (404).
@@ -225,8 +247,13 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   catch-all), or redirect `/careers` → `/`. Small, but test the matcher regex.
 
 ### G17. Non-org-scoped admin queries
-- **Status (2026-07-17 WIP):** The `/admin/integrations` exposure is resolved in the current
-  uncommitted worktree. The `/admin` dashboard query still requires separate verification.
+- **Status (2026-08-29): Resolved** — the `/admin` dashboard and `/admin/integrations`
+  queries were already org-scoped; the one remaining leak, `EmailLog` (the notifications
+  "Email delivery" panel), is now tenant-scoped via an additive migration
+  (`organizationId` column + index, backfill of legacy rows not possible so old rows
+  simply match no org) and every EmailLog write site threads the organization id
+  through the queue payloads. `EmailLog`'s model now carries an optional FK to
+  `Organization` (SET NULL on delete).
 - **What:** The `/admin` dashboard and `/admin/integrations` page run counts/lists across
   ALL organizations, unlike every other admin page which scopes by `organizationId`. Same
   pattern in `/admin/notifications`: `EmailLog` has no `organizationId` column at all (the
@@ -245,6 +272,11 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟡 Lower-severity security
 
 ### G18. Dev credentials provider grants ADMIN to any email
+- **Status (2026-08-29): Obsolete** — the legacy NextAuth dev provider
+  (`src/lib/auth/auth.config.ts` / `sign-in.ts`) was removed in the Clerk migration
+  (PR #119–#121). Today's demo sign-in mints a short-lived Clerk `signInToken` for
+  an existing seeded Clerk user (`src/lib/auth/demo-sign-in.ts`) — it cannot mint
+  an arbitrary session.
 - **What:** Provider `"dev"` mints an ADMIN session for any email, no password. Correctly
   gated to `NODE_ENV=development || ALLOW_DEV_LOGIN=1` (the old implicit-enable bug is
   fixed). Residual: setting `ALLOW_DEV_LOGIN=1` in a real deploy = full auth bypass.
@@ -253,6 +285,10 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   or at minimum a loud startup warning. Keep it out of all prod env configs.
 
 ### G19. Stale role in JWT after a DB role change
+- **Status (2026-08-29): Obsolete** — the Clerk migration replaced the NextAuth JWT
+  strategy; `getAppSession()` (`src/lib/auth/session.ts`) syncs the user from Clerk and
+  reads `role` fresh from the database on every call, so a DB role change is reflected
+  immediately.
 - **What:** Role lives in the JWT; a demotion in the DB isn't reflected until token refresh
   (`maxAge` 7d / `updateAge` 1d). Middleware reads role from the token.
 - **Where:** `src/lib/auth/auth.ts:15-32`, `src/middleware.ts:23`, `auth.config.ts:140-143`.
@@ -264,9 +300,11 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## ⚪ Tech debt & cleanup
 
 ### G20. Dead code
+- **Status (2026-08-29): Partially resolved** — `src/server/services/_lib/errors.ts`
+  and `src/components/public/VideoHero.tsx` deleted (zero call sites).
 - `src/server/services/_lib/errors.ts` — `ServiceError`/`unauthorized()`/`notFound()`,
-  zero call sites. **Fix:** delete the file.
-- `src/components/public/VideoHero.tsx` — exported, no external importer. **Fix:** delete.
+  zero call sites. **Fix:** delete the file. *(done)*
+- `src/components/public/VideoHero.tsx` — exported, no external importer. **Fix:** delete. *(done)*
 - `Session` + `VerificationToken` Prisma models — unused under JWT strategy with only
   OAuth/dev providers. **Fix:** leave for now (removing needs a migration + adapter check);
   document as intentionally-vestigial. `NOTES.md:41`.
