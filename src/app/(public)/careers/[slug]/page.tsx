@@ -7,7 +7,8 @@ import { renderMarkdown } from "@/lib/utils/markdown";
 import type { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Briefcase, DollarSign, ArrowLeft, Building, LogIn } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, Building } from "lucide-react";
+import { PublicNav } from "@/components/public/PublicNav";
 
 // Inline job runner work (resume parse + email sends via after()) can outlive
 // the default serverless duration; give the apply action room to finish.
@@ -33,7 +34,7 @@ function JobUnavailableState() {
           This application link may have been removed, archived, or entered incorrectly.
         </p>
         <Button asChild className="rounded-full bg-[#1B2CC1] hover:bg-[#3D518C]">
-          <Link href="/">Return home</Link>
+          <Link href="/jobs">Browse jobs</Link>
         </Button>
       </div>
     </div>
@@ -128,41 +129,10 @@ export default async function JobApplicationPage({ params }: Props) {
 
       {/* Header */}
       <header className="relative z-[1] border-b border-white/[0.10] bg-[#091540]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white"
-              style={{
-                background: "linear-gradient(135deg, #1B2CC1, #161fa8)",
-                fontFamily: "var(--font-display)",
-                letterSpacing: "-0.04em",
-                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12)",
-              }}>
-              SL
-            </span>
-            <span className="text-[15px] font-semibold tracking-[-0.01em] text-[#f1f5f9] max-[420px]:hidden"
-              style={{ fontFamily: "var(--font-display)" }}>
-              ScoutLane
-            </span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#ABD2FA] transition-colors hover:text-white"
-              style={{ fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span className="max-[420px]:hidden">All positions</span>
-            </Link>
-            {session?.user ? (
-              <Button asChild size="sm" className="rounded-full border border-white/[0.12] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:text-white">
-                <Link href="/admin">Dashboard</Link>
-              </Button>
-            ) : (
-              <Button asChild size="sm" className="rounded-full bg-[#1B2CC1] hover:bg-[#3D518C]">
-                <Link href="/signin" className="inline-flex items-center gap-1.5">
-                  <LogIn className="h-3.5 w-3.5" />
-                  Sign in
-                </Link>
-              </Button>
-            )}
-          </div>
+        <div className="mx-auto max-w-6xl px-5 py-2 sm:px-6">
+          <PublicNav
+            session={session ? { user: { email: session.user?.email ?? undefined } } : null}
+          />
         </div>
       </header>
 

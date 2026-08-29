@@ -14,6 +14,7 @@ Use this directory as the project handoff and implementation reference. Start wi
 | Doc | Purpose |
 |---|---|
 | [HANDOFF.md](./HANDOFF.md) | Fast current-state index, open issues, session history, and next-agent context. |
+| [PRODUCT-SPEC.md](./PRODUCT-SPEC.md) | **Current product spec** — personas, features, auth, demo script, spec divergences. |
 | [PROJECT-GUIDE.md](./PROJECT-GUIDE.md) | Product overview, user flows, feature inventory, and demo guide. |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System topology, module boundaries, auth, data model, and sharp edges. |
 | [API.md](./API.md) | REST endpoints, Server Actions, request/response shapes, and integration payloads. |
@@ -21,7 +22,7 @@ Use this directory as the project handoff and implementation reference. Start wi
 | [INTEGRATIONS.md](./INTEGRATIONS.md) | External services: auth, database, storage, email, AI, webhooks, workers. |
 | [TESTING.md](./TESTING.md) | Unit, API, component, and E2E testing strategy. |
 | [UX-TEST-PROTOCOL.md](./UX-TEST-PROTOCOL.md) | Automated and moderated UX validation protocol. |
-| [ASSESSMENT-PROGRESS.md](./ASSESSMENT-PROGRESS.md) | Take-home requirement scoreboard: done / partial / remaining. |
+| [ASSESSMENT-PROGRESS.md](./ASSESSMENT-PROGRESS.md) | Take-home requirement scoreboard vs archived [spec](./archive/spec-v1-take-home-draft.md). |
 | [SECURITY-AUDIT.md](./SECURITY-AUDIT.md) | Security evidence, remaining risk, and next proof needed. |
 | [CLAUDE.md](./CLAUDE.md) | Claude/agent operating context for this project. |
 

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { groupByDepartment, type PublicJob } from "./careers-department-grouping";
-import { CareersNav } from "./CareersNav";
+import { PublicNav } from "./PublicNav";
 import { CareersHero } from "./CareersHero";
 import { CareersFilterBar } from "./CareersFilterBar";
 import { CareersJobList } from "./CareersJobList";
@@ -100,7 +100,7 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
       />
 
       <div className="relative z-[1] mx-auto max-w-[1240px] px-7 pb-20 pt-6">
-        <CareersNav session={session} />
+        <PublicNav session={session} className="mb-9" />
 
         <CareersHero count={count} session={session} />
 

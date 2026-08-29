@@ -46,7 +46,7 @@ The biggest remaining gaps are not the basic CRUD surfaces. They are polish, eva
 | Assessment Area | Status | Evidence | Remaining Gap |
 |---|---|---|---|
 | Public application portal | Done / partial | `/careers/[slug]`, `ApplicationForm`, noindex metadata, closed-job messaging | Current root has a public careers board, which conflicts with the "no centralized portal" wording but matches the recorded-demo request to browse careers listings. Decide and document final product stance. |
-| Admin authentication | Done | Auth.js v5, Google OAuth, dev provider, `INITIAL_ADMIN_EMAIL`, JWT session, middleware | Confirm production env disables unintended dev login fallback. |
+| Admin authentication | Done / updated 2026-08-28 | Clerk (invitation-only + guest demo), `INITIAL_ADMIN_EMAIL`, Prisma role sync, `clerkMiddleware` | Configure Clerk Dashboard invites + webhook; create guest user in Clerk for demo button. |
 | Job management | Done / partial | Jobs list, multi-step create form, edit page, status actions, delete button | Slug uniqueness is handled by service logic, but final UX should make uniqueness/URL edit behavior obvious. |
 | Job-scoped workspace | Done | `/admin/jobs/[id]` overview, tabs for pipeline/stages/form/applicants/integrations | Admin landing page is global first, then job scoped. That is acceptable but should be explained in demo. |
 | Custom form builder | Partial | `/admin/jobs/[id]/form`, field add/edit/remove/reorder, required toggle, text/textarea/select/file | Public select custom fields do not appear to render configured options; custom file fields are not uploaded as files in the same robust way as resume. Required custom fields need stronger validation. |

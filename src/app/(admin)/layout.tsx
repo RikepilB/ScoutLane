@@ -11,7 +11,7 @@ export default async function AdminLayout({
   const session = await auth();
 
   if (!session?.user?.email) {
-    redirect("/signin?callbackUrl=/admin");
+    redirect("/signin?redirect_url=/admin");
   }
 
   const user = {
