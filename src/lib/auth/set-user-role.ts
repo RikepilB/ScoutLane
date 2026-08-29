@@ -19,6 +19,16 @@ export async function setUserRole(role: UserRole) {
   }
 
   try {
+    // Only allow role selection on initial signup (when role is GUEST or unset)
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      select: { role: true, id: true },
+    });
+
+    if (existingUser && existingUser.role !== "GUEST" && existingUser.role !== null) {
+      return { ok: false, error: "Role already assigned" };
+    }
+
     await prisma.user.update({
       where: { email },
       data: { role },
