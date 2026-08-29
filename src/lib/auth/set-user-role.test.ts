@@ -9,6 +9,7 @@ vi.mock("@clerk/nextjs/server", () => ({
 vi.mock("@/lib/db/prisma", () => ({
   prisma: {
     user: {
+      findUnique: vi.fn(),
       update: vi.fn(),
     },
   },
@@ -45,6 +46,10 @@ describe("setUserRole", () => {
     (auth as any).mockResolvedValue({ userId: "user-123" });
     (currentUser as any).mockResolvedValue({
       emailAddresses: [{ emailAddress: "test@example.com" }],
+    });
+    (prisma.user.findUnique as any).mockResolvedValue({
+      id: "user-123",
+      role: "GUEST",
     });
     (prisma.user.update as any).mockResolvedValue({
       id: "user-123",
