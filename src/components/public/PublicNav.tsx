@@ -61,44 +61,16 @@ export function PublicNav({ session, className }: PublicNavProps) {
           );
         })}
 
-        {session?.user ? (
-          <Link
-            href="/admin"
-            className="ml-1 inline-flex items-center rounded-full px-3 py-2 text-[13px] font-medium text-white transition-colors sm:ml-2 sm:px-4 sm:text-[14px]"
-            style={{
-              background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
-              boxShadow: "0 4px 14px rgba(27,44,193,0.35)",
-            }}
-          >
-            Dashboard
-          </Link>
-        ) : (
-          <div className="ml-1 hidden items-center gap-1 sm:ml-2 sm:flex">
-            <Link
-              href="/signin?as=admin"
-              className="inline-flex items-center rounded-full px-3 py-2 text-[13px] font-medium text-white sm:px-4 sm:text-[14px]"
-              style={{
-                background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
-              }}
-            >
-              Admin
-            </Link>
-            <Link
-              href="/signin?as=recruiter"
-              className="inline-flex items-center rounded-full border border-white/[0.16] bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-white transition-colors hover:bg-white/[0.10] sm:px-4 sm:text-[14px]"
-            >
-              Recruiter
-            </Link>
-          </div>
-        )}
-        {!session?.user && (
-          <Link
-            href="/signin"
-            className="ml-1 inline-flex items-center rounded-full border border-white/[0.16] bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-white transition-colors hover:bg-white/[0.10] sm:hidden"
-          >
-            Login
-          </Link>
-        )}
+        <Link
+          href={session?.user ? "/admin" : "/signin"}
+          className="ml-1 inline-flex items-center rounded-full px-3 py-2 text-[13px] font-medium text-white transition-colors sm:ml-2 sm:px-4 sm:text-[14px]"
+          style={{
+            background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
+            boxShadow: "0 4px 14px rgba(27,44,193,0.35)",
+          }}
+        >
+          {session?.user ? "Dashboard" : "Sign in"}
+        </Link>
       </div>
     </nav>
   );
