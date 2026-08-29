@@ -4,12 +4,14 @@ import {
   hasAllowedResumeExtension,
   isAllowedResumeMime,
 } from "@/lib/storage/upload-limits";
+import type { CustomFieldInput } from "@/schemas/template";
 
-export const resumeFileSchema = z
-  .custom<File>(
-    (value) => value instanceof File && value.size > 0,
-    "Resume file is required",
-  )
+export const requiredFileSchema = z.custom<File>(
+  (value) => value instanceof File && value.size > 0,
+  "A file is required",
+);
+
+export const resumeFileSchema = requiredFileSchema
   .superRefine((value, ctx) => {
     if (!(value instanceof File)) {
       return;
@@ -57,6 +59,40 @@ export const jobApplicationSchema = z.object({
 export const jobApplicationSubmissionSchema = jobApplicationSchema.extend({
   jobSlug: z.string().min(1, "Job slug is required"),
 });
+
+/** Raw custom values sent by the public application form before field-specific validation. */
+export const customFieldValuesSchema = z.record(z.string(), z.string());
+
+/**
+ * Builds the value schema from the field definitions saved on a job. Unknown
+ * values are stripped so a public request can only persist configured fields.
+ */
+export function buildCustomFieldValuesSchema(customFields: readonly CustomFieldInput[]) {
+  const shape: Record<string, z.ZodType> = {};
+
+  for (const field of customFields) {
+    if (field.type === "file") continue;
+
+    shape[field.id] = z.string().optional().default("").superRefine((value, ctx) => {
+      if (field.required && value.trim().length === 0) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `${field.label} is required.` });
+      }
+
+      if (
+        field.type === "select" &&
+        value.length > 0 &&
+        !field.options?.includes(value)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Invalid selection for ${field.label}.`,
+        });
+      }
+    });
+  }
+
+  return z.object(shape).strip();
+}
 
 export type JobApplicationInput = z.infer<typeof jobApplicationSchema>;
 export type JobApplicationSubmissionInput = z.infer<typeof jobApplicationSubmissionSchema>;
