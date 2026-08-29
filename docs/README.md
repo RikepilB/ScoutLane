@@ -26,19 +26,13 @@ Use this directory as the project handoff and implementation reference. Start wi
 | [SECURITY-AUDIT.md](./SECURITY-AUDIT.md) | Security evidence, remaining risk, and next proof needed. |
 | [CLAUDE.md](./CLAUDE.md) | Claude/agent operating context for this project. |
 
-## Session Reports
+## Session Handoff
 
-Session reports live in [session-reports](./session-reports/). Use one report per meaningful work session.
+Durable agent context lives in the append-only [handoff tree](./handoff/). For every meaningful
+work session, add `docs/handoff/<YYYY-MM-DD>-<name>/HANDOFF.md`, then update the rolling
+[father handoff](./handoff/HANDOFF.md) with the current state and a new session-index entry.
 
-| Report | Purpose |
-|---|---|
-| [TEMPLATE.md](./session-reports/TEMPLATE.md) | Copy this structure for future reports. |
-| [2026-05-19-docs-review.md](./session-reports/2026-05-19-docs-review.md) | Initial curated docs review context. |
-| [2026-05-20-public-job-readability.md](./session-reports/2026-05-20-public-job-readability.md) | Public job page readability work and resume parsing blocker. |
-| [2026-05-20-auth-email-notifications-plan.md](./session-reports/2026-05-20-auth-email-notifications-plan.md) | Planned Google auth, OTP, job alerts, and email notifications work. |
-| [2026-05-20-handoff-system.md](./session-reports/2026-05-20-handoff-system.md) | Handoff index/session-report system implementation. |
-| [2026-05-20-parsing-performance-test.md](./session-reports/2026-05-20-parsing-performance-test.md) | Resume parsing test run, PDF extraction fix, and navigation performance results. |
-| [2026-05-20-parsing-ai-engineer-plan.md](./session-reports/2026-05-20-parsing-ai-engineer-plan.md) | Planned OpenRouter fallback parsing fix and AI Engineer seed job/template. |
+See [the handoff template](./handoff/_meta/TEMPLATE.md) for the required record format.
 
 ## Source Of Truth Rule
 
@@ -46,4 +40,5 @@ When docs disagree with code, trust the code and update the doc in the same chan
 
 ## Tracking Rule
 
-The docs directory is curated. Keep durable agent context in `HANDOFF.md` and `docs/session-reports/`; leave ad-hoc local drafts outside the tracked docs set.
+The docs directory is curated. Keep durable agent context in `docs/handoff/`; leave ad-hoc local
+drafts outside the tracked docs set.
