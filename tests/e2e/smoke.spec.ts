@@ -5,12 +5,23 @@ test("health endpoint responds", async ({ request }) => {
   expect(response.ok()).toBeTruthy();
 });
 
-test("signin page exposes dev login controls", async ({ page }) => {
+test("signin page splits admin and recruiter workspaces", async ({ page }) => {
   await page.goto("/signin");
   await expect(page.getByRole("link", { name: "ScoutLane" }).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeVisible();
-  await expect(page.getByPlaceholder("admin@scoutlane.local")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Enter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Enter as Admin" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toBeVisible();
+});
+
+test("admin sign-in is a dedicated workspace", async ({ page }) => {
+  await page.goto("/signin?as=admin");
+  await expect(page.getByRole("button", { name: "Enter as Admin" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toHaveCount(0);
+});
+
+test("recruiter sign-in is a dedicated workspace", async ({ page }) => {
+  await page.goto("/signin?as=recruiter");
+  await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Enter as Admin" })).toHaveCount(0);
 });
 
 test("unknown public job slug renders a terminal state", async ({ page }) => {
@@ -19,25 +30,29 @@ test("unknown public job slug renders a terminal state", async ({ page }) => {
 });
 
 test("careers landing surfaces published roles and brand subtitle", async ({ page }) => {
-  // The public careers board renders at the site root (src/app/page.tsx),
-  // not at /careers (which only has /careers/[slug]).
-  await page.goto("/");
+  await page.goto("/jobs");
   await expect(
     page.getByText(/ScoutLane helps companies post jobs/i),
   ).toBeVisible();
 });
 
-test("admin dev login lands on dashboard", async ({ page }) => {
-  await page.goto("/signin");
-  await page.getByPlaceholder("admin@scoutlane.local").fill("e2e-admin@example.com");
-  await page.getByRole("button", { name: "Enter" }).click();
+test("landing page shows demo entry points", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Job board" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Admin sign in" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Recruiter sign in" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /enters the lane/i })).toBeVisible();
+});
+
+test.skip("admin demo login lands on dashboard", async ({ page }) => {
+  // Requires Clerk demo users (admin@scoutlane.local) in the deployment.
+  await page.goto("/signin?as=admin");
+  await page.getByRole("button", { name: "Enter as Admin" }).click();
   await page.waitForURL(/\/admin(\/|$)/, { timeout: 10_000 });
   await expect(page).toHaveURL(/\/admin/);
 });
 
 test("public applicant can submit an application with a resume", async ({ page }) => {
-  // product-manager is a seeded published job with no required custom fields.
-  // Names must be letters-only to satisfy the application schema regex.
   await page.goto("/careers/product-manager");
   await page.getByLabel("First name").fill("Eve");
   await page.getByLabel("Last name").fill("Tester");
@@ -49,19 +64,15 @@ test("public applicant can submit an application with a resume", async ({ page }
     .locator('input[type="file"]')
     .setInputFiles("tests/fixtures/sample-resume.pdf");
   await page.getByRole("button", { name: "Submit application" }).click();
-  // The submit action parses the resume inline (OpenRouter + retry) before
-  // returning, so success can take a while; resume parse failure still yields
-  // a successful submission with a warning.
   await expect(
     page.getByText("Application submitted successfully."),
   ).toBeVisible({ timeout: 60_000 });
 });
 
-test("admin can open a job's applicants list with CSV export", async ({ page }) => {
-  await page.goto("/signin");
-  await page.getByPlaceholder("admin@scoutlane.local").fill("e2e-admin@example.com");
-  await page.getByRole("button", { name: "Enter" }).click();
-  // First hit to /admin cold-compiles in dev; allow generous time.
+test.skip("admin can open a job's applicants list with CSV export", async ({ page }) => {
+  // Requires Clerk demo users in the deployment.
+  await page.goto("/signin?as=admin");
+  await page.getByRole("button", { name: "Enter as Admin" }).click();
   await page.waitForURL(/\/admin(\/|$)/, { timeout: 30_000 });
 
   await page.goto("/admin/jobs");
@@ -71,8 +82,6 @@ test("admin can open a job's applicants list with CSV export", async ({ page }) 
     .click();
   await page.waitForURL(/\/admin\/jobs\/[^/]+$/, { timeout: 30_000 });
 
-  // Navigate straight to the job-scoped applicants list (the sidebar also has a
-  // global "Applicants" link, so go by URL to avoid ambiguity).
   await page.goto(`${page.url()}/applicants`);
 
   await expect(

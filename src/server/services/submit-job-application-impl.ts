@@ -11,20 +11,16 @@ import {
   dispatchResumeParse,
 } from "@/server/jobs/dispatch";
 import {
+  buildCustomFieldValuesSchema,
+  customFieldValuesSchema,
   DUPLICATE_APPLICATION_MESSAGE,
+  requiredFileSchema,
   type ApplicationActionResult,
   jobApplicationSubmissionSchema,
 } from "@/schemas/application";
+import { customFieldsSchema } from "@/schemas/template";
 
 type ResumeProcessingMode = "inline" | "queue" | "queue-and-inline";
-type PublicCustomField = {
-  id: string;
-  label: string;
-  type?: "text" | "textarea" | "select" | "file";
-  required?: boolean;
-  options?: string[];
-};
-
 export function getResumeProcessingMode(): ResumeProcessingMode {
   const raw = process.env.RESUME_PARSE_MODE?.toLowerCase();
   if (raw === "queue" || raw === "queue-and-inline" || raw === "inline") {
@@ -81,37 +77,41 @@ export async function submitJobApplicationImpl(
     return { success: false, error: "This position is not accepting applications." };
   }
 
-  let customFields: Record<string, string> = {};
+  let rawCustomFields: unknown = {};
   try {
     const raw = formData.get("customFields");
-    if (typeof raw === "string") customFields = JSON.parse(raw);
+    if (typeof raw === "string") rawCustomFields = JSON.parse(raw);
   } catch {
     return { success: false, error: "Invalid custom application fields." };
   }
 
-  const configuredCustomFields = Array.isArray(job.customFields)
-    ? (job.customFields as PublicCustomField[])
-    : [];
-  const missingCustomField = configuredCustomFields.find((field) => {
-    if (!field.required) return false;
-    if (field.type === "file") {
-      const file = formData.get(`customFile:${field.id}`);
-      return !(file instanceof File) || file.size === 0;
-    }
-    const value = customFields[field.id];
-    return typeof value !== "string" || value.trim().length === 0;
-  });
-  if (missingCustomField) {
-    return { success: false, error: `${missingCustomField.label} is required.` };
+  const rawValues = customFieldValuesSchema.safeParse(rawCustomFields);
+  if (!rawValues.success) {
+    return { success: false, error: "Invalid custom application fields." };
   }
 
-  const invalidSelectField = configuredCustomFields.find((field) => {
-    if (field.type !== "select") return false;
-    const value = customFields[field.id];
-    return typeof value === "string" && value.length > 0 && !field.options?.includes(value);
-  });
-  if (invalidSelectField) {
-    return { success: false, error: `Invalid selection for ${invalidSelectField.label}.` };
+  const configuredFields = customFieldsSchema.safeParse(job.customFields ?? []);
+  if (!configuredFields.success) {
+    return { success: false, error: "Invalid custom field configuration." };
+  }
+  const configuredCustomFields = configuredFields.data;
+
+  const customValues = buildCustomFieldValuesSchema(configuredCustomFields).safeParse(rawValues.data);
+  if (!customValues.success) {
+    return {
+      success: false,
+      error: customValues.error.issues[0]?.message ?? "Invalid custom application fields.",
+    };
+  }
+  const customFields = customValues.data as Record<string, string>;
+
+  const missingFileField = configuredCustomFields.find((field) =>
+    field.type === "file" && field.required
+      ? !requiredFileSchema.safeParse(formData.get(`customFile:${field.id}`)).success
+      : false,
+  );
+  if (missingFileField) {
+    return { success: false, error: `${missingFileField.label} is required.` };
   }
 
   const existingApplicant = await prisma.applicant.findFirst({

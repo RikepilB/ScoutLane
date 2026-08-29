@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
+import { decryptSecret } from "@/lib/security/integration-secrets";
 import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 export async function POST(
@@ -35,6 +36,8 @@ export async function POST(
   if (!integration || integration.job.organizationId !== user.organizationId) {
     return NextResponse.json({ error: "Integration not found" }, { status: 404 });
   }
+
+  const apiKey = decryptSecret(integration.apiKey);
 
   try {
     await validateEgressUrl(integration.endpointUrl);
@@ -75,7 +78,7 @@ export async function POST(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
+          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
         },
         body: JSON.stringify(payload),
         redirect: "manual",
@@ -134,7 +137,7 @@ export async function POST(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(integration.apiKey ? { Authorization: `Bearer ${integration.apiKey}` } : {}),
+          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
         },
         body: last.requestBody,
         redirect: "manual",

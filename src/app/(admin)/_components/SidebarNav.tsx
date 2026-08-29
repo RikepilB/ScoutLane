@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useClerk } from "@clerk/nextjs";
 import {
   Briefcase,
   Building2,
@@ -40,6 +40,7 @@ const adminNav: NavItem[] = [
 const recruiterNav: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/jobs", label: "My jobs", icon: Briefcase, matchPrefix: "/admin/jobs" },
+  { href: "/admin/applicants", label: "Applicants", icon: Users, matchPrefix: "/admin/applicants" },
   { href: "/admin/settings", label: "Account", icon: Settings, matchPrefix: "/admin/settings" },
 ];
 
@@ -79,6 +80,7 @@ export function SidebarNav({
   user: SidebarUser;
   onNavigate?: () => void;
 }) {
+  const { signOut } = useClerk();
   const pathname = usePathname();
   const navItems = getNavItems(user.role);
 
@@ -155,7 +157,7 @@ export function SidebarNav({
         </div>
         <button
           type="button"
-          onClick={() => signOut({ redirectTo: "/" })}
+          onClick={() => signOut({ redirectUrl: "/" })}
           className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#d4d9df] px-3 py-2 text-[12.5px] font-medium text-[#5f8ea0] transition-all duration-[0.16s] hover:bg-[#f1f5f9] hover:text-[#0c1529]"
         >
           <LogOut className="h-[13px] w-[13px]" />

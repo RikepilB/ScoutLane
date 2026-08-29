@@ -18,6 +18,7 @@ interface Integration {
   id: string;
   stage: { name: string };
   endpointUrl: string;
+  apiKeyMasked: string | null;
   active: boolean;
   includeQuestions: boolean;
   lastSuccessAt: string | Date | null;
@@ -93,6 +94,9 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground break-all">{integration.endpointUrl}</p>
+              {integration.apiKeyMasked && (
+                <p className="text-xs text-muted-foreground">API key: {integration.apiKeyMasked}</p>
+              )}
               <div className="flex gap-3 text-xs text-muted-foreground">
                 {integration.includeQuestions && <span>Includes assessment questions</span>}
                 {integration.lastSuccessAt && <span>Last success: {new Date(integration.lastSuccessAt).toLocaleDateString()}</span>}

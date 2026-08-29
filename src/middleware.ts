@@ -1,13 +1,19 @@
-import NextAuth from "next-auth";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import authConfig from "@/lib/auth/auth.config";
+import type { NextRequest } from "next/server";
 
-const { auth } = NextAuth(authConfig);
-
-/** Roles that may use the internal workspace (`/admin`, `/api/admin`). */
-const WORKSPACE_ROLES = new Set(["ADMIN", "RECRUITER", "HIRING_MANAGER", "GUEST"]);
-
-const PUBLIC_FILES = new Set([
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/jobs",
+  "/signin(.*)",
+  "/signup",
+  "/choose-role",
+  "/access-denied",
+  "/api/health",
+  "/careers(.*)",
+  "/api/public(.*)",
+  "/api/resumes(.*)",
+  "/api/webhooks/clerk",
   "/robots.txt",
   "/sitemap.xml",
   "/manifest.json",
@@ -16,44 +22,30 @@ const PUBLIC_FILES = new Set([
   "/favicon.svg",
 ]);
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const session = req.auth;
-  const isAuth = !!session;
-  const role = session?.user?.role;
-
-  const isPublic =
-    pathname === "/" ||
-    pathname === "/signin" ||
-    pathname === "/access-denied" ||
-    pathname === "/api/health" ||
-    pathname === "/careers" ||
-    pathname.startsWith("/careers/") ||
-    pathname.startsWith("/api/public/") ||
-    pathname.startsWith("/api/resumes/") ||
-    PUBLIC_FILES.has(pathname);
-
-  if (isPublic) return NextResponse.next();
-
-  if (!isAuth) {
-    const signInUrl = new URL("/signin", req.url);
-    signInUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(signInUrl);
-  }
-
-  if (
-    (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) &&
-    !WORKSPACE_ROLES.has(role ?? "")
-  ) {
-    const deniedUrl = new URL("/access-denied", req.url);
-    return NextResponse.redirect(deniedUrl);
-  }
-
+function passthroughMiddleware(_req: NextRequest) {
   return NextResponse.next();
-});
+}
+
+export default process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+  ? clerkMiddleware(async (auth, req) => {
+      if (isPublicRoute(req)) {
+        return NextResponse.next();
+      }
+
+      const { userId } = await auth();
+      if (!userId) {
+        const signInUrl = new URL("/signin", req.url);
+        signInUrl.searchParams.set("redirect_url", req.url);
+        return NextResponse.redirect(signInUrl);
+      }
+
+      return NextResponse.next();
+    })
+  : passthroughMiddleware;
 
 export const config = {
   matcher: [
-    "/((?!api/auth|api/public|api/resumes|_next/static|_next/image|favicon\\.ico|favicon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.(?:json|webmanifest)|careers).*)",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
   ],
 };
