@@ -29,8 +29,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   call sites.
 
 ### G2. Integration bearer `apiKey` serialized into the browser RSC payload
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree by projecting and
-  returning non-secret integration fields only. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** via PR #133 — the page now strips `apiKey`
+  before passing integrations to the client component, sending a decrypted-then-masked
+  `apiKeyMasked` field instead.
 - **What:** The recent masking fix (`d1d02c7`) only made the *input* `type="password"`.
   The server component still loads full integration records (Prisma `include`, no
   `select` — `apiKey` included) and passes them to a `"use client"` component. Props
@@ -50,11 +51,12 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   passes through un-migrated plaintext, so existing integrations keep working either way.
   **Still open:** `INTEGRATION_SECRETS_ENCRYPTION_KEY` isn't confirmed set in Vercel prod —
   without it, *new* integration/webhook secret writes throw (reads of already-plaintext
-  rows are unaffected). Needs the key set + the migration script run against prod once it
-  is; both require prod credentials this agent doesn't have. A follow-up branch
-  `fix/encrypt-integration-secrets` (worktree `C:/tmp/ScoutLane-encrypt-secrets`, unmerged,
-  not reviewed as part of this pass) adds key-rotation support
-  (`INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY`) and response-body redaction on top.
+  rows are unaffected; writes get a clean `503` since PR #133, not a raw `500`). Needs the
+  key set + the migration script run against prod once it is; both require prod credentials
+  this agent doesn't have. PR #133 (merged 2026-08-29) added key-rotation support
+  (`INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY` — set it to the old key, rotate this one,
+  redeploy, rerun the migration script, then drop `PREVIOUS`) and response-body redaction
+  for `IntegrationLog`/`WebhookLog` bodies. See also G2 (now resolved by the same PR).
 - **What:** `JobIntegration.apiKey` and `endpointUrl` are stored unencrypted and sent as
   `Authorization: Bearer` on outbound calls.
 - **Where:** `prisma/schema.prisma:263`; written at

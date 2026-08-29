@@ -2,11 +2,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { decryptSecret, encryptSecret, isEncryptedSecret, maskSecret } from "./integration-secrets";
 
 const originalKey = process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY;
+const originalPreviousKey = process.env.INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY;
 const testKey = Buffer.alloc(32, 7).toString("base64");
+const rotatedKey = Buffer.alloc(32, 8).toString("base64");
 
 afterEach(() => {
   if (originalKey === undefined) delete process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY;
   else process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY = originalKey;
+  if (originalPreviousKey === undefined) delete process.env.INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY;
+  else process.env.INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY = originalPreviousKey;
 });
 
 describe("integration secret encryption", () => {
@@ -25,6 +29,19 @@ describe("integration secret encryption", () => {
     delete process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY;
 
     expect(decryptSecret("legacy-token-1234")).toBe("legacy-token-1234");
+  });
+
+  it("supports a previous key while re-encrypting secrets during rotation", () => {
+    process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY = testKey;
+    const encryptedWithPreviousKey = encryptSecret("integration-token-1234");
+
+    process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY = rotatedKey;
+    process.env.INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY = testKey;
+    const reencrypted = encryptSecret(decryptSecret(encryptedWithPreviousKey));
+
+    delete process.env.INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY;
+    expect(decryptSecret(reencrypted)).toBe("integration-token-1234");
+    expect(() => decryptSecret(encryptedWithPreviousKey)).toThrow("Unable to decrypt integration secret.");
   });
 
   it("rejects tampered ciphertext without exposing the original value", () => {

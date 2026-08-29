@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
-import { encryptSecret, isEncryptedSecret } from "../src/lib/security/integration-secrets";
+import { decryptSecret, encryptSecret } from "../src/lib/security/integration-secrets";
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
@@ -13,20 +13,20 @@ async function main() {
     prisma.webhook.findMany({ select: { id: true, secret: true } }),
   ]);
 
-  const legacyIntegrations = integrations.filter(({ apiKey }) => apiKey && !isEncryptedSecret(apiKey));
-  const legacyWebhooks = webhooks.filter(({ secret }) => secret && !isEncryptedSecret(secret));
+  const integrationsWithSecrets = integrations.filter(({ apiKey }) => apiKey);
+  const webhooksWithSecrets = webhooks.filter(({ secret }) => secret);
 
   await prisma.$transaction([
-    ...legacyIntegrations.map(({ id, apiKey }) =>
-      prisma.jobIntegration.update({ where: { id }, data: { apiKey: encryptSecret(apiKey) } }),
+    ...integrationsWithSecrets.map(({ id, apiKey }) =>
+      prisma.jobIntegration.update({ where: { id }, data: { apiKey: encryptSecret(decryptSecret(apiKey)) } }),
     ),
-    ...legacyWebhooks.map(({ id, secret }) =>
-      prisma.webhook.update({ where: { id }, data: { secret: encryptSecret(secret!) } }),
+    ...webhooksWithSecrets.map(({ id, secret }) =>
+      prisma.webhook.update({ where: { id }, data: { secret: encryptSecret(decryptSecret(secret!)) } }),
     ),
   ]);
 
   console.log(
-    `Encrypted ${legacyIntegrations.length} integration API key(s) and ${legacyWebhooks.length} webhook secret(s).`,
+    `Re-encrypted ${integrationsWithSecrets.length} integration API key(s) and ${webhooksWithSecrets.length} webhook secret(s).`,
   );
 }
 

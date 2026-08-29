@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth/auth";
 import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
 import { decryptSecret } from "@/lib/security/integration-secrets";
+import { redactIntegrationResponse } from "@/lib/security/integration-response-redaction";
 import { assertNotGuest } from "@/server/services/_lib/validate-session";
 
 export async function POST(
@@ -84,7 +85,7 @@ export async function POST(
         redirect: "manual",
         signal: AbortSignal.timeout(10_000),
       });
-      const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;
+      const responseText = redactIntegrationResponse(await response.text().catch(() => null))?.slice(0, 10000) ?? null;
 
       await prisma.integrationLog.create({
         data: {
@@ -143,7 +144,7 @@ export async function POST(
         redirect: "manual",
         signal: AbortSignal.timeout(10_000),
       });
-      const responseText = (await response.text().catch(() => null))?.slice(0, 10000) ?? null;
+      const responseText = redactIntegrationResponse(await response.text().catch(() => null))?.slice(0, 10000) ?? null;
 
       await prisma.integrationLog.create({
         data: {
