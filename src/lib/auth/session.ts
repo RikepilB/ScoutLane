@@ -27,6 +27,8 @@ function primaryEmail(
  * Returns org-scoped user metadata from Prisma after syncing the Clerk identity.
  */
 export async function getAppSession(): Promise<AppSession | null> {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return null;
+
   const { userId } = await clerkAuth();
   if (!userId) return null;
 

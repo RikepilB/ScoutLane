@@ -3,6 +3,12 @@ import { auth } from "@/lib/auth/auth";
 import { Sidebar } from "./_components/Sidebar";
 import { MobileNav } from "./_components/MobileNav";
 
+// Every route under (admin) reads the session and queries org-scoped data.
+// Session lookups short-circuit (no cookies() call) when Clerk isn't configured,
+// which removes Next's implicit dynamic-rendering signal — force it explicitly
+// so these routes never get statically prerendered at build time.
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({
   children,
 }: {
