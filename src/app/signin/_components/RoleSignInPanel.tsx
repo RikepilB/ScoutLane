@@ -28,6 +28,9 @@ export function RoleSignInPanel({
 }) {
   const account = DEMO_ACCOUNTS[role];
   const text = copy[role];
+  const featuresList = role === "admin"
+    ? ["Create jobs & templates", "Manage integrations", "Team & org settings", "View full analytics"]
+    : ["Review applicants", "Score job fit", "Move pipeline stages", "Export CSV data"];
 
   return (
     <div className="space-y-6">
@@ -35,6 +38,7 @@ export function RoleSignInPanel({
         <p
           className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#ABD2FA]"
           style={{ fontFamily: "var(--font-mono)" }}
+          role="doc-subtitle"
         >
           {text.kicker}
         </p>
@@ -47,12 +51,32 @@ export function RoleSignInPanel({
         <p className="mt-2 text-sm leading-6 text-slate-400">{text.body}</p>
       </div>
 
-      <DemoSignInButton role={role} callbackUrl={callbackUrl} className="w-full">
-        {role === "admin" ? "Enter as Admin" : "Enter as Recruiter"}
-      </DemoSignInButton>
-      <p className="text-center text-xs text-slate-500">
-        Signs in as {account.email} with seeded jobs and applicants.
-      </p>
+      <section aria-labelledby="demo-heading" className="rounded-lg border border-slate-700/40 bg-slate-900/30 p-4">
+        <h2 id="demo-heading" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+          One-click demo
+        </h2>
+        <p className="mt-1 text-xs text-slate-500">
+          Pre-loaded with sample jobs and applicants
+        </p>
+        <DemoSignInButton
+          role={role}
+          callbackUrl={callbackUrl}
+          className="mt-4 w-full"
+          aria-describedby="demo-desc"
+        >
+          {role === "admin" ? "Enter as Admin" : "Enter as Recruiter"}
+        </DemoSignInButton>
+        <p id="demo-desc" className="mt-2 text-xs text-slate-600">
+          Signs in as {account.email}. You can explore all features immediately.
+        </p>
+        <ul className="mt-3 space-y-1 text-xs text-slate-500" aria-label="Available features in this workspace">
+          {featuresList.map((item) => (
+            <li key={item} className="flex items-center gap-2">
+              <span className="text-[#ABD2FA]">✓</span> {item}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-slate-700/60" />
