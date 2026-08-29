@@ -23,8 +23,7 @@ Before non-trivial work, read the relevant docs:
 - Tests: [TESTING.md](./TESTING.md)
 - Security audit/evidence: [SECURITY-AUDIT.md](./SECURITY-AUDIT.md)
 - Product behavior and user flows: [PROJECT-GUIDE.md](./PROJECT-GUIDE.md)
-- Current handoff: [HANDOFF.md](./HANDOFF.md)
-- Latest session report: [session-reports/2026-05-19-docs-update.md](./session-reports/2026-05-19-docs-update.md)
+- Current handoff tree: `docs/handoff/HANDOFF.md` (father) plus one folder per session at `docs/handoff/<YYYY-MM-DD>-<name>/HANDOFF.md`. The tree is git-ignored and local-first.
 
 ## Hard Rules
 
@@ -67,15 +66,19 @@ Before non-trivial work, read the relevant docs:
 - Security evidence is incomplete: upload hardening, rate limits, security headers, dependency scan, secret scan, and route/action ownership audit still need proof.
 - OneDrive can cause local permission errors with dependency binaries; verify in a clean environment if needed.
 
-## Session Report Rule
+## Session Handoff Rule
 
-At the end of a large goal, add a short report under `docs/session-reports/<YYYY-MM-DD>-<slug>.md` when useful for handoff. Session reports are ignored unless explicitly whitelisted in `.gitignore`; whitelist only reports the user wants committed.
+Session context lives in the append-only handoff tree under `docs/handoff/` (git-ignored, local-first). At the end of a large goal, record the session in the tree — append, never overwrite:
 
-- Goal
-- What landed
-- What is still open
-- Next recommended action
-- Risks/blockers
+1. Write/update this session's `docs/handoff/<YYYY-MM-DD>-<name>/HANDOFF.md`:
+   - Goal
+   - What landed
+   - What is still open
+   - Next recommended action
+   - Risks/blockers
+2. Update the father `docs/handoff/HANDOFF.md`: refresh `## Current state` and append exactly one line under `## Session index` (never delete existing lines).
+
+This supersedes the old `docs/HANDOFF.md` + `docs/session-reports/` system.
 
 ## Current Finish Priorities
 
