@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bell, CheckCircle2, FileWarning, MailWarning, Webhook } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
+import { redactIntegrationResponse } from "@/lib/security/integration-response-redaction";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-US", {
@@ -133,7 +134,9 @@ export default async function NotificationsPage() {
                   HTTP {log.status} · {formatDate(log.createdAt)}
                 </div>
                 {log.responseBody ? (
-                  <p className="mt-2 line-clamp-2 text-xs text-slate-600">{log.responseBody}</p>
+                  <p className="mt-2 line-clamp-2 text-xs text-slate-600">
+                    {redactIntegrationResponse(log.responseBody)}
+                  </p>
                 ) : null}
               </Link>
             ))}

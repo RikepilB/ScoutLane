@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { signPayload } from "./sign";
 import { validateEgressUrl } from "./validate-egress-url";
 import { decryptSecret } from "@/lib/security/integration-secrets";
+import { redactIntegrationResponse } from "@/lib/security/integration-response-redaction";
 
 interface DispatchResult {
   success: boolean;
@@ -23,15 +24,13 @@ export async function dispatchWebhook(webhookId: string, event: string, data: un
     data,
   });
 
-  const signature = signPayload(payload, decryptSecret(webhook.secret ?? ""));
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "X-Webhook-Signature": signature,
-    "X-Webhook-Event": event,
-  };
-
   try {
+    const signature = signPayload(payload, decryptSecret(webhook.secret ?? ""));
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-Webhook-Signature": signature,
+      "X-Webhook-Event": event,
+    };
     await validateEgressUrl(webhook.url);
     const response = await fetch(webhook.url, {
       method: "POST",
@@ -47,7 +46,7 @@ export async function dispatchWebhook(webhookId: string, event: string, data: un
         event,
         status: response.status,
         request: payload,
-        response: await response.text().catch(() => null),
+        response: redactIntegrationResponse(await response.text().catch(() => null)),
       },
     });
 
@@ -59,7 +58,7 @@ export async function dispatchWebhook(webhookId: string, event: string, data: un
         event,
         status: 0,
         request: payload,
-        response: (error as Error).message,
+        response: redactIntegrationResponse((error as Error).message),
       },
     });
 

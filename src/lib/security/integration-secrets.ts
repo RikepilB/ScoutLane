@@ -4,18 +4,24 @@ const ENCRYPTED_SECRET_PREFIX = "scoutlane:secret:v1";
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
 
-function encryptionKey(): Buffer {
-  const encoded = process.env.INTEGRATION_SECRETS_ENCRYPTION_KEY?.trim();
+function encryptionKey(variableName = "INTEGRATION_SECRETS_ENCRYPTION_KEY"): Buffer {
+  const encoded = process.env[variableName]?.trim();
   if (!encoded) {
-    throw new Error("INTEGRATION_SECRETS_ENCRYPTION_KEY must be configured to store integration secrets.");
+    throw new Error(`${variableName} must be configured to store integration secrets.`);
   }
 
   const key = Buffer.from(encoded, "base64");
   if (key.length !== 32) {
-    throw new Error("INTEGRATION_SECRETS_ENCRYPTION_KEY must be a base64-encoded 32-byte key.");
+    throw new Error(`${variableName} must be a base64-encoded 32-byte key.`);
   }
 
   return key;
+}
+
+function previousEncryptionKey(): Buffer | null {
+  return process.env.INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY?.trim()
+    ? encryptionKey("INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY")
+    : null;
 }
 
 export function isEncryptedSecret(value: string): boolean {
@@ -52,17 +58,23 @@ export function decryptSecret(value: string): string {
     throw new Error("Integration secret has an unsupported encrypted format.");
   }
 
-  try {
-    const [, , , encodedIv, encodedCiphertext, encodedAuthTag] = parts;
-    const decipher = createDecipheriv(ALGORITHM, encryptionKey(), Buffer.from(encodedIv, "base64url"));
-    decipher.setAuthTag(Buffer.from(encodedAuthTag, "base64url"));
-    return Buffer.concat([
-      decipher.update(Buffer.from(encodedCiphertext, "base64url")),
-      decipher.final(),
-    ]).toString("utf8");
-  } catch {
-    throw new Error("Unable to decrypt integration secret.");
+  const [, , , encodedIv, encodedCiphertext, encodedAuthTag] = parts;
+  const keys = [encryptionKey(), previousEncryptionKey()].filter((key): key is Buffer => key !== null);
+
+  for (const key of keys) {
+    try {
+      const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(encodedIv, "base64url"));
+      decipher.setAuthTag(Buffer.from(encodedAuthTag, "base64url"));
+      return Buffer.concat([
+        decipher.update(Buffer.from(encodedCiphertext, "base64url")),
+        decipher.final(),
+      ]).toString("utf8");
+    } catch {
+      // Continue to the previous key during an intentional key rotation.
+    }
   }
+
+  throw new Error("Unable to decrypt integration secret.");
 }
 
 /** Returns a safe UI representation of a server-only plaintext secret. */
