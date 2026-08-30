@@ -189,6 +189,13 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   and `settings.ts` (role change).
 
 ### G11. Playwright e2e is not in CI
+- **Status (2026-08-29): Checked, blocked on a key — not attempted.** `prisma/seed.ts`
+  calls `encryptSecret()` (lines 116, 165) to seed a demo webhook secret and integration
+  `apiKey`. `encryptSecret` → `encryptionKey()` throws unconditionally (no `NODE_ENV` gate,
+  unlike `sign.ts`) if `INTEGRATION_SECRETS_ENCRYPTION_KEY` isn't set. A Playwright CI job
+  needs a seeded DB, so it needs that key as a GitHub Actions secret — out of scope for a
+  no-keys pass. Setting a CI secret (even a disposable one) is also a CI/CD-pipeline change,
+  which needs explicit sign-off regardless of the key constraint.
 - **What:** CI runs only `pnpm test` (vitest, fully mocked — no real DB, HTTP, browser, or
   worker). The only end-to-end coverage of the public apply flow, middleware redirects, and
   the real server actions is `tests/e2e/smoke.spec.ts`, which CI never runs.
