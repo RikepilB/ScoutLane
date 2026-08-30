@@ -408,6 +408,13 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   `applicants/update-impl.ts:7` instead of sharing the Prisma `ApplicationStatus`.
 
 ### G24. Schema / index hygiene
+- **Status (2026-08-29): Indexes resolved** — additive migration
+  `20260829130000_add_missing_indexes_g24` adds `PipelineStage(jobId, order)`,
+  `StageTransition(applicantId)`, `StageTransition(jobId)`, and a GIN index on
+  `Webhook.events`. Confirmed against actual query sites (not guessed) — e.g.
+  `PipelineStage` is filtered `where: { jobId }` + `orderBy: { order }` at 5+ call sites.
+  The two follow-ups below (retention policy, `Json?` typing) are unresolved — larger,
+  more invasive changes than "add an index."
 - `StageTransition` written on every move but has **no `@@index`** (queried by applicant/job).
 - `PipelineStage` ordered by `(jobId, order)` with no composite index.
 - `Webhook.events String[]` queried with `has` and no GIN index.
