@@ -12,8 +12,10 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🔴 Security
 
 ### G1. Authenticated SSRF via integration `endpointUrl`
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree by
-  `validateEgressUrl`, DNS/IP checks, and validation at all outbound call sites. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `validateEgressUrl`
+  (`src/lib/webhook/validate-egress-url.ts`, own test file) is wired into both integration
+  routes, `src/lib/webhook/dispatch.ts`, and `pipeline/update-impl.ts`. Confirmed present on
+  `main`, not just a WIP worktree as previously noted here.
 - **What:** A workspace user registers an integration with any `endpointUrl` (validated
   only as truthy). The server then POSTs to it and stores up to 10 KB of the *response
   body* in `IntegrationLog`, which is rendered in the admin UI — a full **read SSRF**
@@ -69,8 +71,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   "small" task; the minimal first step is G2 (stop leaking to the client) then encrypt.
 
 ### G4. Webhook signing secret silently defaults to empty string
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree with production
-  fail-closed signing and timing-safe verification. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `src/lib/webhook/sign.ts` throws at call
+  time if `INTEGRATION_KEY_SECRET` is missing in production; `verifyPayload` uses
+  `crypto.timingSafeEqual` with a length check first. Confirmed present on `main`.
 - **What:** `INTEGRATION_KEY_SECRET || ""` — if the env var is unset, payloads are HMAC'd
   with an empty key instead of throwing. Signatures become forgeable if `verifyPayload`
   is ever wired to an inbound endpoint (currently it has no inbound consumer, so impact
@@ -215,8 +218,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   make stage→status explicit config on `PipelineStage` rather than name-string matching.
 
 ### G14. Outbound integration/webhook fetches have no timeout
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree with 10-second abort
-  signals for integration and webhook dispatch. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `AbortSignal.timeout(10_000)` present on
+  all 4 outbound integration/webhook fetch call sites (`dispatch.ts`, `update-impl.ts`, both
+  fetches in the integrations `[integrationId]` route). Confirmed present on `main`.
 - **What:** The integration POST and webhook dispatch use `fetch` with no `AbortSignal`.
   A slow/hanging customer endpoint can stall an inline task or request (contrast: the LLM
   client sets a 20s timeout).
