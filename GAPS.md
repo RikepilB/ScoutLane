@@ -340,8 +340,19 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   Next 15 / 2026-05-12). **Fix:** `rm` the clutter; keep `.gitignore` entries.
 
 ### G22. Documentation drift (trust code, then fix docs)
-- **Status (2026-07-18 WIP):** The stale `docs/HANDOFF.md` pointer is resolved in the current
-  documentation WIP. The remaining README/env/test-count drift below is still open.
+- **Status (2026-08-29): README + NOTES.md resolved** — model count/list (15→19, added
+  `ApplicantAttachment`/`ResumeFile`/`EmailLog`/`JobAlert`, noted `Session`/`VerificationToken`
+  as vestigial), migration-name collision (`--name init`→`--name setup_local`), test count
+  (54/10 → 271/49, verified live not guessed), env table (+7 vars found by grepping every
+  `process.env.X` read in `src/` — `INTEGRATION_KEY_SECRET`, `INTEGRATION_SECRETS_ENCRYPTION_KEY`,
+  `INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY`, `JOB_RUNNER`, `RESUME_PARSE_MODE`,
+  `OPENROUTER_FALLBACK_MODELS`, `OPENROUTER_TIMEOUT_MS`), handoff pointer (removed the dead
+  `docs/HANDOFF.md` link — confirmed gone — replaced with an honest note that the live tree
+  is gitignored/local, not a published doc). `AUTH_ALLOWED_EMAIL_DOMAIN`/`GOOGLE_CLIENT_ID`
+  turned out to be fully obsolete (zero references anywhere in `src/`) — correctly *not*
+  added. `AGENTS.md:7` was already correct, no change needed. **Still open:** `docs/API.md`
+  and `docs/CLAUDE.md` weren't checked — `docs/*` edits go through the dedicated docs
+  worktree per `docs/CLAUDE.md`, out of scope for this pass.
 - `README.md:235,52` says "15 models" and lists `Session`/`VerificationToken` as live — dead
   under JWT. `README.md:90` `prisma:migrate --name init` collides with the committed `_init`
   migration. `README.md:209` "54 tests / 10 files" is stale (~206 now). `README.md:103-122`
@@ -370,6 +381,12 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 - Cross-service imports `settings.ts:10` and `templates.ts:8` import `current-user.ts`
   (sibling service) — soft violation of the "services don't import services" rule.
   **Fix:** move `getCurrentUserWithOrganization` into `_lib/` next to `requireSession`.
+- **Status (2026-08-29): Barrel gap resolved** — `schemas/index.ts` now also re-exports
+  `settings.ts`'s and `template.ts`'s schemas/types. Existing direct imports from those
+  files still work (not migrated to the barrel — that's call-site churn beyond what this
+  item asked for). The other G23 items (form-hook duplication, three auth-helper flavors,
+  two notes systems, error-shape inconsistency, cross-service imports, duplicated status
+  enum) are unresolved — each is a real refactor with call-site impact, not a mechanical fix.
 - Barrel gap: `schemas/index.ts` only re-exports `application` + `job`; `settings`,
   `template`, `customFields` are imported directly. **Fix:** add them to the barrel.
 - Applicant status enum duplicated as an inline `z.enum` in
