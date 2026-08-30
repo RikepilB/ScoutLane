@@ -243,6 +243,8 @@ model PipelineStage {
 
   integration JobIntegration?
   applicants  Applicant[]
+
+  @@index([jobId, order])
 }
 
 model StageTransition {
@@ -256,6 +258,9 @@ model StageTransition {
   changedBy   User?     @relation(fields: [changedById], references: [id])
   createdAt   DateTime  @default(now())
   job         Job       @relation(fields: [jobId], references: [id])
+
+  @@index([applicantId])
+  @@index([jobId])
 }
 
 model Webhook {
@@ -268,6 +273,8 @@ model Webhook {
   updatedAt DateTime @updatedAt
 
   webhookLogs WebhookLog[]
+
+  @@index([events], type: Gin)
 }
 
 model JobIntegration {
