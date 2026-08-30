@@ -32,14 +32,23 @@ export async function getResumeQueue(): Promise<PgBoss> {
     });
   }
 
-  globalForBoss.resumeBossStart ??= globalForBoss.resumeBoss.start().then(async (boss: PgBoss) => {
-    await boss.createQueue(RESUME_PARSE_QUEUE, {
-      retryLimit: 3,
-      retryDelay: 30,
-      expireInSeconds: 300,
+  if (!globalForBoss.resumeBossStart) {
+    const startPromise = globalForBoss.resumeBoss.start().then(async (boss: PgBoss) => {
+      await boss.createQueue(RESUME_PARSE_QUEUE, {
+        retryLimit: 3,
+        retryDelay: 30,
+        expireInSeconds: 300,
+      });
+      return boss;
     });
-    return boss;
-  });
+    startPromise.catch(() => {
+      if (globalForBoss.resumeBossStart === startPromise) {
+        delete globalForBoss.resumeBossStart;
+        delete globalForBoss.resumeBoss;
+      }
+    });
+    globalForBoss.resumeBossStart = startPromise;
+  }
 
   return globalForBoss.resumeBossStart;
 }
