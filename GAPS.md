@@ -153,10 +153,17 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟠 Test coverage
 
 ### G9. Middleware and the central auth gate are untested
-- **Status (2026-08-29): Partially resolved** — the shortlink classification
-  logic (`src/lib/auth/public-routes.ts`) is now extracted and unit-tested
-  (`public-routes.test.ts`); the Clerk middleware wrapper itself and
-  `requireSession` remain untested.
+- **Status (2026-08-29): Middleware now tested; `requireSession` still isn't** —
+  `src/middleware.test.ts` covers all 5 real branches: public-route bypass, job-shortlink
+  bypass, unauthenticated→`/signin?redirect_url=...`, authenticated→next, and the
+  Clerk-not-configured passthrough. **Note:** the original text below describes a
+  `/access-denied` role redirect that no longer exists post-Clerk-migration — current
+  `middleware.ts` checks authentication only (`userId` present or not), no role check.
+  Confirmed `/access-denied` is now dead: grepped the whole `src/` tree, it's referenced
+  only as a path string (public-routes allowlist, `robots.ts` disallow) — nothing redirects
+  there. That's a product-decision item adjacent to G5 (confirm intent before wiring a
+  redirect back up), not fixed here. `requireSession()`/`getCurrentUserWithOrganization()`
+  remain untested directly.
 - **What:** `src/middleware.ts` (public allowlist, unauth→/signin, non-role→/access-denied)
   has **no test** — only the underlying `auth.config.ts` helpers are unit-tested. The
   reusable `requireSession()` gate and `getCurrentUserWithOrganization()` are also untested
