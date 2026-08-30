@@ -321,7 +321,12 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 - Vestigial `IntegrationLog.webhookId` / `Webhook.logs` cross-relation — never populated in
   code. **Fix:** confirm, then drop in a future schema cleanup.
 
-### G21. Stale on-disk files (not tracked, safe to remove)
+### G21. Stale on-disk files
+- **Status (2026-08-29): Resolved** — all removed. Two (`handoff.md`, the session-dump
+  `.txt`) turned out to be git-tracked despite this entry assuming otherwise — removed via
+  `git rm`. The rest (`dev.std{err,out}.txt`, `tsconfig.tsbuildinfo`, `testsprite_tests/`)
+  were untracked/gitignored, plain `rm`. `app-screenshot.png`/`scoutlane-fixed.png` were
+  already gone before this pass.
 - `dev.stderr.txt`, `dev.stdout.txt`, root `handoff.md` (superseded by `docs/handoff/` tree),
   `2026-07-03-180846-….txt` (110 KB session dump), `tsconfig.tsbuildinfo`,
   `app-screenshot.png`, `scoutlane-fixed.png`, `testsprite_tests/` (abandoned, stale at
