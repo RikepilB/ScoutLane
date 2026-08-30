@@ -267,7 +267,6 @@ model Webhook {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  logs        IntegrationLog[]
   webhookLogs WebhookLog[]
 }
 
@@ -310,8 +309,6 @@ model IntegrationLog {
   requestBody         String?
   responseBody        String?
   createdAt           DateTime       @default(now())
-  webhook             Webhook?       @relation(fields: [webhookId], references: [id])
-  webhookId           String?
   /// Links outbound dispatch to a pipeline transition for tracing and idempotency checks
   stageTransitionId   String?
 

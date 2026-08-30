@@ -324,16 +324,24 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## ⚪ Tech debt & cleanup
 
 ### G20. Dead code
-- **Status (2026-08-29): Partially resolved** — `src/server/services/_lib/errors.ts`
-  and `src/components/public/VideoHero.tsx` deleted (zero call sites).
+- **Status (2026-08-29): 3 of 4 resolved** — `src/server/services/_lib/errors.ts` and
+  `src/components/public/VideoHero.tsx` deleted (zero call sites). The `IntegrationLog.webhookId`
+  cross-relation confirmed dead on BOTH sides (grepped every `integrationLog.create` call site
+  — all 6 set `integrationId`, none ever set `webhookId`; grepped every `prisma.webhook.find*`
+  call — none `include`s `logs`) and dropped: additive migration
+  `20260829140000_drop_vestigial_integrationlog_webhook` removes the column + FK constraint,
+  `Webhook.logs`/`IntegrationLog.webhook`/`.webhookId` removed from schema.prisma. `Webhook.webhookLogs`
+  (the *actually*-used relation, written by `dispatch.ts`) is untouched. `Session`/`VerificationToken`
+  still intentionally left in place (below).
 - `src/server/services/_lib/errors.ts` — `ServiceError`/`unauthorized()`/`notFound()`,
   zero call sites. **Fix:** delete the file. *(done)*
 - `src/components/public/VideoHero.tsx` — exported, no external importer. **Fix:** delete. *(done)*
-- `Session` + `VerificationToken` Prisma models — unused under JWT strategy with only
-  OAuth/dev providers. **Fix:** leave for now (removing needs a migration + adapter check);
+- `Session` + `VerificationToken` Prisma models — unused now that Clerk handles auth sessions
+  (was "unused under JWT strategy" pre-Clerk-migration; still true post-migration for a
+  different reason). **Fix:** leave for now (removing needs a migration + adapter check);
   document as intentionally-vestigial. `NOTES.md:41`.
 - Vestigial `IntegrationLog.webhookId` / `Webhook.logs` cross-relation — never populated in
-  code. **Fix:** confirm, then drop in a future schema cleanup.
+  code. **Fix:** confirm, then drop in a future schema cleanup. *(done)*
 
 ### G21. Stale on-disk files
 - **Status (2026-08-29): Resolved** — all removed. Two (`handoff.md`, the session-dump
