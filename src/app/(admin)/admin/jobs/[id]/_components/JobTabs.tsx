@@ -13,6 +13,7 @@ const allTabs: Tab[] = [
   { label: "Stages", href: "/stages" },
   { label: "Form", href: "/form" },
   { label: "Integrations", href: "/integrations" },
+  { label: "Auto-advance", href: "/auto-advance" },
 ];
 
 // Non-admins only see these tabs
