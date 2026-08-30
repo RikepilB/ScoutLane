@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Check,
   FileText,
+  Link2,
   Loader2,
   MapPin,
   Rocket,
@@ -15,12 +16,15 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { slugify } from "@/lib/slug/slugify";
 import { jobCreationSchema } from "@/schemas/job";
 import { createJob } from "@/server/services/jobs/create";
+import type { ParsedJobPosting } from "@/lib/jobs/parseJobFromUrl";
 import { NewJobRoleStep } from "./NewJobRoleStep";
 import { NewJobDetailsStep } from "./NewJobDetailsStep";
 import { NewJobLaunchStep } from "./NewJobLaunchStep";
@@ -60,6 +64,8 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
   const [step, setStep] = useState(0);
   const [isPending, startTransition] = useTransition();
   const previousAutoSlug = useRef("");
+  const [importUrl, setImportUrl] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(jobCreationSchema),
@@ -96,6 +102,53 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
       previousAutoSlug.current = nextAutoSlug;
     }
   }, [form, watchedTitle]);
+
+  async function handleImportFromUrl() {
+    if (!importUrl.trim()) return;
+    setIsImporting(true);
+    try {
+      const res = await fetch("/api/admin/jobs/import-from-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl.trim() }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error(body?.error ?? "Could not import that job posting.");
+        return;
+      }
+      const job = body.job as ParsedJobPosting;
+      const fieldMap: Array<[keyof ParsedJobPosting, keyof FormValues]> = [
+        ["title", "title"],
+        ["description", "description"],
+        ["location", "location"],
+        ["type", "type"],
+        ["salary", "salary"],
+        ["department", "department"],
+        ["whatYouWillDo", "whatYouWillDo"],
+        ["requirements", "requirements"],
+        ["toolsAndSkills", "toolsAndSkills"],
+      ];
+      let filledCount = 0;
+      for (const [fromKey, toKey] of fieldMap) {
+        const value = job[fromKey];
+        if (value) {
+          form.setValue(toKey, value, { shouldValidate: false, shouldDirty: true });
+          filledCount += 1;
+        }
+      }
+      if (filledCount === 0) {
+        toast.warning("Couldn't find job details on that page — fill the form in manually.");
+      } else {
+        toast.success(`Imported ${filledCount} field${filledCount === 1 ? "" : "s"} from the page. Review before creating.`);
+        setStep(0);
+      }
+    } catch {
+      toast.error("Could not import that job posting. Check your connection.");
+    } finally {
+      setIsImporting(false);
+    }
+  }
 
   async function goNext() {
     const valid = await form.trigger(
@@ -149,7 +202,36 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
         <div className="mx-6 mt-6 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
           Starting from template: <span className="font-medium">{templateName}</span>
         </div>
-      ) : null}
+      ) : (
+        <div className="mx-6 mt-6 rounded-xl border border-border/70 bg-slate-50 px-4 py-3">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
+            <Link2 className="h-4 w-4" />
+            Import from a job posting URL
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Paste a public job listing and we&apos;ll pre-fill the form below for you to review.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <Input
+              type="url"
+              placeholder="https://example.com/careers/senior-engineer"
+              value={importUrl}
+              onChange={(e) => setImportUrl(e.target.value)}
+              disabled={isImporting}
+              className="bg-white"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleImportFromUrl}
+              disabled={isImporting || !importUrl.trim()}
+            >
+              {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Import
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={handleSubmit}>
