@@ -21,5 +21,10 @@ const STAGE_NAME_TO_STATUS: Record<string, ApplicationStatus> = {
  * used before `PipelineStage.status` became an explicit column.
  */
 export function deriveStageStatus(stageName: string): ApplicationStatus {
-  return STAGE_NAME_TO_STATUS[stageName.toUpperCase()] ?? "REVIEWING";
+  const status = STAGE_NAME_TO_STATUS[stageName.toUpperCase()];
+  if (!status) {
+    console.warn(`[deriveStageStatus] Unmapped stage name "${stageName}", defaulting to REVIEWING.`);
+    return "REVIEWING";
+  }
+  return status;
 }
