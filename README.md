@@ -49,7 +49,7 @@
 - [`docs/PRODUCT-SPEC.md`](./docs/PRODUCT-SPEC.md) — current product spec, personas, features, demo script.
 - [`docs/PROJECT-GUIDE.md`](./docs/PROJECT-GUIDE.md) — user flows, admin manual, demo plan.
 - [`docs/TESTING.md`](./docs/TESTING.md) — current test files, commands, and next coverage priorities.
-- [`docs/HANDOFF.md`](./docs/HANDOFF.md) — latest implementation handoff, verification notes, known warnings, and recommended next steps.
+- `docs/handoff/HANDOFF.md` — session handoff tree (current state + session index). Local-first and gitignored, so it won't exist in a fresh clone; it's where in-progress agent/dev sessions record context, not a published doc. The old flat `docs/HANDOFF.md` this used to point to was deleted.
 
 ---
 
@@ -99,7 +99,7 @@ docker compose up -d
 pnpm install
 
 # 5. Create tables
-pnpm prisma:migrate --name init
+pnpm prisma:migrate --name setup_local
 
 # 6. Seed sample data
 pnpm db:seed
@@ -136,6 +136,13 @@ Visit **http://localhost:3000**:
 | `OPENROUTER_MODEL` | optional | Model id, default `deepseek/deepseek-chat-v3.1:free` |
 | `OPENROUTER_APP_URL` | optional | Attribution header for OpenRouter |
 | `OPENROUTER_APP_TITLE` | optional | Attribution header for OpenRouter |
+| `OPENROUTER_FALLBACK_MODELS` | optional | Comma-separated fallback model ids if the primary fails |
+| `OPENROUTER_TIMEOUT_MS` | optional | Request timeout for OpenRouter calls |
+| `INTEGRATION_KEY_SECRET` | ✅ in production | HMAC key for webhook/integration payload signing — fails closed if unset in prod |
+| `INTEGRATION_SECRETS_ENCRYPTION_KEY` | for integrations | AES-256-GCM key encrypting integration `apiKey`/webhook `secret` at rest; new writes throw until set |
+| `INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY` | optional | Previous encryption key, set only while rotating `INTEGRATION_SECRETS_ENCRYPTION_KEY` |
+| `JOB_RUNNER` | optional | Async job execution mode (pg-boss worker vs. inline `after()`) |
+| `RESUME_PARSE_MODE` | optional | Resume parsing execution mode, same pg-boss-vs-inline choice as `JOB_RUNNER` |
 
 > Full reference at [`.env.example`](.env.example). Docker uses `scoutlane:scoutlane` credentials, `.env.example` defaults to `postgres:postgres` — update `.env` after copying.
 
@@ -222,7 +229,7 @@ src/
 | `pnpm build` | Production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
-| `pnpm test` | Vitest (54 tests across 10 files, all passing) |
+| `pnpm test` | Vitest (271 tests across 49 files, all passing as of 2026-08-29) |
 | `pnpm test:e2e` | Playwright smoke tests across desktop and mobile Chromium |
 | `pnpm worker:resume` | pg-boss worker for asynchronous resume parsing |
 | `pnpm prisma:generate` | Regenerate Prisma client to `src/generated/prisma/` |
@@ -250,6 +257,7 @@ See [`docs/PRODUCT-SPEC.md`](./docs/PRODUCT-SPEC.md) §4 for full auth setup.
 
 ## Database
 
-- **15 models:** Organization, User, Account, Session, VerificationToken, Job, JobTemplate, Applicant, ApplicantNote, PipelineStage, StageTransition, JobIntegration, IntegrationLog, Webhook, WebhookLog
+- **19 models:** Organization, User, Account, Session, VerificationToken, Job, JobTemplate, Applicant, ApplicantAttachment, ResumeFile, ApplicantNote, PipelineStage, StageTransition, Webhook, JobIntegration, WebhookLog, IntegrationLog, EmailLog, JobAlert
+  (`Session`/`VerificationToken` are vestigial — unused now that Clerk handles auth sessions; left in place pending a cleanup migration.)
 - Import Prisma client from `@/generated/prisma/client` — never from `@prisma/client`
 - `src/generated/` is gitignored — rebuild with `pnpm prisma:generate`
