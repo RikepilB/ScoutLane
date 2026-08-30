@@ -204,13 +204,19 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟠 Correctness / fragility
 
 ### G13. Pipeline stage name → status mapping silently degrades (issue #105)
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree with an explicit
-  `PipelineStage.status` field and additive backfill migration. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `PipelineStage.status` is now an explicit
+  `ApplicationStatus` column (`@default(REVIEWING)`). `deriveStageStatus()`
+  (`src/lib/jobs/deriveStageStatus.ts`) runs once at stage-creation time (both
+  `pipeline/stages-impl.ts` and `jobs/create-impl.ts`); `moveApplicantImpl` and the pipeline
+  read route now key off the stored `status`/`pipelineStageId` directly — the old
+  name-string re-matching on every move/read is gone entirely, not just logged. Unmapped
+  names still default to `REVIEWING` silently at creation time (no warning), which is a
+  smaller residual gap than the original "wrong status on every move" issue.
 - **What:** `deriveStatus` uppercases the stage name and maps to `ApplicationStatus`;
   unmapped names silently become `REVIEWING` with no log or error. The seed's default
   stages (`New/Screening/Interview/Offer/Hired`) only partly match the enum — several map
   by luck, others fall through.
-- **Where:** `src/server/services/pipeline/update-impl.ts:8-25`; the same coupling in the
+- **Where:** `src/server/services/pipeline/update-impl.ts`; the same coupling in the
   read path `src/app/api/admin/jobs/[id]/pipeline/route.ts` (uppercase-name grouping).
   Issue #105, `NOTES.md:33`.
 - **Why:** Applicant status can be quietly wrong, corrupting dashboards and filters.
