@@ -43,8 +43,9 @@ None exceed the 800-line hard max from `.claude/rules/common/coding-style.md`.
 
 ## Doc staleness
 
+- **Status (2026-08-29):** README's doc-index and test count fixed (see GAPS.md G22). `docs/API.md` may still reference the deleted `docs/HANDOFF.md` — not checked this pass; `docs/*` edits go through the dedicated docs worktree per `docs/CLAUDE.md`, out of scope here.
 - `docs/API.md` / README doc-index still reference `docs/HANDOFF.md`, which was deleted 2026-07-01 (superseded by `docs/handoff/` tree).
-- Some doc references cite a stale test count ("54 tests / 10 files"); the father handoff records 206 tests passing as of the last verified run.
+- Some doc references cite a stale test count ("54 tests / 10 files"); as of 2026-08-29 the true count is 271 tests / 49 files.
 
 ## Structural (organization-only) fix — proposed, not yet applied
 

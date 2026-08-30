@@ -12,8 +12,10 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🔴 Security
 
 ### G1. Authenticated SSRF via integration `endpointUrl`
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree by
-  `validateEgressUrl`, DNS/IP checks, and validation at all outbound call sites. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `validateEgressUrl`
+  (`src/lib/webhook/validate-egress-url.ts`, own test file) is wired into both integration
+  routes, `src/lib/webhook/dispatch.ts`, and `pipeline/update-impl.ts`. Confirmed present on
+  `main`, not just a WIP worktree as previously noted here.
 - **What:** A workspace user registers an integration with any `endpointUrl` (validated
   only as truthy). The server then POSTs to it and stores up to 10 KB of the *response
   body* in `IntegrationLog`, which is rendered in the admin UI — a full **read SSRF**
@@ -69,8 +71,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   "small" task; the minimal first step is G2 (stop leaking to the client) then encrypt.
 
 ### G4. Webhook signing secret silently defaults to empty string
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree with production
-  fail-closed signing and timing-safe verification. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `src/lib/webhook/sign.ts` throws at call
+  time if `INTEGRATION_KEY_SECRET` is missing in production; `verifyPayload` uses
+  `crypto.timingSafeEqual` with a length check first. Confirmed present on `main`.
 - **What:** `INTEGRATION_KEY_SECRET || ""` — if the env var is unset, payloads are HMAC'd
   with an empty key instead of throwing. Signatures become forgeable if `verifyPayload`
   is ever wired to an inbound endpoint (currently it has no inbound consumer, so impact
@@ -150,10 +153,17 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟠 Test coverage
 
 ### G9. Middleware and the central auth gate are untested
-- **Status (2026-08-29): Partially resolved** — the shortlink classification
-  logic (`src/lib/auth/public-routes.ts`) is now extracted and unit-tested
-  (`public-routes.test.ts`); the Clerk middleware wrapper itself and
-  `requireSession` remain untested.
+- **Status (2026-08-29): Middleware now tested; `requireSession` still isn't** —
+  `src/middleware.test.ts` covers all 5 real branches: public-route bypass, job-shortlink
+  bypass, unauthenticated→`/signin?redirect_url=...`, authenticated→next, and the
+  Clerk-not-configured passthrough. **Note:** the original text below describes a
+  `/access-denied` role redirect that no longer exists post-Clerk-migration — current
+  `middleware.ts` checks authentication only (`userId` present or not), no role check.
+  Confirmed `/access-denied` is now dead: grepped the whole `src/` tree, it's referenced
+  only as a path string (public-routes allowlist, `robots.ts` disallow) — nothing redirects
+  there. That's a product-decision item adjacent to G5 (confirm intent before wiring a
+  redirect back up), not fixed here. `requireSession()`/`getCurrentUserWithOrganization()`
+  remain untested directly.
 - **What:** `src/middleware.ts` (public allowlist, unauth→/signin, non-role→/access-denied)
   has **no test** — only the underlying `auth.config.ts` helpers are unit-tested. The
   reusable `requireSession()` gate and `getCurrentUserWithOrganization()` are also untested
@@ -179,6 +189,13 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   and `settings.ts` (role change).
 
 ### G11. Playwright e2e is not in CI
+- **Status (2026-08-29): Checked, blocked on a key — not attempted.** `prisma/seed.ts`
+  calls `encryptSecret()` (lines 116, 165) to seed a demo webhook secret and integration
+  `apiKey`. `encryptSecret` → `encryptionKey()` throws unconditionally (no `NODE_ENV` gate,
+  unlike `sign.ts`) if `INTEGRATION_SECRETS_ENCRYPTION_KEY` isn't set. A Playwright CI job
+  needs a seeded DB, so it needs that key as a GitHub Actions secret — out of scope for a
+  no-keys pass. Setting a CI secret (even a disposable one) is also a CI/CD-pipeline change,
+  which needs explicit sign-off regardless of the key constraint.
 - **What:** CI runs only `pnpm test` (vitest, fully mocked — no real DB, HTTP, browser, or
   worker). The only end-to-end coverage of the public apply flow, middleware redirects, and
   the real server actions is `tests/e2e/smoke.spec.ts`, which CI never runs.
@@ -201,13 +218,19 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟠 Correctness / fragility
 
 ### G13. Pipeline stage name → status mapping silently degrades (issue #105)
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree with an explicit
-  `PipelineStage.status` field and additive backfill migration. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `PipelineStage.status` is now an explicit
+  `ApplicationStatus` column (`@default(REVIEWING)`). `deriveStageStatus()`
+  (`src/lib/jobs/deriveStageStatus.ts`) runs once at stage-creation time (both
+  `pipeline/stages-impl.ts` and `jobs/create-impl.ts`); `moveApplicantImpl` and the pipeline
+  read route now key off the stored `status`/`pipelineStageId` directly — the old
+  name-string re-matching on every move/read is gone entirely, not just logged. Unmapped
+  names still default to `REVIEWING` silently at creation time (no warning), which is a
+  smaller residual gap than the original "wrong status on every move" issue.
 - **What:** `deriveStatus` uppercases the stage name and maps to `ApplicationStatus`;
   unmapped names silently become `REVIEWING` with no log or error. The seed's default
   stages (`New/Screening/Interview/Offer/Hired`) only partly match the enum — several map
   by luck, others fall through.
-- **Where:** `src/server/services/pipeline/update-impl.ts:8-25`; the same coupling in the
+- **Where:** `src/server/services/pipeline/update-impl.ts`; the same coupling in the
   read path `src/app/api/admin/jobs/[id]/pipeline/route.ts` (uppercase-name grouping).
   Issue #105, `NOTES.md:33`.
 - **Why:** Applicant status can be quietly wrong, corrupting dashboards and filters.
@@ -215,8 +238,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   make stage→status explicit config on `PipelineStage` rather than name-string matching.
 
 ### G14. Outbound integration/webhook fetches have no timeout
-- **Status (2026-07-17 WIP):** Resolved in the current uncommitted worktree with 10-second abort
-  signals for integration and webhook dispatch. Not deployed.
+- **Status (2026-08-29): Resolved and deployed** — `AbortSignal.timeout(10_000)` present on
+  all 4 outbound integration/webhook fetch call sites (`dispatch.ts`, `update-impl.ts`, both
+  fetches in the integrations `[integrationId]` route). Confirmed present on `main`.
 - **What:** The integration POST and webhook dispatch use `fetch` with no `AbortSignal`.
   A slow/hanging customer endpoint can stall an inline task or request (contrast: the LLM
   client sets a 20s timeout).
@@ -300,26 +324,50 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## ⚪ Tech debt & cleanup
 
 ### G20. Dead code
-- **Status (2026-08-29): Partially resolved** — `src/server/services/_lib/errors.ts`
-  and `src/components/public/VideoHero.tsx` deleted (zero call sites).
+- **Status (2026-08-29): 3 of 4 resolved** — `src/server/services/_lib/errors.ts` and
+  `src/components/public/VideoHero.tsx` deleted (zero call sites). The `IntegrationLog.webhookId`
+  cross-relation confirmed dead on BOTH sides (grepped every `integrationLog.create` call site
+  — all 6 set `integrationId`, none ever set `webhookId`; grepped every `prisma.webhook.find*`
+  call — none `include`s `logs`) and dropped: additive migration
+  `20260829140000_drop_vestigial_integrationlog_webhook` removes the column + FK constraint,
+  `Webhook.logs`/`IntegrationLog.webhook`/`.webhookId` removed from schema.prisma. `Webhook.webhookLogs`
+  (the *actually*-used relation, written by `dispatch.ts`) is untouched. `Session`/`VerificationToken`
+  still intentionally left in place (below).
 - `src/server/services/_lib/errors.ts` — `ServiceError`/`unauthorized()`/`notFound()`,
   zero call sites. **Fix:** delete the file. *(done)*
 - `src/components/public/VideoHero.tsx` — exported, no external importer. **Fix:** delete. *(done)*
-- `Session` + `VerificationToken` Prisma models — unused under JWT strategy with only
-  OAuth/dev providers. **Fix:** leave for now (removing needs a migration + adapter check);
+- `Session` + `VerificationToken` Prisma models — unused now that Clerk handles auth sessions
+  (was "unused under JWT strategy" pre-Clerk-migration; still true post-migration for a
+  different reason). **Fix:** leave for now (removing needs a migration + adapter check);
   document as intentionally-vestigial. `NOTES.md:41`.
 - Vestigial `IntegrationLog.webhookId` / `Webhook.logs` cross-relation — never populated in
-  code. **Fix:** confirm, then drop in a future schema cleanup.
+  code. **Fix:** confirm, then drop in a future schema cleanup. *(done)*
 
-### G21. Stale on-disk files (not tracked, safe to remove)
+### G21. Stale on-disk files
+- **Status (2026-08-29): Resolved** — all removed. Two (`handoff.md`, the session-dump
+  `.txt`) turned out to be git-tracked despite this entry assuming otherwise — removed via
+  `git rm`. The rest (`dev.std{err,out}.txt`, `tsconfig.tsbuildinfo`, `testsprite_tests/`)
+  were untracked/gitignored, plain `rm`. `app-screenshot.png`/`scoutlane-fixed.png` were
+  already gone before this pass.
 - `dev.stderr.txt`, `dev.stdout.txt`, root `handoff.md` (superseded by `docs/handoff/` tree),
   `2026-07-03-180846-….txt` (110 KB session dump), `tsconfig.tsbuildinfo`,
   `app-screenshot.png`, `scoutlane-fixed.png`, `testsprite_tests/` (abandoned, stale at
   Next 15 / 2026-05-12). **Fix:** `rm` the clutter; keep `.gitignore` entries.
 
 ### G22. Documentation drift (trust code, then fix docs)
-- **Status (2026-07-18 WIP):** The stale `docs/HANDOFF.md` pointer is resolved in the current
-  documentation WIP. The remaining README/env/test-count drift below is still open.
+- **Status (2026-08-29): README + NOTES.md resolved** — model count/list (15→19, added
+  `ApplicantAttachment`/`ResumeFile`/`EmailLog`/`JobAlert`, noted `Session`/`VerificationToken`
+  as vestigial), migration-name collision (`--name init`→`--name setup_local`), test count
+  (54/10 → 271/49, verified live not guessed), env table (+7 vars found by grepping every
+  `process.env.X` read in `src/` — `INTEGRATION_KEY_SECRET`, `INTEGRATION_SECRETS_ENCRYPTION_KEY`,
+  `INTEGRATION_SECRETS_PREVIOUS_ENCRYPTION_KEY`, `JOB_RUNNER`, `RESUME_PARSE_MODE`,
+  `OPENROUTER_FALLBACK_MODELS`, `OPENROUTER_TIMEOUT_MS`), handoff pointer (removed the dead
+  `docs/HANDOFF.md` link — confirmed gone — replaced with an honest note that the live tree
+  is gitignored/local, not a published doc). `AUTH_ALLOWED_EMAIL_DOMAIN`/`GOOGLE_CLIENT_ID`
+  turned out to be fully obsolete (zero references anywhere in `src/`) — correctly *not*
+  added. `AGENTS.md:7` was already correct, no change needed. **Still open:** `docs/API.md`
+  and `docs/CLAUDE.md` weren't checked — `docs/*` edits go through the dedicated docs
+  worktree per `docs/CLAUDE.md`, out of scope for this pass.
 - `README.md:235,52` says "15 models" and lists `Session`/`VerificationToken` as live — dead
   under JWT. `README.md:90` `prisma:migrate --name init` collides with the committed `_init`
   migration. `README.md:209` "54 tests / 10 files" is stale (~206 now). `README.md:103-122`
@@ -348,6 +396,12 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 - Cross-service imports `settings.ts:10` and `templates.ts:8` import `current-user.ts`
   (sibling service) — soft violation of the "services don't import services" rule.
   **Fix:** move `getCurrentUserWithOrganization` into `_lib/` next to `requireSession`.
+- **Status (2026-08-29): Barrel gap resolved** — `schemas/index.ts` now also re-exports
+  `settings.ts`'s and `template.ts`'s schemas/types. Existing direct imports from those
+  files still work (not migrated to the barrel — that's call-site churn beyond what this
+  item asked for). The other G23 items (form-hook duplication, three auth-helper flavors,
+  two notes systems, error-shape inconsistency, cross-service imports, duplicated status
+  enum) are unresolved — each is a real refactor with call-site impact, not a mechanical fix.
 - Barrel gap: `schemas/index.ts` only re-exports `application` + `job`; `settings`,
   `template`, `customFields` are imported directly. **Fix:** add them to the barrel.
 - Applicant status enum duplicated as an inline `z.enum` in
