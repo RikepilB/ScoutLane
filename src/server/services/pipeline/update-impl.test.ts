@@ -34,7 +34,7 @@ vi.mock("@/lib/security/integration-response-redaction", () => ({
   redactIntegrationResponse: mocks.redactIntegrationResponse,
 }));
 
-import { moveApplicantImpl } from "./update-impl";
+import { moveApplicantFromWorker, moveApplicantImpl } from "./update-impl";
 
 const SESSION_USER = { id: "user-1", email: "admin@example.com", role: "ADMIN", organizationId: "org-1" };
 
@@ -212,5 +212,58 @@ describe("moveApplicantImpl — characterization (pre-refactor baseline)", () =>
         data: expect.objectContaining({ failureCount: { increment: 1 } }),
       }),
     );
+  });
+});
+
+describe("moveApplicantFromWorker", () => {
+  it("returns NOT_FOUND when the applicant or its job can't be resolved", async () => {
+    mocks.prisma.applicant.findUnique.mockResolvedValue(null);
+
+    await expect(moveApplicantFromWorker("applicant-1", "stage-to")).resolves.toEqual({
+      success: false,
+      code: "NOT_FOUND",
+      error: "Applicant not found",
+    });
+    expect(mocks.requireSession).not.toHaveBeenCalled();
+  });
+
+  it("moves with no session, records changedById: null, dispatches an active integration, and skips revalidatePath", async () => {
+    mocks.prisma.applicant.findUnique
+      .mockResolvedValueOnce({ job: { organizationId: "org-1" } }) // worker's own org lookup
+      .mockResolvedValueOnce({
+        pipelineStageId: "stage-from",
+        status: "NEW",
+        jobId: "job-1",
+        job: { organizationId: "org-1", title: "Engineer", assessmentTitle: null, assessmentQuestions: null },
+      }); // moveApplicantCore's lookup
+    seedNewStage();
+    mocks.prisma.jobIntegration.findUnique.mockResolvedValue({
+      id: "integration-1",
+      jobId: "job-1",
+      active: true,
+      endpointUrl: "https://example.com/hook",
+      apiKey: "encrypted",
+      includeQuestions: false,
+      stage: { name: "Interview" },
+    });
+    mocks.prisma.integrationLog.findFirst.mockResolvedValue(null);
+    mocks.decryptSecret.mockReturnValue("plain-key");
+    mocks.validateEgressUrl.mockResolvedValue("https://example.com/hook");
+    mocks.redactIntegrationResponse.mockImplementation((v: unknown) => v);
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => "ok",
+    });
+
+    const result = await moveApplicantFromWorker("applicant-1", "stage-to");
+
+    expect(result).toEqual({ success: true });
+    expect(mocks.requireSession).not.toHaveBeenCalled();
+    expect(mocks.prisma.stageTransition.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ changedById: null }) }),
+    );
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });

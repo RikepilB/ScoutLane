@@ -192,4 +192,46 @@ export async function scoreApplicantInline(applicantId: string): Promise<void> {
       } as Prisma.InputJsonValue,
     },
   });
+
+  await maybeAutoAdvance(applicantId, result.score);
+}
+
+/**
+ * Auto-advances an applicant when an active AutoAdvanceRule on their current stage
+ * is cleared by the just-computed score. Self-idempotent: the rule is looked up by
+ * the applicant's *current* pipelineStageId, so once they leave the source stage
+ * (via this move or any other), a later rescore simply finds no matching rule.
+ *
+ * Dynamically imports the pipeline service — `update-impl.ts` pulls in `next/cache`
+ * at module scope, which must not load into the standalone pg-boss worker process
+ * that also calls this function (via parseApplicantResume -> scoreApplicantInline).
+ *
+ * Never throws: a failure here must not fail the scoring write above.
+ */
+export async function maybeAutoAdvance(applicantId: string, score: number): Promise<void> {
+  try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id: applicantId },
+      select: { pipelineStageId: true },
+    });
+    if (!applicant?.pipelineStageId) return;
+
+    const rule = await prisma.autoAdvanceRule.findUnique({
+      where: { sourceStageId: applicant.pipelineStageId },
+      select: {
+        active: true,
+        targetStageId: true,
+        thresholdScore: true,
+        sourceStage: { select: { order: true } },
+        targetStage: { select: { order: true } },
+      },
+    });
+    if (!rule || !rule.active || score < rule.thresholdScore) return;
+    if (rule.targetStage.order <= rule.sourceStage.order) return;
+
+    const { moveApplicantFromWorker } = await import("@/server/services/pipeline/update-impl");
+    await moveApplicantFromWorker(applicantId, rule.targetStageId);
+  } catch (error) {
+    console.error("[maybeAutoAdvance] failed:", error);
+  }
 }
