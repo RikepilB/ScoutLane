@@ -127,6 +127,7 @@ model Job {
   stages              PipelineStage[]
   integrations        JobIntegration[]
   stageTransitions    StageTransition[]
+  autoAdvanceRules    AutoAdvanceRule[]
 
   whatYouWillDo String?
   requirements  Json?
@@ -244,6 +245,9 @@ model PipelineStage {
   integration JobIntegration?
   applicants  Applicant[]
 
+  autoAdvanceRuleAsSource AutoAdvanceRule? @relation("AutoAdvanceRuleSourceStage")
+  autoAdvanceRuleAsTarget AutoAdvanceRule[] @relation("AutoAdvanceRuleTargetStage")
+
   @@index([jobId, order])
 }
 
@@ -294,6 +298,25 @@ model JobIntegration {
   updatedAt        DateTime      @updatedAt
 
   logs IntegrationLog[]
+}
+
+/// One active rule per source stage: when an applicant's score clears thresholdScore
+/// while sitting in sourceStage, they're auto-moved to targetStage. Evaluated from
+/// scoreApplicantInline() after every scoring run (apply-submit, rescore, retry-parse).
+model AutoAdvanceRule {
+  id             String        @id @default(cuid())
+  jobId          String
+  job            Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  sourceStageId  String        @unique
+  sourceStage    PipelineStage @relation("AutoAdvanceRuleSourceStage", fields: [sourceStageId], references: [id], onDelete: Cascade)
+  targetStageId  String
+  targetStage    PipelineStage @relation("AutoAdvanceRuleTargetStage", fields: [targetStageId], references: [id], onDelete: Cascade)
+  thresholdScore Float
+  active         Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([jobId])
 }
 
 model WebhookLog {
