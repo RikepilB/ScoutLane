@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
@@ -43,6 +44,10 @@ export async function POST(
 
   try {
     await scoreApplicantInline(applicantId);
+    // Scoring can auto-advance the applicant's stage (AutoAdvanceRule); the worker-safe
+    // move path skips revalidation, so this request-context caller does it instead.
+    revalidatePath(`/admin/jobs/${applicant.jobId}/pipeline`);
+    revalidatePath(`/admin/jobs/${applicant.jobId}/applicants`);
     const updated = await prisma.applicant.findUnique({
       where: { id: applicantId },
       select: { score: true },

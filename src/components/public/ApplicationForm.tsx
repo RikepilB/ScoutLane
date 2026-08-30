@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Sparkles, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { submitJobApplication } from "@/server/services/submit-job-application";
 import { type JobApplicationInput, jobApplicationSchema } from "@/schemas/application";
@@ -37,6 +37,12 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
   const [customFiles, setCustomFiles] = useState<Record<string, File>>({});
+  const [fitCheck, setFitCheck] = useState<
+    | { status: "idle" }
+    | { status: "loading" }
+    | { status: "done"; score: number; rationale: string; matchedSkills: string[] }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   const form = useForm<JobApplicationInput>({
     resolver: zodResolver(jobApplicationSchema),
@@ -65,6 +71,34 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
 
   function updateCustomValue(id: string, value: string) {
     setCustomValues((prev) => ({ ...prev, [id]: value }));
+  }
+
+  async function handleCheckFit() {
+    const file = form.getValues("resumeFile");
+    if (!(file instanceof File)) return;
+
+    setFitCheck({ status: "loading" });
+    try {
+      const fitFormData = new FormData();
+      fitFormData.set("resumeFile", file);
+      const res = await fetch(`/api/public/jobs/${jobSlug}/fit-check`, {
+        method: "POST",
+        body: fitFormData,
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        setFitCheck({ status: "error", message: body?.error ?? "Could not check your fit right now." });
+        return;
+      }
+      setFitCheck({
+        status: "done",
+        score: body.score,
+        rationale: body.rationale,
+        matchedSkills: body.matchedSkills ?? [],
+      });
+    } catch {
+      setFitCheck({ status: "error", message: "Could not check your fit right now." });
+    }
   }
 
   const handleSubmit = form.handleSubmit((values) => {
@@ -239,6 +273,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                           type="button"
                           onClick={() => {
                             form.resetField("resumeFile");
+                            setFitCheck({ status: "idle" });
                           }}
                           className="rounded-lg p-1 text-[#64748b] hover:bg-red-50 hover:text-red-500"
                         >
@@ -254,6 +289,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                           className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] file:text-[#0c1529]"
                           onChange={(event) => {
                             onChange(event.target.files?.[0]);
+                            setFitCheck({ status: "idle" });
                           }}
                         />
                         <div className="mt-3 flex items-center gap-2 text-xs text-[#475569]">
@@ -265,6 +301,47 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   </div>
                 </FormControl>
                 <FormMessage />
+
+                {value instanceof File ? (
+                  <div className="mt-2">
+                    {fitCheck.status === "idle" ? (
+                      <button
+                        type="button"
+                        onClick={handleCheckFit}
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1B2CC1] hover:underline"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Check your fit for this role
+                      </button>
+                    ) : null}
+                    {fitCheck.status === "loading" ? (
+                      <p className="inline-flex items-center gap-1.5 text-xs text-[#475569]">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Checking your fit…
+                      </p>
+                    ) : null}
+                    {fitCheck.status === "error" ? (
+                      <p className="text-xs text-[#94540f]">{fitCheck.message}</p>
+                    ) : null}
+                    {fitCheck.status === "done" ? (
+                      <div className="rounded-xl border border-[#cbd5e1] bg-[#f8fafc] px-3 py-2.5 text-xs text-[#0c1529]">
+                        <p className="font-medium">
+                          {fitCheck.score >= 0.75
+                            ? "Strong fit for this role"
+                            : fitCheck.score >= 0.5
+                              ? "Good fit for this role"
+                              : fitCheck.score >= 0.3
+                                ? "Partial fit for this role"
+                                : "This role may not be the closest match"}
+                        </p>
+                        <p className="mt-1 leading-5 text-[#475569]">{fitCheck.rationale}</p>
+                        <p className="mt-1.5 text-[10px] text-[#94a3b8]">
+                          Advisory only — you&apos;re welcome to apply regardless.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </FormItem>
             )}
           />

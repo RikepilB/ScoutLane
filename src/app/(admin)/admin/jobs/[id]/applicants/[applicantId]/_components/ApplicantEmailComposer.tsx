@@ -2,11 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Mail, Send, Eye, FileEdit } from "lucide-react";
+import { Mail, Send, Eye, FileEdit, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { sendApplicantEmail } from "@/server/services/emails/send-applicant";
+import { draftStageEmailAction } from "@/server/services/emails/draft-stage-email";
 
 type TemplateKey =
   | "custom"
@@ -98,8 +99,29 @@ export function ApplicantEmailComposer({
   const [bodyHtml, setBodyHtml] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [pending, start] = useTransition();
+  const [isDrafting, setIsDrafting] = useState(false);
 
   const previewHtml = useMemo(() => bodyHtml, [bodyHtml]);
+
+  async function handleDraftWithAi() {
+    setIsDrafting(true);
+    try {
+      const result = await draftStageEmailAction(applicantId);
+      if (!result.ok || !result.subject || !result.bodyHtml) {
+        toast.error(result.error ?? "Could not generate a draft.");
+        return;
+      }
+      setTemplateKey("custom");
+      setSubject(result.subject);
+      setBodyHtml(result.bodyHtml);
+      setShowPreview(false);
+      toast.success("Draft generated — review and edit before sending.");
+    } catch {
+      toast.error("Could not generate a draft.");
+    } finally {
+      setIsDrafting(false);
+    }
+  }
 
   function applyTemplate(key: TemplateKey) {
     const def = TEMPLATES[key];
@@ -155,6 +177,16 @@ export function ApplicantEmailComposer({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleDraftWithAi}
+            disabled={isDrafting || pending}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {isDrafting ? "Drafting…" : "Draft with AI"}
+          </Button>
           <label className="text-xs font-medium text-muted-foreground">Template</label>
           <select
             value={templateKey}
