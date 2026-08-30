@@ -132,6 +132,7 @@ describe("moveApplicantImpl — characterization (pre-refactor baseline)", () =>
     expect(mocks.prisma.stageTransition.create).not.toHaveBeenCalled();
     expect(mocks.prisma.webhook.findMany).not.toHaveBeenCalled();
     expect(mocks.prisma.jobIntegration.findUnique).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it("falls back fromStage to the applicant's current status when pipelineStageId is null, and sets status from the new stage", async () => {

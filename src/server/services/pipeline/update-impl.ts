@@ -7,20 +7,27 @@ import { decryptSecret } from "@/lib/security/integration-secrets";
 import { redactIntegrationResponse } from "@/lib/security/integration-response-redaction";
 import { requireSession } from "@/server/services/_lib/validate-session";
 
-/**
- * Moves an applicant to a new pipeline stage.
- *
- * @param expectedJobId Optional defense-in-depth: when provided (e.g. from a
- * REST route's `[id]` segment) the applicant's `jobId` must match, otherwise the
- * move is rejected as not-found. Org-scoping is always enforced via the session.
- */
-export async function moveApplicantImpl(
-  applicantId: string,
-  newStageId: string,
-  expectedJobId?: string,
-) {
-  const user = await requireSession();
+interface MoveApplicantCoreInput {
+  applicantId: string;
+  newStageId: string;
+  organizationId: string;
+  actorUserId: string | null;
+  expectedJobId?: string;
+}
 
+/**
+ * Actor-independent core of a pipeline move: org-scoped lookup, stage validation,
+ * the stage/status write, StageTransition record, webhook fan-out, and integration
+ * dispatch. No session or Next.js request context required — callable from a
+ * worker process (see `moveApplicantFromWorker`) as well as from `moveApplicantImpl`.
+ */
+export async function moveApplicantCore({
+  applicantId,
+  newStageId,
+  organizationId,
+  actorUserId,
+  expectedJobId,
+}: MoveApplicantCoreInput) {
   const existing = await prisma.applicant.findUnique({
     where: { id: applicantId },
     select: {
@@ -39,7 +46,7 @@ export async function moveApplicantImpl(
   });
   if (
     !existing ||
-    existing.job.organizationId !== user.organizationId ||
+    existing.job.organizationId !== organizationId ||
     (expectedJobId !== undefined && existing.jobId !== expectedJobId)
   ) {
     return { success: false, code: "NOT_FOUND" as const, error: "Applicant not found" };
@@ -82,7 +89,7 @@ export async function moveApplicantImpl(
       jobId: existing.jobId,
       fromStage: fromStage?.name ?? existing.status,
       toStage: newStage.name,
-      changedById: user.id,
+      changedById: actorUserId,
     },
   });
 
@@ -199,7 +206,66 @@ export async function moveApplicantImpl(
     }
   }
 
-  revalidatePath(`/admin/jobs/${existing.jobId}/pipeline`);
-  revalidatePath(`/admin/jobs/${existing.jobId}/applicants`);
-  return { success: true };
+  return { success: true as const, jobId: existing.jobId };
+}
+
+/**
+ * Session-resolving wrapper around {@link moveApplicantCore} — the entry point every
+ * existing caller (Kanban board, applicant detail actions, the move REST route) uses.
+ * Behavior is unchanged from before the core was extracted.
+ *
+ * @param expectedJobId Optional defense-in-depth: when provided (e.g. from a
+ * REST route's `[id]` segment) the applicant's `jobId` must match, otherwise the
+ * move is rejected as not-found. Org-scoping is always enforced via the session.
+ */
+export async function moveApplicantImpl(
+  applicantId: string,
+  newStageId: string,
+  expectedJobId?: string,
+) {
+  const user = await requireSession();
+  const result = await moveApplicantCore({
+    applicantId,
+    newStageId,
+    organizationId: user.organizationId,
+    actorUserId: user.id,
+    expectedJobId,
+  });
+
+  if (!result.success) return result;
+
+  if (!("unchanged" in result)) {
+    revalidatePath(`/admin/jobs/${result.jobId}/pipeline`);
+    revalidatePath(`/admin/jobs/${result.jobId}/applicants`);
+  }
+
+  const { jobId: _jobId, ...rest } = result;
+  return rest;
+}
+
+/**
+ * Worker-safe entry point for moves triggered without a session (auto-advance from
+ * the scoring pipeline). Derives `organizationId` from the applicant's own job — no
+ * request context available — and records the transition with no actor. Skips
+ * `revalidatePath`: a standalone worker process has no Next.js cache to invalidate.
+ */
+export async function moveApplicantFromWorker(applicantId: string, newStageId: string) {
+  const applicant = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { job: { select: { organizationId: true } } },
+  });
+  if (!applicant?.job.organizationId) {
+    return { success: false as const, code: "NOT_FOUND" as const, error: "Applicant not found" };
+  }
+
+  const result = await moveApplicantCore({
+    applicantId,
+    newStageId,
+    organizationId: applicant.job.organizationId,
+    actorUserId: null,
+  });
+
+  if (!result.success) return result;
+  const { jobId: _jobId, ...rest } = result;
+  return rest;
 }
