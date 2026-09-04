@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AnimatedBackground } from "@/components/public/AnimatedBackground";
 import { SignUp } from "@clerk/nextjs";
 import { SignedInGate } from "../signin/_components/SignedInGate";
+import { auth } from "@/lib/auth/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +12,14 @@ export const metadata = {
   description: "Create your ScoutLane account",
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  // Authoritative, race-free check — see the matching comment in
+  // src/app/signin/[[...sign-in]]/page.tsx.
+  const session = await auth();
+  if (session) {
+    redirect("/choose-role");
+  }
+
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden w-1/2 lg:block">
@@ -50,23 +59,25 @@ export default function SignUpPage() {
               signInUrl="/signin"
               fallbackRedirectUrl="/choose-role"
               appearance={{
+                // See RoleSignInPanel.tsx for why this uses `variables` instead
+                // of `elements` class overrides (the latter were silent no-ops
+                // against this Clerk version's remote UI bundle).
+                variables: {
+                  colorPrimary: "#1B2CC1",
+                  colorBackground: "#0f172a",
+                  colorForeground: "#f1f5f9",
+                  colorMutedForeground: "#94a3b8",
+                  colorInput: "#1e293b",
+                  colorInputForeground: "#f1f5f9",
+                  colorNeutral: "#ffffff",
+                  colorBorder: "#334155",
+                },
                 elements: {
                   rootBox: "w-full",
-                  card: "bg-transparent shadow-none p-0",
-                  // ScoutLane's own logo already appears in the hero panel/mobile
-                  // header on this page. "Secured by Clerk" is left as-is — tied
-                  // to the Clerk instance tier, not a themeable element.
+                  card: "border border-slate-700/60 shadow-none rounded-2xl",
                   logoBox: "hidden",
-                  headerTitle: "text-white text-2xl",
-                  headerSubtitle: "text-slate-400",
                   socialButtonsBlockButton:
                     "border border-slate-600 bg-white text-slate-900 hover:bg-slate-100",
-                  dividerLine: "bg-slate-700/60",
-                  dividerText: "text-slate-500",
-                  formFieldLabel: "text-slate-300",
-                  formFieldInput: "rounded-xl border-slate-700/60 bg-slate-800/60 text-white",
-                  formButtonPrimary: "rounded-xl bg-sky-600 hover:bg-sky-500 text-sm font-medium",
-                  footerActionLink: "text-sky-400 hover:text-sky-300",
                 },
               }}
             />

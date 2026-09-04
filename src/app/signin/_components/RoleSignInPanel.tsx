@@ -54,25 +54,33 @@ export function RoleSignInPanel({
         forceRedirectUrl={callbackUrl}
         fallbackRedirectUrl="/admin"
         appearance={{
+          // Token-based theming — this Clerk version renders from a remote UI
+          // bundle whose internal DOM doesn't reliably match the classic
+          // `elements` class-override keys (confirmed live: headerTitle/card
+          // overrides were silently no-ops, card stayed white). `variables`
+          // are read by every internal component regardless of DOM shape.
+          variables: {
+            colorPrimary: "#1B2CC1",
+            colorBackground: "#0f172a",
+            colorForeground: "#f1f5f9",
+            colorMutedForeground: "#94a3b8",
+            colorInput: "#1e293b",
+            colorInputForeground: "#f1f5f9",
+            colorNeutral: "#ffffff",
+            colorBorder: "#334155",
+          },
           elements: {
             rootBox: "w-full",
-            card: "bg-transparent shadow-none p-0",
+            card: "border border-slate-700/60 shadow-none rounded-2xl",
             // ScoutLane's own logo already appears in the hero panel and mobile
             // header on this page — Clerk's default logo box is redundant here.
             // The "Secured by Clerk" trust footer is intentionally left as-is:
             // it's tied to the Clerk instance tier, not a themeable element.
             logoBox: "hidden",
-            headerTitle: "text-white",
-            headerSubtitle: "text-slate-400",
+            // Google's own button stays on its native white/light styling —
+            // standard OAuth-button branding practice, not a theming miss.
             socialButtonsBlockButton:
               "border border-slate-600 bg-white text-slate-900 hover:bg-slate-100",
-            dividerLine: "bg-slate-700/60",
-            dividerText: "text-slate-500",
-            formFieldLabel: "text-slate-300",
-            formFieldInput: "rounded-xl border-slate-700/60 bg-slate-800/60 text-white",
-            formButtonPrimary: "rounded-xl bg-sky-600 hover:bg-sky-500 text-sm font-medium",
-            footerActionLink: "text-sky-400 hover:text-sky-300",
-            identityPreviewEditButton: "text-sky-400",
           },
         }}
       />
