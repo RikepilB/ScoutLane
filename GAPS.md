@@ -153,6 +153,11 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 ## 🟠 Test coverage
 
 ### G9. Middleware and the central auth gate are untested
+- **Status (2026-09-04): Resolved.** `requireSession()`/`assertNotGuest()` were already
+  covered by `validate-session.test.ts` (predates this pass). Added
+  `src/server/services/current-user.test.ts` covering `getCurrentUserWithOrganization()`:
+  no-session → null, no-DB-user → null, existing-org passthrough, and the fallback-org
+  auto-create path.
 - **Status (2026-08-29): Middleware now tested; `requireSession` still isn't** —
   `src/middleware.test.ts` covers all 5 real branches: public-route bypass, job-shortlink
   bypass, unauthenticated→`/signin?redirect_url=...`, authenticated→next, and the
@@ -175,6 +180,14 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   authed-non-workspace-role → /access-denied, workspace-role → next. Mock `auth`.
 
 ### G10. Whole service functions with zero tests
+- **Status (2026-09-04): Resolved** — added tests for all 8 listed files:
+  `settings.test.ts` (incl. `updateTeamMemberRole` cross-org scoping), `templates.test.ts`
+  (create/update/delete, org scoping, redirect-throws-so-execution-stops semantics),
+  `pipeline/stages-impl.test.ts`, `applicants/notes-impl.test.ts`, `applicants/read.test.ts`,
+  `jobs/update-impl.test.ts`, `jobs/delete.test.ts`, `job-alerts.test.ts`,
+  `emails/dispatch-email-job.test.ts`. `pipeline/update-impl.ts` (`moveApplicantImpl`) was
+  already covered before this pass (see the G13/G24 work). Mocked-Prisma pattern only —
+  no real DB.
 - **What:** No tests for `settings.ts` (incl. `updateTeamMemberRole` — the role-escalation
   surface), `templates.ts` (CRUD), `pipeline/stages-impl.ts`, `pipeline/update-impl.ts`
   `moveApplicantImpl` real logic (only its route mock is tested), `applicants/notes-impl.ts`,
@@ -207,6 +220,11 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   document it as intentionally-manual in `docs/TESTING.md`.
 
 ### G12. API routes with no test (8 of 14)
+- **Status (2026-09-04): Resolved** — added tests for all 7 still-missing routes (public
+  `job-alerts` and `resumes/[...objectName]` already had coverage): `health`, applicants
+  `export` (incl. a CSV-formula-injection assertion), `rescore`, `jobs/[id]/integrations`
+  (create, incl. SSRF-validation and encryption-503 paths), `jobs/integrations/[id]`
+  (test/retry/delete actions), `parse-retry`, resume `preview`.
 - **What:** Untested: `health`, CSV `export`, `rescore`, both `integrations` CRUD routes
   (store secrets), `parse-retry`, resume `preview`, public `job-alerts`.
 - **Where:** `src/app/api/**`.
@@ -249,6 +267,10 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
 - **Fix:** Add `AbortSignal.timeout(10_000)` to both fetch calls.
 
 ### G15. Resume queue caches a failed pg-boss start permanently
+- **Status (2026-09-04): Resolved** — `getResumeQueue()` (`src/server/queues/resume.ts:33-46`)
+  now clears `globalForBoss.resumeBossStart`/`resumeBoss` on start failure, mirroring
+  `emails.ts`; covered by `resume.test.ts`. This item was already fixed in commit `a296845`
+  (2026-08-29) — GAPS.md's own status text just hadn't been updated. No code change needed.
 - **What:** `emails.ts` clears the cached boss/start promise on start failure so it can
   retry; `resume.ts` uses `??=` with no such cleanup, so a transient startup failure is
   cached forever in-process.
