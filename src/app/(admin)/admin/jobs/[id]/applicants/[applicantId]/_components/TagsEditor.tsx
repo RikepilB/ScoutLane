@@ -94,6 +94,9 @@ export function TagsEditor({ applicantId, tags }: TagsEditorProps) {
           Add
         </button>
       </div>
+      {tags.length >= 20 && (
+        <p className="mt-2 text-xs text-muted-foreground">Max 20 tags reached.</p>
+      )}
     </div>
   );
 }

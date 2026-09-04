@@ -43,7 +43,7 @@ export default function SignUpPage() {
             </p>
           </div>
 
-          <SignedInGate callbackUrl="/choose-role">
+          <SignedInGate callbackUrl="/choose-role" continueLabel="Continue to role selection">
             <SignUp
               routing="path"
               path="/signup"
