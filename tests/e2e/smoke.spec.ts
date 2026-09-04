@@ -38,7 +38,8 @@ test("careers landing surfaces published roles and brand subtitle", async ({ pag
 
 test("landing page shows demo entry points", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("link", { name: "Job board" })).toBeVisible();
+  // "Job board" appears both in the nav and as a hero CTA — scope to the nav link.
+  await expect(page.getByRole("navigation").getByRole("link", { name: "Job board" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Admin sign in" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Recruiter sign in" })).toBeVisible();
   await expect(page.getByRole("heading", { name: /enters the lane/i })).toBeVisible();
