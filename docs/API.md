@@ -22,11 +22,13 @@ Workspace roles:
 - `HIRING_MANAGER`
 - `GUEST` (read-only; blocked from mutations by `assertNotGuest`)
 
-**RBAC caveat (tracked as GAPS.md G5, unresolved):** role is checked at the `assertNotGuest`
-granularity (any non-GUEST role passes) almost everywhere. `RECRUITER` and `HIRING_MANAGER`
-can currently export applicant PII, delete jobs, and manage integrations — same as `ADMIN`.
-Only `settings.ts` (org settings, team role changes) enforces an `ADMIN`-only check today.
-Don't assume role-based authorization exists on a route unless you've checked that route.
+**RBAC (GAPS.md G5, resolved 2026-09-04):** a shared `requireRole(user, allowed[])` helper
+(`src/server/services/_lib/validate-session.ts`) enforces ADMIN-only on applicant-PII export,
+job delete, integration management, and org/team settings. `RECRUITER` and `HIRING_MANAGER`
+get 403 on those; every other authenticated route still only checks non-GUEST via
+`assertNotGuest`. `parse-retry` and `rescore` are deliberately left non-role-gated (recompute
+actions, not in the confirmed matrix). Don't assume a route beyond the four above enforces
+role — check `requireRole` usage at the specific call site.
 
 ## Error Shapes
 

@@ -125,6 +125,17 @@ export function ConversionFunnelChart({
 }: {
   data: { stageName: string; count: number; percentOfTotal: number }[];
 }) {
+  if (!data.length) {
+    return (
+      <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-900">Conversion funnel</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Applicants who have ever reached each stage (cumulative, not just current)
+        </p>
+        <p className="mt-6 text-sm text-muted-foreground">Not enough data yet.</p>
+      </div>
+    );
+  }
   const maxCount = Math.max(1, ...data.map((d) => d.count));
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">

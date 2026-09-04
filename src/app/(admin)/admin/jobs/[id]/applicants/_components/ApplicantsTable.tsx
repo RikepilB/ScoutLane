@@ -93,6 +93,7 @@ export function ApplicantsTable({
             onChange={(e) => setTargetStageId(e.target.value)}
             className="rounded-lg border border-border/70 bg-white px-2.5 py-1.5 text-xs"
             disabled={isPending}
+            aria-label="Move selected applicants to stage"
           >
             <option value="">Move to stage…</option>
             {stages.map((s) => (
@@ -124,7 +125,7 @@ export function ApplicantsTable({
           No applicants found.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
               <tr>

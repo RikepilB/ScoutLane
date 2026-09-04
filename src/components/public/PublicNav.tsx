@@ -54,6 +54,7 @@ export function PublicNav({ session, className }: PublicNavProps) {
             <Link
               key={link.href}
               href={link.href}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "rounded-full px-3 py-2 text-[13px] font-medium transition-colors sm:px-4 sm:text-[14px]",
                 active
