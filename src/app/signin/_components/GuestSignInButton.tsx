@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useSignIn } from "@clerk/nextjs";
+import { useClerk, useSignIn } from "@clerk/nextjs";
 import { signInAsGuest } from "@/lib/auth/guest-sign-in";
 
 export function GuestSignInButton({
@@ -15,6 +15,7 @@ export function GuestSignInButton({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const { signIn } = useSignIn();
+  const { signOut, user } = useClerk();
   const router = useRouter();
 
   return (
@@ -27,6 +28,10 @@ export function GuestSignInButton({
             try {
               if (!signIn) {
                 throw new Error("Authentication is still loading — try again in a moment.");
+              }
+
+              if (user) {
+                await signOut();
               }
 
               const result = await signInAsGuest(callbackUrl);

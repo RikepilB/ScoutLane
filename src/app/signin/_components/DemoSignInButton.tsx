@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useSignIn } from "@clerk/nextjs";
+import { useClerk, useSignIn } from "@clerk/nextjs";
 import { signInAsDemo } from "@/lib/auth/demo-sign-in";
 import type { DemoRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils/cn";
@@ -34,6 +34,7 @@ export function DemoSignInButton({
   const errorId = error ? "demo-signin-error" : undefined;
   const [, startTransition] = useTransition();
   const { signIn } = useSignIn();
+  const { signOut, user } = useClerk();
   const router = useRouter();
 
   return (
@@ -47,6 +48,13 @@ export function DemoSignInButton({
             try {
               if (!signIn) {
                 throw new Error("Authentication is still loading — try again in a moment.");
+              }
+
+              // Switching demo workspaces (or re-entering one) while a session is
+              // already active fails with "already signed in" from Clerk — sign
+              // out first so the ticket below always redeems into a fresh session.
+              if (user) {
+                await signOut();
               }
 
               const result = await signInAsDemo(role, callbackUrl);
