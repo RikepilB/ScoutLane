@@ -93,10 +93,17 @@ export function RoleSignInPanel({
           elements: {
             rootBox: "w-full",
             card: "bg-transparent shadow-none p-0",
+            // ScoutLane's own logo already appears in the hero panel and mobile
+            // header on this page — Clerk's default logo box is redundant here.
+            // The "Secured by Clerk" trust footer is intentionally left as-is:
+            // it's tied to the Clerk instance tier, not a themeable element.
+            logoBox: "hidden",
             headerTitle: "text-white",
             headerSubtitle: "text-slate-400",
             socialButtonsBlockButton:
               "border border-slate-600 bg-white text-slate-900 hover:bg-slate-100",
+            dividerLine: "bg-slate-700/60",
+            dividerText: "text-slate-500",
             formFieldLabel: "text-slate-300",
             formFieldInput: "rounded-xl border-slate-700/60 bg-slate-800/60 text-white",
             formButtonPrimary: "rounded-xl bg-sky-600 hover:bg-sky-500 text-sm font-medium",
