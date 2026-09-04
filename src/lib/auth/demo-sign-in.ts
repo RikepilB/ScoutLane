@@ -36,19 +36,23 @@ export async function signInAsDemo(
     };
   }
 
+  let destination: URL;
   try {
     const token = await client.signInTokens.createSignInToken({
       userId: user.id,
       expiresInSeconds: 120,
     });
-
-    const destination = new URL(token.url);
-    destination.searchParams.set("redirect_url", resolveRedirectUrl(callbackUrl));
-    redirect(destination.toString());
+    destination = new URL(token.url);
   } catch (error) {
     return {
       ok: false,
-      error: `Failed to create sign-in token: ${error instanceof Error ? error.message : "unknown error"}`,
+      error: `Failed to create sign-in token: ${error instanceof Error ? error.message : "unknown"}`,
     };
   }
+
+  // next/navigation redirect() works by throwing NEXT_REDIRECT — it must stay
+  // OUTSIDE the try/catch above or the catch swallows the redirect and turns a
+  // successful sign-in into a reported failure.
+  destination.searchParams.set("redirect_url", resolveRedirectUrl(callbackUrl));
+  redirect(destination.toString());
 }
