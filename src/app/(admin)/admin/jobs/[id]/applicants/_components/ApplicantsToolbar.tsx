@@ -7,9 +7,17 @@ interface ApplicantsToolbarProps {
   stages: { id: string; name: string }[];
   sortedStats: { name: string; count: number }[];
   totalApplicants: number;
+  canExport?: boolean;
 }
 
-export function ApplicantsToolbar({ jobId, filters, stages, sortedStats, totalApplicants }: ApplicantsToolbarProps) {
+export function ApplicantsToolbar({
+  jobId,
+  filters,
+  stages,
+  sortedStats,
+  totalApplicants,
+  canExport,
+}: ApplicantsToolbarProps) {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -66,12 +74,14 @@ export function ApplicantsToolbar({ jobId, filters, stages, sortedStats, totalAp
             );
           })}
         </div>
-        <Link
-          href={`/api/admin/jobs/${jobId}/applicants/export`}
-          className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-slate-800 hover:bg-muted/30"
-        >
-          Export CSV
-        </Link>
+        {canExport && (
+          <Link
+            href={`/api/admin/jobs/${jobId}/applicants/export`}
+            className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-slate-800 hover:bg-muted/30"
+          >
+            Export CSV
+          </Link>
+        )}
       </div>
 
       {sortedStats.length > 0 ? (

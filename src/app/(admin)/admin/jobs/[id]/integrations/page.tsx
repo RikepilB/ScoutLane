@@ -13,7 +13,7 @@ export default async function IntegrationsPage({ params }: IntegrationsPageProps
   const { id } = await params;
   const user = await getCurrentUserWithOrganization();
   const organizationId = user?.organizationId;
-  if (!organizationId || user.role === "GUEST") notFound();
+  if (!organizationId || user.role !== "ADMIN") notFound();
 
   const job = await prisma.job.findFirst({
     where: { id, organizationId },

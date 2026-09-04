@@ -4,7 +4,7 @@ Read this before using Claude Code or another coding agent on ScoutLane.
 
 ## Project
 
-ScoutLane is an AI-assisted recruiting platform built with Next.js 16, TypeScript, Prisma/PostgreSQL, Auth.js, OpenRouter, Resend, Google Cloud Storage, and pg-boss.
+ScoutLane is an AI-assisted recruiting platform built with Next.js 16, TypeScript, Prisma/PostgreSQL, Clerk, OpenRouter, Resend, Google Cloud Storage, and pg-boss.
 
 Current docs worktree: `C:\tmp\ScoutLane-docs-update`
 
@@ -57,11 +57,11 @@ Before non-trivial work, read the relevant docs:
 
 - Resume parsing uses OpenRouter through the OpenAI-compatible SDK.
 - Resume parsing is async through pg-boss and `pnpm worker:resume`.
-- Admin session strategy is JWT.
+- Auth is Clerk-based (`@clerk/nextjs`); `getAppSession()` (`src/lib/auth/session.ts`) reads role fresh from the DB on every call, so a role change is reflected immediately (no stale-JWT-role risk).
 - Public JSON application submit is not the same as the multipart public apply form.
-- Production auth must prove the dev credentials provider is unavailable.
+- Demo sign-in (`src/lib/auth/demo-sign-in.ts`) mints a short-lived Clerk `signInToken` for an existing seeded user — it cannot create an arbitrary session. The old NextAuth `"dev"` credentials provider was removed in the Clerk migration (PRs #119-#121).
 - Middleware is not the only security boundary; Route Handlers and Server Actions must re-check session and ownership.
-- Custom form fields are a P0 gap: dropdown options, required validation, and custom file-field behavior need implementation/QA.
+- Custom form fields persist to the DB (`Job.customFields`, `saveCustomFieldsImpl` in `src/server/services/jobs/update-impl.ts`); this was the P0 gap noted in an earlier revision of this doc — resolved.
 - API parity is incomplete: many admin mutations are Server Actions only.
 - Security evidence is incomplete: upload hardening, rate limits, security headers, dependency scan, secret scan, and route/action ownership audit still need proof.
 - OneDrive can cause local permission errors with dependency binaries; verify in a clean environment if needed.

@@ -8,14 +8,11 @@ import {
   userProfileSelfSchema,
 } from "@/schemas/settings";
 import { getCurrentUserWithOrganization } from "./current-user";
+import { requireRole } from "@/server/services/_lib/validate-session";
 
 export interface SettingsActionResult {
   error?: string;
   success: boolean;
-}
-
-function requireAdmin(user: { role: string }) {
-  return user.role === "ADMIN";
 }
 
 export async function updateMyProfile(
@@ -51,7 +48,11 @@ export async function updateOrganizationSettings(
 ): Promise<SettingsActionResult> {
   const user = await getCurrentUserWithOrganization();
   if (!user) return { success: false, error: "Not authenticated" };
-  if (!requireAdmin(user)) return { success: false, error: "Only admins can update settings" };
+  try {
+    requireRole(user, ["ADMIN"]);
+  } catch {
+    return { success: false, error: "Only admins can update settings" };
+  }
 
   const parsed = organizationSettingsSchema.safeParse({
     name: formData.get("name"),
@@ -88,7 +89,11 @@ export async function updateTeamMemberRole(
 ): Promise<SettingsActionResult> {
   const user = await getCurrentUserWithOrganization();
   if (!user) return { success: false, error: "Not authenticated" };
-  if (!requireAdmin(user)) return { success: false, error: "Only admins can manage team roles" };
+  try {
+    requireRole(user, ["ADMIN"]);
+  } catch {
+    return { success: false, error: "Only admins can manage team roles" };
+  }
 
   const parsed = teamMemberRoleSchema.safeParse({
     userId: formData.get("userId"),

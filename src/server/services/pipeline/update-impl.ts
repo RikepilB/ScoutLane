@@ -243,6 +243,54 @@ export async function moveApplicantImpl(
   return rest;
 }
 
+export interface BulkMoveResult {
+  movedCount: number;
+  unchangedCount: number;
+  failed: { applicantId: string; error: string }[];
+}
+
+/**
+ * Moves multiple applicants to the same stage in one call. Reuses {@link moveApplicantCore}
+ * per applicant (so webhooks/integrations/StageTransition all fire exactly as a single move
+ * would) but revalidates the affected paths once at the end instead of per-item.
+ */
+export async function bulkMoveApplicantsImpl(
+  applicantIds: string[],
+  newStageId: string,
+  jobId: string,
+): Promise<BulkMoveResult> {
+  const user = await requireSession();
+
+  let movedCount = 0;
+  let unchangedCount = 0;
+  const failed: { applicantId: string; error: string }[] = [];
+
+  for (const applicantId of applicantIds) {
+    const result = await moveApplicantCore({
+      applicantId,
+      newStageId,
+      organizationId: user.organizationId,
+      actorUserId: user.id,
+      expectedJobId: jobId,
+    });
+
+    if (!result.success) {
+      failed.push({ applicantId, error: result.error ?? "Move failed" });
+    } else if ("unchanged" in result) {
+      unchangedCount += 1;
+    } else {
+      movedCount += 1;
+    }
+  }
+
+  if (movedCount > 0) {
+    revalidatePath(`/admin/jobs/${jobId}/pipeline`);
+    revalidatePath(`/admin/jobs/${jobId}/applicants`);
+  }
+
+  return { movedCount, unchangedCount, failed };
+}
+
 /**
  * Worker-safe entry point for moves triggered without a session (auto-advance from
  * the scoring pipeline). Derives `organizationId` from the applicant's own job — no

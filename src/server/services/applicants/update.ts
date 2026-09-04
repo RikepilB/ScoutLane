@@ -24,3 +24,8 @@ export async function deleteApplicant(applicantId: string) {
   const { deleteApplicantImpl } = await import("./update-impl");
   return deleteApplicantImpl(applicantId);
 }
+
+export async function updateApplicantTags(applicantId: string, tags: string[]) {
+  const { updateApplicantTagsImpl } = await import("./update-impl");
+  return updateApplicantTagsImpl(applicantId, tags);
+}

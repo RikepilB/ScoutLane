@@ -120,6 +120,40 @@ export function PipelineStageDistributionChart({ data }: { data: { name: string;
   );
 }
 
+export function ConversionFunnelChart({
+  data,
+}: {
+  data: { stageName: string; count: number; percentOfTotal: number }[];
+}) {
+  const maxCount = Math.max(1, ...data.map((d) => d.count));
+  return (
+    <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+      <h3 className="text-sm font-semibold text-slate-900">Conversion funnel</h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Applicants who have ever reached each stage (cumulative, not just current)
+      </p>
+      <div className="mt-4 space-y-2.5">
+        {data.map((stage) => (
+          <div key={stage.stageName}>
+            <div className="mb-1 flex items-center justify-between text-xs">
+              <span className="font-medium text-slate-800">{stage.stageName}</span>
+              <span className="text-muted-foreground">
+                {stage.count} ({stage.percentOfTotal}%)
+              </span>
+            </div>
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-indigo-500"
+                style={{ width: `${(stage.count / maxCount) * 100}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function TopLabelsBarChart({
   title,
   subtitle,

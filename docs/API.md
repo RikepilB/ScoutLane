@@ -1,6 +1,6 @@
 # ScoutLane API Reference
 
-Last reviewed: 2026-05-19.
+Last reviewed: 2026-09-04.
 
 ScoutLane has two callable surfaces:
 
@@ -13,15 +13,20 @@ For the take-home assessment's "agentic future" requirement, the current app is 
 
 ## Auth
 
-Public endpoints bypass auth only when explicitly listed in `src/middleware.ts`. Admin routes require an authenticated workspace role and many handlers also scope data by `session.user.organizationId`.
+Public endpoints bypass auth only when explicitly listed in `src/lib/auth/public-routes.ts`. Auth is Clerk-based; admin routes require an authenticated user with an organization, and most handlers scope data by `organizationId`.
 
 Workspace roles:
 
 - `ADMIN`
 - `RECRUITER`
 - `HIRING_MANAGER`
+- `GUEST` (read-only; blocked from mutations by `assertNotGuest`)
 
-Organization/team settings mutations require `ADMIN`.
+**RBAC caveat (tracked as GAPS.md G5, unresolved):** role is checked at the `assertNotGuest`
+granularity (any non-GUEST role passes) almost everywhere. `RECRUITER` and `HIRING_MANAGER`
+can currently export applicant PII, delete jobs, and manage integrations — same as `ADMIN`.
+Only `settings.ts` (org settings, team role changes) enforces an `ADMIN`-only check today.
+Don't assume role-based authorization exists on a route unless you've checked that route.
 
 ## Error Shapes
 
@@ -59,9 +64,12 @@ Response:
 { "status": "ok", "timestamp": "2026-05-19T00:00:00.000Z" }
 ```
 
-### `GET|POST /api/auth/[...nextauth]`
+### `POST /api/webhooks/clerk`
 
-Auth.js handler. Providers are configured in `src/lib/auth/auth.config.ts` and `src/lib/auth/auth.ts`.
+Clerk webhook receiver (user/organization sync). Verifies the Svix signature; not
+user-callable. Auth itself is handled by Clerk's own hosted endpoints and
+`src/middleware.ts`, not an app-owned `/api/auth/*` route (the old NextAuth
+`[...nextauth]` catch-all was removed in the Clerk migration).
 
 ### `GET /api/admin/jobs/[id]/form`
 

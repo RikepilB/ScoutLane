@@ -180,6 +180,7 @@ model Applicant {
   parsedData         Json?
   parsingStatus      ParsingStatus?    @default(PENDING)
   interviewDate      DateTime?
+  tags               String[]          @default([])
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
@@ -190,6 +191,7 @@ model Applicant {
   @@unique([jobId, email])
   @@index([jobId, pipelineStageId])
   @@index([jobId, createdAt])
+  @@index([tags], type: Gin)
 }
 
 model ApplicantAttachment {

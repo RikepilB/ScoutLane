@@ -10,9 +10,11 @@ import { DeleteJobButton } from "@/components/admin/DeleteJobButton";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import {
   ApplicantTrendChart,
+  ConversionFunnelChart,
   PipelineStageDistributionChart,
   TopLabelsBarChart,
 } from "@/components/dashboard/Charts";
+import { computeConversionFunnel } from "@/lib/analytics/conversionFunnel";
 interface OverviewPageProps {
   params: Promise<{ id: string }>;
 }
@@ -64,10 +66,26 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
     prisma.applicant.count({ where: { jobId: id, createdAt: { gte: monthAgo } } }),
   ]);
 
-  const applicantsForCharts: Array<{ createdAt: Date; data: unknown }> = await prisma.applicant.findMany({
+  const applicantsForCharts: Array<{
+    id: string;
+    createdAt: Date;
+    data: unknown;
+    pipelineStageId: string | null;
+  }> = await prisma.applicant.findMany({
     where: { jobId: id },
-    select: { createdAt: true, data: true },
+    select: { id: true, createdAt: true, data: true, pipelineStageId: true },
   });
+
+  const stageTransitions = await prisma.stageTransition.findMany({
+    where: { jobId: id },
+    select: { applicantId: true, toStage: true },
+  });
+
+  const conversionFunnel = computeConversionFunnel(
+    job.stages.map((s: (typeof job.stages)[number]) => ({ id: s.id, name: s.name, order: s.order })),
+    applicantsForCharts.map((a) => ({ id: a.id, pipelineStageId: a.pipelineStageId })),
+    stageTransitions,
+  );
 
   const dailyMap = new Map<string, number>();
   for (let i = 13; i >= 0; i--) {
@@ -150,7 +168,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
 
           <div className="flex shrink-0 gap-2">
             <JobStatusActions jobId={id} status={status} />
-            <DeleteJobButton jobId={id} />
+            {user?.role === "ADMIN" && <DeleteJobButton jobId={id} />}
             <Button variant="outline" asChild>
               <Link href={`/careers/${job.slug}`} target="_blank" className="inline-flex items-center gap-1">
                 <ExternalLink className="h-4 w-4" />
@@ -205,6 +223,9 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
             subtitle="Daily applications in the last 14 days (this job)"
           />
           <PipelineStageDistributionChart data={pipelineChartData} />
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ConversionFunnelChart data={conversionFunnel} />
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           <TopLabelsBarChart
