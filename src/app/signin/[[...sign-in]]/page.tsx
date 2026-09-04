@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AnimatedBackground } from "@/components/public/AnimatedBackground";
 import { RoleChooser } from "../_components/RoleChooser";
 import { RoleSignInPanel } from "../_components/RoleSignInPanel";
 import { SignedInGate } from "../_components/SignedInGate";
 import { parseWorkspaceRole } from "@/lib/auth/parse-workspace-role";
+import { auth } from "@/lib/auth/auth";
 
 type Props = {
   searchParams: Promise<{
@@ -17,6 +19,17 @@ export default async function SignInPage({ searchParams }: Props) {
   const params = await searchParams;
   const callbackUrl = params.redirect_url ?? params.callbackUrl ?? "/admin";
   const role = parseWorkspaceRole(params.as);
+
+  // Authoritative, race-free check: client-side useUser()/useClerk() state has
+  // repeatedly proven unreliable right after a navigation (stale for several
+  // seconds, sometimes longer) — landing here already signed in must not
+  // depend on that hook settling. SignedInGate below is defense-in-depth for
+  // state changes that happen *after* this page has already rendered (e.g.
+  // finishing a sign-in without a full page navigation back here).
+  const session = await auth();
+  if (session) {
+    redirect(callbackUrl);
+  }
 
   return (
     <div className="flex min-h-screen">
