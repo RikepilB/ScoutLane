@@ -7,7 +7,7 @@ const { prismaMock } = vi.hoisted(() => {
   return {
     prismaMock: {
       job: { findUnique: fn() },
-      applicant: { findFirst: fn(), create: fn() },
+      applicant: { findFirst: fn(), create: fn(), findUnique: fn() },
     },
   };
 });
@@ -20,7 +20,7 @@ vi.mock("@/lib/jobs/status", () => ({
   canAcceptApplications: () => true,
 }));
 
-import { POST } from "@/app/api/public/jobs/[slug]/applications/route";
+import { GET, POST } from "@/app/api/public/jobs/[slug]/applications/route";
 import { DUPLICATE_APPLICATION_MESSAGE } from "@/schemas/application";
 
 interface DuplicateBody {
@@ -33,6 +33,7 @@ beforeEach(() => {
   prismaMock.job.findUnique.mockReset();
   prismaMock.applicant.findFirst.mockReset();
   prismaMock.applicant.create.mockReset();
+  prismaMock.applicant.findUnique.mockReset();
 });
 
 afterEach(() => {
@@ -96,5 +97,66 @@ describe("POST /api/public/jobs/[slug]/applications", () => {
     expect(response.status).toBe(201);
     const body = (await response.json()) as { success: boolean };
     expect(body.success).toBe(true);
+  });
+});
+
+function getRequest(url: string, ip: string) {
+  return new Request(url, {
+    headers: { "x-forwarded-for": ip },
+  }) as unknown as NextRequest;
+}
+
+const ctx = { params: Promise.resolve({ slug: "example" }) };
+
+describe("GET /api/public/jobs/[slug]/applications", () => {
+  it("returns the applicant's status when found and owned by this job", async () => {
+    prismaMock.job.findUnique.mockResolvedValue({ id: "job-1", slug: "example" });
+    prismaMock.applicant.findUnique.mockResolvedValue({
+      id: "app-1",
+      jobId: "job-1",
+      status: "NEW",
+    });
+
+    const response = await GET(
+      getRequest("http://localhost/api/public/jobs/example/applications?applicationId=app-1", "203.0.113.1"),
+      ctx,
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { success: boolean; data: { status: string } | null };
+    expect(body.data?.status).toBe("NEW");
+  });
+
+  it("returns null data for an applicationId belonging to another job (no cross-job leak)", async () => {
+    prismaMock.job.findUnique.mockResolvedValue({ id: "job-1", slug: "example" });
+    prismaMock.applicant.findUnique.mockResolvedValue({
+      id: "app-1",
+      jobId: "job-other",
+      status: "NEW",
+    });
+
+    const response = await GET(
+      getRequest("http://localhost/api/public/jobs/example/applications?applicationId=app-1", "203.0.113.2"),
+      ctx,
+    );
+
+    const body = (await response.json()) as { success: boolean; data: unknown };
+    expect(body.data).toBeNull();
+  });
+
+  it("is rate limited per IP after repeated requests", async () => {
+    prismaMock.job.findUnique.mockResolvedValue({ id: "job-1", slug: "example" });
+    prismaMock.applicant.findUnique.mockResolvedValue(null);
+
+    const ip = "203.0.113.3";
+    let lastResponse;
+    for (let i = 0; i < 11; i++) {
+      lastResponse = await GET(
+        getRequest("http://localhost/api/public/jobs/example/applications", ip),
+        ctx,
+      );
+    }
+
+    expect(lastResponse!.status).toBe(429);
   });
 });

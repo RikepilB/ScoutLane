@@ -121,6 +121,16 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const ip = clientIpFromHeaders(request.headers);
+    const rate = applicationRateLimiter.check(ip);
+    if (!rate.allowed) {
+      const retryAfter = Math.max(1, Math.ceil((rate.resetAt - Date.now()) / 1000));
+      return NextResponse.json(
+        { success: false, error: "Too many requests. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } },
+      );
+    }
+
     const { slug } = await params;
     const { searchParams } = new URL(request.url);
     const applicationId = searchParams.get("applicationId");
