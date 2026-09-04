@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useClerk, useSignIn } from "@clerk/nextjs";
 import { signInAsDemo } from "@/lib/auth/demo-sign-in";
@@ -13,6 +13,8 @@ const roleStyles: Record<Exclude<DemoRole, "guest">, string> = {
   recruiter:
     "border border-[#5ea7c5]/40 bg-[#14213d] shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-[#1a2c4d] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400",
 };
+
+const TIMEOUT_MS = 12_000;
 
 export function DemoSignInButton({
   role,
@@ -36,6 +38,13 @@ export function DemoSignInButton({
   const { signIn } = useSignIn();
   const { signOut, user } = useClerk();
   const router = useRouter();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <div>
@@ -44,6 +53,14 @@ export function DemoSignInButton({
         onClick={() => {
           setError(null);
           setPending(true);
+
+          // Hard ceiling so a stalled navigation/network call never leaves the
+          // button spinning forever with no way out for the user.
+          timeoutRef.current = setTimeout(() => {
+            setPending(false);
+            setError("Taking too long — refresh the page and try again.");
+          }, TIMEOUT_MS);
+
           startTransition(async () => {
             try {
               if (!signIn) {
@@ -74,9 +91,14 @@ export function DemoSignInButton({
                 );
               }
 
+              if (timeoutRef.current) clearTimeout(timeoutRef.current);
               router.push(result.redirectTo);
               router.refresh();
+              // Deliberately leave `pending` true here: the button is about to be
+              // unmounted by the navigation. If that navigation stalls, the
+              // timeout above still fires and recovers the button.
             } catch (e) {
+              if (timeoutRef.current) clearTimeout(timeoutRef.current);
               setError(e instanceof Error ? e.message : "Demo sign-in failed.");
               setPending(false);
             }
@@ -110,6 +132,13 @@ export function DemoSignInButton({
         >
           <p className="text-xs font-medium text-red-300">Error:</p>
           <p className="mt-1 text-xs text-red-200">{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-2 text-xs font-medium text-red-300 underline hover:text-red-200"
+          >
+            Refresh page
+          </button>
         </div>
       ) : null}
     </div>
