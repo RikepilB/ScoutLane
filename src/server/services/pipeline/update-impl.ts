@@ -254,6 +254,8 @@ export interface BulkMoveResult {
  * per applicant (so webhooks/integrations/StageTransition all fire exactly as a single move
  * would) but revalidates the affected paths once at the end instead of per-item.
  */
+const MAX_BULK_MOVE = 200;
+
 export async function bulkMoveApplicantsImpl(
   applicantIds: string[],
   newStageId: string,
@@ -261,11 +263,13 @@ export async function bulkMoveApplicantsImpl(
 ): Promise<BulkMoveResult> {
   const user = await requireSession();
 
+  const uniqueIds = [...new Set(applicantIds)].slice(0, MAX_BULK_MOVE);
+
   let movedCount = 0;
   let unchangedCount = 0;
   const failed: { applicantId: string; error: string }[] = [];
 
-  for (const applicantId of applicantIds) {
+  for (const applicantId of uniqueIds) {
     const result = await moveApplicantCore({
       applicantId,
       newStageId,

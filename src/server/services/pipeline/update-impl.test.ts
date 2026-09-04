@@ -269,6 +269,22 @@ describe("moveApplicantFromWorker", () => {
 });
 
 describe("bulkMoveApplicantsImpl", () => {
+  it("dedupes repeated ids and caps the batch at 200", async () => {
+    seedExisting();
+    seedNewStage();
+
+    const duplicated = ["a1", "a1", "a1"];
+    const result = await bulkMoveApplicantsImpl(duplicated, "stage-to", "job-1");
+    expect(result.movedCount).toBe(1);
+    expect(mocks.prisma.applicant.update).toHaveBeenCalledTimes(1);
+
+    mocks.prisma.applicant.update.mockClear();
+    const oversized = Array.from({ length: 250 }, (_, i) => `id-${i}`);
+    const cappedResult = await bulkMoveApplicantsImpl(oversized, "stage-to", "job-1");
+    expect(cappedResult.movedCount).toBe(200);
+    expect(mocks.prisma.applicant.update).toHaveBeenCalledTimes(200);
+  });
+
   it("moves every applicant and revalidates once", async () => {
     seedExisting();
     seedNewStage();
