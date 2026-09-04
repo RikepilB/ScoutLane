@@ -1,22 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockGetUserList, mockCreateSignInToken, mockClerkClient, mockRedirect } = vi.hoisted(
-  () => ({
-    mockGetUserList: vi.fn(),
-    mockCreateSignInToken: vi.fn(),
-    mockClerkClient: vi.fn(),
-    mockRedirect: vi.fn((url: string) => {
-      throw new Error(`Redirect to ${url}`);
-    }),
-  }),
-);
+const { mockGetUserList, mockCreateSignInToken, mockClerkClient } = vi.hoisted(() => ({
+  mockGetUserList: vi.fn(),
+  mockCreateSignInToken: vi.fn(),
+  mockClerkClient: vi.fn(),
+}));
 
 vi.mock("@clerk/nextjs/server", () => ({
   clerkClient: mockClerkClient,
-}));
-
-vi.mock("next/navigation", () => ({
-  redirect: mockRedirect,
 }));
 
 import { signInAsDemo } from "./demo-sign-in";
@@ -25,7 +16,6 @@ beforeEach(() => {
   mockClerkClient.mockReset();
   mockGetUserList.mockReset();
   mockCreateSignInToken.mockReset();
-  mockRedirect.mockReset();
   mockClerkClient.mockResolvedValue({
     users: {
       getUserList: mockGetUserList,
@@ -46,22 +36,34 @@ describe("signInAsDemo", () => {
     });
   });
 
-  it("creates token and lets the redirect throw propagate (NEXT_REDIRECT must not be swallowed)", async () => {
+  it("returns the sign-in token and redirect target for the client to redeem on-origin", async () => {
     mockGetUserList.mockResolvedValue({
       data: [{ id: "user-123" }],
     });
     mockCreateSignInToken.mockResolvedValue({
-      url: "https://clerk.example.com/token?jwt=xyz",
+      token: "jwt-ticket-abc",
     });
-    // next/navigation's redirect() signals by throwing — the mock mirrors that.
-    mockRedirect.mockImplementation((url: string) => {
-      throw new Error(`Redirect to ${url}`);
-    });
-    await expect(signInAsDemo("admin")).rejects.toThrow("Redirect to");
+    const result = await signInAsDemo("admin", "/admin");
     expect(mockCreateSignInToken).toHaveBeenCalledWith({
       userId: "user-123",
       expiresInSeconds: 120,
     });
-    expect(mockRedirect).toHaveBeenCalledWith(expect.stringContaining("jwt=xyz"));
+    expect(result).toEqual({
+      ok: true,
+      ticket: "jwt-ticket-abc",
+      redirectTo: "/admin",
+    });
+  });
+
+  it("returns a failure payload when token minting throws", async () => {
+    mockGetUserList.mockResolvedValue({
+      data: [{ id: "user-123" }],
+    });
+    mockCreateSignInToken.mockRejectedValue(new Error("boom"));
+    const result = await signInAsDemo("recruiter");
+    expect(result).toEqual({
+      ok: false,
+      error: expect.stringContaining("boom"),
+    });
   });
 });

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useSignIn } from "@clerk/nextjs";
 import { signInAsDemo } from "@/lib/auth/demo-sign-in";
 import type { DemoRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils/cn";
@@ -31,6 +33,8 @@ export function DemoSignInButton({
   const [error, setError] = useState<string | null>(null);
   const errorId = error ? "demo-signin-error" : undefined;
   const [, startTransition] = useTransition();
+  const { signIn } = useSignIn();
+  const router = useRouter();
 
   return (
     <div>
@@ -40,9 +44,32 @@ export function DemoSignInButton({
           setError(null);
           setPending(true);
           startTransition(async () => {
-            const result = await signInAsDemo(role, callbackUrl);
-            if (result && result.ok === false) {
-              setError(result.error);
+            try {
+              if (!signIn) {
+                throw new Error("Authentication is still loading — try again in a moment.");
+              }
+
+              const result = await signInAsDemo(role, callbackUrl);
+              if (!result || result.ok === false) {
+                throw new Error(result?.error ?? "Demo sign-in failed.");
+              }
+
+              // Redeem the sign-in token directly on this origin via the
+              // ticket strategy. Clerk creates + activates the session and
+              // sets the first-party __session cookie here — no cross-origin
+              // account-portal redirect is involved (which dev instances
+              // restrict to localhost anyway).
+              const { error: ticketError } = await signIn.ticket({ ticket: result.ticket });
+              if (ticketError) {
+                throw new Error(
+                  ticketError.longMessage ?? ticketError.message ?? "Sign-in token was rejected.",
+                );
+              }
+
+              router.push(result.redirectTo);
+              router.refresh();
+            } catch (e) {
+              setError(e instanceof Error ? e.message : "Demo sign-in failed.");
               setPending(false);
             }
           });
