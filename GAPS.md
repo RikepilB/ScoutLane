@@ -92,9 +92,9 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   both integrations routes, and `settings.ts` (swapped its local `requireAdmin` onto the
   shared helper). UI hides the affected buttons/links for non-ADMIN; the integrations page
   was already 404ing non-GUEST, tightened to ADMIN-only to match. 403-for-RECRUITER test
-  added at every gated call site. `rescore` (applicant re-scoring) was deliberately left
-  non-role-gated — it's a low-risk recompute action, not export/delete/integrations/settings,
-  and wasn't in the confirmed matrix.
+  added at every gated call site. `rescore` (applicant re-scoring) and `parse-retry` (resume re-parse) were deliberately left
+  non-role-gated — both are low-risk recompute actions, not export/delete/integrations/
+  settings, and neither was in the confirmed matrix.
 - **What:** Every `/api/admin/*` route and every server action authorizes on
   *authenticated + has organization* only, never on role. So `HIRING_MANAGER` and
   `RECRUITER` can export all applicant PII, delete jobs, and create/delete integrations —
