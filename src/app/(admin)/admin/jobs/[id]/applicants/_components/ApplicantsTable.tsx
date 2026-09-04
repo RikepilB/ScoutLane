@@ -177,6 +177,18 @@ export function ApplicantsTable({
                       >
                         {a.name}
                       </Link>
+                      {a.tags?.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {a.tags.map((tag: string) => (
+                            <span
+                              key={tag}
+                              className="inline-flex rounded-full bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-700"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td className="px-5 py-4 text-muted-foreground">
                       <div className="flex items-center gap-1.5">

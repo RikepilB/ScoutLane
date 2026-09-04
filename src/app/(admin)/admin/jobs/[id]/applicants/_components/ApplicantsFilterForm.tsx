@@ -6,9 +6,10 @@ interface ApplicantsFilterFormProps {
   allInstitutions: string[];
   allDegrees: string[];
   allSkills: string[];
+  allTags: string[];
 }
 
-export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, allSkills }: ApplicantsFilterFormProps) {
+export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, allSkills, allTags }: ApplicantsFilterFormProps) {
   return (
     <form
       method="get"
@@ -109,6 +110,12 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           availableSkills={allSkills}
         />
       </div>
+      {allTags.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium text-muted-foreground">Tags</label>
+          <SkillsMultiSelect name="tags" defaultValue={filters.tags ?? ""} availableSkills={allTags} />
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <label className="text-[11px] font-medium text-muted-foreground">Sort</label>
         <select

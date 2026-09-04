@@ -49,6 +49,13 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     ];
   }
 
+  if (filters.tags?.trim()) {
+    const tagList = filters.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    if (tagList.length > 0) {
+      where.tags = { hasSome: tagList };
+    }
+  }
+
   if (filters.scoreMin || filters.scoreMax) {
     const scoreFilter: { gte?: number; lte?: number } = {};
     const min = parseFloat(filters.scoreMin ?? "");
@@ -143,6 +150,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
     ...new Set(rawApplicants.map((a: ApplicantListRow) => getFirstDegree(a.data)).filter((x): x is string => !!x)),
   ].sort();
   const allSkills: string[] = [...new Set(rawApplicants.flatMap((a: ApplicantListRow) => getSkills(a.data)))].sort();
+  const allTags: string[] = [...new Set(rawApplicants.flatMap((a: ApplicantListRow) => a.tags))].sort();
 
   const totalApplicants = applicants.length;
   const totalPages = Math.ceil(totalApplicants / pageSize);
@@ -208,6 +216,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
         allInstitutions={allInstitutions}
         allDegrees={allDegrees}
         allSkills={allSkills}
+        allTags={allTags}
       />
 
       <ApplicantsTable
