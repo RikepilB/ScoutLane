@@ -1,8 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
+
+const STUCK_LOADING_MS = 6_000;
 
 /**
  * Guards the sign-in page against Clerk's default "you're already signed in"
@@ -27,8 +29,39 @@ export function SignedInGate({
   const { signOut } = useClerk();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [stuck, setStuck] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setStuck(false);
+      return;
+    }
+    // useUser()'s isLoaded has, in practice, occasionally failed to settle
+    // after a Clerk redirect back to this page (e.g. finishing a real
+    // Google/email sign-in, then navigating back here) — leaving visitors
+    // stuck on "Loading…" with no way forward except a manual page reload.
+    // Surface that explicitly instead of spinning forever.
+    const timer = setTimeout(() => setStuck(true), STUCK_LOADING_MS);
+    return () => clearTimeout(timer);
+  }, [isLoaded]);
 
   if (!isLoaded) {
+    if (stuck) {
+      return (
+        <div className="space-y-3 py-8 text-center">
+          <p className="text-sm text-slate-300">
+            This is taking longer than expected — you may already have an active session.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+          >
+            Refresh page
+          </button>
+        </div>
+      );
+    }
     return (
       <div className="flex items-center justify-center py-12 text-sm text-slate-500">
         Loading…

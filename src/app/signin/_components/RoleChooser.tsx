@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { DemoSignInButton } from "./DemoSignInButton";
 
 const doors = [
   {
@@ -14,7 +13,6 @@ const doors = [
       "Team role management",
       "Organization settings",
     ],
-    enterLabel: "Enter as Admin",
     accent: "#1B2CC1",
   },
   {
@@ -29,7 +27,6 @@ const doors = [
       "Kanban pipeline",
       "CSV export",
     ],
-    enterLabel: "Enter as Recruiter",
     accent: "#5ea7c5",
   },
 ];
@@ -45,7 +42,7 @@ export function RoleChooser({ callbackUrl }: { callbackUrl: string }) {
           Choose your workspace
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">
-          AI-powered hiring in two modes. Pick one to start exploring right now.
+          Sign in with your own account, or explore a workspace pre-loaded with sample data.
         </p>
       </div>
 
@@ -81,23 +78,16 @@ export function RoleChooser({ callbackUrl }: { callbackUrl: string }) {
                 </li>
               ))}
             </ul>
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <DemoSignInButton
-                role={door.role}
-                callbackUrl={callbackUrl}
-                className="w-full sm:w-auto"
-                aria-label={`${door.enterLabel}: get instant access with sample data`}
-              >
-                {door.enterLabel}
-              </DemoSignInButton>
-              <Link
-                href={door.href}
-                className="inline-block text-center text-xs text-slate-500 underline-offset-4 transition-colors hover:text-slate-300 hover:underline sm:text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
-                aria-label={`Sign in to ${door.title} with an invite`}
-              >
-                Use invite
-              </Link>
-            </div>
+            <Link
+              href={`${door.href}&redirect_url=${encodeURIComponent(callbackUrl)}`}
+              className="mt-5 inline-flex w-full items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 sm:w-auto"
+              style={{
+                background: `linear-gradient(180deg, ${door.accent}, ${door.accent}cc)`,
+                boxShadow: `0 8px 20px ${door.accent}40`,
+              }}
+            >
+              Continue as {door.title.replace(" Workspace", "")}
+            </Link>
           </article>
         ))}
       </div>
