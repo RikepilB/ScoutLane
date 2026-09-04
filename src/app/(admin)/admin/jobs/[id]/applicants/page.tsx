@@ -200,6 +200,7 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
         stages={stages}
         sortedStats={sortedStats}
         totalApplicants={totalApplicants}
+        canExport={user?.role === "ADMIN"}
       />
 
       <ApplicantsFilterForm

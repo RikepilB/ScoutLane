@@ -12,9 +12,10 @@ const { prismaMock, mockRequireSession, mockRevalidatePath } = vi.hoisted(() => 
 });
 
 vi.mock("@/lib/db/prisma", () => ({ prisma: prismaMock }));
-vi.mock("@/server/services/_lib/validate-session", () => ({
-  requireSession: mockRequireSession,
-}));
+vi.mock("@/server/services/_lib/validate-session", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/server/services/_lib/validate-session")>();
+  return { ...actual, requireSession: mockRequireSession };
+});
 vi.mock("next/cache", () => ({ revalidatePath: mockRevalidatePath }));
 
 import { deleteJob } from "./delete";
@@ -31,6 +32,14 @@ afterEach(() => {
 });
 
 describe("deleteJob", () => {
+  it("blocks RECRUITER (delete is ADMIN-only)", async () => {
+    mockRequireSession.mockResolvedValue({ id: "u1", organizationId: "org-1", role: "RECRUITER" });
+    await expect(deleteJob("job-1")).rejects.toThrow(
+      "You do not have permission to perform this action.",
+    );
+    expect(prismaMock.job.deleteMany).not.toHaveBeenCalled();
+  });
+
   it("scopes the delete to the caller's org", async () => {
     prismaMock.job.deleteMany.mockResolvedValue({ count: 1 });
     await deleteJob("job-1");

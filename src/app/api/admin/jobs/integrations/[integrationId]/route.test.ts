@@ -84,6 +84,13 @@ describe("POST /api/admin/jobs/integrations/[integrationId]", () => {
     expect(res.status).toBe(403);
   });
 
+  it("returns 403 for a RECRUITER role (integrations are ADMIN-only)", async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1", role: "RECRUITER" });
+    const res = await POST(req("test"), ctx);
+    expect(res.status).toBe(403);
+    expect(prismaMock.jobIntegration.findUnique).not.toHaveBeenCalled();
+  });
+
   it("returns 404 when the integration is in a different org", async () => {
     prismaMock.jobIntegration.findUnique.mockResolvedValue({
       ...baseIntegration,
@@ -185,6 +192,13 @@ describe("DELETE /api/admin/jobs/integrations/[integrationId]", () => {
     mockAuth.mockResolvedValue(null);
     const res = await DELETE(req(), ctx);
     expect(res.status).toBe(401);
+  });
+
+  it("returns 403 for a RECRUITER role", async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1", role: "RECRUITER" });
+    const res = await DELETE(req(), ctx);
+    expect(res.status).toBe(403);
+    expect(prismaMock.jobIntegration.delete).not.toHaveBeenCalled();
   });
 
   it("returns 404 for a cross-org integration", async () => {

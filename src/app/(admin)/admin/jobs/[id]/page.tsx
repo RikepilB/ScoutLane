@@ -150,7 +150,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
 
           <div className="flex shrink-0 gap-2">
             <JobStatusActions jobId={id} status={status} />
-            <DeleteJobButton jobId={id} />
+            {user?.role === "ADMIN" && <DeleteJobButton jobId={id} />}
             <Button variant="outline" asChild>
               <Link href={`/careers/${job.slug}`} target="_blank" className="inline-flex items-center gap-1">
                 <ExternalLink className="h-4 w-4" />

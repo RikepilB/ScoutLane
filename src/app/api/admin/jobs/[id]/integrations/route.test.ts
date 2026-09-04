@@ -65,6 +65,14 @@ describe("POST /api/admin/jobs/[id]/integrations", () => {
     expect(res.status).toBe(403);
   });
 
+  it("returns 403 for a RECRUITER role (integrations are ADMIN-only)", async () => {
+    mockAuth.mockResolvedValue({ user: { email: "u@x.com" } });
+    prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1", role: "RECRUITER" });
+    const res = await POST(req({ stageId: "s1", endpointUrl: "https://x.com" }), ctx);
+    expect(res.status).toBe(403);
+    expect(mockValidateEgressUrl).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when the endpoint URL fails SSRF validation", async () => {
     mockAuth.mockResolvedValue({ user: { email: "u@x.com" } });
     prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1", role: "ADMIN" });

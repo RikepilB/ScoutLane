@@ -19,6 +19,13 @@ export function assertNotGuest(user: { role: string }): void {
   }
 }
 
+/** Throws unless the user holds one of the given roles. Call for ADMIN-only operations. */
+export function requireRole(user: { role: string }, allowed: readonly string[]): void {
+  if (!allowed.includes(user.role)) {
+    throw new Error("You do not have permission to perform this action.");
+  }
+}
+
 export async function requireSession(
   opts: { allowGuest?: boolean } = {},
 ): Promise<AuthenticatedUser> {

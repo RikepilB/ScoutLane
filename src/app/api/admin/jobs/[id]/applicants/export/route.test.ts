@@ -53,6 +53,14 @@ describe("GET /api/admin/jobs/[id]/applicants/export", () => {
     expect(prismaMock.job.findFirst).not.toHaveBeenCalled();
   });
 
+  it("returns 403 for a RECRUITER role (export is ADMIN-only)", async () => {
+    mockAuth.mockResolvedValue({ user: { email: "u@x.com" } });
+    prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1", role: "RECRUITER" });
+    const res = await GET(new Request("http://x"), ctx);
+    expect(res.status).toBe(403);
+    expect(prismaMock.job.findFirst).not.toHaveBeenCalled();
+  });
+
   it("returns 404 when the job isn't found in the user's org", async () => {
     mockAuth.mockResolvedValue({ user: { email: "u@x.com" } });
     prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1", role: "ADMIN" });

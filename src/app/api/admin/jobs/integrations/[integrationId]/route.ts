@@ -5,7 +5,7 @@ import { normalizeAssessmentQuestions } from "@/lib/jobs/assessment";
 import { validateEgressUrl } from "@/lib/webhook/validate-egress-url";
 import { decryptSecret } from "@/lib/security/integration-secrets";
 import { redactIntegrationResponse } from "@/lib/security/integration-response-redaction";
-import { assertNotGuest } from "@/server/services/_lib/validate-session";
+import { assertNotGuest, requireRole } from "@/server/services/_lib/validate-session";
 
 export async function POST(
   request: NextRequest,
@@ -25,8 +25,12 @@ export async function POST(
   }
   try {
     assertNotGuest(user);
-  } catch {
-    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
+    requireRole(user, ["ADMIN"]);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Not authorized" },
+      { status: 403 },
+    );
   }
 
   const integration = await prisma.jobIntegration.findUnique({
@@ -203,8 +207,12 @@ export async function DELETE(
   }
   try {
     assertNotGuest(user);
-  } catch {
-    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
+    requireRole(user, ["ADMIN"]);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Not authorized" },
+      { status: 403 },
+    );
   }
 
   const integration = await prisma.jobIntegration.findUnique({
