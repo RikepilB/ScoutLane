@@ -45,7 +45,7 @@ test("landing page shows demo entry points", async ({ page }) => {
 });
 
 test.skip("admin demo login lands on dashboard", async ({ page }) => {
-  // Requires Clerk demo users (admin@scoutlane.local) in the deployment.
+  // Requires Clerk demo users (admin@scoutlane.dev) in the deployment.
   await page.goto("/signin?as=admin");
   await page.getByRole("button", { name: "Enter as Admin" }).click();
   await page.waitForURL(/\/admin(\/|$)/, { timeout: 10_000 });

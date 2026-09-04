@@ -1,13 +1,13 @@
 export type AdminRole = "ADMIN" | "RECRUITER" | "HIRING_MANAGER" | "GUEST";
 
 /** Fixed identity for the public read-only demo login. Seeded in prisma/seed.ts. */
-export const GUEST_EMAIL = "guest@scoutlane.local";
+export const GUEST_EMAIL = "guest@scoutlane.dev";
 
 /** Seeded recruiter demo account — full workspace minus admin settings. */
-export const DEMO_RECRUITER_EMAIL = "recruiter@scoutlane.local";
+export const DEMO_RECRUITER_EMAIL = "recruiter@scoutlane.dev";
 
 export function getDemoAdminEmail(): string {
-  return process.env.INITIAL_ADMIN_EMAIL?.toLowerCase().trim() || "admin@scoutlane.local";
+  return process.env.INITIAL_ADMIN_EMAIL?.toLowerCase().trim() || "admin@scoutlane.dev";
 }
 
 export function getInitialAdminEmail(): string | undefined {

@@ -98,10 +98,10 @@ Use `/signin` to choose a workspace. Demo users:
 
 | Path | When | Demo user |
 |------|------|-----------|
-| `/signin?as=admin` | Enter as Admin (full workspace) | `admin@scoutlane.local` |
-| `/signin?as=recruiter` | Enter as Recruiter (jobs + applicants) | `recruiter@scoutlane.local` |
+| `/signin?as=admin` | Enter as Admin (full workspace) | `admin@scoutlane.dev` |
+| `/signin?as=recruiter` | Enter as Recruiter (jobs + applicants) | `recruiter@scoutlane.dev` |
 | **Clerk invite** | Production — invitation-only in Clerk Dashboard | Your invited email |
-| **Continue as Guest** | Read-only tour | `guest@scoutlane.local` |
+| **Continue as Guest** | Read-only tour | `guest@scoutlane.dev` |
 | **First admin** | Set `INITIAL_ADMIN_EMAIL`; that email gets `ADMIN` on first Clerk sign-in | Your configured email |
 
 Clerk env: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`.
