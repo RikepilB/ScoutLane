@@ -9,13 +9,13 @@ const copy: Record<
 > = {
   admin: {
     kicker: "Admin workspace",
-    title: "Run the whole hiring system",
-    body: "Templates, stages, integrations, team roles — sample data already loaded.",
+    title: "Sign in as Admin",
+    body: "Use your Google account or work email to sign in with your own credentials.",
   },
   recruiter: {
     kicker: "Recruiter workspace",
-    title: "Review, score, and move the lane",
-    body: "Parsed resumes, job-fit scores, and the Kanban pipeline for your jobs.",
+    title: "Sign in as Recruiter",
+    body: "Use your Google account or work email to sign in with your own credentials.",
   },
 };
 
@@ -28,9 +28,6 @@ export function RoleSignInPanel({
 }) {
   const account = DEMO_ACCOUNTS[role];
   const text = copy[role];
-  const featuresList = role === "admin"
-    ? ["Create jobs & templates", "Manage integrations", "Team & org settings", "View full analytics"]
-    : ["Review applicants", "Score job fit", "Move pipeline stages", "Export CSV data"];
 
   return (
     <div className="space-y-6">
@@ -49,39 +46,6 @@ export function RoleSignInPanel({
           {text.title}
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">{text.body}</p>
-      </div>
-
-      <section aria-labelledby="demo-heading" className="rounded-lg border border-slate-700/40 bg-slate-900/30 p-4">
-        <h2 id="demo-heading" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-          One-click demo
-        </h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Pre-loaded with sample jobs and applicants
-        </p>
-        <DemoSignInButton
-          role={role}
-          callbackUrl={callbackUrl}
-          className="mt-4 w-full"
-          aria-describedby="demo-desc"
-        >
-          {role === "admin" ? "Enter as Admin" : "Enter as Recruiter"}
-        </DemoSignInButton>
-        <p id="demo-desc" className="mt-2 text-xs text-slate-600">
-          Signs in as {account.email}. You can explore all features immediately.
-        </p>
-        <ul className="mt-3 space-y-1 text-xs text-slate-500" aria-label="Available features in this workspace">
-          {featuresList.map((item) => (
-            <li key={item} className="flex items-center gap-2">
-              <span className="text-[#ABD2FA]">✓</span> {item}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-700/60" />
-        <span className="text-xs text-slate-500">or use an invite</span>
-        <div className="h-px flex-1 bg-slate-700/60" />
       </div>
 
       <SignIn
@@ -112,6 +76,33 @@ export function RoleSignInPanel({
           },
         }}
       />
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-700/60" />
+        <span className="text-xs text-slate-500">or</span>
+        <div className="h-px flex-1 bg-slate-700/60" />
+      </div>
+
+      <section aria-labelledby="demo-heading" className="rounded-lg border border-slate-700/40 bg-slate-900/30 p-4">
+        <h2 id="demo-heading" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+          Skip sign-in — try the demo
+        </h2>
+        <p className="mt-1 text-xs text-slate-500">
+          Not your own account. Signs everyone into the same shared demo data — don&rsquo;t use
+          this for real invites.
+        </p>
+        <DemoSignInButton
+          role={role}
+          callbackUrl={callbackUrl}
+          className="mt-4 w-full"
+          aria-describedby="demo-desc"
+        >
+          {role === "admin" ? "Try demo as Admin" : "Try demo as Recruiter"}
+        </DemoSignInButton>
+        <p id="demo-desc" className="mt-2 text-xs text-slate-600">
+          Signs in as {account.email}. Pre-loaded with sample jobs and applicants.
+        </p>
+      </section>
 
       <p className="text-center text-xs text-slate-600">
         <Link href="/signin" className="hover:text-slate-400">
