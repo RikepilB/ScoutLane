@@ -5,6 +5,7 @@ import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { StageDistributionChart, ApplicantTrendChart } from "@/components/dashboard/Charts";
 import { requireSession } from "@/server/services/_lib/validate-session";
+import { OnboardingTour } from "./_components/OnboardingTour";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ function StatCard({ label, value, hint, icon: Icon, accent }: StatCardProps) {
 }
 
 export default async function AdminDashboardPage() {
-  const { organizationId } = await requireSession({ allowGuest: true });
+  const { organizationId, role } = await requireSession({ allowGuest: true });
 
   const jobs = await prisma.job.findMany({
     where: { organizationId },
@@ -86,6 +87,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <main className="flex-1" style={{ background: "#f1f5f9" }}>
+      <OnboardingTour role={role} />
       <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-10 py-8">
         {/* Hero */}
         <section className="animate-fade-up relative overflow-hidden rounded-[24px] p-9 text-white shadow-[0_12px_32px_rgba(9,21,64,0.10),0_4px_8px_rgba(9,21,64,0.06)]"
