@@ -16,6 +16,11 @@ const links = [
     label: "Job board",
     match: (path: string) => path === "/jobs" || path.startsWith("/careers/"),
   },
+  {
+    href: "/legal",
+    label: "Legal",
+    match: (path: string) => path === "/legal",
+  },
 ];
 
 export function PublicNav({ session, className }: PublicNavProps) {

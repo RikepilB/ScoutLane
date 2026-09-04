@@ -14,6 +14,7 @@ const APP_SINGLE_SEGMENT_ROOTS = [
   "signup",
   "choose-role",
   "access-denied",
+  "legal",
 ] as const;
 
 const STATIC_PUBLIC_FILES =
