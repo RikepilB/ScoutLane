@@ -11,7 +11,7 @@ export const parsedResumeSchema = z.object({
   phoneConfidence: z.enum(["high", "medium", "low"]).default("medium"),
   education: z.array(
     z.object({
-      institution: z.string(),
+      institution: z.string().nullable().default(null),
       degree: z.string().nullable().default(null),
       fieldOfStudy: z.string().nullable().default(null),
       graduationYear: z.string().nullable().default(null),
@@ -21,7 +21,7 @@ export const parsedResumeSchema = z.object({
   ),
   workHistory: z.array(
     z.object({
-      company: z.string(),
+      company: z.string().nullable().default(null),
       jobTitle: z.string().nullable().default(null),
       duration: z.string().nullable().default(null),
       confidence: z.enum(["high", "medium", "low"]).default("medium"),
