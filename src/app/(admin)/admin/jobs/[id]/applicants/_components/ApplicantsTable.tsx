@@ -1,5 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { bulkMoveApplicants } from "@/server/services/pipeline/update";
 import { buildApplicantsHref, formatDate } from "../_lib/applicant-filters";
 
 interface ApplicantsTableProps {
@@ -11,6 +17,8 @@ interface ApplicantsTableProps {
   pageSize: number;
   totalApplicants: number;
   totalPages: number;
+  stages?: { id: string; name: string }[];
+  canBulkMove?: boolean;
 }
 
 export function ApplicantsTable({
@@ -22,9 +30,95 @@ export function ApplicantsTable({
   pageSize,
   totalApplicants,
   totalPages,
+  stages = [],
+  canBulkMove = false,
 }: ApplicantsTableProps) {
+  const router = useRouter();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [targetStageId, setTargetStageId] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const selectableIds = useMemo(
+    () => applicants.filter((a) => !a.isGroup).map((a) => a.id as string),
+    [applicants],
+  );
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+
+  function toggleAll() {
+    setSelected(allSelected ? new Set() : new Set(selectableIds));
+  }
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function handleBulkMove() {
+    if (!targetStageId || selected.size === 0) return;
+    const stageName = stages.find((s) => s.id === targetStageId)?.name ?? "the selected stage";
+    if (
+      !window.confirm(
+        `Move ${selected.size} applicant${selected.size !== 1 ? "s" : ""} to "${stageName}"?`,
+      )
+    )
+      return;
+
+    startTransition(async () => {
+      const result = await bulkMoveApplicants(Array.from(selected), targetStageId, jobId);
+      if (result.failed.length > 0) {
+        toast.error(
+          `Moved ${result.movedCount}, ${result.failed.length} failed. Check individual applicants.`,
+        );
+      } else {
+        toast.success(`Moved ${result.movedCount} applicant${result.movedCount !== 1 ? "s" : ""} to ${stageName}.`);
+      }
+      setSelected(new Set());
+      router.refresh();
+    });
+  }
+
   return (
     <>
+      {canBulkMove && selected.size > 0 && (
+        <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-2.5 text-sm">
+          <span className="font-medium text-slate-900">
+            {selected.size} selected
+          </span>
+          <select
+            value={targetStageId}
+            onChange={(e) => setTargetStageId(e.target.value)}
+            className="rounded-lg border border-border/70 bg-white px-2.5 py-1.5 text-xs"
+            disabled={isPending}
+          >
+            <option value="">Move to stage…</option>
+            {stages.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={handleBulkMove}
+            disabled={!targetStageId || isPending}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          >
+            {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
+            Move
+          </button>
+          <button
+            onClick={() => setSelected(new Set())}
+            disabled={isPending}
+            className="text-xs text-muted-foreground hover:underline"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {applicants.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-10 text-center text-sm text-muted-foreground">
           No applicants found.
@@ -34,6 +128,16 @@ export function ApplicantsTable({
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
+                {canBulkMove && (
+                  <th className="w-10 px-5 py-3">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      aria-label="Select all applicants"
+                    />
+                  </th>
+                )}
                 <th className="px-5 py-3 font-medium">Name</th>
                 <th className="px-5 py-3 font-medium">Institution</th>
                 <th className="px-5 py-3 font-medium">Program</th>
@@ -47,7 +151,7 @@ export function ApplicantsTable({
                 if (a.isGroup) {
                   return (
                     <tr key={a.groupKey} className="bg-muted/30">
-                      <td colSpan={6} className="px-5 py-3 text-xs font-semibold text-muted-foreground">
+                      <td colSpan={canBulkMove ? 7 : 6} className="px-5 py-3 text-xs font-semibold text-muted-foreground">
                         <GraduationCap className="mr-1.5 inline h-3.5 w-3.5" />
                         {a.groupKey} — {a.count} applicant{a.count !== 1 ? "s" : ""}
                       </td>
@@ -56,6 +160,16 @@ export function ApplicantsTable({
                 }
                 return (
                   <tr key={a.id} className="hover:bg-muted/20">
+                    {canBulkMove && (
+                      <td className="px-5 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(a.id)}
+                          onChange={() => toggleOne(a.id)}
+                          aria-label={`Select ${a.name}`}
+                        />
+                      </td>
+                    )}
                     <td className="px-5 py-4">
                       <Link
                         href={`/admin/jobs/${jobId}/applicants/${a.id}`}

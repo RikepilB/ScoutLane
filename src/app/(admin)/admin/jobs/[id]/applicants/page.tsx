@@ -219,6 +219,8 @@ export default async function ApplicantsListPage({ params, searchParams }: Appli
         pageSize={pageSize}
         totalApplicants={totalApplicants}
         totalPages={totalPages}
+        stages={stages}
+        canBulkMove={user?.role !== "GUEST"}
       />
     </div>
   );

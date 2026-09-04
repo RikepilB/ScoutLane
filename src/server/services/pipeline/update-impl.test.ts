@@ -34,7 +34,7 @@ vi.mock("@/lib/security/integration-response-redaction", () => ({
   redactIntegrationResponse: mocks.redactIntegrationResponse,
 }));
 
-import { moveApplicantFromWorker, moveApplicantImpl } from "./update-impl";
+import { bulkMoveApplicantsImpl, moveApplicantFromWorker, moveApplicantImpl } from "./update-impl";
 
 const SESSION_USER = { id: "user-1", email: "admin@example.com", role: "ADMIN", organizationId: "org-1" };
 
@@ -265,5 +265,70 @@ describe("moveApplicantFromWorker", () => {
     );
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+});
+
+describe("bulkMoveApplicantsImpl", () => {
+  it("moves every applicant and revalidates once", async () => {
+    seedExisting();
+    seedNewStage();
+
+    const result = await bulkMoveApplicantsImpl(["a1", "a2", "a3"], "stage-to", "job-1");
+
+    expect(result).toEqual({ movedCount: 3, unchangedCount: 0, failed: [] });
+    expect(mocks.prisma.applicant.update).toHaveBeenCalledTimes(3);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/admin/jobs/job-1/pipeline");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/admin/jobs/job-1/applicants");
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
+  });
+
+  it("counts unchanged applicants (already on the target stage) without moving them", async () => {
+    seedExisting({ pipelineStageId: "stage-to" });
+    seedNewStage();
+
+    const result = await bulkMoveApplicantsImpl(["a1"], "stage-to", "job-1");
+
+    expect(result).toEqual({ movedCount: 0, unchangedCount: 1, failed: [] });
+    expect(mocks.prisma.applicant.update).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("collects per-applicant failures instead of aborting the whole batch", async () => {
+    mocks.prisma.applicant.findUnique
+      .mockResolvedValueOnce({
+        pipelineStageId: "stage-from",
+        status: "NEW",
+        jobId: "job-1",
+        job: { organizationId: "org-1", title: "Engineer", assessmentTitle: null, assessmentQuestions: null },
+      })
+      .mockResolvedValueOnce(null);
+    seedNewStage();
+
+    const result = await bulkMoveApplicantsImpl(["a1", "a2"], "stage-to", "job-1");
+
+    expect(result.movedCount).toBe(1);
+    expect(result.failed).toEqual([{ applicantId: "a2", error: "Applicant not found" }]);
+  });
+
+  it("rejects applicants belonging to a different job than expectedJobId", async () => {
+    seedExisting({ jobId: "job-other" });
+    seedNewStage({ jobId: "job-other" });
+
+    const result = await bulkMoveApplicantsImpl(["a1"], "stage-to", "job-1");
+
+    expect(result).toEqual({
+      movedCount: 0,
+      unchangedCount: 0,
+      failed: [{ applicantId: "a1", error: "Applicant not found" }],
+    });
+  });
+
+  it("requires a session (rejects unauthenticated/guest callers)", async () => {
+    mocks.requireSession.mockRejectedValue(new Error("Not authenticated"));
+
+    await expect(bulkMoveApplicantsImpl(["a1"], "stage-to", "job-1")).rejects.toThrow(
+      "Not authenticated",
+    );
+    expect(mocks.prisma.applicant.findUnique).not.toHaveBeenCalled();
   });
 });
