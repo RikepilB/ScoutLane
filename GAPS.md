@@ -212,13 +212,25 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   and `settings.ts` (role change).
 
 ### G11. Playwright e2e is not in CI
-- **Status (2026-08-29): Checked, blocked on a key — not attempted.** `prisma/seed.ts`
-  calls `encryptSecret()` (lines 116, 165) to seed a demo webhook secret and integration
-  `apiKey`. `encryptSecret` → `encryptionKey()` throws unconditionally (no `NODE_ENV` gate,
-  unlike `sign.ts`) if `INTEGRATION_SECRETS_ENCRYPTION_KEY` isn't set. A Playwright CI job
-  needs a seeded DB, so it needs that key as a GitHub Actions secret — out of scope for a
-  no-keys pass. Setting a CI secret (even a disposable one) is also a CI/CD-pipeline change,
-  which needs explicit sign-off regardless of the key constraint.
+- **Status (2026-09-04): Locally runnable now (env vars are wired); still not in CI, still
+  needs sign-off.** Re-checked: this machine's local `.env` now has a real `DATABASE_URL`
+  and `INTEGRATION_SECRETS_ENCRYPTION_KEY` (seeded data confirmed live — `/jobs` and
+  `/careers/*` render real published roles), so the "blocked on a key" framing above is
+  stale for local runs. A full local run (32 tests): 7 passed, 21 failed, 4 skipped.
+  Breakdown of the 21 failures: ~16 are dev-server-under-load flakiness (Turbopack cold
+  compiles taking ~20s per route under 8 parallel workers, plus one spurious
+  `next.config.ts` change-detection restart mid-run — not app bugs); 5 are
+  `signup-flow.spec.ts` tests that structurally can't pass without Clerk test-mode
+  auth (self-documented in the test file, `// would require mocking Clerk or using a
+  test account` — same reason the 4 skipped tests are skipped); 2 are real minor test bugs
+  — an unscoped `getByRole("link", { name: "Job board" })` locator matching both the nav
+  and a hero CTA (fixed, scoped to `getByRole("navigation")`), and one ambiguous
+  `recruiter sign-in is a dedicated workspace` failure (a11y snapshot showed just an
+  `alert` role at failure time) that wasn't isolated cleanly — worth a dedicated
+  single-worker rerun to confirm real-vs-flake.
+  CI still doesn't run this suite — putting it in CI needs a `DATABASE_URL` +
+  `INTEGRATION_SECRETS_ENCRYPTION_KEY` as GitHub Actions secrets, which is a CI/CD-pipeline
+  change requiring explicit sign-off, independent of the local-env finding above.
 - **What:** CI runs only `pnpm test` (vitest, fully mocked — no real DB, HTTP, browser, or
   worker). The only end-to-end coverage of the public apply flow, middleware redirects, and
   the real server actions is `tests/e2e/smoke.spec.ts`, which CI never runs.
