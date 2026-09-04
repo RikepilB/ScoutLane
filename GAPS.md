@@ -85,6 +85,16 @@ Severity legend: 🔴 Critical/High · 🟠 Medium · 🟡 Low · ⚪ Debt/clean
   (it's currently missing there).
 
 ### G5. Coarse RBAC — all three workspace roles are equal in practice
+- **Status (2026-09-04): Resolved** — user confirmed the intended matrix: ADMIN-only for
+  applicant-PII export, job delete, integration management, and org/team settings;
+  RECRUITER and HIRING_MANAGER keep full pipeline work. Added `requireRole(user, allowed[])`
+  in `validate-session.ts` and applied it to the applicants-export route, `jobs/delete.ts`,
+  both integrations routes, and `settings.ts` (swapped its local `requireAdmin` onto the
+  shared helper). UI hides the affected buttons/links for non-ADMIN; the integrations page
+  was already 404ing non-GUEST, tightened to ADMIN-only to match. 403-for-RECRUITER test
+  added at every gated call site. `rescore` (applicant re-scoring) was deliberately left
+  non-role-gated — it's a low-risk recompute action, not export/delete/integrations/settings,
+  and wasn't in the confirmed matrix.
 - **What:** Every `/api/admin/*` route and every server action authorizes on
   *authenticated + has organization* only, never on role. So `HIRING_MANAGER` and
   `RECRUITER` can export all applicant PII, delete jobs, and create/delete integrations —
