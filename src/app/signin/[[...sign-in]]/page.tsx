@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AnimatedBackground } from "@/components/public/AnimatedBackground";
 import { RoleChooser } from "../_components/RoleChooser";
 import { RoleSignInPanel } from "../_components/RoleSignInPanel";
+import { SignedInGate } from "../_components/SignedInGate";
 import { parseWorkspaceRole } from "@/lib/auth/parse-workspace-role";
 
 type Props = {
@@ -47,11 +48,13 @@ export default async function SignInPage({ searchParams }: Props) {
           </div>
 
           <div className="rounded-2xl border border-slate-700/60 bg-slate-900/60 p-6 backdrop-blur-sm">
-            {role ? (
-              <RoleSignInPanel role={role} callbackUrl={callbackUrl} />
-            ) : (
-              <RoleChooser callbackUrl={callbackUrl} />
-            )}
+            <SignedInGate callbackUrl={callbackUrl}>
+              {role ? (
+                <RoleSignInPanel role={role} callbackUrl={callbackUrl} />
+              ) : (
+                <RoleChooser callbackUrl={callbackUrl} />
+              )}
+            </SignedInGate>
           </div>
 
           <p className="text-center text-xs text-slate-600">
