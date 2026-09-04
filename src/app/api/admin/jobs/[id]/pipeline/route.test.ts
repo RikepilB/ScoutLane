@@ -60,7 +60,7 @@ interface PipelineColumn {
 }
 
 beforeEach(() => {
-  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+    mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.dev" } });
   prismaMock.user.findUnique.mockResolvedValue({
     organizationId: "org-1",
   });

@@ -40,7 +40,7 @@ vi.mock("@/lib/db/prisma", () => ({
 vi.mock("@/lib/auth/auth", () => ({ auth: mockAuth }));
 
 beforeEach(() => {
-  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.dev" } });
   userFindUnique.mockResolvedValue({ organizationId: "org-1" });
   applicantFindFirst.mockResolvedValue({ id: "a1" });
 });
