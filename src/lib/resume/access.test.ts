@@ -19,7 +19,7 @@ vi.mock("@/lib/auth/auth", () => ({ auth: mockAuth }));
 import { authorizeResumeRequest, resumeObjectBelongsToOrg } from "@/lib/resume/access";
 
 beforeEach(() => {
-  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.dev" } });
   prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1" });
   prismaMock.applicant.findFirst.mockResolvedValue({ id: "a1" });
   prismaMock.applicantAttachment.findFirst.mockResolvedValue(null);

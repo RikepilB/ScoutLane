@@ -30,7 +30,7 @@ beforeEach(() => {
   userFindUnique.mockReset();
   orgCreate.mockReset();
   templateFindFirst.mockReset();
-  authMock.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+  authMock.mockResolvedValue({ user: { email: "admin@scoutlane.dev" } });
   userFindUnique.mockResolvedValue({
     id: "user-1",
     organizationId: "org-1",

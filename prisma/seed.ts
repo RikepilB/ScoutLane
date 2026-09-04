@@ -24,7 +24,7 @@ async function main() {
   console.log(`  Org: ${org.name}`);
 
   // ── Users ─────────────────────────────────────────────────────────────────
-  const adminEmail = process.env.INITIAL_ADMIN_EMAIL ?? "admin@scoutlane.local";
+  const adminEmail = process.env.INITIAL_ADMIN_EMAIL ?? "admin@scoutlane.dev";
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: { organizationId: org.id, role: "ADMIN" },
@@ -32,21 +32,21 @@ async function main() {
   });
 
   const recruiter = await prisma.user.upsert({
-    where: { email: "recruiter@scoutlane.local" },
+    where: { email: "recruiter@scoutlane.dev" },
     update: { organizationId: org.id, role: "RECRUITER" },
-    create: { email: "recruiter@scoutlane.local", name: "Maya Recruiter", organizationId: org.id, role: "RECRUITER" },
+    create: { email: "recruiter@scoutlane.dev", name: "Maya Recruiter", organizationId: org.id, role: "RECRUITER" },
   });
 
   const hiringManager = await prisma.user.upsert({
-    where: { email: "hiring@scoutlane.local" },
+    where: { email: "hiring@scoutlane.dev" },
     update: { organizationId: org.id, role: "HIRING_MANAGER" },
-    create: { email: "hiring@scoutlane.local", name: "Alex Manager", organizationId: org.id, role: "HIRING_MANAGER" },
+    create: { email: "hiring@scoutlane.dev", name: "Alex Manager", organizationId: org.id, role: "HIRING_MANAGER" },
   });
 
   const guest = await prisma.user.upsert({
-    where: { email: "guest@scoutlane.local" },
+    where: { email: "guest@scoutlane.dev" },
     update: { organizationId: org.id, role: "GUEST" },
-    create: { email: "guest@scoutlane.local", name: "Guest", organizationId: org.id, role: "GUEST" },
+    create: { email: "guest@scoutlane.dev", name: "Guest", organizationId: org.id, role: "GUEST" },
   });
 
   console.log(`  Users: ${admin.email}, ${recruiter.email}, ${hiringManager.email}, ${guest.email}`);

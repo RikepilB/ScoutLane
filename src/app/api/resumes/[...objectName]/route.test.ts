@@ -30,7 +30,7 @@ function call(objectName: string[]) {
 }
 
 beforeEach(() => {
-  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.local" } });
+  mockAuth.mockResolvedValue({ user: { email: "admin@scoutlane.dev" } });
   prismaMock.user.findUnique.mockResolvedValue({ organizationId: "org-1" });
   prismaMock.applicant.findFirst.mockResolvedValue({ id: "a1" });
   prismaMock.applicantAttachment.findFirst.mockResolvedValue(null);

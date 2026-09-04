@@ -16,9 +16,9 @@
 
 ## Auth: One-Click Demo + Clerk Invites
 
-- **Demo Admin** — `/signin?as=admin` mints a temporary session for `admin@scoutlane.local`
-- **Demo Recruiter** — `/signin?as=recruiter` mints a temporary session for `recruiter@scoutlane.local`
-- **Demo Guest** — `/signin` → "Continue as Guest" (`guest@scoutlane.local`, read-only)
+- **Demo Admin** — `/signin?as=admin` mints a temporary session for `admin@scoutlane.dev`
+- **Demo Recruiter** — `/signin?as=recruiter` mints a temporary session for `recruiter@scoutlane.dev`
+- **Demo Guest** — `/signin` → "Continue as Guest" (`guest@scoutlane.dev`, read-only)
 - **Clerk Invites** — Admins add users via Clerk Dashboard; they sign in at `/signin` with their Clerk account
 - **No Signup** — Public careers board requires no account; admin workspace requires Clerk sign-in or demo buttons
 
