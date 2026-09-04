@@ -26,6 +26,7 @@ describe("isJobShortlinkPath", () => {
       "/signup",
       "/choose-role",
       "/access-denied",
+      "/legal",
     ]) {
       expect(isJobShortlinkPath(path), path).toBe(false);
     }
