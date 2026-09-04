@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
 
@@ -25,7 +25,6 @@ export function SignedInGate({
   const { signOut } = useClerk();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [switching, setSwitching] = useState(false);
 
   if (!isLoaded) {
     return (
@@ -35,7 +34,7 @@ export function SignedInGate({
     );
   }
 
-  if (isSignedIn && !switching) {
+  if (isSignedIn) {
     const label = user.primaryEmailAddress?.emailAddress ?? user.fullName ?? "your account";
     return (
       <div className="space-y-4 text-center">
@@ -58,8 +57,11 @@ export function SignedInGate({
             disabled={isPending}
             onClick={() => {
               startTransition(async () => {
+                // Reload (not a client-side state flip) so useUser() remounts
+                // clean — Clerk's isLoaded flag doesn't reliably recover from a
+                // signOut() while the component that called it stays mounted.
                 await signOut();
-                setSwitching(true);
+                window.location.reload();
               });
             }}
             className="w-full rounded-xl border border-slate-600 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800/60 disabled:opacity-50"
