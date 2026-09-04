@@ -46,14 +46,18 @@ describe("signInAsDemo", () => {
     });
   });
 
-  it("creates token and calls redirect on success", async () => {
+  it("creates token and lets the redirect throw propagate (NEXT_REDIRECT must not be swallowed)", async () => {
     mockGetUserList.mockResolvedValue({
       data: [{ id: "user-123" }],
     });
     mockCreateSignInToken.mockResolvedValue({
       url: "https://clerk.example.com/token?jwt=xyz",
     });
-    await signInAsDemo("admin");
+    // next/navigation's redirect() signals by throwing — the mock mirrors that.
+    mockRedirect.mockImplementation((url: string) => {
+      throw new Error(`Redirect to ${url}`);
+    });
+    await expect(signInAsDemo("admin")).rejects.toThrow("Redirect to");
     expect(mockCreateSignInToken).toHaveBeenCalledWith({
       userId: "user-123",
       expiresInSeconds: 120,
