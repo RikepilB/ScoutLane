@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
-import { assertNotGuest } from "@/server/services/_lib/validate-session";
+import { assertNotGuest, requireRole } from "@/server/services/_lib/validate-session";
 import { csvEscape } from "@/lib/utils/csv";
 
 interface RouteProps {
@@ -22,8 +22,12 @@ export async function GET(_request: Request, { params }: RouteProps) {
   }
   try {
     assertNotGuest(user);
-  } catch {
-    return NextResponse.json({ error: "Guests have read-only access" }, { status: 403 });
+    requireRole(user, ["ADMIN"]);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Not authorized" },
+      { status: 403 },
+    );
   }
 
   const job = await prisma.job.findFirst({

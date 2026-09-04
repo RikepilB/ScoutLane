@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
 import { ApplicantEmailComposer } from "./_components/ApplicantEmailComposer";
 import { NotesSection } from "./_components/NotesSection";
+import { TagsEditor } from "./_components/TagsEditor";
 import { ApplicantResumeDataEditor } from "./_components/ApplicantResumeDataEditor";
 import { ApplicantCustomFields, type ConfiguredCustomField } from "./_components/ApplicantCustomFields";
 import { InterviewDatePicker } from "@/components/applicants/InterviewDatePicker";
@@ -166,6 +167,8 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
           jobTitle={applicant.job.title}
         />
       ) : null}
+
+      <TagsEditor applicantId={applicant.id} tags={applicant.tags} />
 
       <NotesSection
         applicantId={applicant.id}

@@ -104,6 +104,48 @@ export async function updateInterviewDateImpl(applicantId: string, interviewDate
   revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
 }
 
+const MAX_TAG_LENGTH = 40;
+const MAX_TAGS = 20;
+
+function normalizeTags(tags: string[]): string[] {
+  const seen = new Set<string>();
+  const normalized: string[] = [];
+  for (const raw of tags) {
+    const trimmed = raw.trim().slice(0, MAX_TAG_LENGTH);
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    normalized.push(trimmed);
+    if (normalized.length >= MAX_TAGS) break;
+  }
+  return normalized;
+}
+
+export async function updateApplicantTagsImpl(applicantId: string, tags: string[]) {
+  const user = await requireSession();
+
+  const applicant = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { jobId: true, job: { select: { organizationId: true } } },
+  });
+  if (!applicant || applicant.job.organizationId !== user.organizationId) {
+    throw new Error("Applicant not found");
+  }
+
+  const normalized = normalizeTags(tags);
+
+  await prisma.applicant.update({
+    where: { id: applicantId },
+    data: { tags: normalized },
+  });
+
+  revalidatePath(`/admin/jobs/${applicant.jobId}/applicants/${applicantId}`);
+  revalidatePath(`/admin/jobs/${applicant.jobId}/applicants`);
+
+  return normalized;
+}
+
 export async function deleteApplicantImpl(applicantId: string) {
   const user = await requireSession();
 

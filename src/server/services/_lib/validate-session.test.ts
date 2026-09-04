@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/auth/auth", () => ({ auth: mocks.auth }));
 vi.mock("@/lib/db/prisma", () => ({ prisma: mocks.prisma }));
 
-import { assertNotGuest, requireSession } from "./validate-session";
+import { assertNotGuest, requireRole, requireSession } from "./validate-session";
 
 beforeEach(() => {
   mocks.auth.mockReset();
@@ -29,6 +29,22 @@ describe("assertNotGuest", () => {
 
   it("allows non-guest roles", () => {
     expect(() => assertNotGuest({ role: "ADMIN" })).not.toThrow();
+  });
+});
+
+describe("requireRole", () => {
+  it("throws when the user's role isn't in the allowed list", () => {
+    expect(() => requireRole({ role: "RECRUITER" }, ["ADMIN"])).toThrow(
+      "You do not have permission to perform this action.",
+    );
+  });
+
+  it("allows a role that is in the allowed list", () => {
+    expect(() => requireRole({ role: "ADMIN" }, ["ADMIN"])).not.toThrow();
+  });
+
+  it("allows any of multiple permitted roles", () => {
+    expect(() => requireRole({ role: "HIRING_MANAGER" }, ["ADMIN", "HIRING_MANAGER"])).not.toThrow();
   });
 });
 

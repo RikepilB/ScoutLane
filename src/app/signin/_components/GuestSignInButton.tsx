@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useSignIn } from "@clerk/nextjs";
 import { signInAsGuest } from "@/lib/auth/guest-sign-in";
 
 export function GuestSignInButton({
@@ -12,6 +14,8 @@ export function GuestSignInButton({
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const { signIn } = useSignIn();
+  const router = useRouter();
 
   return (
     <div>
@@ -20,9 +24,29 @@ export function GuestSignInButton({
         onClick={() => {
           setError(null);
           startTransition(async () => {
-            const result = await signInAsGuest(callbackUrl);
-            if (result && result.ok === false) {
-              setError(result.error);
+            try {
+              if (!signIn) {
+                throw new Error("Authentication is still loading — try again in a moment.");
+              }
+
+              const result = await signInAsGuest(callbackUrl);
+              if (!result || result.ok === false) {
+                throw new Error(result?.error ?? "Guest sign-in failed.");
+              }
+
+              // Redeem the sign-in token on-origin via the ticket strategy —
+              // same rationale as DemoSignInButton (no account-portal redirect).
+              const { error: ticketError } = await signIn.ticket({ ticket: result.ticket });
+              if (ticketError) {
+                throw new Error(
+                  ticketError.longMessage ?? ticketError.message ?? "Sign-in token was rejected.",
+                );
+              }
+
+              router.push(result.redirectTo);
+              router.refresh();
+            } catch (e) {
+              setError(e instanceof Error ? e.message : "Guest sign-in failed.");
             }
           });
         }}

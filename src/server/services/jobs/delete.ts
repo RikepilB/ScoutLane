@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
-import { requireSession } from "@/server/services/_lib/validate-session";
+import { requireRole, requireSession } from "@/server/services/_lib/validate-session";
 import type { JobActionResult } from "@/schemas/job";
 
 export async function deleteJob(id: string): Promise<JobActionResult> {
   const user = await requireSession();
+  requireRole(user, ["ADMIN"]);
 
   const result = await prisma.job.deleteMany({
     where: { id, organizationId: user.organizationId },
