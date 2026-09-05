@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Signup and Role Selection Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000/signup');
+    await page.goto('/signup');
   });
 
   test('signup page loads with Clerk SignUp component', async ({ page }) => {
@@ -14,50 +14,44 @@ test.describe('Signup and Role Selection Flow', () => {
     await expect(page.locator('text=You\'ll choose your role')).toBeVisible();
   });
 
-  test('redirects to choose-role after successful signup', async ({ page }) => {
-    // Note: This would require mocking Clerk or using a test account
-    // For now, just verify the choose-role page structure exists
-    await page.goto('http://localhost:3000/choose-role');
-
-    await expect(page).toHaveTitle(/Choose Your Role/i);
-    await expect(page.locator('h1')).toContainText('Choose your workspace');
+  test('choose-role is auth-gated: unauthenticated visitors land on signup', async ({
+    page,
+  }) => {
+    // /choose-role redirects unauthenticated users to /signup. Verifying the
+    // post-signup redirect itself requires a fresh, role-less Clerk account
+    // (the demo accounts already have roles), so the signed-in variant is
+    // covered by the choose-role page's own unit tests and manual QA.
+    await page.goto('/choose-role');
+    await expect(page).toHaveURL(/\/signup/);
+    await expect(page.locator('h1')).toContainText('Create your account');
   });
 
-  test('choose-role page shows Admin and Recruiter options', async ({ page }) => {
-    await page.goto('http://localhost:3000/choose-role');
-
-    // Check for workspace options
+  test.fixme('choose-role page shows Admin and Recruiter options', async ({ page }) => {
+    // Requires an authenticated account WITHOUT a role yet — the demo accounts
+    // already have roles and get redirected to /admin. Only a fresh signup can
+    // see this page's content.
+    await page.goto('/choose-role');
     await expect(page.locator('text=Admin Workspace')).toBeVisible();
     await expect(page.locator('text=Recruiter Workspace')).toBeVisible();
-
-    // Check for role selection buttons
-    const adminButton = page.locator('button:has-text("Choose Admin")');
-    const recruiterButton = page.locator('button:has-text("Choose Recruiter")');
-
-    await expect(adminButton).toBeVisible();
-    await expect(recruiterButton).toBeVisible();
   });
 
   test('unauthenticated user is redirected from choose-role to signup', async ({ page }) => {
     // Navigate directly to choose-role without auth
-    await page.goto('http://localhost:3000/choose-role');
+    await page.goto('/choose-role');
 
     // Should redirect to signup
     await expect(page).toHaveURL(/\/signup/);
   });
 
-  test('signin page shows role chooser with demo buttons', async ({ page }) => {
-    await page.goto('http://localhost:3000/signin');
+  test('signin page shows role chooser with workspace links', async ({ page }) => {
+    await page.goto('/signin');
 
     // Check for role selection
     await expect(page.locator('h1')).toContainText('Choose your workspace');
 
-    // Check for demo signin buttons
-    const adminButton = page.locator('button:has-text("Enter as Admin")');
-    const recruiterButton = page.locator('button:has-text("Enter as Recruiter")');
-
-    await expect(adminButton).toBeVisible();
-    await expect(recruiterButton).toBeVisible();
+    // Check for the workspace entry links
+    await expect(page.getByRole('link', { name: 'Continue as Admin' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Continue as Recruiter' })).toBeVisible();
   });
 
   test('signup page has accessible form elements', async ({ page }) => {

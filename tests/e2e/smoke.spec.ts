@@ -8,20 +8,22 @@ test("health endpoint responds", async ({ request }) => {
 test("signin page splits admin and recruiter workspaces", async ({ page }) => {
   await page.goto("/signin");
   await expect(page.getByRole("link", { name: "ScoutLane" }).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Enter as Admin" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Continue as Admin" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Continue as Recruiter" })).toBeVisible();
 });
 
 test("admin sign-in is a dedicated workspace", async ({ page }) => {
   await page.goto("/signin?as=admin");
-  await expect(page.getByRole("button", { name: "Enter as Admin" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Sign in as Admin" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try demo as Admin" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try demo as Recruiter" })).toHaveCount(0);
 });
 
 test("recruiter sign-in is a dedicated workspace", async ({ page }) => {
   await page.goto("/signin?as=recruiter");
-  await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Enter as Admin" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Sign in as Recruiter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try demo as Recruiter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try demo as Admin" })).toHaveCount(0);
 });
 
 test("unknown public job slug renders a terminal state", async ({ page }) => {
