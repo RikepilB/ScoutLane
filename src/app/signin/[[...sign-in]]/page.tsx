@@ -60,7 +60,7 @@ export default async function SignInPage({ searchParams }: Props) {
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-ink-700/60 bg-ink-900/60 p-6 backdrop-blur-sm">
+          <div className="rounded-card border border-border-dark-strong bg-ink-900 p-6">
             <SignedInGate callbackUrl={callbackUrl}>
               {role ? (
                 <RoleSignInPanel role={role} callbackUrl={callbackUrl} />
