@@ -16,11 +16,11 @@ export type ApplicantDetail = Prisma.ApplicantGetPayload<{
 }>;
 
 export function matchBadgeColor(score: number | null): string {
-  if (score === null) return "bg-slate-100 text-slate-500";
-  if (score >= 0.75) return "bg-emerald-50 text-emerald-700";
-  if (score >= 0.5) return "bg-amber-50 text-amber-700";
-  if (score >= 0.3) return "bg-slate-100 text-slate-600";
-  return "bg-red-50 text-red-700";
+  if (score === null) return "bg-paper-2 text-steel";
+  if (score >= 0.75) return "bg-success-soft text-success";
+  if (score >= 0.5) return "bg-warning-soft text-warning";
+  if (score >= 0.3) return "bg-paper-2 text-ink-700";
+  return "bg-danger-soft text-danger";
 }
 
 export function getAppBaseUrl(): string {
