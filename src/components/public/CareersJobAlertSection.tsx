@@ -50,7 +50,7 @@ export function CareersJobAlertSection({
               onChange={(e) => setAlertEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="h-[50px] w-[240px] rounded-control border border-border-dark-strong bg-ink-800 px-[18px] text-[14.5px] text-paper outline-none transition-all duration-[0.18s] placeholder:text-paper/40 focus:border-sky focus:bg-paper/[0.10] focus:shadow-[0_0_0_3px_rgba(171,210,250,0.18)] max-sm:w-full"
+              className="h-[50px] w-[240px] rounded-control border border-border-dark-strong bg-ink-800 px-[18px] text-[14.5px] text-paper outline-none transition-[background-color,border-color,box-shadow] duration-[0.18s] placeholder:text-paper/40 focus:border-sky focus:bg-paper/[0.10] focus:shadow-[0_0_0_3px_rgba(171,210,250,0.18)] max-sm:w-full"
             />
             <button
               type="submit"

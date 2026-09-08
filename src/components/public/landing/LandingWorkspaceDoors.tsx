@@ -15,9 +15,9 @@ export function LandingWorkspaceDoors() {
         <h2 className="font-display text-display font-medium text-paper">
           Two workspaces, one demo
         </h2>
-        <p className="mt-3 text-[15px] leading-6 text-paper/65">
+        <p className="mt-3 text-pretty text-[15px] leading-6 text-paper/65">
           The same hiring pipeline from two sides. Both entries load a shared
-          sample organization — no account needed.
+          sample organization: no account needed.
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export function LandingWorkspaceDoors() {
           <h3 className="mt-2 font-display text-[28px] font-medium tracking-[-0.02em] text-paper">
             Admin
           </h3>
-          <p className="mt-3 max-w-md text-sm leading-6 text-paper/65">
+          <p className="mt-3 max-w-md text-pretty text-sm leading-6 text-paper/65">
             Own the system: templates, custom forms, stages, team roles, email, and outbound
             integrations. Sample org is already populated.
           </p>
@@ -78,7 +78,7 @@ export function LandingWorkspaceDoors() {
           <h3 className="mt-2 font-display text-[28px] font-medium tracking-[-0.02em] text-paper">
             Recruiter
           </h3>
-          <p className="mt-3 max-w-md text-sm leading-6 text-paper/65">
+          <p className="mt-3 max-w-md text-pretty text-sm leading-6 text-paper/65">
             Run hiring: search parsed resumes, read job-fit scores, drag the Kanban, leave notes.
             Settings stay out of the way.
           </p>

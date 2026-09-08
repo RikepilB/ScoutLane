@@ -41,7 +41,7 @@ export function LandingPage({ stats, session }: LandingPageProps) {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-ink-900 text-paper">
+    <div className="[color-scheme:dark] relative min-h-screen overflow-x-hidden bg-ink-900 text-paper">
       {/* Lane-colour atmosphere: royal behind the hero, cyan to the right,
           plum pooling at the bottom. Sits behind everything, never scrolls
           into a visible edge. */}
@@ -50,16 +50,16 @@ export function LandingPage({ stats, session }: LandingPageProps) {
         <PublicNav session={session} className="mb-14 sm:mb-20" />
 
         {/* Hero: one claim, one primary action, the product as evidence. */}
-        <section className="mb-24 grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="mb-28 grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="animate-fade-up">
             <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.18em] text-peri">
               ScoutLane · agent-backed ATS
             </p>
-            <h1 className="mb-6 font-display text-hero font-medium text-paper">
+            <h1 className="mb-6 text-balance font-display text-hero font-medium text-paper">
               The ATS that{" "}
               <span className="text-peri">shows its work</span>
             </h1>
-            <p className="mb-9 max-w-[520px] text-[17px] leading-[28px] text-paper/70">
+            <p className="mb-9 max-w-[520px] text-pretty text-[17px] leading-[28px] text-paper/70">
               ScoutLane turns every resume into structured data, scores it
               against the role, and stages it in a pipeline you can inspect
               step by step.
@@ -97,15 +97,15 @@ export function LandingPage({ stats, session }: LandingPageProps) {
 
         <LandingHarness />
 
-        <section id="capabilities" className="mb-24">
+        <section id="capabilities" className="mb-28">
           <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-sky/80">
             What the harness does
           </p>
-          <h2 className="mb-3 font-display text-display font-medium text-paper">
+          <h2 className="mb-3 text-balance font-display text-display font-medium text-paper">
             Four mechanics, nothing hidden
           </h2>
           <p className="mb-12 max-w-[560px] text-[15px] leading-6 text-paper/65">
-            Four mechanics, each with its output stored and readable — not a
+            Four mechanics, each with its output stored and readable: not a
             black box with a confidence number.
           </p>
           {/* Editorial grid, not cards: the mechanic names are the structure,
@@ -145,10 +145,10 @@ export function LandingPage({ stats, session }: LandingPageProps) {
             }}
           />
           <div className="relative">
-            <h2 className="mx-auto mb-4 max-w-[560px] font-display text-display font-medium text-paper">
+            <h2 className="mx-auto mb-4 max-w-[560px] text-balance font-display text-display font-medium text-paper">
               Hiring you can inspect, end to end
             </h2>
-            <p className="mx-auto mb-8 max-w-[480px] text-[15px] leading-6 text-paper/65">
+            <p className="mx-auto mb-8 max-w-[480px] text-pretty text-[15px] leading-6 text-paper/65">
               From the first resume in to the final offer out, every automated
               step leaves a trail you can open. Try it with sample data.
             </p>
