@@ -7,11 +7,12 @@ import { signInAsDemo } from "@/lib/auth/demo-sign-in";
 import type { DemoRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils/cn";
 
+// Both roles carry the same visual weight — the choice between admin and
+// recruiter is a fork, not a hierarchy, so neither button may look primary.
 const roleStyles: Record<Exclude<DemoRole, "guest">, string> = {
-  admin:
-    "bg-brand-royal transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+  admin: "bg-brand-royal text-paper transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   recruiter:
-    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "bg-brand-royal text-paper transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
 };
 
 const TIMEOUT_MS = 12_000;
@@ -109,7 +110,7 @@ export function DemoSignInButton({
         aria-describedby={ariaDescribedby || errorId}
         aria-busy={pending}
         className={cn(
-          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-paper transition disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center rounded-control px-6 py-3 text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed",
           roleStyles[role],
           className,
         )}

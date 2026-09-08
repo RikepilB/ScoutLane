@@ -286,7 +286,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                           {...field}
                           type="file"
                           accept=".pdf,.doc,.docx,.csv,.txt"
-                          className="h-11 border-mist bg-surface text-ink-900 file:text-ink-900"
+                          className="h-11 border-mist bg-surface pl-0 text-ink-900 file:mr-3 file:h-full file:cursor-pointer file:rounded-md file:border-0 file:bg-brand-royal file:px-4 file:text-[13px] file:font-medium file:text-paper file:transition-colors hover:file:bg-brand-royal-hover"
                           onChange={(event) => {
                             onChange(event.target.files?.[0]);
                             setFitCheck({ status: "idle" });
@@ -367,7 +367,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                       return { ...prev, [field.id]: file };
                     });
                   }}
-                  className="h-11 border-mist bg-surface text-ink-900 file:text-ink-900"
+                  className="h-11 border-mist bg-surface pl-0 text-ink-900 file:mr-3 file:h-full file:cursor-pointer file:rounded-md file:border-0 file:bg-brand-royal file:px-4 file:text-[13px] file:font-medium file:text-paper file:transition-colors hover:file:bg-brand-royal-hover"
                 />
               ) : field.type === "textarea" ? (
                 <textarea

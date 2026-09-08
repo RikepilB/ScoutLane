@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
+import { formatLocations } from "@/lib/jobs/locations";
 import { renderMarkdown } from "@/lib/utils/markdown";
 import type { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
@@ -20,20 +21,18 @@ interface Props {
 
 function JobUnavailableState() {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ background: "#0c1529", fontFamily: "var(--font-body)" }}>
+    <div className="flex min-h-screen items-center justify-center bg-ink-900 font-body">
       <div className="text-center">
-        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-paper"
-          style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "28px", letterSpacing: "-0.04em" }}>
+        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-control bg-brand-royal font-display text-[28px] font-bold tracking-[-0.04em] text-paper">
           SL
         </div>
-        <h1 className="mb-2 text-[32px] font-medium tracking-[-0.02em] text-paper"
-          style={{ fontFamily: "var(--font-display)" }}>
+        <h1 className="mb-2 font-display text-[32px] font-medium tracking-[-0.02em] text-paper">
           Position not found
         </h1>
         <p className="mb-6 text-[14px] text-steel">
           This application link may have been removed, archived, or entered incorrectly.
         </p>
-        <Button asChild className="rounded-full bg-brand-royal hover:bg-brand-slate">
+        <Button asChild className="rounded-control bg-brand-royal hover:bg-brand-slate">
           <Link href="/jobs">Browse jobs</Link>
         </Button>
       </div>
@@ -43,8 +42,17 @@ function JobUnavailableState() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const job = await prisma.job.findUnique({
+    where: { slug },
+    select: { title: true, department: true, location: true },
+  });
+  const locations = formatLocations(job?.location, 2);
+  const context = [job?.department, locations].filter(Boolean).join(" · ");
   return {
-    title: `ScoutLane careers | ${slug}`,
+    title: job ? `${job.title}${context ? ` (${context})` : ""}` : "Position not found",
+    description: job
+      ? `Apply for ${job.title} at ScoutLane${locations ? ` — ${locations}` : ""}.`
+      : "This position is no longer available.",
     robots: {
       index: false,
       follow: false,
@@ -113,22 +121,9 @@ export default async function JobApplicationPage({ params }: Props) {
   const skillsList = (job.toolsAndSkills ?? []) as string[];
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden" style={{ background: "#eef4f8", color: "#0c1529", fontFamily: "var(--font-body)" }}>
-      {/* Background ambience */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-60"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,255,255,0)), radial-gradient(circle at 18% 12%, rgba(171,210,250,0.42), transparent 34%), radial-gradient(circle at 86% 18%, rgba(27,44,193,0.12), transparent 30%)",
-        }}
-      />
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[360px]"
-        style={{
-          background: "linear-gradient(180deg, #091540 0%, rgba(9,21,64,0.92) 54%, rgba(9,21,64,0) 100%)",
-        }}
-      />
-
+    <div className="relative min-h-screen overflow-x-hidden bg-paper font-body text-ink-900">
       {/* Header */}
-      <header className="relative z-[1] border-b border-paper/[0.10] bg-ink-950">
+      <header className="relative z-[1] border-b border-border-dark bg-ink-950">
         <div className="mx-auto max-w-6xl px-5 py-2 sm:px-6">
           <PublicNav
             session={session ? { user: { email: session.user?.email ?? undefined } } : null}
@@ -140,43 +135,37 @@ export default async function JobApplicationPage({ params }: Props) {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_420px] lg:items-start">
           {/* Main content */}
           <section className="space-y-6">
-            <div className="rounded-2xl border border-paper/[0.12] bg-ink-950/95 p-6 text-paper shadow-[0_22px_60px_rgba(9,21,64,0.24)] sm:p-8">
+            <div className="shadow-overlay rounded-card border border-border-dark bg-ink-950 p-6 text-paper sm:p-8">
             <div className="space-y-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", boxShadow: "0 8px 20px rgba(27,44,193,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-control bg-brand-royal">
                   <Building className="h-6 w-6 text-paper" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-paper">ScoutLane</p>
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-sky"
-                    style={{ fontFamily: "var(--font-mono)" }}>
-                    AI-Powered Recruitment
-                  </p>
+                  <p className="text-[13px] text-paper/55">Hiring demo · sample organization</p>
                 </div>
               </div>
 
               <div>
-                <h1 className="text-[clamp(34px,5vw,56px)] font-medium leading-[0.98] tracking-[-0.03em] text-paper"
-                  style={{ fontFamily: "var(--font-display)" }}>
+                <h1 className="font-display text-[clamp(34px,5vw,56px)] font-medium leading-[0.98] tracking-[-0.03em] text-paper">
                   {job.title}
                 </h1>
-                <div className="mt-5 flex flex-wrap items-center gap-2.5 text-[13px] text-sky"
-                  style={{ fontFamily: "var(--font-mono)" }}>
+                <div className="mt-5 flex flex-wrap items-center gap-2.5 text-[13px] text-paper/75">
                   {job.location && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-paper/[0.12] bg-paper/[0.07] px-3 py-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-control border border-border-dark bg-ink-800 px-3 py-1.5">
                       <MapPin className="h-4 w-4" />
-                      {job.location}
+                      {formatLocations(job.location)}
                     </span>
                   )}
                   {job.type && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-paper/[0.12] bg-paper/[0.07] px-3 py-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-control border border-border-dark bg-ink-800 px-3 py-1.5">
                       <Briefcase className="h-4 w-4" />
                       {job.type}
                     </span>
                   )}
                   {job.salary && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-paper/[0.12] bg-paper/[0.07] px-3 py-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-control border border-border-dark bg-ink-800 px-3 py-1.5">
                       <DollarSign className="h-4 w-4" />
                       {job.salary}
                     </span>
@@ -187,7 +176,7 @@ export default async function JobApplicationPage({ params }: Props) {
             </div>
 
             {status !== "active" ? (
-              <div className="rounded-2xl border border-[rgba(200,140,40,0.25)] bg-[rgba(200,140,40,0.08)] p-6 text-warning">
+              <div className="rounded-card border border-warning/25 bg-warning-soft p-6 text-warning">
                 <h2 className="text-base font-semibold">
                   {status === "closed" ? "This position is no longer accepting applications." : "This position is not open for applications yet."}
                 </h2>
@@ -196,17 +185,14 @@ export default async function JobApplicationPage({ params }: Props) {
             ) : null}
 
             {/* Structured description */}
-            <div className="rounded-2xl border border-mist bg-surface p-6 shadow-[0_18px_45px_rgba(9,21,64,0.10)] sm:p-8"
-              style={{ color: "#0c1529" }}>
-              <h2 className="mb-6 text-[24px] font-medium tracking-[-0.015em] text-ink-900"
-                style={{ fontFamily: "var(--font-display)" }}>
+            <div className="rounded-card border border-mist bg-surface p-6 shadow-raised sm:p-8">
+              <h2 className="mb-6 font-display text-[24px] font-medium tracking-[-0.015em] text-ink-900">
                 About this role
               </h2>
 
               {job.whatYouWillDo && (
                 <div className="mb-8">
-                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-plum"
-                    style={{ fontFamily: "var(--font-mono)" }}>
+                  <h3 className="mb-3 text-[13px] font-semibold tracking-[0.02em] text-ink-900">
                     What you&apos;ll do
                   </h3>
                   <div
@@ -218,8 +204,7 @@ export default async function JobApplicationPage({ params }: Props) {
 
               {requirementsList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-plum"
-                    style={{ fontFamily: "var(--font-mono)" }}>
+                  <h3 className="mb-3 text-[13px] font-semibold tracking-[0.02em] text-ink-900">
                     Requirements
                   </h3>
                   <ul className="space-y-2">
@@ -235,15 +220,14 @@ export default async function JobApplicationPage({ params }: Props) {
 
               {skillsList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-plum"
-                    style={{ fontFamily: "var(--font-mono)" }}>
+                  <h3 className="mb-3 text-[13px] font-semibold tracking-[0.02em] text-ink-900">
                     Tools & Skills
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {skillsList.map((skill, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center rounded-full border border-[rgba(27,44,193,0.15)] bg-[rgba(27,44,193,0.08)] px-3 py-1 text-[12px] font-medium text-brand-royal"
+                        className="inline-flex items-center rounded-full border border-brand-royal/15 bg-brand-royal/10 px-3 py-1 text-[12px] font-medium text-brand-royal"
                       >
                         {skill}
                       </span>
@@ -287,9 +271,8 @@ export default async function JobApplicationPage({ params }: Props) {
               {status === "active" ? (
                 <ApplicationForm jobSlug={slug} customFields={customFields} />
               ) : (
-                <div className="rounded-2xl border border-paper/[0.08] bg-ink-950 p-6">
-                  <h2 className="text-base font-semibold text-paper"
-                    style={{ fontFamily: "var(--font-display)" }}>
+                <div className="rounded-card border border-border-dark bg-ink-950 p-6">
+                  <h2 className="font-display text-base font-semibold text-paper">
                     Applications unavailable
                   </h2>
                   <p className="mt-2 text-sm text-steel">

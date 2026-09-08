@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PublicJob } from "./careers-department-grouping";
+import { formatLocations } from "@/lib/jobs/locations";
 
 interface CareersJobListProps {
   grouped: Map<string, PublicJob[]>;
@@ -35,9 +36,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
           </p>
         </div>
         <div className="flex items-center gap-[18px] text-[11px] uppercase tracking-[0.1em] text-steel" style={{ fontFamily: "var(--font-mono)" }}>
-          <span>Sorted &middot; By dept</span>
-          <span className="h-1 w-1 rounded-full bg-steel" />
-          <span>Last sync 2m ago</span>
+          <span>Sorted by department</span>
         </div>
       </div>
 
@@ -45,13 +44,13 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
         {[...grouped.entries()].map(([department, deptJobs], di) => (
           <div key={department}>
             <div className={`flex items-center gap-3.5 border-mist py-3.5 ${di === 0 ? "border-t-0 pt-1" : "border-t"}`}>
-              <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-plum" style={{ fontFamily: "var(--font-mono)" }}>
+              <span className="text-[12px] font-medium uppercase tracking-[0.08em] text-ink-700">
                 {department}
               </span>
               <span className="rounded-full bg-[rgba(94,167,197,0.10)] px-2 py-0.5 text-[11px] text-steel" style={{ fontFamily: "var(--font-mono)" }}>
                 {deptJobs.length} {deptJobs.length === 1 ? "role" : "roles"}
               </span>
-              <span className="h-px flex-1" style={{ background: "linear-gradient(90deg, #d4d9df, transparent)" }} />
+              <span className="h-px flex-1 bg-mist" />
             </div>
             {deptJobs.map((job) => (
               <Link
@@ -83,7 +82,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
                       <path d="M12 21s-7-7.6-7-12a7 7 0 0 1 14 0c0 4.4-7 12-7 12Z" />
                       <circle cx="12" cy="9" r="2.5" />
                     </svg>
-                    {job.location}
+                    {formatLocations(job.location)}
                   </span>
                 )}
                 {/* Hover arrow */}
