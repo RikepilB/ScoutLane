@@ -21,7 +21,24 @@ const traceSteps = [
 
 export function LandingTrace() {
   return (
-    <div className="shadow-overlay rounded-card border border-border-dark bg-ink-950 p-6 sm:p-8">
+    <div
+      className="shadow-lift-dark relative overflow-hidden rounded-card border border-border-dark"
+      style={{
+        background:
+          "linear-gradient(165deg, rgba(27,44,193,0.14) 0%, rgba(9,21,64,0.92) 34%, rgba(9,21,64,0.96) 100%)",
+      }}
+    >
+      {/* Top rim: a light-catching hairline so the card reads as lifted,
+          not outlined. */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 8%, rgba(171,210,250,0.45) 50%, transparent 92%)",
+        }}
+      />
+      <div className="p-6 sm:p-8">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="text-[13px] text-paper/60">Senior Frontend Engineer · applicant</p>
@@ -54,7 +71,7 @@ export function LandingTrace() {
         ))}
       </ol>
 
-      <div className="mt-6 rounded-control border border-warning/30 bg-warning-soft p-4">
+      <div className="mt-6 rounded-control border border-warning/25 bg-warning-soft p-4">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="text-[13px] font-medium text-paper">Marcus Webb · 0.34</span>
           <span className="text-[12px] text-warning">not advanced</span>
@@ -63,6 +80,7 @@ export function LandingTrace() {
           2 yrs frontend (role asks 5+), no TypeScript, no platform work. A decline
           email is drafted for recruiter review — nothing sends itself.
         </p>
+      </div>
       </div>
     </div>
   );

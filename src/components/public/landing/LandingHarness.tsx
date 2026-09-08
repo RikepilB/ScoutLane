@@ -7,10 +7,20 @@ const stations = [
   { id: "dispatch", label: "Dispatch", detail: "Webhook / agent" },
 ];
 
+/**
+ * The lane is drawn as an open flow, not a box of boxes: the six stations
+ * sit directly on the page, each hanging from a short gradient tick, with
+ * the animated sweep running along the top edge of the group. The enclosing
+ * card from the previous revision is gone — the section heading plus the
+ * connecting rhythm carry the structure.
+ */
 export function LandingHarness() {
   return (
     <section id="lane" className="mb-24 scroll-mt-6">
-      <div className="mb-8 max-w-2xl">
+      <div className="mb-10 max-w-2xl">
+        <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-peri">
+          The lane
+        </p>
         <h2 className="font-display text-display font-medium text-paper">
           After apply, the lane runs itself
         </h2>
@@ -20,29 +30,32 @@ export function LandingHarness() {
         </p>
       </div>
 
-      <div
-        className="relative overflow-hidden rounded-[24px] border border-brand-royal-dark p-5 sm:p-8"
-        style={{
-          background:
-            "linear-gradient(170deg, rgba(9,21,64,0.92) 0%, rgba(12,21,41,0.96) 100%)",
-        }}
-      >
+      <div className="relative">
         <div
-          className="animate-harness-trace mb-6 hidden h-px md:block"
+          aria-hidden
+          className="animate-harness-trace mb-3 hidden h-px md:block"
           style={{
             background:
-              "linear-gradient(90deg, transparent, rgba(171,210,250,0.15), #7692FF, rgba(171,210,250,0.15), transparent)",
+              "linear-gradient(90deg, transparent, rgba(118,146,255,0.35), #ABD2FA, rgba(118,146,255,0.35), transparent)",
           }}
         />
 
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <ol className="grid gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           {stations.map((station, index) => (
             <li
               key={station.id}
-              className="animate-harness-station rounded-2xl border border-sky/15 px-4 py-4"
+              className="animate-harness-station rounded-2xl p-4"
               style={{ animationDelay: `${index * 1.2}s` }}
             >
-              <span className="tabular font-mono text-[10px] uppercase tracking-[0.14em] text-steel">
+              <span
+                aria-hidden
+                className="mb-3 block h-px w-8"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(118,146,255,0.7), transparent)",
+                }}
+              />
+              <span className="tabular font-mono text-[10px] uppercase tracking-[0.14em] text-peri/90">
                 0{index + 1}
               </span>
               <strong className="mt-2 block text-[15px] font-medium text-paper">
@@ -53,7 +66,7 @@ export function LandingHarness() {
           ))}
         </ol>
 
-        <p className="mt-6 font-mono text-xs leading-5 text-steel">
+        <p className="mt-8 font-mono text-xs leading-5 text-steel">
           apply → extractText → OpenRouter parse → matchScore → PipelineStage → HMAC webhook
         </p>
       </div>
