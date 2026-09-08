@@ -127,7 +127,7 @@ export default async function AdminDashboardPage() {
                   View site <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
               </Button>
-              <Button asChild className="rounded-lg bg-gradient-to-b from-brand-royal to-brand-royal-dark text-paper shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+              <Button asChild>
                 <Link href="/admin/jobs/new" className="inline-flex items-center gap-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
                   Create job
