@@ -1,9 +1,17 @@
 import { DemoSignInButton } from "@/app/signin/_components/DemoSignInButton";
 
+/**
+ * The two entry points are the one place the page still uses panels — they
+ * are genuine doors, so they get presence: lane-tinted depth, a light-catching
+ * top rim instead of a flat border, and a soft glow in their own colour.
+ */
 export function LandingWorkspaceDoors() {
   return (
     <section id="demo" className="mb-24">
       <div className="mb-8 max-w-2xl">
+        <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan">
+          Pick a door
+        </p>
         <h2 className="font-display text-display font-medium text-paper">
           Two workspaces, one demo
         </h2>
@@ -13,15 +21,23 @@ export function LandingWorkspaceDoors() {
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2">
         <article
-          className="rounded-[24px] border border-brand-royal/40 p-7"
+          className="shadow-door-royal relative overflow-hidden rounded-[24px] border border-border-dark p-7"
           style={{
             background:
-              "radial-gradient(circle at 0% 0%, rgba(27,44,193,0.4), transparent 55%), rgba(9,21,64,0.72)",
+              "radial-gradient(circle at 0% 0%, rgba(27,44,193,0.48), transparent 58%), radial-gradient(circle at 100% 110%, rgba(71,52,89,0.35), transparent 52%), rgba(9,21,64,0.78)",
           }}
         >
-          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-peri/80">
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 6%, rgba(118,146,255,0.55) 50%, transparent 94%)",
+            }}
+          />
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-peri/90">
             Admin workspace
           </p>
           <h3 className="mt-2 font-display text-[28px] font-medium tracking-[-0.02em] text-paper">
@@ -31,7 +47,7 @@ export function LandingWorkspaceDoors() {
             Own the system: templates, custom forms, stages, team roles, email, and outbound
             integrations. Sample org is already populated.
           </p>
-          <ul className="mt-5 space-y-1.5 text-sm text-sky/80">
+          <ul className="mt-5 space-y-1.5 text-sm text-sky/85">
             <li>Job templates + snapshot copy</li>
             <li>Webhooks on stage transitions</li>
             <li>Organization and team settings</li>
@@ -42,13 +58,21 @@ export function LandingWorkspaceDoors() {
         </article>
 
         <article
-          className="rounded-[24px] border border-cyan/35 p-7"
+          className="shadow-door-cyan relative overflow-hidden rounded-[24px] border border-border-dark p-7"
           style={{
             background:
-              "radial-gradient(circle at 100% 0%, rgba(94,167,197,0.22), transparent 50%), rgba(9,21,64,0.72)",
+              "radial-gradient(circle at 100% 0%, rgba(94,167,197,0.3), transparent 55%), radial-gradient(circle at 0% 110%, rgba(71,52,89,0.3), transparent 52%), rgba(9,21,64,0.78)",
           }}
         >
-          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-cyan/80">
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 6%, rgba(171,210,250,0.45) 50%, transparent 94%)",
+            }}
+          />
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-cyan">
             Recruiter workspace
           </p>
           <h3 className="mt-2 font-display text-[28px] font-medium tracking-[-0.02em] text-paper">
@@ -58,7 +82,7 @@ export function LandingWorkspaceDoors() {
             Run hiring: search parsed resumes, read job-fit scores, drag the Kanban, leave notes.
             Settings stay out of the way.
           </p>
-          <ul className="mt-5 space-y-1.5 text-sm text-sky/80">
+          <ul className="mt-5 space-y-1.5 text-sm text-sky/85">
             <li>Applicant list with AI fields</li>
             <li>Pipeline drag-and-drop</li>
             <li>Original resume + structured JSON</li>
