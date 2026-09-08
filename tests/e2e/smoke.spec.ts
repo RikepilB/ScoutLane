@@ -37,8 +37,10 @@ test("unknown public job slug renders a terminal state", async ({ page }) => {
 
 test("careers landing surfaces published roles and brand subtitle", async ({ page }) => {
   await page.goto("/jobs", { waitUntil: "domcontentloaded" });
+  // The brand subtitle renders in the mobile banner and the page content —
+  // target the first occurrence so strict mode doesn't see two elements.
   await expect(
-    page.getByText(/ScoutLane helps companies post jobs/i),
+    page.getByText(/ScoutLane helps companies post jobs/i).first(),
   ).toBeVisible();
 });
 
