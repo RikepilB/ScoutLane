@@ -34,7 +34,7 @@ export function JobStatusActions({ jobId, status }: JobStatusActionsProps) {
         <button
           onClick={() => handleTransition("active")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white transition hover:bg-success disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-paper transition hover:bg-success disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Globe className="h-3 w-3" />}
           Publish
@@ -55,7 +55,7 @@ export function JobStatusActions({ jobId, status }: JobStatusActionsProps) {
           <button
             onClick={() => handleTransition("active")}
             disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white transition hover:bg-success disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-paper transition hover:bg-success disabled:opacity-50"
           >
             {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
             Reopen

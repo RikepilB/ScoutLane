@@ -73,7 +73,7 @@ export function KanbanBoard({ stages, children, onMoveApplicant }: KanbanBoardPr
       </div>
       <DragOverlay>
         {activeId ? (
-          <div className="rounded-xl border border-border/60 bg-white p-3 shadow-lg">
+          <div className="rounded-xl border border-border/60 bg-surface p-3 shadow-lg">
             <div className="text-sm font-medium text-ink-900">Moving...</div>
           </div>
         ) : null}

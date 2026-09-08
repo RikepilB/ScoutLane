@@ -71,7 +71,7 @@ export default function EmailTemplatesPage() {
             <span className="font-medium text-ink-800">{applicantConfirmation.subject}</span>
           </p>
         </header>
-        <div className="rounded-xl border border-input bg-white p-4">
+        <div className="rounded-xl border border-input bg-surface p-4">
           <div
             className="prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: applicantConfirmation.html }}
@@ -92,7 +92,7 @@ export default function EmailTemplatesPage() {
             </span>
           </p>
         </header>
-        <div className="rounded-xl border border-input bg-white p-4">
+        <div className="rounded-xl border border-input bg-surface p-4">
           <div
             className="prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: adminNotificationHtml }}

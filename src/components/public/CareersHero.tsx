@@ -56,14 +56,14 @@ export function CareersHero({ count, session }: CareersHeroProps) {
           {session?.user ? (
             <Link
               href="/admin"
-              className="inline-flex h-[31px] items-center rounded-full border border-white/[0.16] bg-white/[0.06] px-6 text-[12.8px] font-medium text-paper no-underline transition-all duration-[0.18s] hover:bg-white/[0.12]"
+              className="inline-flex h-[31px] items-center rounded-full border border-paper/[0.16] bg-paper/[0.06] px-6 text-[12.8px] font-medium text-paper no-underline transition-all duration-[0.18s] hover:bg-paper/[0.12]"
             >
               Dashboard
             </Link>
           ) : (
             <Link
               href="/signin"
-              className="inline-flex h-[31px] items-center rounded-full border border-white/[0.16] bg-white/[0.06] px-6 text-[12.8px] font-medium text-paper no-underline transition-all duration-[0.18s] hover:bg-white/[0.12]"
+              className="inline-flex h-[31px] items-center rounded-full border border-paper/[0.16] bg-paper/[0.06] px-6 text-[12.8px] font-medium text-paper no-underline transition-all duration-[0.18s] hover:bg-paper/[0.12]"
             >
               Sign in
             </Link>
@@ -71,7 +71,7 @@ export function CareersHero({ count, session }: CareersHeroProps) {
           {session?.user ? (
             <Link
               href="/admin/jobs/new"
-              className="inline-flex h-[31px] items-center gap-1.5 rounded-full px-6 text-[12.4px] font-semibold text-paper no-underline transition-all duration-[0.18s] hover:-translate-y-0.5"
+              className="inline-flex h-[31px] items-center gap-1.5 rounded-full px-6 text-[12.4px] font-semibold text-paper no-underline transition-all duration-[0.18s]"
               style={{
                 background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
                 boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",
@@ -85,7 +85,7 @@ export function CareersHero({ count, session }: CareersHeroProps) {
           ) : (
             <Link
               href="/signin"
-              className="inline-flex h-[31px] items-center gap-1.5 rounded-full px-6 text-[12.4px] font-semibold text-paper no-underline transition-all duration-[0.18s] hover:-translate-y-0.5"
+              className="inline-flex h-[31px] items-center gap-1.5 rounded-full px-6 text-[12.4px] font-semibold text-paper no-underline transition-all duration-[0.18s]"
               style={{
                 background: "linear-gradient(180deg, #1B2CC1, #161fa8)",
                 boxShadow: "0 8px 20px rgba(27,44,193,0.4), inset 0 1px 0 rgba(255,255,255,0.16)",

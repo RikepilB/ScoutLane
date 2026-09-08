@@ -88,7 +88,7 @@ export default async function JobsListPage({ searchParams }: PageProps) {
             </p>
           </div>
           {user?.role === "ADMIN" ? (
-            <Button asChild className="rounded-lg bg-gradient-to-b from-brand-royal to-brand-royal-dark text-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+            <Button asChild className="rounded-lg bg-gradient-to-b from-brand-royal to-brand-royal-dark text-paper shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
               <Link href="/admin/jobs/new" className="inline-flex items-center gap-1.5">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
                 Create job
@@ -106,15 +106,15 @@ export default async function JobsListPage({ searchParams }: PageProps) {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-all duration-[0.16s]",
                 filter === f.value
-                  ? "border-ink-900 bg-ink-900 text-white"
-                  : "border-mist bg-white text-steel hover:bg-paper hover:text-ink-900",
+                  ? "border-ink-900 bg-ink-900 text-paper"
+                  : "border-mist bg-surface text-steel hover:bg-paper hover:text-ink-900",
               )}
             >
               {f.label}
               <span
                 className={cn(
                   "rounded-full px-1.5 py-0.5 text-[11px]",
-                  filter === f.value ? "bg-white/15" : "bg-mist",
+                  filter === f.value ? "bg-paper/15" : "bg-mist",
                 )}
                 style={{ fontFamily: "var(--font-mono)" }}
               >

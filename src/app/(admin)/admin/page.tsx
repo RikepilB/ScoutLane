@@ -27,7 +27,7 @@ const accentMap: Record<StatCardProps["accent"], { bg: string; fg: string }> = {
 function StatCard({ label, value, hint, icon: Icon, accent }: StatCardProps) {
   const a = accentMap[accent];
   return (
-    <article className="flex items-start gap-3.5 rounded-2xl border border-mist bg-white p-[18px] shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+    <article className="flex items-start gap-3.5 rounded-2xl border border-mist bg-surface p-[18px] shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)] transition-all hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
       <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] ${a.bg} ${a.fg}`}>
         <Icon className="h-[17px] w-[17px]" />
       </div>
@@ -90,7 +90,7 @@ export default async function AdminDashboardPage() {
       <OnboardingTour role={role} />
       <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-10 py-8">
         {/* Hero */}
-        <section className="animate-fade-up relative overflow-hidden rounded-[24px] p-9 text-white shadow-[0_12px_32px_rgba(9,21,64,0.10),0_4px_8px_rgba(9,21,64,0.06)]"
+        <section className="animate-fade-up relative overflow-hidden rounded-[24px] p-9 text-paper shadow-[0_12px_32px_rgba(9,21,64,0.10),0_4px_8px_rgba(9,21,64,0.06)]"
           style={{
             background: "radial-gradient(circle at 8% 20%, rgba(27,44,193,0.45), transparent 55%), linear-gradient(170deg, #091540 0%, #0c1529 70%)",
           }}>
@@ -114,20 +114,20 @@ export default async function AdminDashboardPage() {
                 style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
                 Admin dashboard
               </h1>
-              <p className="max-w-[520px] text-[14px] leading-[1.55] text-white/65">
+              <p className="max-w-[520px] text-[14px] leading-[1.55] text-paper/65">
                 Quick snapshot of hiring activity. Open the Jobs list to manage roles and review applicants by stage.
               </p>
             </div>
             <div className="flex gap-2.5">
-              <Button asChild className="rounded-lg border border-white/[0.16] bg-white/[0.06] text-white hover:bg-white/[0.12]">
+              <Button asChild className="rounded-lg border border-paper/[0.16] bg-paper/[0.06] text-paper hover:bg-paper/[0.12]">
                 <Link href="/admin/jobs">View jobs</Link>
               </Button>
-              <Button asChild className="rounded-lg border border-white/[0.16] bg-white/[0.06] text-white hover:bg-white/[0.12]">
+              <Button asChild className="rounded-lg border border-paper/[0.16] bg-paper/[0.06] text-paper hover:bg-paper/[0.12]">
                 <Link href="/" target="_blank">
                   View site <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
               </Button>
-              <Button asChild className="rounded-lg bg-gradient-to-b from-brand-royal to-brand-royal-dark text-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+              <Button asChild className="rounded-lg bg-gradient-to-b from-brand-royal to-brand-royal-dark text-paper shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04),inset_0_1px_0_rgba(255,255,255,0.16)] hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
                 <Link href="/admin/jobs/new" className="inline-flex items-center gap-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
                   Create job
@@ -154,7 +154,7 @@ export default async function AdminDashboardPage() {
         </section>
 
         {/* Manage card */}
-        <section className="animate-fade-up animate-fade-up-delay-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-mist bg-white px-6 py-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+        <section className="animate-fade-up animate-fade-up-delay-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-mist bg-surface px-6 py-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
           <div>
             <h2 className="text-[15px] font-semibold text-ink-900" style={{ fontFamily: "var(--font-display)" }}>
               Manage all jobs

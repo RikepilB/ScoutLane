@@ -56,7 +56,7 @@ function getNavItems(role: string | undefined): NavItem[] {
 }
 
 const rolePillStyles: Record<string, string> = {
-  ADMIN: "bg-ink-900 text-white",
+  ADMIN: "bg-ink-900 text-paper",
   RECRUITER: "bg-[rgba(45,111,138,0.14)] text-info",
   HIRING_MANAGER: "bg-[rgba(71,52,89,0.14)] text-plum",
 };
@@ -92,7 +92,7 @@ export function SidebarNav({
           onClick={onNavigate}
           className="flex items-center gap-2.5"
         >
-          <span className="inline-flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-royal to-brand-royal-dark text-[13px] font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+          <span className="inline-flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-royal to-brand-royal-dark text-[13px] font-bold text-paper shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
             style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
             SL
           </span>
@@ -119,7 +119,7 @@ export function SidebarNav({
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all duration-[0.16s]",
                 active
-                  ? "bg-ink-900 text-white"
+                  ? "bg-ink-900 text-paper"
                   : "text-steel hover:bg-paper hover:text-ink-900",
               )}
             >

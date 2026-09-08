@@ -24,7 +24,7 @@ export function ApplicantResumePanel({ resumeUrl, applicantName, resumeEmbedSrc,
             href={resumeUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-xs font-medium text-white transition hover:bg-ink-800"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-xs font-medium text-paper transition hover:bg-ink-800"
           >
             <FileText className="h-3.5 w-3.5" />
             Open in new tab
@@ -38,7 +38,7 @@ export function ApplicantResumePanel({ resumeUrl, applicantName, resumeEmbedSrc,
               title={`${applicantName} resume`}
               src={resumeEmbedSrc}
               sandbox={resumeEmbedSandbox}
-              className="h-[720px] w-full bg-white"
+              className="h-[720px] w-full bg-surface"
             />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">

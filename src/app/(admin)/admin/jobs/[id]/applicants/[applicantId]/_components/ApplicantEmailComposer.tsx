@@ -191,7 +191,7 @@ export function ApplicantEmailComposer({
           <select
             value={templateKey}
             onChange={(e) => applyTemplate(e.target.value as TemplateKey)}
-            className="rounded-lg border border-border/70 bg-white px-3 py-1.5 text-sm outline-none focus:border-sky"
+            className="rounded-lg border border-border/70 bg-surface px-3 py-1.5 text-sm outline-none focus:border-sky"
           >
             {(Object.keys(TEMPLATES) as TemplateKey[]).map((k) => (
               <option key={k} value={k}>

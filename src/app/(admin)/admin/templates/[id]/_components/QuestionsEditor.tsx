@@ -104,7 +104,7 @@ export function QuestionsEditor({ defaultValue, inputName = "questions" }: Quest
         {questions.map((question, index) => (
           <div
             key={index}
-            className="flex flex-col gap-2 rounded-xl border border-border/60 bg-white p-3"
+            className="flex flex-col gap-2 rounded-xl border border-border/60 bg-surface p-3"
           >
             <div className="flex items-start gap-2">
               <GripVertical className="mt-2 h-4 w-4 shrink-0 text-muted-foreground/50" />

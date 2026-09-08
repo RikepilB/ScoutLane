@@ -33,14 +33,14 @@ export default async function GlobalIntegrationsPage() {
         </header>
 
         {integrations.length === 0 ? (
-          <div className="animate-fade-up animate-fade-up-delay-1 rounded-2xl border border-dashed border-mist bg-white p-10 text-center">
+          <div className="animate-fade-up animate-fade-up-delay-1 rounded-2xl border border-dashed border-mist bg-surface p-10 text-center">
             <Webhook className="mx-auto h-9 w-9 text-steel" />
             <p className="mt-3 text-[13px] text-steel">
               No integrations configured yet. Add them from each job&apos;s integrations tab.
             </p>
           </div>
         ) : (
-          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-mist bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-mist bg-surface shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
             <table className="w-full text-[13.5px]">
               <thead>
                 <tr className="border-b border-mist">

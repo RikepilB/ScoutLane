@@ -45,7 +45,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                 },
               ])
             }
-            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-white px-3 py-2 text-sm font-medium text-ink-700 hover:bg-paper"
+            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-surface px-3 py-2 text-sm font-medium text-ink-700 hover:bg-paper"
           >
             + Add field
           </button>
@@ -59,7 +59,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
         {customFields.map((field, idx) => (
           <div
             key={field.id}
-            className="flex items-start gap-3 rounded-xl border border-border/60 bg-white p-4"
+            className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface p-4"
           >
             <div className="flex flex-1 flex-wrap items-end gap-3">
               <div className="flex-1">

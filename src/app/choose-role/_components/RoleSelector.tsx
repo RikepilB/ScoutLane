@@ -37,7 +37,7 @@ export function RoleSelector() {
     <div className="space-y-6">
       <div>
         <h1
-          className="text-[28px] font-medium tracking-[-0.03em] text-white"
+          className="text-[28px] font-medium tracking-[-0.03em] text-paper"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Choose your workspace
@@ -52,7 +52,7 @@ export function RoleSelector() {
           <article
             key={door.role}
             role="listitem"
-            className="rounded-2xl border border-white/[0.08] bg-ink-950/70 p-5 transition-colors hover:border-white/[0.12]"
+            className="rounded-2xl border border-paper/[0.08] bg-ink-950/70 p-5 transition-colors hover:border-paper/[0.12]"
             style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px ${door.accent}22` }}
           >
             <div className="flex items-start justify-between">
@@ -64,7 +64,7 @@ export function RoleSelector() {
                   {door.kicker}
                 </p>
                 <h2
-                  className="mt-1 text-xl font-medium text-white"
+                  className="mt-1 text-xl font-medium text-paper"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {door.title}

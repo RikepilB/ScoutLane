@@ -34,54 +34,30 @@ const capabilities = [
 
 export function LandingPage({ stats, session }: LandingPageProps) {
   return (
-    <div
-      className="relative min-h-screen overflow-x-hidden"
-      style={{ background: "#0c1529", color: "#f1f5f9", fontFamily: "var(--font-body)" }}
-    >
-      <div
-        className="pointer-events-none fixed z-0"
-        style={{
-          top: "-280px",
-          left: "-160px",
-          width: "820px",
-          height: "820px",
-          background: "radial-gradient(circle, rgba(27,44,193,0.22), transparent 72%)",
-          filter: "blur(60px)",
-        }}
-      />
-
-      <div className="relative z-[1] mx-auto max-w-[1240px] px-5 pb-20 pt-5 sm:px-7 sm:pt-6">
+    <div className="relative min-h-screen overflow-x-hidden bg-ink-900 text-paper">
+      <div className="relative mx-auto max-w-[1240px] px-5 pb-20 pt-5 sm:px-7 sm:pt-6">
         <PublicNav session={session} className="mb-10 sm:mb-14" />
 
         <section className="mb-24 grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="animate-fade-up">
-            <p
-              className="mb-7 text-[11px] font-medium uppercase tracking-[0.2em] text-sky/70"
-              style={{ fontFamily: "var(--font-mono)" }}
-            >
-              Hiring operations, agent-backed
-            </p>
-            <h1
-              className="mb-7 text-[clamp(42px,6.4vw,66px)] font-medium leading-[0.98] tracking-[-0.04em] text-paper"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Every resume
-              <br />
-              enters the <span className="text-sky">lane</span>
+            <h1 className="mb-6 font-display text-hero font-medium text-paper">
+              Every resume enters the lane
             </h1>
-            <p className="mb-10 max-w-[480px] text-[16px] leading-[27px] text-paper/60">
-              An ATS with an agent harness: extract, parse, score, stage, then dispatch.
+            <p className="mb-10 max-w-[520px] text-[17px] leading-[28px] text-paper/70">
+              An ATS with an agent harness. Resumes are extracted, parsed into
+              structured data, scored against the role, staged, and dispatched —
+              and every step of that is inspectable.
             </p>
-            <div className="mb-12 flex flex-wrap items-center gap-4">
+            <div className="mb-12 flex flex-wrap items-center gap-3">
               <Link
                 href="/signin?as=admin"
-                className="inline-flex h-11 items-center rounded-full border border-white/15 bg-white/[0.04] px-7 text-sm font-medium text-white no-underline transition hover:border-white/30 hover:bg-white/[0.08]"
+                className="inline-flex h-11 items-center rounded-control bg-brand-royal px-6 text-sm font-medium text-paper no-underline transition-colors hover:bg-brand-royal-hover"
               >
                 Admin sign in
               </Link>
               <Link
                 href="/signin?as=recruiter"
-                className="inline-flex h-11 items-center rounded-full border border-white/15 bg-white/[0.04] px-7 text-sm font-medium text-white no-underline transition hover:border-white/30 hover:bg-white/[0.08]"
+                className="inline-flex h-11 items-center rounded-control border border-border-dark-strong px-6 text-sm font-medium text-paper/80 no-underline transition-colors hover:border-sky/40 hover:text-paper"
               >
                 Recruiter sign in
               </Link>
@@ -93,15 +69,10 @@ export function LandingPage({ stats, session }: LandingPageProps) {
                 { label: "Templates", value: stats.templates },
               ].map((item) => (
                 <div key={item.label} className="flex items-baseline gap-2">
-                  <dd
-                    className="text-xl font-semibold text-white"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
+                  <dd className="tabular font-display text-xl font-semibold text-paper">
                     {item.value}
                   </dd>
-                  <dt className="text-[11px] uppercase tracking-wider text-paper/40">
-                    {item.label}
-                  </dt>
+                  <dt className="text-[13px] text-paper/50">{item.label}</dt>
                 </div>
               ))}
             </dl>
@@ -116,17 +87,14 @@ export function LandingPage({ stats, session }: LandingPageProps) {
         <LandingHarness />
 
         <section className="mb-16">
-          <h2
-            className="mb-8 text-[clamp(24px,3vw,32px)] font-medium tracking-[-0.03em] text-white"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
+          <h2 className="mb-8 font-display text-display font-medium text-paper">
             What the harness actually does
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {capabilities.map((item) => (
               <div
                 key={item.title}
-                className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 transition hover:border-white/[0.14]"
+                className="rounded-card border border-border-dark bg-ink-800 p-6"
               >
                 <h3 className="mb-2 font-medium text-sky">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-paper/65">{item.body}</p>
@@ -135,17 +103,17 @@ export function LandingPage({ stats, session }: LandingPageProps) {
           </div>
         </section>
 
-        <footer className="border-t border-white/[0.08] pt-8 text-center text-xs text-steel">
+        <footer className="border-t border-border-dark pt-8 text-center text-xs text-paper/50">
           ScoutLane demo ·{" "}
-          <Link href="/jobs" className="text-sky hover:text-sky">
+          <Link href="/jobs" className="text-sky/80 hover:text-sky">
             Job board
           </Link>
           {" · "}
-          <Link href="/signin?as=admin" className="text-sky hover:text-sky">
+          <Link href="/signin?as=admin" className="text-sky/80 hover:text-sky">
             Admin
           </Link>
           {" · "}
-          <Link href="/signin?as=recruiter" className="text-sky hover:text-sky">
+          <Link href="/signin?as=recruiter" className="text-sky/80 hover:text-sky">
             Recruiter
           </Link>
         </footer>

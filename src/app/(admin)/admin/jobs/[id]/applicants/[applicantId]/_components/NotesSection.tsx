@@ -91,7 +91,7 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
                       value={editBody}
                       onChange={(e) => setEditBody(e.target.value)}
                       rows={3}
-                      className="w-full rounded-lg border border-border/70 bg-white p-2 text-sm outline-none focus:border-sky"
+                      className="w-full rounded-lg border border-border/70 bg-surface p-2 text-sm outline-none focus:border-sky"
                     />
                   ) : (
                     <p className="text-sm text-ink-900 whitespace-pre-wrap">{note.body}</p>
@@ -147,14 +147,14 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           rows={3}
-          className="mt-2 w-full rounded-xl border border-border/60 bg-white p-3 text-sm outline-none focus:border-sky"
+          className="mt-2 w-full rounded-xl border border-border/60 bg-surface p-3 text-sm outline-none focus:border-sky"
           placeholder="Interview feedback, follow-ups, or internal context…"
         />
         <button
           type="button"
           onClick={handleCreate}
           disabled={isPending || !draft.trim()}
-          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Add note

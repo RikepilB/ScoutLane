@@ -26,7 +26,7 @@ export function ApplicantsToolbar({
             href={buildApplicantsHref(jobId, filters, { stageId: undefined })}
             className={`rounded-full px-3 py-1.5 font-medium ${
               !filters.stageId || filters.stageId === "all"
-                ? "bg-ink-950 text-white"
+                ? "bg-ink-950 text-paper"
                 : "bg-paper-2 text-ink-700 hover:bg-mist"
             }`}
           >
@@ -39,7 +39,7 @@ export function ApplicantsToolbar({
                 key={s.id}
                 href={buildApplicantsHref(jobId, filters, { stageId: s.id })}
                 className={`rounded-full px-3 py-1.5 font-medium ${
-                  active ? "bg-ink-950 text-white" : "bg-paper-2 text-ink-700 hover:bg-mist"
+                  active ? "bg-ink-950 text-paper" : "bg-paper-2 text-ink-700 hover:bg-mist"
                 }`}
               >
                 {s.name}
@@ -53,7 +53,7 @@ export function ApplicantsToolbar({
             href={buildApplicantsHref(jobId, filters, { status: undefined })}
             className={`rounded-full px-3 py-1.5 font-medium ${
               !filters.status || filters.status === "all"
-                ? "bg-ink-950 text-white"
+                ? "bg-ink-950 text-paper"
                 : "bg-paper-2 text-ink-700 hover:bg-mist"
             }`}
           >
@@ -66,7 +66,7 @@ export function ApplicantsToolbar({
                 key={s}
                 href={buildApplicantsHref(jobId, filters, { status: s })}
                 className={`rounded-full px-3 py-1.5 font-medium ${
-                  active ? "bg-ink-950 text-white" : "bg-paper-2 text-ink-700 hover:bg-mist"
+                  active ? "bg-ink-950 text-paper" : "bg-paper-2 text-ink-700 hover:bg-mist"
                 }`}
               >
                 {s.charAt(0) + s.slice(1).toLowerCase()}
@@ -77,7 +77,7 @@ export function ApplicantsToolbar({
         {canExport && (
           <Link
             href={`/api/admin/jobs/${jobId}/applicants/export`}
-            className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-ink-800 hover:bg-muted/30"
+            className="rounded-lg border border-border/70 bg-surface px-3 py-2 text-xs font-medium text-ink-800 hover:bg-muted/30"
           >
             Export CSV
           </Link>

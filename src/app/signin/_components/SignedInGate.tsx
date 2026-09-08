@@ -55,7 +55,7 @@ export function SignedInGate({
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-xl bg-sky px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
+            className="rounded-xl bg-sky px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
           >
             Refresh page
           </button>
@@ -74,7 +74,7 @@ export function SignedInGate({
     return (
       <div className="space-y-4 text-center">
         <p className="text-sm text-mist">
-          Already signed in as <span className="font-medium text-white">{label}</span>.
+          Already signed in as <span className="font-medium text-paper">{label}</span>.
         </p>
         <div className="flex flex-col gap-2">
           <button
@@ -83,7 +83,7 @@ export function SignedInGate({
               router.push(callbackUrl);
               router.refresh();
             }}
-            className="w-full rounded-xl bg-sky px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
+            className="w-full rounded-xl bg-sky px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
           >
             {continueLabel}
           </button>

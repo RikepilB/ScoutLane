@@ -176,8 +176,8 @@ export default async function GlobalApplicantsPage({
             href={buildHref({ status: undefined, page: "1" })}
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-all duration-[0.16s] ${
               !currentStatus
-                ? "border-ink-900 bg-ink-900 text-white"
-                : "border-mist bg-white text-steel hover:bg-paper hover:text-ink-900"
+                ? "border-ink-900 bg-ink-900 text-paper"
+                : "border-mist bg-surface text-steel hover:bg-paper hover:text-ink-900"
             }`}
           >
             <span className="font-semibold">{totalApplicants}</span> Total
@@ -190,8 +190,8 @@ export default async function GlobalApplicantsPage({
                 href={buildHref({ status: s, page: "1" })}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-all duration-[0.16s] ${
                   currentStatus === s
-                    ? "border-ink-900 bg-ink-900 text-white"
-                    : "border-mist bg-white text-steel hover:bg-paper hover:text-ink-900"
+                    ? "border-ink-900 bg-ink-900 text-paper"
+                    : "border-mist bg-surface text-steel hover:bg-paper hover:text-ink-900"
                 }`}
               >
                 <span className="font-semibold">{count}</span> {s}
@@ -202,14 +202,14 @@ export default async function GlobalApplicantsPage({
 
         {/* Applicants table */}
         {filteredCount === 0 ? (
-          <div className="animate-fade-up animate-fade-up-delay-2 rounded-2xl border border-mist bg-white px-6 py-12 text-center shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+          <div className="animate-fade-up animate-fade-up-delay-2 rounded-2xl border border-mist bg-surface px-6 py-12 text-center shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
             <p className="text-[13px] text-steel">
               No applicants with <span className="font-medium text-ink-900">{currentStatus}</span> status.
             </p>
           </div>
         ) : (
           <>
-            <div className="animate-fade-up animate-fade-up-delay-2 overflow-hidden rounded-2xl border border-mist bg-white shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+            <div className="animate-fade-up animate-fade-up-delay-2 overflow-hidden rounded-2xl border border-mist bg-surface shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
               <table className="w-full text-[13.5px]">
                 <thead>
                   <tr className="border-b border-mist">
@@ -291,7 +291,7 @@ export default async function GlobalApplicantsPage({
                   {page > 1 ? (
                     <Link
                       href={buildHref({ page: String(page - 1) })}
-                      className="inline-flex items-center gap-1 rounded-lg border border-mist bg-white px-3 py-1.5 text-[12px] font-medium text-ink-900 hover:bg-paper"
+                      className="inline-flex items-center gap-1 rounded-lg border border-mist bg-surface px-3 py-1.5 text-[12px] font-medium text-ink-900 hover:bg-paper"
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
                       Previous
@@ -308,7 +308,7 @@ export default async function GlobalApplicantsPage({
                   {page < totalPages ? (
                     <Link
                       href={buildHref({ page: String(page + 1) })}
-                      className="inline-flex items-center gap-1 rounded-lg border border-mist bg-white px-3 py-1.5 text-[12px] font-medium text-ink-900 hover:bg-paper"
+                      className="inline-flex items-center gap-1 rounded-lg border border-mist bg-surface px-3 py-1.5 text-[12px] font-medium text-ink-900 hover:bg-paper"
                     >
                       Next
                       <ChevronRight className="h-3.5 w-3.5" />

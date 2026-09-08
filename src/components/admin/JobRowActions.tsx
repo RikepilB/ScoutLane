@@ -76,7 +76,7 @@ export function JobRowActions({ jobId, status, role }: JobRowActionsProps) {
   const primaryStyle =
     status === "active"
       ? "border border-warning text-warning hover:bg-warning-soft"
-      : "bg-success text-white hover:bg-success";
+      : "bg-success text-paper hover:bg-success";
 
   const hasDropdown =
     (status === "active" && isAdmin) || isAdmin || (status === "closed" && isAdmin);

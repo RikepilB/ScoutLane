@@ -52,7 +52,7 @@ export function InterviewDatePicker({ applicantId, interviewDate }: InterviewDat
       <button
         onClick={handleSave}
         disabled={isPending || !date}
-        className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
       >
         {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
         Set interview

@@ -57,7 +57,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
               <Link
                 key={job.id}
                 href={`/careers/${job.slug}`}
-                className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit no-underline transition-all duration-[0.2s] hover:translate-x-1 hover:border-mist hover:bg-white hover:shadow-[0_8px_24px_rgba(9,21,64,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
+                className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit no-underline transition-all duration-[0.2s] hover:translate-x-1 hover:border-mist hover:bg-surface hover:shadow-[0_8px_24px_rgba(9,21,64,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
               >
                 <div className="flex flex-col gap-1.5">
                   <div className="flex flex-wrap items-baseline gap-3">

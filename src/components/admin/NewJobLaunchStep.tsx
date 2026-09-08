@@ -47,8 +47,8 @@ export function NewJobLaunchStep({
                     key={status}
                     className={`cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${
                       field.value === status
-                        ? "border-ink-950 bg-ink-950 text-white"
-                        : "border-border/70 bg-white text-ink-700 hover:bg-paper"
+                        ? "border-ink-950 bg-ink-950 text-paper"
+                        : "border-border/70 bg-surface text-ink-700 hover:bg-paper"
                     }`}
                   >
                     <input

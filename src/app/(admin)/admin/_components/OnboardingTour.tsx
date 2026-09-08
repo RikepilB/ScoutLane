@@ -114,7 +114,7 @@ export function OnboardingTour({ role }: { role?: string }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Show feature tour"
-        className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-ink-900 text-white shadow-[0_8px_20px_rgba(9,21,64,0.25)] transition hover:-translate-y-0.5 hover:bg-brand-royal"
+        className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-ink-900 text-paper shadow-[0_8px_20px_rgba(9,21,64,0.25)] transition hover:bg-brand-royal"
       >
         <HelpCircle className="h-5 w-5" />
       </button>
@@ -126,7 +126,7 @@ export function OnboardingTour({ role }: { role?: string }) {
           aria-modal="true"
           aria-labelledby="onboarding-title"
         >
-          <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
+          <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-6 shadow-2xl sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(27,44,193,0.1)] text-brand-royal">
@@ -159,7 +159,7 @@ export function OnboardingTour({ role }: { role?: string }) {
                   onClick={dismiss}
                   className="group flex flex-col gap-2 rounded-xl border border-paper-2 p-4 text-left transition hover:border-brand-royal/40 hover:bg-paper"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-paper text-brand-royal group-hover:bg-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-paper text-brand-royal group-hover:bg-surface">
                     <f.icon className="h-4 w-4" />
                   </span>
                   <span className="text-sm font-medium text-ink-900">{f.title}</span>
@@ -175,7 +175,7 @@ export function OnboardingTour({ role }: { role?: string }) {
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-lg bg-ink-900 px-4 py-2 text-xs font-medium text-white hover:bg-brand-royal"
+                className="rounded-lg bg-ink-900 px-4 py-2 text-xs font-medium text-paper hover:bg-brand-royal"
               >
                 Got it, let&rsquo;s go
               </button>

@@ -18,7 +18,7 @@ interface JobCardProps {
 
 export function JobCard({ id, title, slug, status, applicantCount, location, type, createdAt, role }: JobCardProps) {
   return (
-    <div className="group relative flex flex-col rounded-2xl border border-mist bg-white p-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+    <div className="group relative flex flex-col rounded-2xl border border-mist bg-surface p-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)] transition-all duration-200 hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
       <div className="mb-3 flex items-start justify-between gap-2">
         <Link
           href={`/admin/jobs/${id}`}

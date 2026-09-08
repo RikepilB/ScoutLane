@@ -44,7 +44,7 @@ export function ApplicantCard({
       style={style}
       {...attributes}
       {...listeners}
-      className="cursor-grab rounded-xl border border-border/60 bg-white p-3 shadow-sm transition hover:shadow-md active:cursor-grabbing"
+      className="cursor-grab rounded-xl border border-border/60 bg-surface p-3 shadow-sm transition hover:shadow-md active:cursor-grabbing"
     >
       <div className="text-sm font-medium text-ink-900">{applicant.name}</div>
       {applicant.institution && (

@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils/cn";
 
 const roleStyles: Record<UserRole, string> = {
   ADMIN:
-    "bg-gradient-to-b from-brand-royal to-brand-royal-dark shadow-[0_8px_20px_rgba(27,44,193,0.4),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "bg-gradient-to-b from-brand-royal to-brand-royal-dark shadow-[0_8px_20px_rgba(27,44,193,0.4),inset_0_1px_0_rgba(255,255,255,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   RECRUITER:
-    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   HIRING_MANAGER:
-    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   GUEST:
-    "border border-ink-700/40 bg-ink-800/40 shadow-[0_8px_20px_rgba(0,0,0,0.18)] hover:bg-ink-800/60 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-ink-700/40 bg-ink-800/40 shadow-[0_8px_20px_rgba(0,0,0,0.18)] hover:bg-ink-800/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
 };
 
 export function RoleSelectButton({
@@ -58,7 +58,7 @@ export function RoleSelectButton({
         aria-describedby={ariaDescribedby || errorId}
         aria-busy={pending}
         className={cn(
-          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-paper transition disabled:opacity-60 disabled:cursor-not-allowed",
           roleStyles[role],
           className,
         )}

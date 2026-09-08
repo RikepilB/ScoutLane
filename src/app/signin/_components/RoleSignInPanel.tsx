@@ -40,7 +40,7 @@ export function RoleSignInPanel({
           {text.kicker}
         </p>
         <h1
-          className="mt-2 text-[28px] font-medium tracking-[-0.03em] text-white"
+          className="mt-2 text-[28px] font-medium tracking-[-0.03em] text-paper"
           style={{ fontFamily: "var(--font-display)" }}
         >
           {text.title}
@@ -80,7 +80,7 @@ export function RoleSignInPanel({
             // Google's own button stays on its native white/light styling —
             // standard OAuth-button branding practice, not a theming miss.
             socialButtonsBlockButton:
-              "border border-ink-700 bg-white text-ink-900 hover:bg-paper-2",
+              "border border-ink-700 bg-surface text-ink-900 hover:bg-paper-2",
           },
         }}
       />

@@ -218,7 +218,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
               value={importUrl}
               onChange={(e) => setImportUrl(e.target.value)}
               disabled={isImporting}
-              className="bg-white"
+              className="bg-surface"
             />
             <Button
               type="button"
@@ -253,13 +253,13 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
                       type="button"
                       onClick={() => setStep(index)}
                       className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
-                        isActive ? "bg-ink-950 text-white" : "text-ink-700 hover:bg-white"
+                        isActive ? "bg-ink-950 text-paper" : "text-ink-700 hover:bg-surface"
                       }`}
                     >
                       <span
                         className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                           isActive
-                            ? "bg-white text-ink-950"
+                            ? "bg-surface text-ink-950"
                             : isDone
                               ? "bg-success text-success"
                               : "bg-mist text-ink-700"
@@ -285,7 +285,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
 
             <section className="min-h-[520px] p-6 sm:p-8">
               <div className="mb-6 flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink-950 text-white">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink-950 text-paper">
                   <ActiveIcon className="h-5 w-5" />
                 </span>
                 <div>

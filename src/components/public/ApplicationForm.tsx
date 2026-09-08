@@ -167,7 +167,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
   });
 
   return (
-    <div className="rounded-2xl border border-mist bg-white p-6 text-ink-900 shadow-[0_18px_50px_rgba(9,21,64,0.14)] sm:p-7">
+    <div className="rounded-2xl border border-mist bg-surface p-6 text-ink-900 shadow-[0_18px_50px_rgba(9,21,64,0.14)] sm:p-7">
       <div className="mb-6 space-y-2">
         <h2 className="text-[24px] font-semibold tracking-[-0.015em] text-ink-900">
           Apply for this role
@@ -206,7 +206,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 <FormItem>
                   <FormLabel className="text-ink-800">First name</FormLabel>
                   <FormControl>
-                    <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="Jane" {...field} />
+                    <Input className="h-11 border-mist bg-surface text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="Jane" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -219,7 +219,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                 <FormItem>
                   <FormLabel className="text-ink-800">Last name</FormLabel>
                   <FormControl>
-                    <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="Doe" {...field} />
+                    <Input className="h-11 border-mist bg-surface text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="Doe" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -234,7 +234,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
               <FormItem>
                 <FormLabel className="text-ink-800">Email</FormLabel>
                 <FormControl>
-                  <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" type="email" placeholder="jane@example.com" {...field} />
+                  <Input className="h-11 border-mist bg-surface text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" type="email" placeholder="jane@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -248,7 +248,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
               <FormItem>
                 <FormLabel className="text-ink-800">Phone</FormLabel>
                 <FormControl>
-                  <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="+1 555 123 4567" {...field} />
+                  <Input className="h-11 border-mist bg-surface text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="+1 555 123 4567" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -286,7 +286,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                           {...field}
                           type="file"
                           accept=".pdf,.doc,.docx,.csv,.txt"
-                          className="h-11 border-mist bg-white text-ink-900 file:text-ink-900"
+                          className="h-11 border-mist bg-surface text-ink-900 file:text-ink-900"
                           onChange={(event) => {
                             onChange(event.target.files?.[0]);
                             setFitCheck({ status: "idle" });
@@ -367,7 +367,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                       return { ...prev, [field.id]: file };
                     });
                   }}
-                  className="h-11 border-mist bg-white text-ink-900 file:text-ink-900"
+                  className="h-11 border-mist bg-surface text-ink-900 file:text-ink-900"
                 />
               ) : field.type === "textarea" ? (
                 <textarea
@@ -375,7 +375,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
                   rows={4}
-                  className="flex w-full rounded-md border border-mist bg-white px-3 py-2 text-sm text-ink-900 shadow-sm placeholder:text-steel focus:outline-none focus:ring-1 focus:ring-brand-royal"
+                  className="flex w-full rounded-md border border-mist bg-surface px-3 py-2 text-sm text-ink-900 shadow-sm placeholder:text-steel focus:outline-none focus:ring-1 focus:ring-brand-royal"
                   placeholder={`Enter ${field.label.toLowerCase()}`}
                 />
               ) : field.type === "select" ? (
@@ -383,7 +383,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
-                  className="flex h-11 w-full rounded-md border border-mist bg-white px-3 py-2 text-sm text-ink-900 shadow-sm focus:outline-none focus:ring-1 focus:ring-brand-royal"
+                  className="flex h-11 w-full rounded-md border border-mist bg-surface px-3 py-2 text-sm text-ink-900 shadow-sm focus:outline-none focus:ring-1 focus:ring-brand-royal"
                 >
                   <option value="">Select...</option>
                   {(field.options ?? []).map((option) => (
@@ -398,14 +398,14 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
-                  className="flex h-11 w-full rounded-md border border-mist bg-white px-3 py-2 text-sm text-ink-900 shadow-sm placeholder:text-steel focus:outline-none focus:ring-1 focus:ring-brand-royal"
+                  className="flex h-11 w-full rounded-md border border-mist bg-surface px-3 py-2 text-sm text-ink-900 shadow-sm placeholder:text-steel focus:outline-none focus:ring-1 focus:ring-brand-royal"
                   placeholder={`Enter ${field.label.toLowerCase()}`}
                 />
               )}
             </div>
           ))}
 
-          <Button className="h-11 w-full rounded-lg bg-brand-royal px-5 text-white shadow-[0_10px_22px_rgba(27,44,193,0.24)] hover:bg-brand-royal-hover sm:w-auto" type="submit" disabled={isPending}>
+          <Button className="h-11 w-full rounded-lg bg-brand-royal px-5 text-paper shadow-[0_10px_22px_rgba(27,44,193,0.24)] hover:bg-brand-royal-hover sm:w-auto" type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Submit application
           </Button>

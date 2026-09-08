@@ -17,7 +17,7 @@ export function LandingWorkspaceDoors() {
           Workspace A
         </p>
         <h2
-          className="mt-2 text-[28px] font-medium tracking-[-0.03em] text-white"
+          className="mt-2 text-[28px] font-medium tracking-[-0.03em] text-paper"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Admin
@@ -50,7 +50,7 @@ export function LandingWorkspaceDoors() {
           Workspace B
         </p>
         <h2
-          className="mt-2 text-[28px] font-medium tracking-[-0.03em] text-white"
+          className="mt-2 text-[28px] font-medium tracking-[-0.03em] text-paper"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Recruiter

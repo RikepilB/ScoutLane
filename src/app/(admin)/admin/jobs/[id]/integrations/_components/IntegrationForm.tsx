@@ -54,7 +54,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
     return (
       <button
         onClick={() => setShowForm(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink-800"
       >
         <Plus className="h-4 w-4" />
         Add integration
@@ -118,7 +118,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Save

@@ -8,7 +8,7 @@ export const metadata = {
 export default function AccessDeniedPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-paper px-6">
-      <div className="max-w-md space-y-4 rounded-2xl border border-mist bg-white p-8 text-center shadow-sm">
+      <div className="max-w-md space-y-4 rounded-2xl border border-mist bg-surface p-8 text-center shadow-sm">
         <h1 className="text-2xl font-semibold tracking-tight text-ink-900">
           Access denied
         </h1>
@@ -18,7 +18,7 @@ export default function AccessDeniedPage() {
         </p>
         <Link
           href="/"
-          className="inline-flex rounded-md bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-800"
+          className="inline-flex rounded-md bg-ink-900 px-4 py-2 text-sm font-medium text-paper hover:bg-ink-800"
         >
           Back to home
         </Link>

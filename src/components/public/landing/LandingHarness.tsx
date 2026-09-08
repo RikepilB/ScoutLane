@@ -18,7 +18,7 @@ export function LandingHarness() {
           Agentic harness
         </p>
         <h2
-          className="text-[clamp(26px,4vw,36px)] font-medium leading-[1.1] tracking-[-0.03em] text-white"
+          className="text-[clamp(26px,4vw,36px)] font-medium leading-[1.1] tracking-[-0.03em] text-paper"
           style={{ fontFamily: "var(--font-display)" }}
         >
           After apply, the lane runs itself
@@ -58,7 +58,7 @@ export function LandingHarness() {
               >
                 0{index + 1}
               </span>
-              <strong className="mt-2 block text-[15px] font-medium text-white">{station.label}</strong>
+              <strong className="mt-2 block text-[15px] font-medium text-paper">{station.label}</strong>
               <span className="mt-1 block text-xs text-paper/55">{station.detail}</span>
             </li>
           ))}

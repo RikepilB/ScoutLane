@@ -38,7 +38,7 @@ export default async function SignInPage({ searchParams }: Props) {
         <div className="absolute bottom-16 left-12 z-10 max-w-md">
           <Link
             href="/"
-            className="block text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
+            className="block text-4xl font-black tracking-tight text-paper drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
           >
             ScoutLane
           </Link>
@@ -55,7 +55,7 @@ export default async function SignInPage({ searchParams }: Props) {
       <div className="flex w-full items-center justify-center bg-gradient-to-br from-ink-950 via-ink-900 to-ink-800 px-6 py-10 lg:w-1/2">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center lg:hidden">
-            <Link href="/" className="text-2xl font-bold tracking-tight text-white">
+            <Link href="/" className="text-2xl font-bold tracking-tight text-paper">
               ScoutLane
             </Link>
           </div>

@@ -22,12 +22,12 @@ export function MobileNav({ user }: { user: SidebarUser }) {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-mist bg-white px-4 md:hidden">
+    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b border-mist bg-surface px-4 md:hidden">
       <Link
         href="/admin"
         className="flex items-center gap-2"
       >
-        <span className="inline-flex h-[28px] w-[28px] items-center justify-center rounded-lg bg-gradient-to-br from-brand-royal to-brand-royal-dark text-xs font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+        <span className="inline-flex h-[28px] w-[28px] items-center justify-center rounded-lg bg-gradient-to-br from-brand-royal to-brand-royal-dark text-xs font-bold text-paper shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
           SL
         </span>

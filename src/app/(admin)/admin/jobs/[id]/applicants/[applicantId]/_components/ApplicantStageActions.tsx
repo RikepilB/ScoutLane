@@ -43,7 +43,7 @@ export function ApplicantStageActions({
         value={currentStageId ?? stages[0]?.id ?? ""}
         disabled={pending || stages.length === 0}
         onChange={(e) => void handleChange(e.target.value)}
-        className="w-full max-w-xs rounded-xl border border-border/70 bg-white px-4 py-2.5 text-sm outline-none focus:border-sky disabled:opacity-50"
+        className="w-full max-w-xs rounded-xl border border-border/70 bg-surface px-4 py-2.5 text-sm outline-none focus:border-sky disabled:opacity-50"
       >
         {stages.map((s) => (
           <option key={s.id} value={s.id}>

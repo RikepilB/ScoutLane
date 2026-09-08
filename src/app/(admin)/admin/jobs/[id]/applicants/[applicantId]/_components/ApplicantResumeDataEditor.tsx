@@ -51,7 +51,7 @@ export function ApplicantResumeDataEditor({ applicantId, initialData }: Applican
           type="button"
           onClick={handleSave}
           disabled={pending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white hover:bg-ink-800 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-paper hover:bg-ink-800 disabled:opacity-50"
         >
           {pending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
           Save merge

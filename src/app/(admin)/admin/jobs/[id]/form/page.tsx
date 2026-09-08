@@ -55,7 +55,7 @@ function SortableFieldRow({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-3 rounded-xl border border-border/60 bg-white p-4"
+      className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface p-4"
     >
       <button
         type="button"
@@ -215,7 +215,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
           type="button"
           onClick={handleSave}
           disabled={saving || !dirty}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           {saving ? "Saving..." : "Save"}
@@ -255,7 +255,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
           <button
             type="button"
             onClick={addField}
-            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-white px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-paper"
+            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-surface px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-paper"
           >
             <Plus className="h-4 w-4" />
             Add field

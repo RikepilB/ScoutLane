@@ -101,7 +101,7 @@ export default async function NotificationsPage() {
               <Link
                 key={applicant.id}
                 href={`/admin/jobs/${applicant.jobId}/applicants/${applicant.id}`}
-                className="block rounded-xl border border-border/60 bg-paper p-3 transition hover:bg-white"
+                className="block rounded-xl border border-border/60 bg-paper p-3 transition hover:bg-surface"
               >
                 <div className="text-sm font-medium text-ink-900">{applicant.name}</div>
                 <div className="mt-1 text-xs text-muted-foreground">
@@ -127,7 +127,7 @@ export default async function NotificationsPage() {
               <Link
                 key={log.id}
                 href={`/admin/jobs/${log.integration.jobId}/integrations`}
-                className="block rounded-xl border border-border/60 bg-paper p-3 transition hover:bg-white"
+                className="block rounded-xl border border-border/60 bg-paper p-3 transition hover:bg-surface"
               >
                 <div className="text-sm font-medium text-ink-900">
                   {log.integration.job.title} · {log.integration.stage.name}

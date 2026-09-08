@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils/cn";
 
 const roleStyles: Record<Exclude<DemoRole, "guest">, string> = {
   admin:
-    "bg-gradient-to-b from-brand-royal to-brand-royal-dark shadow-[0_8px_20px_rgba(27,44,193,0.4),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "bg-gradient-to-b from-brand-royal to-brand-royal-dark shadow-[0_8px_20px_rgba(27,44,193,0.4),inset_0_1px_0_rgba(255,255,255,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   recruiter:
-    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
 };
 
 const TIMEOUT_MS = 12_000;
@@ -109,7 +109,7 @@ export function DemoSignInButton({
         aria-describedby={ariaDescribedby || errorId}
         aria-busy={pending}
         className={cn(
-          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-paper transition disabled:opacity-60 disabled:cursor-not-allowed",
           roleStyles[role],
           className,
         )}

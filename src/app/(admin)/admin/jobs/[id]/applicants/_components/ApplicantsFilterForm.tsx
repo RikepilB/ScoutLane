@@ -21,7 +21,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           name="search"
           defaultValue={filters.search || ""}
           placeholder="Search name, email, skills, parsed resume…"
-          className="w-full rounded-xl border border-border/70 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-sky"
+          className="w-full rounded-xl border border-border/70 bg-surface py-2 pl-10 pr-4 text-sm outline-none focus:border-sky"
         />
       </div>
       {allInstitutions.length > 0 && (
@@ -160,7 +160,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
       ) : null}
       <button
         type="submit"
-        className="inline-flex items-center justify-center rounded-lg bg-ink-950 px-4 py-2 text-xs font-medium text-white hover:bg-ink-800"
+        className="inline-flex items-center justify-center rounded-lg bg-ink-950 px-4 py-2 text-xs font-medium text-paper hover:bg-ink-800"
       >
         Apply filters
       </button>

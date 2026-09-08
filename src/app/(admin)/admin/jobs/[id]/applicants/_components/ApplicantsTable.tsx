@@ -91,7 +91,7 @@ export function ApplicantsTable({
           <select
             value={targetStageId}
             onChange={(e) => setTargetStageId(e.target.value)}
-            className="rounded-lg border border-border/70 bg-white px-2.5 py-1.5 text-xs"
+            className="rounded-lg border border-border/70 bg-surface px-2.5 py-1.5 text-xs"
             disabled={isPending}
             aria-label="Move selected applicants to stage"
           >
@@ -105,7 +105,7 @@ export function ApplicantsTable({
           <button
             onClick={handleBulkMove}
             disabled={!targetStageId || isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-paper disabled:opacity-50"
           >
             {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
             Move

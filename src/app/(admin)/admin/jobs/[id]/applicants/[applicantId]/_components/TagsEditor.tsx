@@ -82,13 +82,13 @@ export function TagsEditor({ applicantId, tags }: TagsEditorProps) {
           }}
           placeholder="e.g. Strong yes, Referral"
           maxLength={40}
-          className="flex-1 rounded-lg border border-border/70 bg-white px-3 py-1.5 text-xs outline-none focus:border-sky"
+          className="flex-1 rounded-lg border border-border/70 bg-surface px-3 py-1.5 text-xs outline-none focus:border-sky"
         />
         <button
           type="button"
           onClick={handleAdd}
           disabled={isPending || !draft.trim() || tags.length >= 20}
-          className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-paper disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Add

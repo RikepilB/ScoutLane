@@ -71,7 +71,7 @@ function SortableStageItem({
         <input
           type="text"
           defaultValue={stage.name}
-          className="flex-1 rounded-lg border border-border/70 bg-white px-2 py-1 text-sm outline-none focus:border-sky"
+          className="flex-1 rounded-lg border border-border/70 bg-surface px-2 py-1 text-sm outline-none focus:border-sky"
           onBlur={(e) => {
             // Escape marks the input cancelled; the blur fired by unmounting must not save.
             if (e.currentTarget.dataset.cancelled === "1") return;
@@ -213,7 +213,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="e.g. Phone Screen"
-              className="w-full rounded-lg border border-border/70 bg-white px-3 py-2 text-sm outline-none focus:border-sky"
+              className="w-full rounded-lg border border-border/70 bg-surface px-3 py-2 text-sm outline-none focus:border-sky"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
           </div>
@@ -236,7 +236,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
             <select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value as Stage["status"])}
-              className="mt-1 block rounded-lg border border-border/70 bg-white px-2 py-2 text-sm text-ink-900"
+              className="mt-1 block rounded-lg border border-border/70 bg-surface px-2 py-2 text-sm text-ink-900"
             >
               <option value="NEW">New</option>
               <option value="REVIEWING">Reviewing</option>
@@ -251,7 +251,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
             type="button"
             onClick={handleAdd}
             disabled={!newName.trim() || adding}
-            className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-2 text-sm font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
           >
             {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             {adding ? "Adding…" : "Add"}
@@ -314,7 +314,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                       const select = document.getElementById("reassign-stage-select") as HTMLSelectElement;
                       handleConfirmDelete(select.value);
                     }}
-                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white hover:bg-danger"
+                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:bg-danger"
                   >
                     Delete & move
                   </button>
@@ -330,7 +330,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                   <button
                     type="button"
                     onClick={() => handleConfirmDelete("")}
-                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white hover:bg-danger"
+                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:bg-danger"
                   >
                     Delete
                   </button>
