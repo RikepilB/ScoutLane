@@ -23,7 +23,7 @@ export function CareersFilterBar({
     <div className="relative z-[5] -mt-6 mb-8 px-9">
       <div className="grid grid-cols-[1fr_auto_auto] gap-2 rounded-[18px] bg-surface p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,255,255,0.05)] max-sm:grid-cols-1">
         {/* Search */}
-        <div className="flex h-12 items-center gap-3 rounded-xl border border-mist bg-surface px-[18px] transition-all duration-[0.18s] focus-within:border-brand-royal focus-within:shadow-[0_0_0_3px_rgba(27,44,193,0.12)]">
+        <div className="flex h-12 items-center gap-3 rounded-xl border border-mist bg-surface px-[18px] transition-[background-color,border-color,box-shadow] duration-[0.18s] focus-within:border-brand-royal focus-within:shadow-[0_0_0_3px_rgba(27,44,193,0.12)]">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5f8ea0" strokeWidth="1.7">
             <circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" strokeLinecap="round" />
           </svg>

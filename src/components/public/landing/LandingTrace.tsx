@@ -46,20 +46,20 @@ export function LandingTrace() {
         </div>
         <div className="flex flex-col items-end">
           <span className="tabular font-display text-3xl font-semibold text-paper">0.91</span>
-          <span className="text-[12px] text-paper/50">job-fit score</span>
+          <span className="text-[12px] text-paper/55">job-fit score</span>
         </div>
       </div>
 
       <div className="mb-6 grid gap-3 border-y border-border-dark py-5 sm:grid-cols-3">
         {parsed.map((row) => (
           <div key={row.key}>
-            <p className="text-[11px] uppercase tracking-[0.08em] text-paper/45">{row.key}</p>
+            <p className="text-[11px] uppercase tracking-[0.08em] text-paper/55">{row.key}</p>
             <p className="mt-1 text-[13px] leading-5 text-paper/85">{row.value}</p>
           </div>
         ))}
       </div>
 
-      <p className="mb-3 text-[11px] uppercase tracking-[0.08em] text-paper/45">
+      <p className="mb-3 text-[11px] uppercase tracking-[0.08em] text-paper/55">
         Decision log
       </p>
       <ol className="space-y-2">
@@ -78,7 +78,7 @@ export function LandingTrace() {
         </div>
         <p className="mt-1.5 text-[12.5px] leading-5 text-paper/70">
           2 yrs frontend (role asks 5+), no TypeScript, no platform work. A decline
-          email is drafted for recruiter review — nothing sends itself.
+          email is drafted for recruiter review; nothing sends itself.
         </p>
       </div>
       </div>

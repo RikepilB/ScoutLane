@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 const stations = [
   { id: "apply", label: "Apply", detail: "Resume + form" },
   { id: "extract", label: "Extract", detail: "PDF / DOCX text" },
@@ -13,18 +17,37 @@ const stations = [
  * the animated sweep running along the top edge of the group. The enclosing
  * card from the previous revision is gone — the section heading plus the
  * connecting rhythm carry the structure.
+ *
+ * The station sweep is a 7-second infinite loop; it pauses via
+ * IntersectionObserver while the section is off-screen so it never animates
+ * in a tab the visitor isn't looking at (the `.lane-idle` rules in
+ * globals.css freeze the keyframes).
  */
 export function LandingHarness() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [idle, setIdle] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIdle(!entry.isIntersecting),
+      { rootMargin: "80px" },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="lane" className="mb-24 scroll-mt-6">
+    <section id="lane" ref={sectionRef} className={`mb-24 scroll-mt-6${idle ? " lane-idle" : ""}`}>
       <div className="mb-10 max-w-2xl">
         <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-peri">
           The lane
         </p>
-        <h2 className="font-display text-display font-medium text-paper">
+        <h2 className="text-balance font-display text-display font-medium text-paper">
           After apply, the lane runs itself
         </h2>
-        <p className="mt-3 text-[15px] leading-6 text-paper/65">
+        <p className="mt-3 text-pretty text-[15px] leading-6 text-paper/65">
           Extraction, parsing, scoring, staging, then outbound events. Recruiters move
           people. Agents handle the rest.
         </p>

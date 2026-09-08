@@ -198,6 +198,12 @@
   border-color: var(--color-border);
 }
 
+/* Kill the 300ms double-tap-zoom delay on controls without affecting
+   pinch-zoom of the page. */
+a, button, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
 html {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -284,6 +290,13 @@ body {
 
 .animate-harness-station {
   animation: harness-station 7.2s ease-in-out infinite;
+}
+
+/* The lane sweep is a 7s loop; LandingHarness freezes it while its section
+   is scrolled out of view (IntersectionObserver adds .lane-idle). */
+.lane-idle .animate-harness-station,
+.lane-idle .animate-harness-trace {
+  animation-play-state: paused;
 }
 
 .animate-harness-trace {
