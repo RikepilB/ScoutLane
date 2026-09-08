@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Signup and Role Selection Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/signup');
+    await page.goto('/signup', { waitUntil: "domcontentloaded" });
   });
 
   test('signup page loads with Clerk SignUp component', async ({ page }) => {
@@ -21,7 +21,7 @@ test.describe('Signup and Role Selection Flow', () => {
     // post-signup redirect itself requires a fresh, role-less Clerk account
     // (the demo accounts already have roles), so the signed-in variant is
     // covered by the choose-role page's own unit tests and manual QA.
-    await page.goto('/choose-role');
+    await page.goto('/choose-role', { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/signup/);
     await expect(page.locator('h1')).toContainText('Create your account');
   });
@@ -30,21 +30,21 @@ test.describe('Signup and Role Selection Flow', () => {
     // Requires an authenticated account WITHOUT a role yet — the demo accounts
     // already have roles and get redirected to /admin. Only a fresh signup can
     // see this page's content.
-    await page.goto('/choose-role');
+    await page.goto('/choose-role', { waitUntil: "domcontentloaded" });
     await expect(page.locator('text=Admin Workspace')).toBeVisible();
     await expect(page.locator('text=Recruiter Workspace')).toBeVisible();
   });
 
   test('unauthenticated user is redirected from choose-role to signup', async ({ page }) => {
     // Navigate directly to choose-role without auth
-    await page.goto('/choose-role');
+    await page.goto('/choose-role', { waitUntil: "domcontentloaded" });
 
     // Should redirect to signup
     await expect(page).toHaveURL(/\/signup/);
   });
 
   test('signin page shows role chooser with workspace links', async ({ page }) => {
-    await page.goto('/signin');
+    await page.goto('/signin', { waitUntil: "domcontentloaded" });
 
     // Check for role selection
     await expect(page.locator('h1')).toContainText('Choose your workspace');
