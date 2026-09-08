@@ -37,7 +37,7 @@ export function RescoreButton({ applicantId, disabled }: RescoreButtonProps) {
     <button
       onClick={handleClick}
       disabled={disabled || isPending}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 px-3 py-1.5 text-xs font-medium text-sky-700 transition hover:bg-sky-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-sky px-3 py-1.5 text-xs font-medium text-sky transition hover:bg-info-soft disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isPending ? (
         <Loader2 className="h-3 w-3 animate-spin" />

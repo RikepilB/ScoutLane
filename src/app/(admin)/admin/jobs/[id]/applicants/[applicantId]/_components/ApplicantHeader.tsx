@@ -71,7 +71,7 @@ export function ApplicantHeader({ applicant, jobId, stages, isAdmin, hasParsedDa
               <div className="flex flex-wrap items-center gap-2">
                 <ApplicantStatusBadge status={applicant.status} />
                 {applicant.pipelineStage && (
-                  <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-800">
+                  <span className="inline-flex items-center rounded-full bg-paper-2 px-3 py-1 text-xs font-medium text-ink-800">
                     Stage: {applicant.pipelineStage.name}
                   </span>
                 )}
@@ -87,10 +87,10 @@ export function ApplicantHeader({ applicant, jobId, stages, isAdmin, hasParsedDa
               {applicant.parsingStatus && applicant.parsingStatus !== "COMPLETED" && (
                 <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
                   applicant.parsingStatus === "PARSING"
-                    ? "bg-amber-50 text-amber-700"
+                    ? "bg-warning-soft text-warning"
                     : applicant.parsingStatus === "FAILED"
-                      ? "bg-red-50 text-red-700"
-                      : "bg-slate-100 text-slate-600"
+                      ? "bg-danger-soft text-danger"
+                      : "bg-paper-2 text-ink-700"
                 }`}>
                   {applicant.parsingStatus === "PARSING" && <Loader2 className="h-3 w-3 animate-spin" />}
                   {applicant.parsingStatus === "FAILED" && <RefreshCw className="h-3 w-3" />}

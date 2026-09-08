@@ -27,27 +27,27 @@ export default async function SignUpPage() {
         <div className="absolute bottom-16 left-12 z-10 max-w-md">
           <Link
             href="/"
-            className="block text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
+            className="block text-4xl font-black tracking-tight text-paper drop-shadow-[0_2px_20px_rgba(0,0,0,0.3)]"
           >
             ScoutLane
           </Link>
-          <p className="mt-3 text-lg leading-7 text-slate-300">
+          <p className="mt-3 text-lg leading-7 text-mist">
             AI-powered hiring. Admin sets up jobs and integrations. Recruiter reviews and scores applicants.
           </p>
         </div>
       </div>
 
-      <div className="flex w-full items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-6 py-10 lg:w-1/2">
+      <div className="flex w-full items-center justify-center bg-gradient-to-br from-ink-950 via-ink-900 to-ink-800 px-6 py-10 lg:w-1/2">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center lg:hidden">
-            <Link href="/" className="text-2xl font-bold tracking-tight text-white">
+            <Link href="/" className="text-2xl font-bold tracking-tight text-paper">
               ScoutLane
             </Link>
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-white">Create your account</h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <h1 className="text-2xl font-bold text-paper">Create your account</h1>
+            <p className="mt-2 text-sm text-soft">
               You&apos;ll choose your role (Admin or Recruiter) after signup.
             </p>
           </div>
@@ -74,18 +74,18 @@ export default async function SignUpPage() {
                 },
                 elements: {
                   rootBox: "w-full",
-                  card: "border border-slate-700/60 shadow-none rounded-2xl",
+                  card: "border border-ink-700/60 shadow-none rounded-2xl",
                   logoBox: "hidden",
                   socialButtonsBlockButton:
-                    "border border-slate-600 bg-white text-slate-900 hover:bg-slate-100",
+                    "border border-ink-700 bg-surface text-ink-900 hover:bg-paper-2",
                 },
               }}
             />
           </SignedInGate>
 
-          <p className="text-center text-xs text-slate-600">
+          <p className="text-center text-xs text-ink-700">
             Already have an account?{" "}
-            <Link href="/signin" className="text-sky-400 hover:text-sky-300">
+            <Link href="/signin" className="text-sky hover:text-sky">
               Sign in
             </Link>
           </p>

@@ -120,7 +120,7 @@ export default async function ApplicantDetailPage({ params }: ApplicantDetailPag
       />
 
       <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Interview</h3>
+        <h3 className="text-sm font-semibold text-ink-900">Interview</h3>
         <div className="mt-3">
           <InterviewDatePicker
             applicantId={applicant.id}

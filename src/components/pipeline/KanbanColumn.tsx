@@ -17,12 +17,12 @@ export function KanbanColumn({ stage }: { stage: Stage }) {
           className="h-3 w-3 rounded-full"
           style={{ backgroundColor: stage.color ?? "#6366f1" }}
         />
-        <span className="text-sm font-semibold text-slate-900">{stage.name}</span>
+        <span className="text-sm font-semibold text-ink-900">{stage.name}</span>
         <span className="ml-auto text-xs text-muted-foreground">{stage.applicants.length}</span>
       </div>
       <div
         className={`flex min-h-[120px] flex-col gap-2 rounded-2xl p-3 transition-colors ${
-          isOver ? "bg-sky-50" : "bg-muted/30"
+          isOver ? "bg-info-soft" : "bg-muted/30"
         }`}
       >
         {stage.applicants.map((applicant) => (

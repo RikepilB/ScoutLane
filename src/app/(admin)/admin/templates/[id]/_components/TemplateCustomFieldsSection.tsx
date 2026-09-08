@@ -45,7 +45,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                 },
               ])
             }
-            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-surface px-3 py-2 text-sm font-medium text-ink-700 hover:bg-paper"
           >
             + Add field
           </button>
@@ -59,7 +59,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
         {customFields.map((field, idx) => (
           <div
             key={field.id}
-            className="flex items-start gap-3 rounded-xl border border-border/60 bg-white p-4"
+            className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface p-4"
           >
             <div className="flex flex-1 flex-wrap items-end gap-3">
               <div className="flex-1">
@@ -77,7 +77,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                     )
                   }
                   placeholder="e.g. Portfolio URL"
-                  className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                  className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
                 />
               </div>
               <div>
@@ -98,7 +98,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                       ),
                     )
                   }
-                  className="rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                  className="rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
                 >
                   <option value="text">Text</option>
                   <option value="textarea">Textarea</option>
@@ -124,7 +124,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                     }
                     rows={3}
                     placeholder={"Option A\nOption B"}
-                    className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                    className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
                   />
                 </div>
               )}
@@ -153,7 +153,7 @@ export function TemplateCustomFieldsSection({ initialCustomFields }: TemplateCus
                     prev.filter((_, i) => i !== idx),
                   )
                 }
-                className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                className="rounded-lg p-2 text-danger hover:bg-danger-soft"
               >
                 Remove
               </button>

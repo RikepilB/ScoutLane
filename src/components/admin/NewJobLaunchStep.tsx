@@ -47,8 +47,8 @@ export function NewJobLaunchStep({
                     key={status}
                     className={`cursor-pointer rounded-xl border px-4 py-3 text-sm transition ${
                       field.value === status
-                        ? "border-slate-950 bg-slate-950 text-white"
-                        : "border-border/70 bg-white text-slate-700 hover:bg-slate-50"
+                        ? "border-ink-950 bg-ink-950 text-paper"
+                        : "border-border/70 bg-surface text-ink-700 hover:bg-paper"
                     }`}
                   >
                     <input
@@ -61,7 +61,7 @@ export function NewJobLaunchStep({
                     <span className="font-semibold capitalize">{status}</span>
                     <span
                       className={`mt-1 block text-xs ${
-                        field.value === status ? "text-slate-300" : "text-slate-500"
+                        field.value === status ? "text-mist" : "text-steel"
                       }`}
                     >
                       {status === "draft"
@@ -79,43 +79,43 @@ export function NewJobLaunchStep({
         )}
       />
 
-      <div className="rounded-xl border border-border/70 bg-slate-50 p-5">
-        <h3 className="text-sm font-semibold text-slate-900">Review</h3>
+      <div className="rounded-xl border border-border/70 bg-paper p-5">
+        <h3 className="text-sm font-semibold text-ink-900">Review</h3>
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">Title</dt>
-            <dd className="mt-1 font-medium text-slate-900">
+            <dt className="text-xs uppercase tracking-wide text-steel">Title</dt>
+            <dd className="mt-1 font-medium text-ink-900">
               {watchedTitle || "Untitled job"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">Status</dt>
-            <dd className="mt-1 font-medium capitalize text-slate-900">
+            <dt className="text-xs uppercase tracking-wide text-steel">Status</dt>
+            <dd className="mt-1 font-medium capitalize text-ink-900">
               {watchedStatus}
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">
+            <dt className="text-xs uppercase tracking-wide text-steel">
               Location
             </dt>
-            <dd className="mt-1 text-slate-800">{watchedLocation || "Not set"}</dd>
+            <dd className="mt-1 text-ink-800">{watchedLocation || "Not set"}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">Type</dt>
-            <dd className="mt-1 text-slate-800">{watchedType || "Not set"}</dd>
+            <dt className="text-xs uppercase tracking-wide text-steel">Type</dt>
+            <dd className="mt-1 text-ink-800">{watchedType || "Not set"}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">Salary</dt>
-            <dd className="mt-1 text-slate-800">{watchedSalary || "Not set"}</dd>
+            <dt className="text-xs uppercase tracking-wide text-steel">Salary</dt>
+            <dd className="mt-1 text-ink-800">{watchedSalary || "Not set"}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-500">Slug</dt>
-            <dd className="mt-1 break-all text-slate-800">
+            <dt className="text-xs uppercase tracking-wide text-steel">Slug</dt>
+            <dd className="mt-1 break-all text-ink-800">
               {watchedSlug || "Not set"}
             </dd>
           </div>
         </dl>
-        <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
+        <p className="mt-4 line-clamp-4 text-sm leading-6 text-ink-700">
           {watchedDescription || "No description yet."}
         </p>
       </div>

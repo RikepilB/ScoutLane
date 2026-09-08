@@ -40,12 +40,12 @@ export function RetryParsingButton({ applicantId, status }: RetryParsingButtonPr
       <button
         onClick={handleRetry}
         disabled={isPending}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-danger px-3 py-1.5 text-xs font-medium text-danger transition hover:bg-danger-soft disabled:opacity-50"
       >
         {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
         {status === "FAILED" ? "Retry parsing" : "Parse now"}
       </button>
-      {error && <span className="max-w-xs text-xs text-red-700">{error}</span>}
+      {error && <span className="max-w-xs text-xs text-danger">{error}</span>}
     </span>
   );
 }
