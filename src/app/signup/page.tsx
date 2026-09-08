@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth/auth";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Sign Up - ScoutLane",
+  title: "Sign up",
   description: "Create your ScoutLane account",
 };
 

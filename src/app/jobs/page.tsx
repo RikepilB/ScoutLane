@@ -6,7 +6,7 @@ import { CareersJobBoard } from "@/components/public/CareersJobBoard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ScoutLane — Open positions",
+  title: "Open positions",
   robots: {
     index: false,
     follow: false,

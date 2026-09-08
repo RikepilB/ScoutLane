@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { AnimatedBackground } from "@/components/public/AnimatedBackground";
 import { RoleChooser } from "../_components/RoleChooser";
 import { RoleSignInPanel } from "../_components/RoleSignInPanel";
 import { SignedInGate } from "../_components/SignedInGate";
 import { parseWorkspaceRole } from "@/lib/auth/parse-workspace-role";
 import { auth } from "@/lib/auth/auth";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+};
 
 type Props = {
   searchParams: Promise<{

@@ -4,7 +4,7 @@ import { PublicNav } from "@/components/public/PublicNav";
 import { CareersFooter } from "@/components/public/CareersFooter";
 
 export const metadata: Metadata = {
-  title: "ScoutLane — Terms & Privacy",
+  title: "Terms & Privacy",
   robots: { index: false, follow: false },
 };
 
