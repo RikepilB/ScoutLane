@@ -87,14 +87,14 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
       <div className="pointer-events-none fixed z-0"
         style={{
           top: "-200px", left: "-100px", width: "700px", height: "700px",
-          background: "radial-gradient(circle, rgba(27,44,193,0.35), rgba(27,44,193,0) 70%)",
+          background: "none",
           filter: "blur(40px)",
         }}
       />
       <div className="pointer-events-none fixed z-0"
         style={{
           top: "100px", right: "-200px", width: "600px", height: "600px",
-          background: "radial-gradient(circle, rgba(94,167,197,0.18), rgba(94,167,197,0) 70%)",
+          background: "none",
           filter: "blur(40px)",
         }}
       />
