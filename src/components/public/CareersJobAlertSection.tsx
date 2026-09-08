@@ -21,7 +21,7 @@ export function CareersJobAlertSection({
         <div className="pointer-events-none absolute -bottom-10 -right-10 h-[200px] w-[200px]"
           style={{ background: "none" }} />
 
-        <div className="relative z-[1] flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-[18px] text-paper shadow-[0_12px_30px_rgba(27,44,193,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        <div className="relative z-[1] flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-[18px] text-paper"
           style={{ background: "var(--color-brand-royal)" }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9z" />
