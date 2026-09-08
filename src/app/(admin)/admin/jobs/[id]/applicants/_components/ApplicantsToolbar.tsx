@@ -26,8 +26,8 @@ export function ApplicantsToolbar({
             href={buildApplicantsHref(jobId, filters, { stageId: undefined })}
             className={`rounded-full px-3 py-1.5 font-medium ${
               !filters.stageId || filters.stageId === "all"
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-ink-950 text-white"
+                : "bg-paper-2 text-ink-700 hover:bg-mist"
             }`}
           >
             All stages
@@ -39,7 +39,7 @@ export function ApplicantsToolbar({
                 key={s.id}
                 href={buildApplicantsHref(jobId, filters, { stageId: s.id })}
                 className={`rounded-full px-3 py-1.5 font-medium ${
-                  active ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  active ? "bg-ink-950 text-white" : "bg-paper-2 text-ink-700 hover:bg-mist"
                 }`}
               >
                 {s.name}
@@ -53,8 +53,8 @@ export function ApplicantsToolbar({
             href={buildApplicantsHref(jobId, filters, { status: undefined })}
             className={`rounded-full px-3 py-1.5 font-medium ${
               !filters.status || filters.status === "all"
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-ink-950 text-white"
+                : "bg-paper-2 text-ink-700 hover:bg-mist"
             }`}
           >
             All
@@ -66,7 +66,7 @@ export function ApplicantsToolbar({
                 key={s}
                 href={buildApplicantsHref(jobId, filters, { status: s })}
                 className={`rounded-full px-3 py-1.5 font-medium ${
-                  active ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  active ? "bg-ink-950 text-white" : "bg-paper-2 text-ink-700 hover:bg-mist"
                 }`}
               >
                 {s.charAt(0) + s.slice(1).toLowerCase()}
@@ -77,7 +77,7 @@ export function ApplicantsToolbar({
         {canExport && (
           <Link
             href={`/api/admin/jobs/${jobId}/applicants/export`}
-            className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-slate-800 hover:bg-muted/30"
+            className="rounded-lg border border-border/70 bg-white px-3 py-2 text-xs font-medium text-ink-800 hover:bg-muted/30"
           >
             Export CSV
           </Link>
@@ -86,15 +86,15 @@ export function ApplicantsToolbar({
 
       {sortedStats.length > 0 ? (
         <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-medium text-slate-700">
-            <span className="font-semibold text-slate-950">{totalApplicants}</span> Total
+          <div className="flex items-center gap-1.5 rounded-full bg-paper-2 px-3.5 py-1.5 text-xs font-medium text-ink-700">
+            <span className="font-semibold text-ink-950">{totalApplicants}</span> Total
           </div>
           {sortedStats.map((s) => (
             <div
               key={s.name}
-              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-medium text-slate-700"
+              className="flex items-center gap-1.5 rounded-full bg-paper-2 px-3.5 py-1.5 text-xs font-medium text-ink-700"
             >
-              <span className="font-semibold text-slate-950">{s.count}</span> {s.name}
+              <span className="font-semibold text-ink-950">{s.count}</span> {s.name}
             </div>
           ))}
         </div>

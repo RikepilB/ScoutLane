@@ -167,12 +167,12 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
   });
 
   return (
-    <div className="rounded-2xl border border-[#cbd5e1] bg-white p-6 text-[#0c1529] shadow-[0_18px_50px_rgba(9,21,64,0.14)] sm:p-7">
+    <div className="rounded-2xl border border-mist bg-white p-6 text-ink-900 shadow-[0_18px_50px_rgba(9,21,64,0.14)] sm:p-7">
       <div className="mb-6 space-y-2">
-        <h2 className="text-[24px] font-semibold tracking-[-0.015em] text-[#0c1529]">
+        <h2 className="text-[24px] font-semibold tracking-[-0.015em] text-ink-900">
           Apply for this role
         </h2>
-        <p className="text-sm leading-6 text-[#475569]">
+        <p className="text-sm leading-6 text-ink-700">
           Submit your details and resume. We will send a confirmation email once your
           application is received.
         </p>
@@ -185,13 +185,13 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
       ) : null}
 
       {successMessage ? (
-        <div className="mb-4 rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="mb-4 rounded-2xl border border-success bg-success-soft px-4 py-3 text-sm text-success">
           {successMessage}
         </div>
       ) : null}
 
       {warningMessage ? (
-        <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        <div className="mb-4 rounded-2xl border border-warning bg-warning-soft px-4 py-3 text-sm text-warning">
           {warningMessage}
         </div>
       ) : null}
@@ -204,9 +204,9 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#1e293b]">First name</FormLabel>
+                  <FormLabel className="text-ink-800">First name</FormLabel>
                   <FormControl>
-                    <Input className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] placeholder:text-[#64748b] focus-visible:ring-[#1B2CC1]" placeholder="Jane" {...field} />
+                    <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="Jane" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -217,9 +217,9 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#1e293b]">Last name</FormLabel>
+                  <FormLabel className="text-ink-800">Last name</FormLabel>
                   <FormControl>
-                    <Input className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] placeholder:text-[#64748b] focus-visible:ring-[#1B2CC1]" placeholder="Doe" {...field} />
+                    <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="Doe" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -232,9 +232,9 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#1e293b]">Email</FormLabel>
+                <FormLabel className="text-ink-800">Email</FormLabel>
                 <FormControl>
-                  <Input className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] placeholder:text-[#64748b] focus-visible:ring-[#1B2CC1]" type="email" placeholder="jane@example.com" {...field} />
+                  <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" type="email" placeholder="jane@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -246,9 +246,9 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#1e293b]">Phone</FormLabel>
+                <FormLabel className="text-ink-800">Phone</FormLabel>
                 <FormControl>
-                  <Input className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] placeholder:text-[#64748b] focus-visible:ring-[#1B2CC1]" placeholder="+1 555 123 4567" {...field} />
+                  <Input className="h-11 border-mist bg-white text-ink-900 placeholder:text-steel focus-visible:ring-brand-royal" placeholder="+1 555 123 4567" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -260,13 +260,13 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
             name="resumeFile"
             render={({ field: { onChange, value, ...field } }) => (
               <FormItem>
-                <FormLabel className="text-[#1e293b]">Resume</FormLabel>
+                <FormLabel className="text-ink-800">Resume</FormLabel>
                 <FormControl>
-                  <div className="rounded-xl border border-dashed border-[#94a3b8] bg-[#f8fafc] px-4 py-5">
+                  <div className="rounded-xl border border-dashed border-soft bg-surface px-4 py-5">
                     {value instanceof File ? (
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex min-w-0 items-center gap-2 text-sm text-[#0c1529]">
-                          <Upload className="h-4 w-4 shrink-0 text-[#3D518C]" />
+                        <div className="flex min-w-0 items-center gap-2 text-sm text-ink-900">
+                          <Upload className="h-4 w-4 shrink-0 text-brand-slate" />
                           <span className="truncate">{value.name}</span>
                         </div>
                         <button
@@ -275,7 +275,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                             form.resetField("resumeFile");
                             setFitCheck({ status: "idle" });
                           }}
-                          className="rounded-lg p-1 text-[#64748b] hover:bg-red-50 hover:text-red-500"
+                          className="rounded-lg p-1 text-steel hover:bg-danger-soft hover:text-danger"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -286,13 +286,13 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                           {...field}
                           type="file"
                           accept=".pdf,.doc,.docx,.csv,.txt"
-                          className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] file:text-[#0c1529]"
+                          className="h-11 border-mist bg-white text-ink-900 file:text-ink-900"
                           onChange={(event) => {
                             onChange(event.target.files?.[0]);
                             setFitCheck({ status: "idle" });
                           }}
                         />
-                        <div className="mt-3 flex items-center gap-2 text-xs text-[#475569]">
+                        <div className="mt-3 flex items-center gap-2 text-xs text-ink-700">
                           <Upload className="h-3.5 w-3.5" />
                           PDF, DOC, DOCX, TXT, or CSV up to 5 MB
                         </div>
@@ -308,23 +308,23 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                       <button
                         type="button"
                         onClick={handleCheckFit}
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1B2CC1] hover:underline"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-royal hover:underline"
                       >
                         <Sparkles className="h-3.5 w-3.5" />
                         Check your fit for this role
                       </button>
                     ) : null}
                     {fitCheck.status === "loading" ? (
-                      <p className="inline-flex items-center gap-1.5 text-xs text-[#475569]">
+                      <p className="inline-flex items-center gap-1.5 text-xs text-ink-700">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         Checking your fit…
                       </p>
                     ) : null}
                     {fitCheck.status === "error" ? (
-                      <p className="text-xs text-[#94540f]">{fitCheck.message}</p>
+                      <p className="text-xs text-warning">{fitCheck.message}</p>
                     ) : null}
                     {fitCheck.status === "done" ? (
-                      <div className="rounded-xl border border-[#cbd5e1] bg-[#f8fafc] px-3 py-2.5 text-xs text-[#0c1529]">
+                      <div className="rounded-xl border border-mist bg-surface px-3 py-2.5 text-xs text-ink-900">
                         <p className="font-medium">
                           {fitCheck.score >= 0.75
                             ? "Strong fit for this role"
@@ -334,8 +334,8 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                                 ? "Partial fit for this role"
                                 : "This role may not be the closest match"}
                         </p>
-                        <p className="mt-1 leading-5 text-[#475569]">{fitCheck.rationale}</p>
-                        <p className="mt-1.5 text-[10px] text-[#94a3b8]">
+                        <p className="mt-1 leading-5 text-ink-700">{fitCheck.rationale}</p>
+                        <p className="mt-1.5 text-[10px] text-soft">
                           Advisory only — you&apos;re welcome to apply regardless.
                         </p>
                       </div>
@@ -348,7 +348,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
 
           {customFields.map((field) => (
             <div key={field.id}>
-              <label className="mb-2 block text-sm font-medium text-[#1e293b]">
+              <label className="mb-2 block text-sm font-medium text-ink-800">
                 {field.label}
                 {field.required && <span className="text-destructive ml-1">*</span>}
               </label>
@@ -367,7 +367,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                       return { ...prev, [field.id]: file };
                     });
                   }}
-                  className="h-11 border-[#cbd5e1] bg-white text-[#0c1529] file:text-[#0c1529]"
+                  className="h-11 border-mist bg-white text-ink-900 file:text-ink-900"
                 />
               ) : field.type === "textarea" ? (
                 <textarea
@@ -375,7 +375,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
                   rows={4}
-                  className="flex w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm placeholder:text-[#64748b] focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
+                  className="flex w-full rounded-md border border-mist bg-white px-3 py-2 text-sm text-ink-900 shadow-sm placeholder:text-steel focus:outline-none focus:ring-1 focus:ring-brand-royal"
                   placeholder={`Enter ${field.label.toLowerCase()}`}
                 />
               ) : field.type === "select" ? (
@@ -383,7 +383,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
-                  className="flex h-11 w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
+                  className="flex h-11 w-full rounded-md border border-mist bg-white px-3 py-2 text-sm text-ink-900 shadow-sm focus:outline-none focus:ring-1 focus:ring-brand-royal"
                 >
                   <option value="">Select...</option>
                   {(field.options ?? []).map((option) => (
@@ -398,14 +398,14 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
                   required={field.required}
                   value={customValues[field.id] ?? ""}
                   onChange={(e) => updateCustomValue(field.id, e.target.value)}
-                  className="flex h-11 w-full rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#0c1529] shadow-sm placeholder:text-[#64748b] focus:outline-none focus:ring-1 focus:ring-[#1B2CC1]"
+                  className="flex h-11 w-full rounded-md border border-mist bg-white px-3 py-2 text-sm text-ink-900 shadow-sm placeholder:text-steel focus:outline-none focus:ring-1 focus:ring-brand-royal"
                   placeholder={`Enter ${field.label.toLowerCase()}`}
                 />
               )}
             </div>
           ))}
 
-          <Button className="h-11 w-full rounded-lg bg-[#1B2CC1] px-5 text-white shadow-[0_10px_22px_rgba(27,44,193,0.24)] hover:bg-[#2238d6] sm:w-auto" type="submit" disabled={isPending}>
+          <Button className="h-11 w-full rounded-lg bg-brand-royal px-5 text-white shadow-[0_10px_22px_rgba(27,44,193,0.24)] hover:bg-brand-royal-hover sm:w-auto" type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Submit application
           </Button>

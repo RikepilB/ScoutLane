@@ -85,6 +85,9 @@
   --color-mist-strong: #b8c2cc;
   --color-hairline: rgba(9, 21, 64, 0.08);
 
+  /* Same reason: `--color-text-soft` would produce `text-text-soft`. */
+  --color-soft: #94a3b8;
+
   /* ── Status ── */
   --color-success: #2d8a6a;
   --color-success-soft: rgba(45, 138, 106, 0.12);

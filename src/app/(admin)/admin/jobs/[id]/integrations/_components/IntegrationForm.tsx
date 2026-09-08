@@ -54,7 +54,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
     return (
       <button
         onClick={() => setShowForm(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800"
       >
         <Plus className="h-4 w-4" />
         Add integration
@@ -64,14 +64,14 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm space-y-4">
-      <h4 className="text-sm font-semibold text-slate-900">New integration</h4>
+      <h4 className="text-sm font-semibold text-ink-900">New integration</h4>
 
       <div>
         <label className="mb-1 block text-xs text-muted-foreground">Pipeline stage</label>
         <select
           value={stageId}
           onChange={(e) => setStageId(e.target.value)}
-          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
           required
         >
           {stages.map((s) => (
@@ -87,7 +87,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
           value={endpointUrl}
           onChange={(e) => setEndpointUrl(e.target.value)}
           placeholder="https://webhook.site/..."
-          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
           required
         />
       </div>
@@ -100,7 +100,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder="sk-..."
-          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
         />
       </div>
 
@@ -109,7 +109,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
           type="checkbox"
           checked={includeQuestions}
           onChange={(e) => setIncludeQuestions(e.target.checked)}
-          className="rounded border-border text-slate-950 focus:ring-slate-950"
+          className="rounded border-border text-ink-950 focus:ring-ink-950"
         />
         <span className="text-xs text-muted-foreground">Include assessment questions in payload</span>
       </label>
@@ -118,7 +118,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Save
@@ -126,7 +126,7 @@ export function IntegrationForm({ jobId, stages }: IntegrationFormProps) {
         <button
           type="button"
           onClick={() => setShowForm(false)}
-          className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium text-ink-700 hover:bg-paper"
         >
           Cancel
         </button>

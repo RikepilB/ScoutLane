@@ -63,7 +63,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
     return (
       <button
         onClick={() => setShowForm(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800"
       >
         <Plus className="h-4 w-4" />
         Add rule
@@ -73,7 +73,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm space-y-4">
-      <h4 className="text-sm font-semibold text-slate-900">New auto-advance rule</h4>
+      <h4 className="text-sm font-semibold text-ink-900">New auto-advance rule</h4>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -81,7 +81,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
           <select
             value={sourceStageId}
             onChange={(e) => setSourceStageId(e.target.value)}
-            className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+            className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
             required
           >
             {stages.map((s) => (
@@ -95,7 +95,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
           <select
             value={targetStageId}
             onChange={(e) => setTargetStageId(e.target.value)}
-            className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+            className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
             required
           >
             {stages.map((s) => (
@@ -116,7 +116,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
           step={0.05}
           value={thresholdScore}
           onChange={(e) => setThresholdScore(e.target.value)}
-          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500 sm:w-40"
+          className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky sm:w-40"
           required
         />
       </div>
@@ -128,7 +128,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Save
@@ -136,7 +136,7 @@ export function AutoAdvanceRuleForm({ jobId, stages }: AutoAdvanceRuleFormProps)
         <button
           type="button"
           onClick={() => setShowForm(false)}
-          className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium text-ink-700 hover:bg-paper"
         >
           Cancel
         </button>

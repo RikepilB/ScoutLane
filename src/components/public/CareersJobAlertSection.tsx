@@ -33,13 +33,13 @@ export function CareersJobAlertSection({
           <h3 className="mb-1.5 text-[26px] tracking-[-0.015em]" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             Create a job alert
           </h3>
-          <p className="max-w-[460px] text-[14.5px] leading-[1.5] text-[#f1f5f9]/65">
+          <p className="max-w-[460px] text-[14.5px] leading-[1.5] text-paper/65">
             Get notified the moment a role matching your skills opens up. No spam, no third-party sharing.
           </p>
         </div>
 
         {alertStatus === "done" ? (
-          <p className="relative z-[1] whitespace-nowrap text-[14.5px] font-medium text-[#ABD2FA]">
+          <p className="relative z-[1] whitespace-nowrap text-[14.5px] font-medium text-sky">
             Subscribed! Check your email.
           </p>
         ) : (
@@ -50,12 +50,12 @@ export function CareersJobAlertSection({
               onChange={(e) => setAlertEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="h-[50px] w-[240px] rounded-full border border-white/[0.14] bg-white/[0.06] px-[18px] text-[14.5px] text-white outline-none transition-all duration-[0.18s] placeholder:text-white/40 focus:border-[#ABD2FA] focus:bg-white/[0.10] focus:shadow-[0_0_0_3px_rgba(171,210,250,0.18)] max-sm:w-full"
+              className="h-[50px] w-[240px] rounded-full border border-white/[0.14] bg-white/[0.06] px-[18px] text-[14.5px] text-white outline-none transition-all duration-[0.18s] placeholder:text-white/40 focus:border-sky focus:bg-white/[0.10] focus:shadow-[0_0_0_3px_rgba(171,210,250,0.18)] max-sm:w-full"
             />
             <button
               type="submit"
               disabled={alertStatus === "submitting"}
-              className="inline-flex h-[50px] items-center gap-1.5 rounded-full bg-[#f1f5f9] px-[22px] text-[14px] font-semibold text-[#0c1529] transition-all duration-[0.18s] hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)] disabled:opacity-50"
+              className="inline-flex h-[50px] items-center gap-1.5 rounded-full bg-paper px-[22px] text-[14px] font-semibold text-ink-900 transition-all duration-[0.18s] hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_20px_rgba(255,255,255,0.15)] disabled:opacity-50"
             >
               {alertStatus === "submitting" ? "Subscribing..." : "Subscribe"}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -65,7 +65,7 @@ export function CareersJobAlertSection({
           </form>
         )}
         {alertStatus === "error" && (
-          <p className="relative z-[1] text-[13px] text-red-400">
+          <p className="relative z-[1] text-[13px] text-danger">
             Something went wrong. Please try again.
           </p>
         )}

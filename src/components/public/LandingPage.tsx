@@ -56,20 +56,20 @@ export function LandingPage({ stats, session }: LandingPageProps) {
         <section className="mb-24 grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="animate-fade-up">
             <p
-              className="mb-7 text-[11px] font-medium uppercase tracking-[0.2em] text-[#ABD2FA]/70"
+              className="mb-7 text-[11px] font-medium uppercase tracking-[0.2em] text-sky/70"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               Hiring operations, agent-backed
             </p>
             <h1
-              className="mb-7 text-[clamp(42px,6.4vw,66px)] font-medium leading-[0.98] tracking-[-0.04em] text-[#f1f5f9]"
+              className="mb-7 text-[clamp(42px,6.4vw,66px)] font-medium leading-[0.98] tracking-[-0.04em] text-paper"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Every resume
               <br />
-              enters the <span className="text-[#ABD2FA]">lane</span>
+              enters the <span className="text-sky">lane</span>
             </h1>
-            <p className="mb-10 max-w-[480px] text-[16px] leading-[27px] text-[#f1f5f9]/60">
+            <p className="mb-10 max-w-[480px] text-[16px] leading-[27px] text-paper/60">
               An ATS with an agent harness: extract, parse, score, stage, then dispatch.
             </p>
             <div className="mb-12 flex flex-wrap items-center gap-4">
@@ -99,7 +99,7 @@ export function LandingPage({ stats, session }: LandingPageProps) {
                   >
                     {item.value}
                   </dd>
-                  <dt className="text-[11px] uppercase tracking-wider text-[#f1f5f9]/40">
+                  <dt className="text-[11px] uppercase tracking-wider text-paper/40">
                     {item.label}
                   </dt>
                 </div>
@@ -128,24 +128,24 @@ export function LandingPage({ stats, session }: LandingPageProps) {
                 key={item.title}
                 className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 transition hover:border-white/[0.14]"
               >
-                <h3 className="mb-2 font-medium text-[#ABD2FA]">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-[#f1f5f9]/65">{item.body}</p>
+                <h3 className="mb-2 font-medium text-sky">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-paper/65">{item.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <footer className="border-t border-white/[0.08] pt-8 text-center text-xs text-slate-500">
+        <footer className="border-t border-white/[0.08] pt-8 text-center text-xs text-steel">
           ScoutLane demo ·{" "}
-          <Link href="/jobs" className="text-sky-400 hover:text-sky-300">
+          <Link href="/jobs" className="text-sky hover:text-sky">
             Job board
           </Link>
           {" · "}
-          <Link href="/signin?as=admin" className="text-sky-400 hover:text-sky-300">
+          <Link href="/signin?as=admin" className="text-sky hover:text-sky">
             Admin
           </Link>
           {" · "}
-          <Link href="/signin?as=recruiter" className="text-sky-400 hover:text-sky-300">
+          <Link href="/signin?as=recruiter" className="text-sky hover:text-sky">
             Recruiter
           </Link>
         </footer>

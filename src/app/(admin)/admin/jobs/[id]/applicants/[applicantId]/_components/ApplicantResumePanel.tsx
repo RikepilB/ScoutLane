@@ -12,7 +12,7 @@ export function ApplicantResumePanel({ resumeUrl, applicantName, resumeEmbedSrc,
     <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900">Resume</h3>
+          <h3 className="text-sm font-semibold text-ink-900">Resume</h3>
           <p className="mt-1 text-xs text-muted-foreground">
             {resumeEmbedSrc
               ? "Embedded preview with the original file kept available."
@@ -24,7 +24,7 @@ export function ApplicantResumePanel({ resumeUrl, applicantName, resumeEmbedSrc,
             href={resumeUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-xs font-medium text-white transition hover:bg-ink-800"
           >
             <FileText className="h-3.5 w-3.5" />
             Open in new tab
@@ -33,7 +33,7 @@ export function ApplicantResumePanel({ resumeUrl, applicantName, resumeEmbedSrc,
       </div>
       {resumeEmbedSrc ? (
         <>
-          <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-slate-100">
+          <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-paper-2">
             <iframe
               title={`${applicantName} resume`}
               src={resumeEmbedSrc}
@@ -46,9 +46,9 @@ export function ApplicantResumePanel({ resumeUrl, applicantName, resumeEmbedSrc,
           </p>
         </>
       ) : (
-        <div className="mt-4 rounded-xl border border-dashed border-border/70 bg-slate-50 p-8 text-center">
-          <FileText className="mx-auto h-8 w-8 text-slate-300" />
-          <p className="mt-2 text-sm text-slate-500">
+        <div className="mt-4 rounded-xl border border-dashed border-border/70 bg-paper p-8 text-center">
+          <FileText className="mx-auto h-8 w-8 text-mist" />
+          <p className="mt-2 text-sm text-steel">
             Preview is not available for this file type.
           </p>
           <p className="mt-1 text-xs text-muted-foreground">

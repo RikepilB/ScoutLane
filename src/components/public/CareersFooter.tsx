@@ -6,10 +6,10 @@ export function CareersFooter() {
       style={{ fontFamily: "var(--font-mono)" }}>
       <div>&copy; 2026 ScoutLane Inc.</div>
       <div className="flex items-center gap-3">
-        <a href="#" className="text-white/50 no-underline hover:text-[#ABD2FA]">Careers</a>
-        <a href="#" className="text-white/50 no-underline hover:text-[#ABD2FA]">Press</a>
-        <Link href="/legal#privacy" className="text-white/50 no-underline hover:text-[#ABD2FA]">Privacy</Link>
-        <Link href="/legal#terms" className="text-white/50 no-underline hover:text-[#ABD2FA]">Terms</Link>
+        <a href="#" className="text-white/50 no-underline hover:text-sky">Careers</a>
+        <a href="#" className="text-white/50 no-underline hover:text-sky">Press</a>
+        <Link href="/legal#privacy" className="text-white/50 no-underline hover:text-sky">Privacy</Link>
+        <Link href="/legal#terms" className="text-white/50 no-underline hover:text-sky">Terms</Link>
       </div>
       <div>v 4.1.2 &middot; build 8a3f</div>
     </footer>

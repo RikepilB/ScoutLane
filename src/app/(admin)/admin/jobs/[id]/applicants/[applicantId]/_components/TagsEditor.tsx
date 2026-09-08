@@ -44,7 +44,7 @@ export function TagsEditor({ applicantId, tags }: TagsEditorProps) {
 
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">Tags</h3>
+      <h3 className="text-sm font-semibold text-ink-900">Tags</h3>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
         {tags.length === 0 ? (
@@ -53,7 +53,7 @@ export function TagsEditor({ applicantId, tags }: TagsEditorProps) {
           tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700"
+              className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-xs font-medium text-sky"
             >
               {tag}
               <button
@@ -61,7 +61,7 @@ export function TagsEditor({ applicantId, tags }: TagsEditorProps) {
                 onClick={() => handleRemove(tag)}
                 disabled={isPending}
                 aria-label={`Remove tag ${tag}`}
-                className="text-sky-500 hover:text-sky-800"
+                className="text-sky hover:text-sky"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -82,13 +82,13 @@ export function TagsEditor({ applicantId, tags }: TagsEditorProps) {
           }}
           placeholder="e.g. Strong yes, Referral"
           maxLength={40}
-          className="flex-1 rounded-lg border border-border/70 bg-white px-3 py-1.5 text-xs outline-none focus:border-sky-500"
+          className="flex-1 rounded-lg border border-border/70 bg-white px-3 py-1.5 text-xs outline-none focus:border-sky"
         />
         <button
           type="button"
           onClick={handleAdd}
           disabled={isPending || !draft.trim() || tags.length >= 20}
-          className="inline-flex items-center gap-1 rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Add

@@ -39,12 +39,12 @@ export function DeleteApplicantButton({ applicantId, jobId }: DeleteApplicantBut
         type="button"
         onClick={handleDelete}
         disabled={isPending}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-medium text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-danger bg-danger-soft px-4 py-2 text-xs font-medium text-danger transition hover:bg-danger disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
         Delete applicant
       </button>
-      {error ? <p className="max-w-[220px] text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="max-w-[220px] text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

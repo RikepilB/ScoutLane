@@ -42,7 +42,7 @@ export function RoleSelector() {
         >
           Choose your workspace
         </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-400">
+        <p className="mt-2 text-sm leading-6 text-soft">
           AI-powered hiring in two modes. Pick one to start exploring right now.
         </p>
       </div>
@@ -52,7 +52,7 @@ export function RoleSelector() {
           <article
             key={door.role}
             role="listitem"
-            className="rounded-2xl border border-white/[0.08] bg-[#091540]/70 p-5 transition-colors hover:border-white/[0.12]"
+            className="rounded-2xl border border-white/[0.08] bg-ink-950/70 p-5 transition-colors hover:border-white/[0.12]"
             style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px ${door.accent}22` }}
           >
             <div className="flex items-start justify-between">
@@ -71,8 +71,8 @@ export function RoleSelector() {
                 </h2>
               </div>
             </div>
-            <p className="mt-2 text-sm leading-6 text-slate-400">{door.body}</p>
-            <ul className="mt-3 space-y-1 text-xs text-slate-500" aria-label={`Features in ${door.title}`}>
+            <p className="mt-2 text-sm leading-6 text-soft">{door.body}</p>
+            <ul className="mt-3 space-y-1 text-xs text-steel" aria-label={`Features in ${door.title}`}>
               {door.items.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <span style={{ color: door.accent }}>→</span> {item}
@@ -92,9 +92,9 @@ export function RoleSelector() {
         ))}
       </div>
 
-      <div className="rounded-lg border border-slate-700/40 bg-slate-900/20 p-4">
-        <p className="text-xs font-medium text-slate-300">💡 Not sure which one?</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">
+      <div className="rounded-lg border border-ink-700/40 bg-ink-900/20 p-4">
+        <p className="text-xs font-medium text-mist">💡 Not sure which one?</p>
+        <p className="mt-1 text-xs leading-5 text-steel">
           <strong>Admin:</strong> Full system setup, templates, integrations, team management.{" "}
           <strong>Recruiter:</strong> Applicant review, AI scoring, pipeline moves.
         </p>

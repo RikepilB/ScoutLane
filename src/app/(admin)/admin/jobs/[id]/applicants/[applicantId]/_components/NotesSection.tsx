@@ -75,7 +75,7 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-900">Admin notes</h3>
+        <h3 className="text-sm font-semibold text-ink-900">Admin notes</h3>
       </div>
 
       <div className="mt-4 space-y-3">
@@ -91,10 +91,10 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
                       value={editBody}
                       onChange={(e) => setEditBody(e.target.value)}
                       rows={3}
-                      className="w-full rounded-lg border border-border/70 bg-white p-2 text-sm outline-none focus:border-sky-500"
+                      className="w-full rounded-lg border border-border/70 bg-white p-2 text-sm outline-none focus:border-sky"
                     />
                   ) : (
-                    <p className="text-sm text-slate-900 whitespace-pre-wrap">{note.body}</p>
+                    <p className="text-sm text-ink-900 whitespace-pre-wrap">{note.body}</p>
                   )}
                   <p className="text-[11px] text-muted-foreground">
                     {note.author?.name ?? "Admin"} ·{" "}
@@ -109,7 +109,7 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
                       type="button"
                       onClick={() => handleSave(note.id)}
                       disabled={isPending}
-                      className="rounded-lg p-2 text-slate-700 hover:bg-slate-100"
+                      className="rounded-lg p-2 text-ink-700 hover:bg-paper-2"
                       title="Save"
                     >
                       {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -119,7 +119,7 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
                       type="button"
                       onClick={() => startEdit(note)}
                       disabled={isPending}
-                      className="rounded-lg p-2 text-slate-700 hover:bg-slate-100"
+                      className="rounded-lg p-2 text-ink-700 hover:bg-paper-2"
                       title="Edit"
                     >
                       <Pencil className="h-4 w-4" />
@@ -129,7 +129,7 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
                     type="button"
                     onClick={() => handleDelete(note.id)}
                     disabled={isPending}
-                    className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+                    className="rounded-lg p-2 text-danger hover:bg-danger-soft"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -147,14 +147,14 @@ export function NotesSection({ applicantId, notes }: NotesSectionProps) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           rows={3}
-          className="mt-2 w-full rounded-xl border border-border/60 bg-white p-3 text-sm outline-none focus:border-sky-500"
+          className="mt-2 w-full rounded-xl border border-border/60 bg-white p-3 text-sm outline-none focus:border-sky"
           placeholder="Interview feedback, follow-ups, or internal context…"
         />
         <button
           type="button"
           onClick={handleCreate}
           disabled={isPending || !draft.trim()}
-          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Add note

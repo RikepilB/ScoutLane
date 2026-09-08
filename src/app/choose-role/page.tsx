@@ -47,13 +47,13 @@ export default async function ChooseRolePage() {
           >
             ScoutLane
           </Link>
-          <p className="mt-3 text-lg leading-7 text-slate-300">
+          <p className="mt-3 text-lg leading-7 text-mist">
             Welcome! Pick your workspace to get started with AI-powered hiring.
           </p>
         </div>
       </div>
 
-      <div className="flex w-full items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-6 py-10 lg:w-1/2">
+      <div className="flex w-full items-center justify-center bg-gradient-to-br from-ink-950 via-ink-900 to-ink-800 px-6 py-10 lg:w-1/2">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center lg:hidden">
             <Link href="/" className="text-2xl font-bold tracking-tight text-white">
@@ -63,8 +63,8 @@ export default async function ChooseRolePage() {
 
           <RoleSelector />
 
-          <p className="text-center text-xs text-slate-600">
-            <Link href="/signin" className="hover:text-slate-400">
+          <p className="text-center text-xs text-ink-700">
+            <Link href="/signin" className="hover:text-soft">
               Use a different account
             </Link>
           </p>

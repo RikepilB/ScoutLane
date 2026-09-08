@@ -75,8 +75,8 @@ export function JobRowActions({ jobId, status, role }: JobRowActionsProps) {
 
   const primaryStyle =
     status === "active"
-      ? "border border-amber-300 text-amber-700 hover:bg-amber-50"
-      : "bg-emerald-600 text-white hover:bg-emerald-500";
+      ? "border border-warning text-warning hover:bg-warning-soft"
+      : "bg-success text-white hover:bg-success";
 
   const hasDropdown =
     (status === "active" && isAdmin) || isAdmin || (status === "closed" && isAdmin);
@@ -145,7 +145,7 @@ export function JobRowActions({ jobId, status, role }: JobRowActionsProps) {
           <button
             onClick={() => setOpen(!open)}
             disabled={isPending}
-            className="inline-flex items-center rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+            className="inline-flex items-center rounded-md border border-mist p-1.5 text-steel hover:bg-paper disabled:opacity-50"
           >
             <MoreHorizontal className="h-3.5 w-3.5" />
           </button>
@@ -157,7 +157,7 @@ export function JobRowActions({ jobId, status, role }: JobRowActionsProps) {
                   onClick={item.action}
                   disabled={isPending}
                   className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-muted/30 disabled:opacity-50 first:rounded-t-xl last:rounded-b-xl ${
-                    item.dangerous ? "text-red-600" : "text-slate-700"
+                    item.dangerous ? "text-danger" : "text-ink-700"
                   }`}
                 >
                   {item.dangerous ? (

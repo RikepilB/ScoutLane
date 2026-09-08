@@ -19,7 +19,7 @@ export default function Loading() {
         >
           SL
         </div>
-        <p className="text-sm text-slate-400">Loading position…</p>
+        <p className="text-sm text-soft">Loading position…</p>
       </div>
     </div>
   );

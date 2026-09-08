@@ -12,7 +12,7 @@ export function LandingHarness() {
     <section className="mb-20">
       <div className="mb-8 max-w-2xl">
         <p
-          className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-[#ABD2FA]"
+          className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-sky"
           style={{ fontFamily: "var(--font-mono)" }}
         >
           Agentic harness
@@ -23,14 +23,14 @@ export function LandingHarness() {
         >
           After apply, the lane runs itself
         </h2>
-        <p className="mt-3 text-[15px] leading-6 text-[#f1f5f9]/65">
+        <p className="mt-3 text-[15px] leading-6 text-paper/65">
           Extraction, parsing, scoring, staging, then outbound events. Recruiters move
           people. Agents handle the rest.
         </p>
       </div>
 
       <div
-        className="relative overflow-hidden rounded-[24px] border border-[#1a2870] p-5 sm:p-8"
+        className="relative overflow-hidden rounded-[24px] border border-brand-royal-dark p-5 sm:p-8"
         style={{
           background:
             "linear-gradient(170deg, rgba(9,21,64,0.92) 0%, rgba(12,21,41,0.96) 100%)",
@@ -49,22 +49,22 @@ export function LandingHarness() {
           {stations.map((station, index) => (
             <li
               key={station.id}
-              className="animate-harness-station rounded-2xl border border-[#ABD2FA]/15 px-4 py-4"
+              className="animate-harness-station rounded-2xl border border-sky/15 px-4 py-4"
               style={{ animationDelay: `${index * 1.2}s` }}
             >
               <span
-                className="block text-[10px] uppercase tracking-[0.14em] text-[#5f8ea0]"
+                className="block text-[10px] uppercase tracking-[0.14em] text-steel"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 0{index + 1}
               </span>
               <strong className="mt-2 block text-[15px] font-medium text-white">{station.label}</strong>
-              <span className="mt-1 block text-xs text-[#f1f5f9]/55">{station.detail}</span>
+              <span className="mt-1 block text-xs text-paper/55">{station.detail}</span>
             </li>
           ))}
         </ol>
 
-        <p className="mt-6 text-xs leading-5 text-[#5f8ea0]" style={{ fontFamily: "var(--font-mono)" }}>
+        <p className="mt-6 text-xs leading-5 text-steel" style={{ fontFamily: "var(--font-mono)" }}>
           apply → extractText → OpenRouter parse → matchScore → PipelineStage → HMAC webhook
         </p>
       </div>

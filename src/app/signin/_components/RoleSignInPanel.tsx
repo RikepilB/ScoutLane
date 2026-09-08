@@ -33,7 +33,7 @@ export function RoleSignInPanel({
     <div className="space-y-6">
       <div>
         <p
-          className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#ABD2FA]"
+          className="text-[10px] font-medium uppercase tracking-[0.16em] text-sky"
           style={{ fontFamily: "var(--font-mono)" }}
           role="doc-subtitle"
         >
@@ -45,7 +45,7 @@ export function RoleSignInPanel({
         >
           {text.title}
         </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-400">{text.body}</p>
+        <p className="mt-2 text-sm leading-6 text-soft">{text.body}</p>
       </div>
 
       <SignIn
@@ -71,7 +71,7 @@ export function RoleSignInPanel({
           },
           elements: {
             rootBox: "w-full",
-            card: "border border-slate-700/60 shadow-none rounded-2xl",
+            card: "border border-ink-700/60 shadow-none rounded-2xl",
             // ScoutLane's own logo already appears in the hero panel and mobile
             // header on this page — Clerk's default logo box is redundant here.
             // The "Secured by Clerk" trust footer is intentionally left as-is:
@@ -80,22 +80,22 @@ export function RoleSignInPanel({
             // Google's own button stays on its native white/light styling —
             // standard OAuth-button branding practice, not a theming miss.
             socialButtonsBlockButton:
-              "border border-slate-600 bg-white text-slate-900 hover:bg-slate-100",
+              "border border-ink-700 bg-white text-ink-900 hover:bg-paper-2",
           },
         }}
       />
 
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-700/60" />
-        <span className="text-xs text-slate-500">or</span>
-        <div className="h-px flex-1 bg-slate-700/60" />
+        <div className="h-px flex-1 bg-ink-700/60" />
+        <span className="text-xs text-steel">or</span>
+        <div className="h-px flex-1 bg-ink-700/60" />
       </div>
 
-      <section aria-labelledby="demo-heading" className="rounded-lg border border-slate-700/40 bg-slate-900/30 p-4">
-        <h2 id="demo-heading" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+      <section aria-labelledby="demo-heading" className="rounded-lg border border-ink-700/40 bg-ink-900/30 p-4">
+        <h2 id="demo-heading" className="text-xs font-semibold uppercase tracking-wider text-mist">
           Skip sign-in — try the demo
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-steel">
           Not your own account. Signs everyone into the same shared demo data — don&rsquo;t use
           this for real invites.
         </p>
@@ -107,13 +107,13 @@ export function RoleSignInPanel({
         >
           {role === "admin" ? "Try demo as Admin" : "Try demo as Recruiter"}
         </DemoSignInButton>
-        <p id="demo-desc" className="mt-2 text-xs text-slate-600">
+        <p id="demo-desc" className="mt-2 text-xs text-ink-700">
           Signs in as {account.email}. Pre-loaded with sample jobs and applicants.
         </p>
       </section>
 
-      <p className="text-center text-xs text-slate-600">
-        <Link href="/signin" className="hover:text-slate-400">
+      <p className="text-center text-xs text-ink-700">
+        <Link href="/signin" className="hover:text-soft">
           Choose a different workspace
         </Link>
       </p>

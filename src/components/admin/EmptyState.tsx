@@ -13,7 +13,7 @@ export function EmptyState({ message, actionLabel, actionHref }: EmptyStateProps
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="mt-4 inline-flex items-center rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="mt-4 inline-flex items-center rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-white hover:bg-ink-800"
         >
           {actionLabel}
         </Link>

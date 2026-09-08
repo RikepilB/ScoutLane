@@ -59,7 +59,7 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-2xl rounded-2xl border border-border/70 bg-card shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border/50 px-6 py-4">
-              <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+              <h2 className="text-lg font-semibold tracking-tight text-ink-950">
                 Template preview
               </h2>
               <button
@@ -75,7 +75,7 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                 <h3 className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                   Template info
                 </h3>
-                <p className="text-xl font-semibold text-slate-950">{template.name}</p>
+                <p className="text-xl font-semibold text-ink-950">{template.name}</p>
                 {template.description && (
                   <p className="mt-0.5 text-sm text-muted-foreground">{template.description}</p>
                 )}
@@ -95,7 +95,7 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                 {template.whatYouWillDo && (
                   <div className="mt-2">
                     <span className="text-sm font-medium">What you&apos;ll do:</span>
-                    <pre className="mt-1 max-h-24 overflow-y-auto rounded-lg bg-muted/30 p-3 text-xs text-slate-700 whitespace-pre-wrap">
+                    <pre className="mt-1 max-h-24 overflow-y-auto rounded-lg bg-muted/30 p-3 text-xs text-ink-700 whitespace-pre-wrap">
                       {template.whatYouWillDo}
                     </pre>
                   </div>
@@ -105,8 +105,8 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                     <span className="text-sm font-medium">Requirements ({template.requirements.length}):</span>
                     <ul className="mt-1 space-y-0.5">
                       {template.requirements.map((r, i) => (
-                        <li key={i} className="text-xs text-slate-600 flex gap-1.5">
-                          <span className="text-blue-600">•</span> {r}
+                        <li key={i} className="text-xs text-ink-700 flex gap-1.5">
+                          <span className="text-brand-royal">•</span> {r}
                         </li>
                       ))}
                     </ul>
@@ -117,7 +117,7 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                     <span className="text-sm font-medium">Tools &amp; Skills:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {template.toolsAndSkills.map((s, i) => (
-                        <span key={i} className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                        <span key={i} className="rounded-full border border-peri bg-info-soft px-2 py-0.5 text-[11px] font-medium text-brand-royal">
                           {s}
                         </span>
                       ))}
@@ -127,7 +127,7 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                 {template.jobDescription && (
                   <div className="mt-2">
                     <span className="text-sm font-medium">Description:</span>
-                    <pre className="mt-1 max-h-32 overflow-y-auto rounded-lg bg-muted/30 p-3 text-xs text-slate-700 whitespace-pre-wrap">
+                    <pre className="mt-1 max-h-32 overflow-y-auto rounded-lg bg-muted/30 p-3 text-xs text-ink-700 whitespace-pre-wrap">
                       {template.jobDescription}
                     </pre>
                   </div>
@@ -142,7 +142,7 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                   {template.stageNames.map((name, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800"
+                      className="inline-flex items-center rounded-full bg-paper-2 px-2.5 py-0.5 text-xs font-medium text-ink-800"
                     >
                       {name}
                     </span>
@@ -163,10 +163,10 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                         key={i}
                         className="flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 p-3 text-sm"
                       >
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[11px] font-semibold text-slate-600">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-mist text-[11px] font-semibold text-ink-700">
                           {i + 1}
                         </span>
-                        <span className="text-slate-700">{q}</span>
+                        <span className="text-ink-700">{q}</span>
                       </div>
                     ))}
                   </div>
@@ -188,12 +188,12 @@ export function TemplatePreviewTrigger({ template }: TemplatePreviewProps) {
                         key={field.id}
                         className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 p-3 text-sm"
                       >
-                        <span className="font-medium text-slate-800">{field.label || "(no label)"}</span>
-                        <span className="inline-flex rounded bg-slate-200 px-1.5 py-0.5 text-[11px] font-medium uppercase text-slate-600">
+                        <span className="font-medium text-ink-800">{field.label || "(no label)"}</span>
+                        <span className="inline-flex rounded bg-mist px-1.5 py-0.5 text-[11px] font-medium uppercase text-ink-700">
                           {field.type}
                         </span>
                         {field.required && (
-                          <span className="inline-flex rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-700">
+                          <span className="inline-flex rounded bg-warning px-1.5 py-0.5 text-[11px] font-medium text-warning">
                             Required
                           </span>
                         )}

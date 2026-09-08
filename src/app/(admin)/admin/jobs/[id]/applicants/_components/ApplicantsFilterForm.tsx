@@ -21,7 +21,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           name="search"
           defaultValue={filters.search || ""}
           placeholder="Search name, email, skills, parsed resume…"
-          className="w-full rounded-xl border border-border/70 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-sky-500"
+          className="w-full rounded-xl border border-border/70 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-sky"
         />
       </div>
       {allInstitutions.length > 0 && (
@@ -30,7 +30,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           <select
             name="institution"
             defaultValue={filters.institution ?? ""}
-            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
           >
             <option value="">Any</option>
             {allInstitutions.map((inst) => (
@@ -47,7 +47,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           <select
             name="degree"
             defaultValue={filters.degree ?? ""}
-            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+            className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
           >
             <option value="">Any</option>
             {allDegrees.map((d) => (
@@ -68,7 +68,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           max="1"
           placeholder="0.0"
           defaultValue={filters.scoreMin ?? ""}
-          className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -81,7 +81,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           max="1"
           placeholder="1.0"
           defaultValue={filters.scoreMax ?? ""}
-          className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          className="w-20 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -90,7 +90,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           type="date"
           name="dateFrom"
           defaultValue={filters.dateFrom ?? ""}
-          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -99,7 +99,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
           type="date"
           name="dateTo"
           defaultValue={filters.dateTo ?? ""}
-          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -121,7 +121,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
         <select
           name="sort"
           defaultValue={filters.sort ?? "createdAt-desc"}
-          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
         >
           <option value="createdAt-desc">Applied (newest)</option>
           <option value="createdAt-asc">Applied (oldest)</option>
@@ -144,7 +144,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
         <select
           name="group"
           defaultValue={filters.group ?? ""}
-          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500"
+          className="rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky"
         >
           <option value="">None</option>
           <option value="institution">Institution</option>
@@ -160,7 +160,7 @@ export function ApplicantsFilterForm({ filters, allInstitutions, allDegrees, all
       ) : null}
       <button
         type="submit"
-        className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-4 py-2 text-xs font-medium text-white hover:bg-slate-800"
+        className="inline-flex items-center justify-center rounded-lg bg-ink-950 px-4 py-2 text-xs font-medium text-white hover:bg-ink-800"
       >
         Apply filters
       </button>

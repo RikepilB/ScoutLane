@@ -28,7 +28,7 @@ export function ApplicantCustomFields({ configured, submitted }: ApplicantCustom
     >
       <h3
         id="custom-fields-heading"
-        className="flex items-center gap-2 text-sm font-semibold text-slate-900"
+        className="flex items-center gap-2 text-sm font-semibold text-ink-900"
       >
         <ClipboardList className="h-4 w-4 text-muted-foreground" />
         Application answers
@@ -43,14 +43,14 @@ export function ApplicantCustomFields({ configured, submitted }: ApplicantCustom
               {hasValue && field.type === "file" ? (
                 <a
                   href={value}
-                  className="mt-1 inline-block text-sm text-blue-700 underline"
+                  className="mt-1 inline-block text-sm text-brand-royal underline"
                   target="_blank"
                   rel="noreferrer"
                 >
                   Download file
                 </a>
               ) : null}
-              <dd className="mt-0.5 whitespace-pre-wrap text-sm text-slate-900">
+              <dd className="mt-0.5 whitespace-pre-wrap text-sm text-ink-900">
                 {hasValue ? value : "—"}
               </dd>
             </div>

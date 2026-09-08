@@ -114,7 +114,7 @@ export function OnboardingTour({ role }: { role?: string }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Show feature tour"
-        className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-[#0c1529] text-white shadow-[0_8px_20px_rgba(9,21,64,0.25)] transition hover:-translate-y-0.5 hover:bg-[#1B2CC1]"
+        className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-ink-900 text-white shadow-[0_8px_20px_rgba(9,21,64,0.25)] transition hover:-translate-y-0.5 hover:bg-brand-royal"
       >
         <HelpCircle className="h-5 w-5" />
       </button>
@@ -129,14 +129,14 @@ export function OnboardingTour({ role }: { role?: string }) {
           <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(27,44,193,0.1)] text-[#1B2CC1]">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(27,44,193,0.1)] text-brand-royal">
                   <Sparkles className="h-4.5 w-4.5" />
                 </span>
                 <div>
-                  <h2 id="onboarding-title" className="text-lg font-semibold text-[#0c1529]">
+                  <h2 id="onboarding-title" className="text-lg font-semibold text-ink-900">
                     Welcome to ScoutLane
                   </h2>
-                  <p className="text-xs text-[#5f8ea0]">
+                  <p className="text-xs text-steel">
                     A quick tour of what you can do here{role ? ` as ${role.toLowerCase().replace("_", " ")}` : ""}.
                   </p>
                 </div>
@@ -145,7 +145,7 @@ export function OnboardingTour({ role }: { role?: string }) {
                 type="button"
                 onClick={dismiss}
                 aria-label="Close"
-                className="rounded-lg p-1.5 text-[#5f8ea0] hover:bg-[#f1f5f9]"
+                className="rounded-lg p-1.5 text-steel hover:bg-paper"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -157,25 +157,25 @@ export function OnboardingTour({ role }: { role?: string }) {
                   key={f.title}
                   href={f.href}
                   onClick={dismiss}
-                  className="group flex flex-col gap-2 rounded-xl border border-[#e2e8f0] p-4 text-left transition hover:border-[#1B2CC1]/40 hover:bg-[#f1f5f9]"
+                  className="group flex flex-col gap-2 rounded-xl border border-paper-2 p-4 text-left transition hover:border-brand-royal/40 hover:bg-paper"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f1f5f9] text-[#1B2CC1] group-hover:bg-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-paper text-brand-royal group-hover:bg-white">
                     <f.icon className="h-4 w-4" />
                   </span>
-                  <span className="text-sm font-medium text-[#0c1529]">{f.title}</span>
-                  <span className="text-xs leading-5 text-[#5f8ea0]">{f.body}</span>
+                  <span className="text-sm font-medium text-ink-900">{f.title}</span>
+                  <span className="text-xs leading-5 text-steel">{f.body}</span>
                 </Link>
               ))}
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-[#e2e8f0] pt-4">
-              <p className="text-xs text-[#5f8ea0]">
+            <div className="mt-6 flex items-center justify-between border-t border-paper-2 pt-4">
+              <p className="text-xs text-steel">
                 Reopen this anytime with the <HelpCircle className="inline h-3 w-3" /> button in the corner.
               </p>
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-lg bg-[#0c1529] px-4 py-2 text-xs font-medium text-white hover:bg-[#1B2CC1]"
+                className="rounded-lg bg-ink-900 px-4 py-2 text-xs font-medium text-white hover:bg-brand-royal"
               >
                 Got it, let&rsquo;s go
               </button>

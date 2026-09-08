@@ -37,13 +37,13 @@ export function InterviewDatePicker({ applicantId, interviewDate }: InterviewDat
         type="datetime-local"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="rounded-lg border border-border/70 px-3 py-1.5 text-xs outline-none focus:border-sky-500"
+        className="rounded-lg border border-border/70 px-3 py-1.5 text-xs outline-none focus:border-sky"
       />
       {date && (
         <button
           onClick={handleClear}
           disabled={isPending}
-          className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-lg border border-danger px-2 py-1.5 text-xs font-medium text-danger transition hover:bg-danger-soft disabled:opacity-50"
         >
           <X className="h-3 w-3" />
           Clear
@@ -52,7 +52,7 @@ export function InterviewDatePicker({ applicantId, interviewDate }: InterviewDat
       <button
         onClick={handleSave}
         disabled={isPending || !date}
-        className="inline-flex items-center gap-1 rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-ink-800 disabled:opacity-50"
       >
         {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
         Set interview

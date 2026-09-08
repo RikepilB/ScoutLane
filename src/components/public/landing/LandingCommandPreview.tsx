@@ -17,7 +17,7 @@ export function LandingCommandPreview() {
         <div className="mb-9 flex items-start justify-between gap-4">
           <div>
             <p
-              className="mb-2 text-[11px] uppercase tracking-[0.18em] text-[#ABD2FA]/70"
+              className="mb-2 text-[11px] uppercase tracking-[0.18em] text-sky/70"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               Senior Frontend Engineer
@@ -32,7 +32,7 @@ export function LandingCommandPreview() {
               0.91
             </span>
             <span
-              className="text-[10px] uppercase tracking-[0.14em] text-[#f1f5f9]/40"
+              className="text-[10px] uppercase tracking-[0.14em] text-paper/40"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               job-fit score
@@ -44,12 +44,12 @@ export function LandingCommandPreview() {
           {parsed.map((row) => (
             <div key={row.key} className="flex items-baseline justify-between gap-4">
               <span
-                className="text-[11px] uppercase tracking-[0.12em] text-[#f1f5f9]/40"
+                className="text-[11px] uppercase tracking-[0.12em] text-paper/40"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 {row.key}
               </span>
-              <span className="text-right text-sm text-[#f1f5f9]/85">{row.value}</span>
+              <span className="text-right text-sm text-paper/85">{row.value}</span>
             </div>
           ))}
         </div>

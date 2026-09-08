@@ -84,8 +84,8 @@ export function ApplicantsTable({
   return (
     <>
       {canBulkMove && selected.size > 0 && (
-        <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-2.5 text-sm">
-          <span className="font-medium text-slate-900">
+        <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-paper px-4 py-2.5 text-sm">
+          <span className="font-medium text-ink-900">
             {selected.size} selected
           </span>
           <select
@@ -105,7 +105,7 @@ export function ApplicantsTable({
           <button
             onClick={handleBulkMove}
             disabled={!targetStageId || isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           >
             {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
             Move
@@ -174,7 +174,7 @@ export function ApplicantsTable({
                     <td className="px-5 py-4">
                       <Link
                         href={`/admin/jobs/${jobId}/applicants/${a.id}`}
-                        className="font-medium text-slate-950 hover:underline"
+                        className="font-medium text-ink-950 hover:underline"
                       >
                         {a.name}
                       </Link>
@@ -183,7 +183,7 @@ export function ApplicantsTable({
                           {a.tags.map((tag: string) => (
                             <span
                               key={tag}
-                              className="inline-flex rounded-full bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-700"
+                              className="inline-flex rounded-full bg-info-soft px-1.5 py-0.5 text-[10px] font-medium text-sky"
                             >
                               {tag}
                             </span>
@@ -201,13 +201,13 @@ export function ApplicantsTable({
                       <span className="truncate">{a.degree ?? "—"}</span>
                     </td>
                     <td className="px-5 py-4 text-muted-foreground">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800">
+                      <span className="inline-flex rounded-full bg-paper-2 px-2 py-0.5 text-xs font-medium text-ink-800">
                         {a.pipelineStage?.name ?? (firstStageId ? "Unassigned" : "—")}
                       </span>
                     </td>
                     <td className="px-5 py-4">
                       {a.score ? (
-                        <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700">
+                        <span className="inline-flex items-center rounded-full bg-info-soft px-2 py-0.5 text-xs font-medium text-sky">
                           {a.score}
                         </span>
                       ) : (

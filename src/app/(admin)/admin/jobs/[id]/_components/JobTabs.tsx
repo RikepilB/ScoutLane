@@ -39,7 +39,7 @@ export function JobTabs({ jobId, role }: { jobId: string; role?: string }) {
             className={cn(
               "border-b-2 pb-3 pt-4 text-sm font-medium transition-colors",
               active
-                ? "border-slate-950 text-slate-950"
+                ? "border-ink-950 text-ink-950"
                 : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
