@@ -22,7 +22,7 @@ function JobUnavailableState() {
   return (
     <div className="flex min-h-screen items-center justify-center" style={{ background: "#0c1529", fontFamily: "var(--font-body)" }}>
       <div className="text-center">
-        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-paper shadow-[0_12px_30px_rgba(27,44,193,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-paper"
           style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "28px", letterSpacing: "-0.04em" }}>
           SL
         </div>
