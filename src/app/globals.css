@@ -74,8 +74,8 @@
   --color-border-default: #d4d9df;
   --color-border-strong: #b8c2cc;
   --color-border-subtle: rgba(9, 21, 64, 0.08);
-  --color-border-dark: rgba(241, 245, 249, 0.08);
-  --color-border-dark-strong: rgba(241, 245, 249, 0.14);
+  --color-border-dark: rgba(241, 245, 249, 0.14);
+  --color-border-dark-strong: rgba(241, 245, 249, 0.22);
   --color-border-brand: #1B2CC1;
 
   /* Border aliases. Tailwind v4 flattens `--color-border-default` into the
@@ -134,9 +134,9 @@
   --shadow-overlay: 0 8px 24px -6px rgba(9, 21, 64, 0.16), 0 2px 6px -2px rgba(9, 21, 64, 0.08);
 
   /* ── Font families ── */
-  --font-display: "Bricolage Grotesque", serif;
-  --font-body: "Geist", system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", serif;
+  --font-body: var(--font-geist), "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
 
   /* ── Type ramp — fixed steps. Fluid clamp() is reserved for the single
      hero size; every other heading picks a step deliberately. ── */
