@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils/cn";
 
 const roleStyles: Record<UserRole, string> = {
   ADMIN:
-    "bg-gradient-to-b from-brand-royal to-brand-royal-dark shadow-[0_8px_20px_rgba(27,44,193,0.4),inset_0_1px_0_rgba(255,255,255,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "bg-brand-royal transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   RECRUITER:
     "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   HIRING_MANAGER:
