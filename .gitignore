@@ -43,6 +43,13 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+# Local backups of env files — never commit (they hold real secrets)
+.env.bak*
+.env.*.bak
+.env.*.bak-*
+# Throwaway probe scripts and exported session logs
+*.tmp.mjs
+session-ses_*.md
 # Prisma generated client
 src/generated/
 # Prisma

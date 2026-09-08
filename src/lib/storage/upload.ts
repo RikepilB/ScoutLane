@@ -25,13 +25,26 @@ function getPublicUrl(objectName: string): string {
   return `https://storage.googleapis.com/${config.GCS_BUCKET}/${objectName}`;
 }
 
+/**
+ * True only for values that look like real configuration. Template/env sweep
+ * leftovers such as "your-bucket-name" or an example.com endpoint previously
+ * passed a presence-only check and made uploads attempt a doomed S3 PUT
+ * instead of falling back to the database/local storage below.
+ */
+function hasRealS3Value(value: string | undefined): boolean {
+  const v = value?.trim();
+  if (!v || /^your-/i.test(v)) return false;
+  if (/(^|\.)example\.com/i.test(v)) return false;
+  return true;
+}
+
 function isS3StorageConfigured(): boolean {
-  return !!(
-    process.env.S3_ENDPOINT &&
-    process.env.S3_BUCKET &&
-    process.env.S3_ACCESS_KEY_ID &&
-    process.env.S3_SECRET_ACCESS_KEY &&
-    process.env.S3_PUBLIC_BASE_URL
+  return (
+    hasRealS3Value(process.env.S3_ENDPOINT) &&
+    hasRealS3Value(process.env.S3_BUCKET) &&
+    hasRealS3Value(process.env.S3_ACCESS_KEY_ID) &&
+    hasRealS3Value(process.env.S3_SECRET_ACCESS_KEY) &&
+    hasRealS3Value(process.env.S3_PUBLIC_BASE_URL)
   );
 }
 

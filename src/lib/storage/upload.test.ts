@@ -87,6 +87,22 @@ afterEach(async () => {
 });
 
 describe("local resume storage", () => {
+  it("treats placeholder S3 env values as unconfigured and falls back to local-dev storage", async () => {
+    process.env.S3_ENDPOINT = "https://s3.example.com";
+    process.env.S3_BUCKET = "your-bucket-name";
+    process.env.S3_ACCESS_KEY_ID = "your-access-key-id";
+    process.env.S3_SECRET_ACCESS_KEY = "your-secret-access-key";
+    process.env.S3_PUBLIC_BASE_URL = "https://cdn.example.com";
+
+    const upload = await uploadFileBuffer({
+      buffer: Buffer.from("resume text"),
+      contentType: "application/pdf",
+      filename: "Jane Resume.pdf",
+    });
+
+    expect(upload.bucket).toBe("local-dev");
+  });
+
   it("writes local-dev uploads and serves them through the resume route", async () => {
     clearS3Env();
 
