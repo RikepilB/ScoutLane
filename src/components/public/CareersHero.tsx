@@ -24,44 +24,24 @@ export function CareersHero({ count, session }: CareersHeroProps) {
           </div>
         </div>
 
-        {/* CTA Buttons — horizontal row */}
+        {/* CTA buttons — signed-out visitors get Sign in as the primary
+            action; "Post a job" is a recruiter task and stays secondary. */}
         <div className="flex items-center gap-2.5">
-          {session?.user ? (
-            <Link
-              href="/admin"
-              className="inline-flex h-9 items-center rounded-control border border-border-dark-strong px-5 text-[13px] font-medium text-paper/80 no-underline transition-colors hover:border-sky/40 hover:text-paper"
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <Link
-              href="/signin"
-              className="inline-flex h-9 items-center rounded-control border border-border-dark-strong px-5 text-[13px] font-medium text-paper/80 no-underline transition-colors hover:border-sky/40 hover:text-paper"
-            >
-              Sign in
-            </Link>
-          )}
-          {session?.user ? (
-            <Link
-              href="/admin/jobs/new"
-              className="inline-flex h-9 items-center gap-1.5 rounded-control bg-brand-royal px-5 text-[13px] font-medium text-paper no-underline transition-colors hover:bg-brand-royal-hover"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Post a job
-            </Link>
-          ) : (
-            <Link
-              href="/signin"
-              className="inline-flex h-9 items-center gap-1.5 rounded-control bg-brand-royal px-5 text-[13px] font-medium text-paper no-underline transition-colors hover:bg-brand-royal-hover"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Post a job
-            </Link>
-          )}
+          <Link
+            href={session?.user ? "/admin" : "/signin"}
+            className="inline-flex h-9 items-center rounded-control bg-brand-royal px-5 text-[13px] font-medium text-paper no-underline transition-colors hover:bg-brand-royal-hover"
+          >
+            {session?.user ? "Dashboard" : "Sign in"}
+          </Link>
+          <Link
+            href={session?.user ? "/admin/jobs/new" : "/signin"}
+            className="inline-flex h-9 items-center gap-1.5 rounded-control border border-border-dark-strong px-5 text-[13px] font-medium text-paper/80 no-underline transition-colors hover:border-sky/40 hover:text-paper"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Post a job
+          </Link>
         </div>
       </div>
     </header>

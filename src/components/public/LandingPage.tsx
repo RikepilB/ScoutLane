@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PublicNav } from "./PublicNav";
-import { LandingCommandPreview } from "./landing/LandingCommandPreview";
+import { PublicFooter } from "./PublicFooter";
+import { LandingTrace } from "./landing/LandingTrace";
 import { LandingHarness } from "./landing/LandingHarness";
 import { LandingWorkspaceDoors } from "./landing/LandingWorkspaceDoors";
 
@@ -32,42 +33,49 @@ const capabilities = [
   },
 ];
 
+function plural(count: number, word: string) {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
+
 export function LandingPage({ stats, session }: LandingPageProps) {
+  const statItems = [
+    { label: plural(stats.jobs, "open role"), value: stats.jobs },
+    { label: plural(stats.applicants, "applicant"), value: stats.applicants },
+    { label: plural(stats.templates, "template"), value: stats.templates },
+  ];
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-ink-900 text-paper">
       <div className="relative mx-auto max-w-[1240px] px-5 pb-20 pt-5 sm:px-7 sm:pt-6">
-        <PublicNav session={session} className="mb-10 sm:mb-14" />
+        <PublicNav session={session} className="mb-14 sm:mb-20" />
 
-        <section className="mb-24 grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
+        {/* Hero: one claim, one primary action, the product as evidence. */}
+        <section className="mb-24 grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="animate-fade-up">
             <h1 className="mb-6 font-display text-hero font-medium text-paper">
-              Every resume enters the lane
+              The ATS that shows its work
             </h1>
-            <p className="mb-10 max-w-[520px] text-[17px] leading-[28px] text-paper/70">
-              An ATS with an agent harness. Resumes are extracted, parsed into
-              structured data, scored against the role, staged, and dispatched —
-              and every step of that is inspectable.
+            <p className="mb-9 max-w-[520px] text-[17px] leading-[28px] text-paper/70">
+              ScoutLane turns every resume into structured data, scores it
+              against the role, and stages it in a pipeline you can inspect
+              step by step.
             </p>
             <div className="mb-12 flex flex-wrap items-center gap-3">
               <Link
-                href="/signin?as=admin"
+                href="/signin"
                 className="inline-flex h-11 items-center rounded-control bg-brand-royal px-6 text-sm font-medium text-paper no-underline transition-colors hover:bg-brand-royal-hover"
               >
-                Admin sign in
+                Try the demo
               </Link>
-              <Link
-                href="/signin?as=recruiter"
+              <a
+                href="#lane"
                 className="inline-flex h-11 items-center rounded-control border border-border-dark-strong px-6 text-sm font-medium text-paper/80 no-underline transition-colors hover:border-sky/40 hover:text-paper"
               >
-                Recruiter sign in
-              </Link>
+                See the full lane
+              </a>
             </div>
-            <dl className="flex max-w-lg flex-wrap gap-x-8 gap-y-3">
-              {[
-                { label: "Open jobs", value: stats.jobs },
-                { label: "Applicants", value: stats.applicants },
-                { label: "Templates", value: stats.templates },
-              ].map((item) => (
+            <dl className="flex max-w-lg flex-wrap gap-x-10 gap-y-3">
+              {statItems.map((item) => (
                 <div key={item.label} className="flex items-baseline gap-2">
                   <dd className="tabular font-display text-xl font-semibold text-paper">
                     {item.value}
@@ -79,44 +87,53 @@ export function LandingPage({ stats, session }: LandingPageProps) {
           </div>
 
           <div className="animate-fade-up animate-fade-up-delay-2">
-            <LandingCommandPreview />
+            <LandingTrace />
           </div>
         </section>
 
-        <LandingWorkspaceDoors />
         <LandingHarness />
 
-        <section className="mb-16">
-          <h2 className="mb-8 font-display text-display font-medium text-paper">
+        <section id="capabilities" className="mb-24">
+          <h2 className="mb-3 font-display text-display font-medium text-paper">
             What the harness actually does
           </h2>
+          <p className="mb-8 max-w-[560px] text-[15px] leading-6 text-paper/65">
+            Four mechanics, each with its output stored and readable — not a
+            black box with a confidence number.
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
             {capabilities.map((item) => (
               <div
                 key={item.title}
                 className="rounded-card border border-border-dark bg-ink-800 p-6"
               >
-                <h3 className="mb-2 font-medium text-sky">{item.title}</h3>
+                <h3 className="mb-2 font-medium text-paper">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-paper/65">{item.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <footer className="border-t border-border-dark pt-8 text-center text-xs text-paper/50">
-          ScoutLane demo ·{" "}
-          <Link href="/jobs" className="text-sky/80 hover:text-sky">
-            Job board
+        <LandingWorkspaceDoors />
+
+        {/* Closing CTA — calls back the hero claim. */}
+        <section className="mb-24 rounded-card border border-border-dark bg-ink-950 px-8 py-14 text-center sm:px-12">
+          <h2 className="mx-auto mb-4 max-w-[560px] font-display text-display font-medium text-paper">
+            Hiring you can inspect, end to end
+          </h2>
+          <p className="mx-auto mb-8 max-w-[480px] text-[15px] leading-6 text-paper/65">
+            From the first resume in to the final offer out, every automated
+            step leaves a trail you can open. Try it with sample data.
+          </p>
+          <Link
+            href="/signin"
+            className="inline-flex h-11 items-center rounded-control bg-brand-royal px-7 text-sm font-medium text-paper no-underline transition-colors hover:bg-brand-royal-hover"
+          >
+            Try the demo
           </Link>
-          {" · "}
-          <Link href="/signin?as=admin" className="text-sky/80 hover:text-sky">
-            Admin
-          </Link>
-          {" · "}
-          <Link href="/signin?as=recruiter" className="text-sky/80 hover:text-sky">
-            Recruiter
-          </Link>
-        </footer>
+        </section>
+
+        <PublicFooter />
       </div>
     </div>
   );

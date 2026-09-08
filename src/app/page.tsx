@@ -6,9 +6,8 @@ import { LandingPage } from "@/components/public/LandingPage";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ScoutLane — AI-powered recruitment",
   description:
-    "AI-assisted applicant tracking for recruiting teams. Browse jobs, try admin and recruiter demos with sample data.",
+    "ScoutLane parses every resume into structured data, scores candidates against the role, and runs an inspectable hiring pipeline. Try the admin and recruiter demos with sample data.",
   robots: {
     index: false,
     follow: false,

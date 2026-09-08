@@ -34,10 +34,6 @@ export function CareersFilterBar({
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border-none bg-transparent text-[15px] text-ink-900 outline-none placeholder:text-soft"
           />
-          <span className="rounded-md border border-mist bg-paper px-2 py-0.5 text-[11px] text-ink-700"
-            style={{ fontFamily: "var(--font-mono)" }}>
-            ⌘K
-          </span>
         </div>
 
         {/* Department select */}
