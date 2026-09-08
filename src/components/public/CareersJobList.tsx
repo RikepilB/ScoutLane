@@ -56,7 +56,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
               <Link
                 key={job.id}
                 href={`/careers/${job.slug}`}
-                className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit no-underline transition-all duration-[0.2s] hover:translate-x-1 hover:border-mist hover:bg-surface hover:shadow-[0_8px_24px_rgba(9,21,64,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
+                className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit transition-[background-color,border-color,box-shadow,transform] duration-[0.2s] hover:translate-x-1 hover:border-mist hover:bg-surface hover:shadow-[0_8px_24px_rgba(9,21,64,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
               >
                 <div className="flex flex-col gap-1.5">
                   <div className="flex flex-wrap items-baseline gap-3">
@@ -86,7 +86,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
                   </span>
                 )}
                 {/* Hover arrow */}
-                <span className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-ink-900 text-paper opacity-0 transition-all duration-[0.2s] group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2">
+                <span className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-ink-900 text-paper opacity-0 transition-[opacity,transform] duration-[0.2s] group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                     <path d="M5 12h14" /><path d="m13 5 7 7-7 7" />
                   </svg>

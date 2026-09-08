@@ -37,14 +37,14 @@ export function PublicFooter() {
           </div>
           <p className="mt-4 text-[13px] leading-5 text-paper/55">
             An applicant tracking system with an inspectable agent harness.
-            Demo environment — sample data throughout.
+            Demo environment, sample data throughout.
           </p>
         </div>
 
         <div className="flex gap-16">
           {columns.map((col) => (
             <div key={col.heading}>
-              <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.08em] text-paper/45">
+              <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.08em] text-paper/55">
                 {col.heading}
               </p>
               <ul className="space-y-2.5">
@@ -75,7 +75,7 @@ export function PublicFooter() {
         </div>
       </div>
 
-      <div className="mt-10 border-t border-border-dark pt-6 text-xs text-paper/45">
+      <div className="mt-10 border-t border-border-dark pt-6 text-xs text-paper/55">
         © 2026 ScoutLane · Demo environment, sample data throughout
       </div>
     </footer>
