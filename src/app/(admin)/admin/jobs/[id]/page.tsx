@@ -199,7 +199,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
 
       <section className="space-y-4">
         <div>
-          <h3 className="text-base font-semibold tracking-tight text-slate-900">Analytics (this job)</h3>
+          <h3 className="text-base font-semibold tracking-tight text-ink-900">Analytics (this job)</h3>
           <p className="mt-1 text-sm text-muted-foreground">All metrics below are scoped to this role.</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">

@@ -168,7 +168,7 @@ export function ApplicantEmailComposer({
     <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
             <Mail className="h-4 w-4 text-muted-foreground" />
             Compose email
           </h3>
@@ -191,7 +191,7 @@ export function ApplicantEmailComposer({
           <select
             value={templateKey}
             onChange={(e) => applyTemplate(e.target.value as TemplateKey)}
-            className="rounded-lg border border-border/70 bg-white px-3 py-1.5 text-sm outline-none focus:border-sky-500"
+            className="rounded-lg border border-border/70 bg-surface px-3 py-1.5 text-sm outline-none focus:border-sky"
           >
             {(Object.keys(TEMPLATES) as TemplateKey[]).map((k) => (
               <option key={k} value={k}>

@@ -29,7 +29,7 @@ export default function EmailTemplatesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-950">
+        <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-ink-950">
           <Mail className="h-7 w-7 text-muted-foreground" />
           Email templates
         </h1>
@@ -42,8 +42,8 @@ export default function EmailTemplatesPage() {
       <div
         className={`rounded-xl border p-4 text-sm ${
           configured
-            ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-            : "border-amber-200 bg-amber-50 text-amber-900"
+            ? "border-success bg-success-soft text-success"
+            : "border-warning bg-warning-soft text-warning"
         }`}
       >
         {configured ? (
@@ -68,10 +68,10 @@ export default function EmailTemplatesPage() {
           </p>
           <p className="mt-2 text-xs">
             <span className="text-muted-foreground">Subject:</span>{" "}
-            <span className="font-medium text-slate-800">{applicantConfirmation.subject}</span>
+            <span className="font-medium text-ink-800">{applicantConfirmation.subject}</span>
           </p>
         </header>
-        <div className="rounded-xl border border-input bg-white p-4">
+        <div className="rounded-xl border border-input bg-surface p-4">
           <div
             className="prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: applicantConfirmation.html }}
@@ -87,12 +87,12 @@ export default function EmailTemplatesPage() {
           </p>
           <p className="mt-2 text-xs">
             <span className="text-muted-foreground">Subject:</span>{" "}
-            <span className="font-medium text-slate-800">
+            <span className="font-medium text-ink-800">
               New application: {sampleApplicant} → {sampleJob}
             </span>
           </p>
         </header>
-        <div className="rounded-xl border border-input bg-white p-4">
+        <div className="rounded-xl border border-input bg-surface p-4">
           <div
             className="prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: adminNotificationHtml }}

@@ -27,7 +27,7 @@ export function DeleteJobButton({ jobId, redirectTo }: DeleteJobButtonProps) {
     <button
       onClick={handleDelete}
       disabled={isPending}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-danger px-3 py-1.5 text-xs font-medium text-danger transition hover:bg-danger-soft disabled:opacity-50"
     >
       {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
       Delete

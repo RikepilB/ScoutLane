@@ -81,9 +81,9 @@ export default async function NotificationsPage() {
         </div>
         <div className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-4 py-2 text-sm">
           {totalIssues === 0 ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <CheckCircle2 className="h-4 w-4 text-success" />
           ) : (
-            <Bell className="h-4 w-4 text-amber-600" />
+            <Bell className="h-4 w-4 text-warning" />
           )}
           <span className="font-medium">{totalIssues}</span>
           <span className="text-muted-foreground">open issues</span>
@@ -93,24 +93,24 @@ export default async function NotificationsPage() {
       <div className="grid gap-5 lg:grid-cols-3">
         <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <FileWarning className="h-4 w-4 text-red-600" />
-            <h2 className="text-sm font-semibold text-slate-900">Resume parsing</h2>
+            <FileWarning className="h-4 w-4 text-danger" />
+            <h2 className="text-sm font-semibold text-ink-900">Resume parsing</h2>
           </div>
           <div className="mt-4 space-y-3">
             {failedParsing.map((applicant) => (
               <Link
                 key={applicant.id}
                 href={`/admin/jobs/${applicant.jobId}/applicants/${applicant.id}`}
-                className="block rounded-xl border border-border/60 bg-slate-50 p-3 transition hover:bg-white"
+                className="block rounded-xl border border-border/60 bg-paper p-3 transition hover:bg-surface"
               >
-                <div className="text-sm font-medium text-slate-900">{applicant.name}</div>
+                <div className="text-sm font-medium text-ink-900">{applicant.name}</div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   {applicant.job.title} · {formatDate(applicant.updatedAt)}
                 </div>
               </Link>
             ))}
             {failedParsing.length === 0 ? (
-              <p className="rounded-xl bg-slate-50 p-3 text-sm text-muted-foreground">
+              <p className="rounded-xl bg-paper p-3 text-sm text-muted-foreground">
                 No failed resume parsing jobs.
               </p>
             ) : null}
@@ -119,31 +119,31 @@ export default async function NotificationsPage() {
 
         <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <Webhook className="h-4 w-4 text-amber-600" />
-            <h2 className="text-sm font-semibold text-slate-900">Integrations</h2>
+            <Webhook className="h-4 w-4 text-warning" />
+            <h2 className="text-sm font-semibold text-ink-900">Integrations</h2>
           </div>
           <div className="mt-4 space-y-3">
             {failedIntegrations.map((log) => (
               <Link
                 key={log.id}
                 href={`/admin/jobs/${log.integration.jobId}/integrations`}
-                className="block rounded-xl border border-border/60 bg-slate-50 p-3 transition hover:bg-white"
+                className="block rounded-xl border border-border/60 bg-paper p-3 transition hover:bg-surface"
               >
-                <div className="text-sm font-medium text-slate-900">
+                <div className="text-sm font-medium text-ink-900">
                   {log.integration.job.title} · {log.integration.stage.name}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   HTTP {log.status} · {formatDate(log.createdAt)}
                 </div>
                 {log.responseBody ? (
-                  <p className="mt-2 line-clamp-2 text-xs text-slate-600">
+                  <p className="mt-2 line-clamp-2 text-xs text-ink-700">
                     {redactIntegrationResponse(log.responseBody)}
                   </p>
                 ) : null}
               </Link>
             ))}
             {failedIntegrations.length === 0 ? (
-              <p className="rounded-xl bg-slate-50 p-3 text-sm text-muted-foreground">
+              <p className="rounded-xl bg-paper p-3 text-sm text-muted-foreground">
                 No failed integration calls.
               </p>
             ) : null}
@@ -152,23 +152,23 @@ export default async function NotificationsPage() {
 
         <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <MailWarning className="h-4 w-4 text-sky-700" />
-            <h2 className="text-sm font-semibold text-slate-900">Email delivery</h2>
+            <MailWarning className="h-4 w-4 text-sky" />
+            <h2 className="text-sm font-semibold text-ink-900">Email delivery</h2>
           </div>
           <div className="mt-4 space-y-3">
             {failedEmails.map((log) => (
-              <div key={log.id} className="rounded-xl border border-border/60 bg-slate-50 p-3">
-                <div className="text-sm font-medium text-slate-900">{log.to}</div>
+              <div key={log.id} className="rounded-xl border border-border/60 bg-paper p-3">
+                <div className="text-sm font-medium text-ink-900">{log.to}</div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   {log.subject} · {formatDate(log.createdAt)}
                 </div>
                 {log.error ? (
-                  <p className="mt-2 line-clamp-2 text-xs text-slate-600">{log.error}</p>
+                  <p className="mt-2 line-clamp-2 text-xs text-ink-700">{log.error}</p>
                 ) : null}
               </div>
             ))}
             {failedEmails.length === 0 ? (
-              <p className="rounded-xl bg-slate-50 p-3 text-sm text-muted-foreground">
+              <p className="rounded-xl bg-paper p-3 text-sm text-muted-foreground">
                 No failed applicant emails.
               </p>
             ) : null}

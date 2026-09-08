@@ -52,8 +52,8 @@ export function NewJobRoleStep({ control }: NewJobRoleStepProps) {
         )}
       />
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 mb-4">
+      <div className="rounded-xl border border-peri bg-info-soft/60 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-royal mb-4">
           Structured sections (appear on public job page)
         </p>
 

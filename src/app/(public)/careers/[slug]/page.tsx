@@ -22,18 +22,18 @@ function JobUnavailableState() {
   return (
     <div className="flex min-h-screen items-center justify-center" style={{ background: "#0c1529", fontFamily: "var(--font-body)" }}>
       <div className="text-center">
-        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-white shadow-[0_12px_30px_rgba(27,44,193,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] text-paper shadow-[0_12px_30px_rgba(27,44,193,0.45),inset_0_1px_0_rgba(255,255,255,0.16)]"
           style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "28px", letterSpacing: "-0.04em" }}>
           SL
         </div>
-        <h1 className="mb-2 text-[32px] font-medium tracking-[-0.02em] text-[#f1f5f9]"
+        <h1 className="mb-2 text-[32px] font-medium tracking-[-0.02em] text-paper"
           style={{ fontFamily: "var(--font-display)" }}>
           Position not found
         </h1>
-        <p className="mb-6 text-[14px] text-[#5f8ea0]">
+        <p className="mb-6 text-[14px] text-steel">
           This application link may have been removed, archived, or entered incorrectly.
         </p>
-        <Button asChild className="rounded-full bg-[#1B2CC1] hover:bg-[#3D518C]">
+        <Button asChild className="rounded-full bg-brand-royal hover:bg-brand-slate">
           <Link href="/jobs">Browse jobs</Link>
         </Button>
       </div>
@@ -128,7 +128,7 @@ export default async function JobApplicationPage({ params }: Props) {
       />
 
       {/* Header */}
-      <header className="relative z-[1] border-b border-white/[0.10] bg-[#091540]">
+      <header className="relative z-[1] border-b border-paper/[0.10] bg-ink-950">
         <div className="mx-auto max-w-6xl px-5 py-2 sm:px-6">
           <PublicNav
             session={session ? { user: { email: session.user?.email ?? undefined } } : null}
@@ -140,16 +140,16 @@ export default async function JobApplicationPage({ params }: Props) {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_420px] lg:items-start">
           {/* Main content */}
           <section className="space-y-6">
-            <div className="rounded-2xl border border-white/[0.12] bg-[#091540]/95 p-6 text-white shadow-[0_22px_60px_rgba(9,21,64,0.24)] sm:p-8">
+            <div className="rounded-2xl border border-paper/[0.12] bg-ink-950/95 p-6 text-paper shadow-[0_22px_60px_rgba(9,21,64,0.24)] sm:p-8">
             <div className="space-y-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl"
                   style={{ background: "linear-gradient(135deg, #1B2CC1, #161fa8)", boxShadow: "0 8px 20px rgba(27,44,193,0.35), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
-                  <Building className="h-6 w-6 text-white" />
+                  <Building className="h-6 w-6 text-paper" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#f1f5f9]">ScoutLane</p>
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-[#ABD2FA]"
+                  <p className="text-sm font-medium text-paper">ScoutLane</p>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-sky"
                     style={{ fontFamily: "var(--font-mono)" }}>
                     AI-Powered Recruitment
                   </p>
@@ -157,26 +157,26 @@ export default async function JobApplicationPage({ params }: Props) {
               </div>
 
               <div>
-                <h1 className="text-[clamp(34px,5vw,56px)] font-medium leading-[0.98] tracking-[-0.03em] text-[#f1f5f9]"
+                <h1 className="text-[clamp(34px,5vw,56px)] font-medium leading-[0.98] tracking-[-0.03em] text-paper"
                   style={{ fontFamily: "var(--font-display)" }}>
                   {job.title}
                 </h1>
-                <div className="mt-5 flex flex-wrap items-center gap-2.5 text-[13px] text-[#dbeafe]"
+                <div className="mt-5 flex flex-wrap items-center gap-2.5 text-[13px] text-sky"
                   style={{ fontFamily: "var(--font-mono)" }}>
                   {job.location && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.07] px-3 py-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-paper/[0.12] bg-paper/[0.07] px-3 py-1.5">
                       <MapPin className="h-4 w-4" />
                       {job.location}
                     </span>
                   )}
                   {job.type && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.07] px-3 py-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-paper/[0.12] bg-paper/[0.07] px-3 py-1.5">
                       <Briefcase className="h-4 w-4" />
                       {job.type}
                     </span>
                   )}
                   {job.salary && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.07] px-3 py-1.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-paper/[0.12] bg-paper/[0.07] px-3 py-1.5">
                       <DollarSign className="h-4 w-4" />
                       {job.salary}
                     </span>
@@ -187,30 +187,30 @@ export default async function JobApplicationPage({ params }: Props) {
             </div>
 
             {status !== "active" ? (
-              <div className="rounded-2xl border border-[rgba(200,140,40,0.25)] bg-[rgba(200,140,40,0.08)] p-6 text-[#c88c28]">
+              <div className="rounded-2xl border border-[rgba(200,140,40,0.25)] bg-[rgba(200,140,40,0.08)] p-6 text-warning">
                 <h2 className="text-base font-semibold">
                   {status === "closed" ? "This position is no longer accepting applications." : "This position is not open for applications yet."}
                 </h2>
-                <p className="mt-1 text-sm text-[#c88c28]/80">If you received this link recently, contact the hiring team for the latest status.</p>
+                <p className="mt-1 text-sm text-warning/80">If you received this link recently, contact the hiring team for the latest status.</p>
               </div>
             ) : null}
 
             {/* Structured description */}
-            <div className="rounded-2xl border border-[#d5e0e8] bg-white p-6 shadow-[0_18px_45px_rgba(9,21,64,0.10)] sm:p-8"
+            <div className="rounded-2xl border border-mist bg-surface p-6 shadow-[0_18px_45px_rgba(9,21,64,0.10)] sm:p-8"
               style={{ color: "#0c1529" }}>
-              <h2 className="mb-6 text-[24px] font-medium tracking-[-0.015em] text-[#0c1529]"
+              <h2 className="mb-6 text-[24px] font-medium tracking-[-0.015em] text-ink-900"
                 style={{ fontFamily: "var(--font-display)" }}>
                 About this role
               </h2>
 
               {job.whatYouWillDo && (
                 <div className="mb-8">
-                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#473459]"
+                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-plum"
                     style={{ fontFamily: "var(--font-mono)" }}>
                     What you&apos;ll do
                   </h3>
                   <div
-                    className="prose prose-sm max-w-none text-[#394050] leading-7"
+                    className="prose prose-sm max-w-none text-ink-700 leading-7"
                     dangerouslySetInnerHTML={{ __html: renderMarkdown(job.whatYouWillDo) }}
                   />
                 </div>
@@ -218,14 +218,14 @@ export default async function JobApplicationPage({ params }: Props) {
 
               {requirementsList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#473459]"
+                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-plum"
                     style={{ fontFamily: "var(--font-mono)" }}>
                     Requirements
                   </h3>
                   <ul className="space-y-2">
                     {requirementsList.map((req, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-[14px] text-[#394050]">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1B2CC1]" />
+                      <li key={i} className="flex items-start gap-2.5 text-[14px] text-ink-700">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-royal" />
                         {req}
                       </li>
                     ))}
@@ -235,7 +235,7 @@ export default async function JobApplicationPage({ params }: Props) {
 
               {skillsList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#473459]"
+                  <h3 className="mb-3 text-[11px] font-medium uppercase tracking-[0.16em] text-plum"
                     style={{ fontFamily: "var(--font-mono)" }}>
                     Tools & Skills
                   </h3>
@@ -243,7 +243,7 @@ export default async function JobApplicationPage({ params }: Props) {
                     {skillsList.map((skill, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center rounded-full border border-[rgba(27,44,193,0.15)] bg-[rgba(27,44,193,0.08)] px-3 py-1 text-[12px] font-medium text-[#1B2CC1]"
+                        className="inline-flex items-center rounded-full border border-[rgba(27,44,193,0.15)] bg-[rgba(27,44,193,0.08)] px-3 py-1 text-[12px] font-medium text-brand-royal"
                       >
                         {skill}
                       </span>
@@ -258,7 +258,7 @@ export default async function JobApplicationPage({ params }: Props) {
                     href={job.descriptionUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#d4d9df] bg-white px-4 py-2 text-[13px] font-medium text-[#0c1529] transition-all hover:bg-[#f1f5f9]"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-mist bg-surface px-4 py-2 text-[13px] font-medium text-ink-900 transition-all hover:bg-paper"
                   >
                     View full job description
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M7 17 17 7M7 7h10v10" /></svg>
@@ -266,14 +266,14 @@ export default async function JobApplicationPage({ params }: Props) {
                   {/\.pdf($|\?)/i.test(job.descriptionUrl) ? (
                     <iframe
                       src={job.descriptionUrl}
-                      className="h-[600px] w-full rounded-lg border border-[#d4d9df]"
+                      className="h-[600px] w-full rounded-lg border border-mist"
                       title="Job description"
                     />
                   ) : null}
                 </div>
               ) : job.description ? (
                 <div
-                  className="prose prose-sm max-w-none text-[#394050] leading-7"
+                  className="prose prose-sm max-w-none text-ink-700 leading-7"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(job.description) }}
                 />
               ) : null}
@@ -287,12 +287,12 @@ export default async function JobApplicationPage({ params }: Props) {
               {status === "active" ? (
                 <ApplicationForm jobSlug={slug} customFields={customFields} />
               ) : (
-                <div className="rounded-2xl border border-white/[0.08] bg-[#091540] p-6">
-                  <h2 className="text-base font-semibold text-[#f1f5f9]"
+                <div className="rounded-2xl border border-paper/[0.08] bg-ink-950 p-6">
+                  <h2 className="text-base font-semibold text-paper"
                     style={{ fontFamily: "var(--font-display)" }}>
                     Applications unavailable
                   </h2>
-                  <p className="mt-2 text-sm text-[#5f8ea0]">
+                  <p className="mt-2 text-sm text-steel">
                     This position is not currently accepting applications.
                   </p>
                 </div>

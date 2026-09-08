@@ -23,7 +23,7 @@ const statusColors: Record<string, string> = {
 export function StageDistributionChart({ data }: { data: { status: string; count: number }[] }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">Applicants by stage</h3>
+      <h3 className="text-sm font-semibold text-ink-900">Applicants by stage</h3>
       <p className="mt-1 text-xs text-muted-foreground">Distribution across all pipeline stages</p>
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -63,7 +63,7 @@ export function ApplicantTrendChart({
 }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+      <h3 className="text-sm font-semibold text-ink-900">{title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -91,7 +91,7 @@ export function ApplicantTrendChart({
 export function PipelineStageDistributionChart({ data }: { data: { name: string; count: number }[] }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">Applicants by pipeline stage</h3>
+      <h3 className="text-sm font-semibold text-ink-900">Applicants by pipeline stage</h3>
       <p className="mt-1 text-xs text-muted-foreground">Counts for this job&apos;s configured stages</p>
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -128,7 +128,7 @@ export function ConversionFunnelChart({
   if (!data.length) {
     return (
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Conversion funnel</h3>
+        <h3 className="text-sm font-semibold text-ink-900">Conversion funnel</h3>
         <p className="mt-1 text-xs text-muted-foreground">
           Applicants who have ever reached each stage (cumulative, not just current)
         </p>
@@ -139,7 +139,7 @@ export function ConversionFunnelChart({
   const maxCount = Math.max(1, ...data.map((d) => d.count));
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">Conversion funnel</h3>
+      <h3 className="text-sm font-semibold text-ink-900">Conversion funnel</h3>
       <p className="mt-1 text-xs text-muted-foreground">
         Applicants who have ever reached each stage (cumulative, not just current)
       </p>
@@ -147,14 +147,14 @@ export function ConversionFunnelChart({
         {data.map((stage) => (
           <div key={stage.stageName}>
             <div className="mb-1 flex items-center justify-between text-xs">
-              <span className="font-medium text-slate-800">{stage.stageName}</span>
+              <span className="font-medium text-ink-800">{stage.stageName}</span>
               <span className="text-muted-foreground">
                 {stage.count} ({stage.percentOfTotal}%)
               </span>
             </div>
-            <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-paper-2">
               <div
-                className="h-full rounded-full bg-indigo-500"
+                className="h-full rounded-full bg-peri"
                 style={{ width: `${(stage.count / maxCount) * 100}%` }}
               />
             </div>
@@ -179,7 +179,7 @@ export function TopLabelsBarChart({
   if (!data.length) {
     return (
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-sm font-semibold text-ink-900">{title}</h3>
         <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
         <p className="mt-6 text-sm text-muted-foreground">Not enough data yet.</p>
       </div>
@@ -187,7 +187,7 @@ export function TopLabelsBarChart({
   }
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+      <h3 className="text-sm font-semibold text-ink-900">{title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">

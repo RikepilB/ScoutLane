@@ -60,7 +60,7 @@ export function SkillsMultiSelect({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex min-h-[34px] w-full items-center gap-2 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky-500 cursor-pointer hover:bg-muted/10"
+        className="flex min-h-[34px] w-full items-center gap-2 rounded-lg border border-border/70 px-3 py-2 text-xs outline-none focus:border-sky cursor-pointer hover:bg-muted/10"
       >
         {selected.length === 0 ? (
           <span className="text-muted-foreground">Any skills</span>
@@ -69,7 +69,7 @@ export function SkillsMultiSelect({
             {selected.map((skill) => (
               <span
                 key={skill}
-                className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-medium text-sky-800"
+                className="inline-flex items-center gap-1 rounded-full bg-sky px-2 py-0.5 text-[11px] font-medium text-sky"
               >
                 {skill}
                 <button
@@ -78,7 +78,7 @@ export function SkillsMultiSelect({
                     e.stopPropagation();
                     remove(skill);
                   }}
-                  className="hover:text-sky-950"
+                  className="hover:text-sky"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -95,7 +95,7 @@ export function SkillsMultiSelect({
               placeholder="Search skills..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-border/50 bg-muted/20 px-3 py-1.5 text-xs outline-none focus:border-sky-500"
+              className="w-full rounded-lg border border-border/50 bg-muted/20 px-3 py-1.5 text-xs outline-none focus:border-sky"
               autoFocus
             />
           </div>

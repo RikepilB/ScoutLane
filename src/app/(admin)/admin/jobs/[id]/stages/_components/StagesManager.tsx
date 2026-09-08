@@ -71,7 +71,7 @@ function SortableStageItem({
         <input
           type="text"
           defaultValue={stage.name}
-          className="flex-1 rounded-lg border border-border/70 bg-white px-2 py-1 text-sm outline-none focus:border-sky-500"
+          className="flex-1 rounded-lg border border-border/70 bg-surface px-2 py-1 text-sm outline-none focus:border-sky"
           onBlur={(e) => {
             // Escape marks the input cancelled; the blur fired by unmounting must not save.
             if (e.currentTarget.dataset.cancelled === "1") return;
@@ -88,13 +88,13 @@ function SortableStageItem({
           autoFocus
         />
       ) : (
-        <span className="flex-1 text-sm font-medium text-slate-900">{stage.name}</span>
+        <span className="flex-1 text-sm font-medium text-ink-900">{stage.name}</span>
       )}
 
-      <button type="button" onClick={() => onStartEdit(stage.id)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-slate-100">
+      <button type="button" onClick={() => onStartEdit(stage.id)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-paper-2">
         <Pencil className="h-3.5 w-3.5" />
       </button>
-      <button type="button" onClick={() => onDelete(stage.id, stage.name)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50">
+      <button type="button" onClick={() => onDelete(stage.id, stage.name)} className="rounded-lg p-1.5 text-danger hover:bg-danger-soft">
         <Trash2 className="h-3.5 w-3.5" />
       </button>
     </div>
@@ -204,7 +204,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Add stage</h3>
+        <h3 className="text-sm font-semibold text-ink-900">Add stage</h3>
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <div className="flex-1">
             <label className="mb-1 block text-xs text-muted-foreground">Name</label>
@@ -213,7 +213,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="e.g. Phone Screen"
-              className="w-full rounded-lg border border-border/70 bg-white px-3 py-2 text-sm outline-none focus:border-sky-500"
+              className="w-full rounded-lg border border-border/70 bg-surface px-3 py-2 text-sm outline-none focus:border-sky"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
           </div>
@@ -225,7 +225,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                   key={c}
                   type="button"
                   onClick={() => setNewColor(c)}
-                  className={`h-7 w-7 rounded-full border-2 ${newColor === c ? "border-slate-950" : "border-transparent"}`}
+                  className={`h-7 w-7 rounded-full border-2 ${newColor === c ? "border-ink-950" : "border-transparent"}`}
                   style={{ backgroundColor: c }}
                 />
               ))}
@@ -236,7 +236,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
             <select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value as Stage["status"])}
-              className="mt-1 block rounded-lg border border-border/70 bg-white px-2 py-2 text-sm text-slate-900"
+              className="mt-1 block rounded-lg border border-border/70 bg-surface px-2 py-2 text-sm text-ink-900"
             >
               <option value="NEW">New</option>
               <option value="REVIEWING">Reviewing</option>
@@ -251,7 +251,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
             type="button"
             onClick={handleAdd}
             disabled={!newName.trim() || adding}
-            className="inline-flex items-center gap-1 rounded-lg bg-slate-950 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-lg bg-ink-950 px-3 py-2 text-sm font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
           >
             {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             {adding ? "Adding…" : "Add"}
@@ -314,7 +314,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                       const select = document.getElementById("reassign-stage-select") as HTMLSelectElement;
                       handleConfirmDelete(select.value);
                     }}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:bg-danger"
                   >
                     Delete & move
                   </button>
@@ -322,7 +322,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
               </>
             ) : (
               <>
-                <p className="mt-2 text-sm text-amber-600">This is the last stage. Deleting it will not affect existing applicants.</p>
+                <p className="mt-2 text-sm text-warning">This is the last stage. Deleting it will not affect existing applicants.</p>
                 <div className="mt-6 flex justify-end gap-3">
                   <button type="button" onClick={handleCancelDelete} className="rounded-lg border border-border/70 px-4 py-2 text-sm font-medium hover:bg-muted/20">
                     Cancel
@@ -330,7 +330,7 @@ export function StagesManager({ jobId, stages: initialStages }: { jobId: string;
                   <button
                     type="button"
                     onClick={() => handleConfirmDelete("")}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:bg-danger"
                   >
                     Delete
                   </button>

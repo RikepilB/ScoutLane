@@ -27,12 +27,12 @@ export default async function AdminLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f1f5f9] md:flex-row">
+    <div className="flex min-h-screen bg-paper md:flex-row">
       <Sidebar user={user} />
       <div className="flex min-h-screen flex-1 flex-col">
         <MobileNav user={user} />
         {user.role === "GUEST" && (
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
+          <div className="border-b border-warning bg-warning-soft px-4 py-2 text-center text-sm text-warning">
             Viewing as Guest — read-only. Changes are disabled in this demo.
           </div>
         )}

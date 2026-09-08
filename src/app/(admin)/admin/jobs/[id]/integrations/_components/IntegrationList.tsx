@@ -88,8 +88,8 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-center gap-2">
-                <span className={`inline-flex h-2 w-2 rounded-full ${integration.active ? "bg-emerald-500" : "bg-slate-300"}`} />
-                <span className="text-sm font-medium text-slate-900">
+                <span className={`inline-flex h-2 w-2 rounded-full ${integration.active ? "bg-success" : "bg-mist"}`} />
+                <span className="text-sm font-medium text-ink-900">
                   Stage: {integration.stage.name}
                 </span>
               </div>
@@ -100,7 +100,7 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
               <div className="flex gap-3 text-xs text-muted-foreground">
                 {integration.includeQuestions && <span>Includes assessment questions</span>}
                 {integration.lastSuccessAt && <span>Last success: {new Date(integration.lastSuccessAt).toLocaleDateString()}</span>}
-                {integration.failureCount > 0 && <span className="text-red-600">Failures: {integration.failureCount}</span>}
+                {integration.failureCount > 0 && <span className="text-danger">Failures: {integration.failureCount}</span>}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
                 type="button"
                 onClick={() => void postAction(integration.id, "test")}
                 disabled={isPending}
-                className="rounded-lg border border-border/70 px-2 py-1 text-xs font-medium text-slate-800 hover:bg-muted/30 disabled:opacity-50"
+                className="rounded-lg border border-border/70 px-2 py-1 text-xs font-medium text-ink-800 hover:bg-muted/30 disabled:opacity-50"
               >
                 Test payload
               </button>
@@ -116,14 +116,14 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
                 type="button"
                 onClick={() => void postAction(integration.id, "retry")}
                 disabled={isPending}
-                className="rounded-lg border border-border/70 px-2 py-1 text-xs font-medium text-slate-800 hover:bg-muted/30 disabled:opacity-50"
+                className="rounded-lg border border-border/70 px-2 py-1 text-xs font-medium text-ink-800 hover:bg-muted/30 disabled:opacity-50"
               >
                 Retry last
               </button>
               <button
                 onClick={() => handleDelete(integration.id)}
                 disabled={isPending}
-                className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                className="rounded-lg p-2 text-danger hover:bg-danger-soft"
                 title="Delete integration"
               >
                 <Trash2 className="h-4 w-4" />
@@ -137,7 +137,7 @@ export function IntegrationList({ integrations }: IntegrationListProps) {
               <div className="space-y-1">
                 {integration.logs.slice(0, 5).map((log) => (
                   <div key={log.id} className="flex items-center gap-2 text-xs">
-                    <span className={`inline-flex h-1.5 w-1.5 rounded-full ${log.status < 400 ? "bg-emerald-500" : "bg-red-500"}`} />
+                    <span className={`inline-flex h-1.5 w-1.5 rounded-full ${log.status < 400 ? "bg-success" : "bg-danger"}`} />
                     <span className="text-muted-foreground">
                       {log.event} — {log.status}
                     </span>

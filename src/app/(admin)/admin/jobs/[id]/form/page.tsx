@@ -55,7 +55,7 @@ function SortableFieldRow({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-3 rounded-xl border border-border/60 bg-white p-4"
+      className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface p-4"
     >
       <button
         type="button"
@@ -74,7 +74,7 @@ function SortableFieldRow({
             value={field.label}
             onChange={(e) => onUpdate(field.id, { label: e.target.value })}
             placeholder="e.g. Portfolio URL"
-            className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+            className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
           />
         </div>
         <div>
@@ -82,7 +82,7 @@ function SortableFieldRow({
           <select
             value={field.type}
             onChange={(e) => onUpdate(field.id, { type: e.target.value as CustomField["type"] })}
-            className="rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+            className="rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
           >
             <option value="text">Text</option>
             <option value="textarea">Textarea</option>
@@ -100,7 +100,7 @@ function SortableFieldRow({
               onChange={(e) => onUpdate(field.id, { options: e.target.value.split("\n") })}
               rows={3}
               placeholder={"Option A\nOption B\nOption C"}
-              className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky-500"
+              className="w-full rounded-lg border border-border/70 px-3 py-2 text-sm outline-none focus:border-sky"
             />
           </div>
         )}
@@ -109,14 +109,14 @@ function SortableFieldRow({
             type="checkbox"
             checked={field.required}
             onChange={(e) => onUpdate(field.id, { required: e.target.checked })}
-            className="rounded border-border text-slate-950 focus:ring-slate-950"
+            className="rounded border-border text-ink-950 focus:ring-ink-950"
           />
           <span className="text-xs text-muted-foreground">Required</span>
         </label>
         <button
           type="button"
           onClick={() => onRemove(field.id)}
-          className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+          className="rounded-lg p-2 text-danger hover:bg-danger-soft"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -206,7 +206,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold tracking-tight text-slate-900">Application form fields</h3>
+          <h3 className="text-base font-semibold tracking-tight text-ink-900">Application form fields</h3>
           <p className="text-sm text-muted-foreground">
             Configure which fields appear on the public job application page.
           </p>
@@ -215,7 +215,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
           type="button"
           onClick={handleSave}
           disabled={saving || !dirty}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink-950 px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink-800 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
           {saving ? "Saving..." : "Save"}
@@ -223,19 +223,19 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
       </div>
 
       {saveError ? (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-danger bg-danger-soft px-3 py-2 text-sm text-danger">
           {saveError}
         </p>
       ) : null}
 
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Default fields</h3>
+        <h3 className="text-sm font-semibold text-ink-900">Default fields</h3>
         <p className="mt-1 text-xs text-muted-foreground">
           Always included in the application form.
         </p>
         <ul className="mt-4 space-y-2">
           {["First Name", "Last Name", "Email", "Phone", "Resume (file upload)"].map((f) => (
-            <li key={f} className="flex items-center gap-3 rounded-xl border border-border/50 bg-muted/20 px-4 py-2.5 text-sm text-slate-700">
+            <li key={f} className="flex items-center gap-3 rounded-xl border border-border/50 bg-muted/20 px-4 py-2.5 text-sm text-ink-700">
               <span className="text-muted-foreground">●</span>
               {f}
               <span className="ml-auto text-[11px] text-muted-foreground">required</span>
@@ -247,7 +247,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
       <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">Custom fields</h3>
+            <h3 className="text-sm font-semibold text-ink-900">Custom fields</h3>
             <p className="mt-1 text-xs text-muted-foreground">
               Job-specific questions for applicants.
             </p>
@@ -255,7 +255,7 @@ export default function FormBuilderPage({ params }: FormBuilderPageProps) {
           <button
             type="button"
             onClick={addField}
-            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-surface px-3 py-2 text-sm font-medium text-ink-700 transition hover:bg-paper"
           >
             <Plus className="h-4 w-4" />
             Add field

@@ -44,20 +44,20 @@ export function ApplicantCard({
       style={style}
       {...attributes}
       {...listeners}
-      className="cursor-grab rounded-xl border border-border/60 bg-white p-3 shadow-sm transition hover:shadow-md active:cursor-grabbing"
+      className="cursor-grab rounded-xl border border-border/60 bg-surface p-3 shadow-sm transition hover:shadow-md active:cursor-grabbing"
     >
-      <div className="text-sm font-medium text-slate-900">{applicant.name}</div>
+      <div className="text-sm font-medium text-ink-900">{applicant.name}</div>
       {applicant.institution && (
-        <div className="mt-0.5 truncate text-xs text-slate-600">{applicant.institution}</div>
+        <div className="mt-0.5 truncate text-xs text-ink-700">{applicant.institution}</div>
       )}
       {applicant.program && (
-        <div className="mt-0.5 truncate text-xs text-slate-600">{applicant.program}</div>
+        <div className="mt-0.5 truncate text-xs text-ink-700">{applicant.program}</div>
       )}
       {applicant.email && (
         <div className="mt-0.5 truncate text-xs text-muted-foreground">{applicant.email}</div>
       )}
       {applicant.interviewDate && (
-        <div className="mt-1 flex items-center gap-1 text-xs text-violet-600">
+        <div className="mt-1 flex items-center gap-1 text-xs text-plum">
           <Calendar className="h-3 w-3" />
           {new Date(applicant.interviewDate).toLocaleDateString("en-US", {
             weekday: "short",
@@ -73,7 +73,7 @@ export function ApplicantCard({
           {formatStageDuration(new Date(stageEnteredAt))}
         </span>
         {applicant.score && (
-          <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
+          <span className="inline-flex items-center rounded-full bg-info-soft px-2 py-0.5 text-[11px] font-medium text-sky">
             {applicant.score}
           </span>
         )}

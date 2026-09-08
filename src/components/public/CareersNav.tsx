@@ -8,7 +8,7 @@ export function CareersNav({ session }: CareersNavProps) {
   return (
     <nav className="mb-9 flex items-center justify-between py-2">
       <Link href="/" className="flex items-center gap-3">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] font-bold text-white"
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] font-bold text-paper"
           style={{
             background: "linear-gradient(135deg, #1B2CC1, #3D518C)",
             fontFamily: "var(--font-display)",
@@ -27,7 +27,7 @@ export function CareersNav({ session }: CareersNavProps) {
         {!session?.user && (
           <Link
             href="/signin"
-            className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-[14px] font-medium text-white transition-colors hover:bg-white/[0.10] hover:border-white/[0.20]"
+            className="inline-flex items-center gap-2 rounded-full border border-paper/[0.12] bg-paper/[0.06] px-4 py-2 text-[14px] font-medium text-paper transition-colors hover:bg-paper/[0.10] hover:border-paper/[0.20]"
           >
             Sign in
           </Link>

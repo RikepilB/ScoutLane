@@ -58,7 +58,7 @@ export default async function SettingsPage() {
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
           <header className="space-y-1">
             <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Account</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+            <h1 className="text-3xl font-semibold tracking-tight text-ink-950">
               My account
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -69,7 +69,7 @@ export default async function SettingsPage() {
           {/* Profile */}
           <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-info-soft text-brand-royal">
                 <UserCircle className="h-5 w-5" />
               </div>
               <div className="flex-1">
@@ -102,7 +102,7 @@ export default async function SettingsPage() {
           {/* Notifications */}
           <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-warning-soft text-warning">
                 <Bell className="h-5 w-5" />
               </div>
               <div className="flex-1">
@@ -118,10 +118,10 @@ export default async function SettingsPage() {
                 <input
                   type="checkbox"
                   defaultChecked
-                  className="mt-0.5 h-4 w-4 rounded border-input accent-slate-950"
+                  className="mt-0.5 h-4 w-4 rounded border-input accent-ink-950"
                 />
                 <div>
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-ink-900">
                     Candidate reaches Interview stage
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -132,10 +132,10 @@ export default async function SettingsPage() {
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5 h-4 w-4 rounded border-input accent-slate-950"
+                  className="mt-0.5 h-4 w-4 rounded border-input accent-ink-950"
                 />
                 <div>
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-ink-900">
                     Daily new-applicant summary
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -155,7 +155,7 @@ export default async function SettingsPage() {
           {/* Access summary */}
           <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-paper-2 text-ink-700">
                 <Info className="h-5 w-5" />
               </div>
               <div className="flex-1">
@@ -167,7 +167,7 @@ export default async function SettingsPage() {
             </div>
 
             <div className="mt-6 flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-3 py-1 text-sm font-medium text-ink-700">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 {roleLabels[user?.role ?? ""] ?? user?.role}
               </span>
@@ -187,7 +187,7 @@ export default async function SettingsPage() {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
         <header className="space-y-1">
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Settings</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+          <h1 className="text-3xl font-semibold tracking-tight text-ink-950">
             Organization settings
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -198,7 +198,7 @@ export default async function SettingsPage() {
         {/* Profile */}
         <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-info-soft text-brand-royal">
               <UserCircle className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -232,7 +232,7 @@ export default async function SettingsPage() {
         {/* Workspace */}
         <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-info-soft text-sky">
               <Building2 className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -267,7 +267,7 @@ export default async function SettingsPage() {
         {/* Team management */}
         <section className="rounded-3xl border border-border/70 bg-card p-6 shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-soft text-success">
               <Users className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -292,12 +292,12 @@ export default async function SettingsPage() {
                 {team.map((member) => (
                   <tr key={member.id}>
                     <td className="px-5 py-4">
-                      <div className="font-medium text-slate-950">
+                      <div className="font-medium text-ink-950">
                         {member.name ?? member.email.split("@")[0]}
                       </div>
                       <div className="mt-0.5 text-xs text-muted-foreground">{member.email}</div>
                     </td>
-                    <td className="px-5 py-4 text-slate-700">
+                    <td className="px-5 py-4 text-ink-700">
                       <form action={updateRoleAction} className="flex items-center gap-2">
                         <input type="hidden" name="userId" value={member.id} />
                         <select
@@ -325,7 +325,7 @@ export default async function SettingsPage() {
                     </td>
                     <td className="px-5 py-4">
                       {member.id === user?.id ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-paper-2 px-2.5 py-0.5 text-xs text-ink-700">
                           <ShieldCheck className="h-3.5 w-3.5" />
                           You
                         </span>
