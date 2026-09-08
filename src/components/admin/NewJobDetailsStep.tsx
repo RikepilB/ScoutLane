@@ -105,11 +105,11 @@ export function NewJobDetailsStep({ control, watchedSlug }: NewJobDetailsStepPro
         />
       </div>
 
-      <div className="rounded-xl border border-border/70 bg-slate-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="rounded-xl border border-border/70 bg-paper p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-steel">
           Public URL
         </p>
-        <p className="mt-1 break-all text-sm font-medium text-slate-900">
+        <p className="mt-1 break-all text-sm font-medium text-ink-900">
           /careers/{watchedSlug || "job-slug"}
         </p>
       </div>

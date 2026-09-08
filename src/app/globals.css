@@ -1,10 +1,31 @@
 @import "tailwindcss";
 
 /* ── ScoutLane Design System ──
+   Direction: keep royal, kill the chrome. The brand stays; the stock-AI
+   chrome (gradient blobs, glassmorphism, ghost pills, card lifts) goes.
+
    Brand: #1B2CC1 (royal primary), #3D518C (slate-blue hover)
    Ink: #091540 (midnight) → #0c1529 (ink-900) → #394050 (graphite)
    Paper: #f1f5f9 (bg) → #ffffff (surface) → #d4d9df (mist/borders)
    Accents: #7692FF (peri), #ABD2FA (sky), #5ea7c5 (cyan), #5f8ea0 (steel)
+
+   RULE: this file is the only place a colour literal may appear. A raw hex
+   or a raw Tailwind palette class in a component is a bug — the palette has
+   to stay changeable from one place.
+
+   Utilities to reach for, in preference order:
+     surfaces  bg-surface  bg-paper  bg-paper-2  bg-ink-900  bg-ink-800
+     text      text-ink-900  text-ink-700  text-steel  text-paper
+     brand     bg-brand-royal  text-brand-royal  hover:bg-brand-royal-hover
+     borders   border-mist  border-mist-strong  border-hairline
+     status    text-success  bg-success-soft  (…warning / danger / info)
+     radius    rounded-card  rounded-control
+     elevation shadow-hairline  shadow-raised  shadow-overlay
+
+   Naming note: Tailwind v4 flattens a token into one class name, so
+   `--color-text-primary` becomes `text-text-primary`. The `text-*`,
+   `surface-*` and `border-*` groups below stay for CSS-level `var()` use and
+   for the shadcn aliases; components use the readable names above.
 */
 
 @theme {
@@ -36,6 +57,9 @@
   --color-surface: #ffffff;
   --color-surface-secondary: #f1f5f9;
   --color-surface-raised: #ffffff;
+  --color-surface-sunken: #e6ecf2;
+  --color-surface-inverse: #0c1529;
+  --color-surface-inverse-raised: #14213d;
 
   /* ── Text ── */
   --color-text-primary: #0c1529;
@@ -43,13 +67,26 @@
   --color-text-muted: #5f8ea0;
   --color-text-soft: #94a3b8;
   --color-text-inverse: #f1f5f9;
+  --color-text-inverse-muted: #94a3b8;
+  --color-text-brand: #1B2CC1;
 
   /* ── Borders ── */
   --color-border-default: #d4d9df;
   --color-border-strong: #b8c2cc;
   --color-border-subtle: rgba(9, 21, 64, 0.08);
-  --color-border-dark: rgba(241, 245, 249, 0.08);
-  --color-border-dark-strong: rgba(241, 245, 249, 0.14);
+  --color-border-dark: rgba(241, 245, 249, 0.14);
+  --color-border-dark-strong: rgba(241, 245, 249, 0.22);
+  --color-border-brand: #1B2CC1;
+
+  /* Border aliases. Tailwind v4 flattens `--color-border-default` into the
+     class `border-border-default`, which is why nothing adopted it. `mist`
+     is the same value under a name that produces `border-mist`. */
+  --color-mist: #d4d9df;
+  --color-mist-strong: #b8c2cc;
+  --color-hairline: rgba(9, 21, 64, 0.08);
+
+  /* Same reason: `--color-text-soft` would produce `text-text-soft`. */
+  --color-soft: #94a3b8;
 
   /* ── Status ── */
   --color-success: #2d8a6a;
@@ -61,32 +98,60 @@
   --color-info: #2d6f8a;
   --color-info-soft: rgba(45, 111, 138, 0.12);
 
-  /* ── Legacy shadcn compat ── */
-  --color-background: #f1f5f9;
-  --color-foreground: #0c1529;
-  --color-card: #ffffff;
-  --color-card-foreground: #0c1529;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #0c1529;
-  --color-primary: #1B2CC1;
-  --color-primary-foreground: #f1f5f9;
-  --color-secondary: #f1f5f9;
-  --color-secondary-foreground: #0c1529;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #5f8ea0;
-  --color-accent: #f1f5f9;
-  --color-accent-foreground: #0c1529;
-  --color-destructive: #c93a3a;
-  --color-destructive-foreground: #f1f5f9;
-  --color-border: #d4d9df;
-  --color-input: #d4d9df;
-  --color-ring: #1B2CC1;
+  /* ── shadcn compat — aliases onto the semantic layer above.
+     The 300+ existing `bg-card` / `text-muted-foreground` call sites inherit
+     the system through these instead of drifting away from it. ── */
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-surface-raised);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-primary: var(--color-brand-royal);
+  --color-primary-foreground: var(--color-text-inverse);
+  --color-secondary: var(--color-surface-secondary);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted: var(--color-surface-secondary);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent: var(--color-surface-sunken);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-text-inverse);
+  --color-border: var(--color-border-default);
+  --color-input: var(--color-border-default);
+  --color-ring: var(--color-brand-royal);
+
+  /* ── Radius ── */
   --radius: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-control: 0.5rem;
+
+  /* ── Elevation — flat by direction. Depth comes from a hairline border,
+     not a stacked drop shadow. `overlay` is reserved for popovers and
+     dialogs that genuinely have to detach from the page. ── */
+  --shadow-hairline: 0 1px 0 0 rgba(9, 21, 64, 0.04);
+  --shadow-raised: 0 1px 2px 0 rgba(9, 21, 64, 0.06);
+  --shadow-overlay: 0 8px 24px -6px rgba(9, 21, 64, 0.16), 0 2px 6px -2px rgba(9, 21, 64, 0.08);
 
   /* ── Font families ── */
-  --font-display: "Bricolage Grotesque", serif;
-  --font-body: "Geist", system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", serif;
+  --font-body: var(--font-geist), "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+
+  /* ── Type ramp — fixed steps. Fluid clamp() is reserved for the single
+     hero size; every other heading picks a step deliberately. ── */
+  --text-hero: clamp(2.5rem, 5.2vw, 3.75rem);
+  --text-hero--line-height: 1.02;
+  --text-hero--letter-spacing: -0.035em;
+  --text-display: 2rem;
+  --text-display--line-height: 1.12;
+  --text-display--letter-spacing: -0.025em;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.015em;
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1.2;
+  --text-eyebrow--letter-spacing: 0.12em;
 }
 
 /* ── Base ── */
@@ -104,6 +169,20 @@ html {
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+}
+
+/* Fallback focus ring. A component may restyle focus, but an `outline-none`
+   that forgets to restore one still lands here, so focus can never silently
+   disappear. */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Numerals in data surfaces line up in columns. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* ── Animations ── */

@@ -7,11 +7,12 @@ import { signInAsDemo } from "@/lib/auth/demo-sign-in";
 import type { DemoRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils/cn";
 
+// Both roles carry the same visual weight — the choice between admin and
+// recruiter is a fork, not a hierarchy, so neither button may look primary.
 const roleStyles: Record<Exclude<DemoRole, "guest">, string> = {
-  admin:
-    "bg-gradient-to-b from-[#1B2CC1] to-[#161fa8] shadow-[0_8px_20px_rgba(27,44,193,0.4),inset_0_1px_0_rgba(255,255,255,0.16)] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400",
+  admin: "bg-brand-royal text-paper transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   recruiter:
-    "border border-[#5ea7c5]/40 bg-[#14213d] shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-[#1a2c4d] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400",
+    "bg-brand-royal text-paper transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
 };
 
 const TIMEOUT_MS = 12_000;
@@ -109,7 +110,7 @@ export function DemoSignInButton({
         aria-describedby={ariaDescribedby || errorId}
         aria-busy={pending}
         className={cn(
-          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center rounded-control px-6 py-3 text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed",
           roleStyles[role],
           className,
         )}
@@ -126,16 +127,16 @@ export function DemoSignInButton({
       {error ? (
         <div
           id={errorId}
-          className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3"
+          className="mt-3 rounded-lg border border-danger/30 bg-danger/10 p-3"
           role="alert"
           aria-live="polite"
         >
-          <p className="text-xs font-medium text-red-300">Error:</p>
-          <p className="mt-1 text-xs text-red-200">{error}</p>
+          <p className="text-xs font-medium text-danger">Error:</p>
+          <p className="mt-1 text-xs text-danger">{error}</p>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="mt-2 text-xs font-medium text-red-300 underline hover:text-red-200"
+            className="mt-2 text-xs font-medium text-danger underline hover:text-danger"
           >
             Refresh page
           </button>

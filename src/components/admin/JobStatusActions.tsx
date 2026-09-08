@@ -34,7 +34,7 @@ export function JobStatusActions({ jobId, status }: JobStatusActionsProps) {
         <button
           onClick={() => handleTransition("active")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-paper transition hover:bg-success disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Globe className="h-3 w-3" />}
           Publish
@@ -44,7 +44,7 @@ export function JobStatusActions({ jobId, status }: JobStatusActionsProps) {
         <button
           onClick={() => handleTransition("closed")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-50 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-warning px-3 py-1.5 text-xs font-medium text-warning transition hover:bg-warning-soft disabled:opacity-50"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Archive className="h-3 w-3" />}
           Archive
@@ -55,7 +55,7 @@ export function JobStatusActions({ jobId, status }: JobStatusActionsProps) {
           <button
             onClick={() => handleTransition("active")}
             disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-paper transition hover:bg-success disabled:opacity-50"
           >
             {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
             Reopen
@@ -63,7 +63,7 @@ export function JobStatusActions({ jobId, status }: JobStatusActionsProps) {
           <button
             onClick={() => handleTransition("draft")}
             disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-mist px-3 py-1.5 text-xs font-medium text-ink-700 transition hover:bg-paper disabled:opacity-50"
           >
             {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileEdit className="h-3 w-3" />}
             Set to Draft

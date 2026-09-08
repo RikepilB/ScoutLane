@@ -19,7 +19,7 @@ export function ApplicantMatchPanel({ applicantId, jobTitle, hasParsedData, matc
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
           <Target className="h-4 w-4 text-muted-foreground" />
           Match to job
         </h3>
@@ -44,14 +44,14 @@ export function ApplicantMatchPanel({ applicantId, jobTitle, hasParsedData, matc
           </div>
 
           {match.rationale && (
-            <p className="rounded-xl border border-border/50 bg-muted/20 p-3 text-sm text-slate-700">
+            <p className="rounded-xl border border-border/50 bg-muted/20 p-3 text-sm text-ink-700">
               {match.rationale}
             </p>
           )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-success">
                 Matched skills
               </h4>
               {match.matchedSkills && match.matchedSkills.length > 0 ? (
@@ -59,7 +59,7 @@ export function ApplicantMatchPanel({ applicantId, jobTitle, hasParsedData, matc
                   {match.matchedSkills.map((skill, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
+                      className="inline-flex items-center rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-medium text-success"
                     >
                       {skill}
                     </span>
@@ -70,7 +70,7 @@ export function ApplicantMatchPanel({ applicantId, jobTitle, hasParsedData, matc
               )}
             </div>
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-red-700">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-danger">
                 Missing skills
               </h4>
               {match.missingSkills && match.missingSkills.length > 0 ? (
@@ -78,7 +78,7 @@ export function ApplicantMatchPanel({ applicantId, jobTitle, hasParsedData, matc
                   {match.missingSkills.map((skill, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700"
+                      className="inline-flex items-center rounded-full bg-danger-soft px-2.5 py-0.5 text-xs font-medium text-danger"
                     >
                       {skill}
                     </span>

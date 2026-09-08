@@ -1,9 +1,9 @@
 import { GraduationCap, Building, Wrench } from "lucide-react";
 
 const confidenceColors: Record<string, string> = {
-  high: "bg-emerald-100 text-emerald-700",
-  medium: "bg-amber-100 text-amber-700",
-  low: "bg-red-100 text-red-700",
+  high: "bg-success text-success",
+  medium: "bg-warning text-warning",
+  low: "bg-danger text-danger",
 };
 
 interface ApplicantParsedDataPanelsProps {
@@ -18,7 +18,7 @@ export function ApplicantParsedDataPanels({ education, work, skills, skillsConfi
     <>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
             <GraduationCap className="h-4 w-4 text-muted-foreground" />
             Education
           </h3>
@@ -46,7 +46,7 @@ export function ApplicantParsedDataPanels({ education, work, skills, skillsConfi
         </div>
 
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
             <Building className="h-4 w-4 text-muted-foreground" />
             Work experience
           </h3>
@@ -76,7 +76,7 @@ export function ApplicantParsedDataPanels({ education, work, skills, skillsConfi
 
       {skills && skills.length > 0 && (
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
             <Wrench className="h-4 w-4 text-muted-foreground" />
             Skills
             {skillsConfidence && (
@@ -89,7 +89,7 @@ export function ApplicantParsedDataPanels({ education, work, skills, skillsConfi
             {skills.map((skill, i) => (
               <span
                 key={i}
-                className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+                className="inline-flex items-center rounded-full bg-paper-2 px-3 py-1 text-xs font-medium text-ink-700"
               >
                 {skill}
               </span>

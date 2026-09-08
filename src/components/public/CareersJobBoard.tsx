@@ -9,6 +9,7 @@ import { CareersJobList } from "./CareersJobList";
 import { CareersJobAlertSection } from "./CareersJobAlertSection";
 import { CareersFooter } from "./CareersFooter";
 import { inferDepartment } from "@/lib/jobs/departments";
+import { parseLocations } from "@/lib/jobs/locations";
 
 interface Props {
   jobs: PublicJob[];
@@ -23,10 +24,12 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
   const [alertEmail, setAlertEmail] = useState("");
   const [alertStatus, setAlertStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
 
+  // Filter by individual location tokens, not the raw storage string — the
+  // DB stores "City A; City B" as one field and a candidate thinks in places.
   const locations = useMemo(() => {
     const set = new Set<string>();
     jobs.forEach((j) => {
-      if (j.location) set.add(j.location);
+      parseLocations(j.location).forEach((loc) => set.add(loc));
     });
     return [...set].sort();
   }, [jobs]);
@@ -44,7 +47,9 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
       }
       const dept = j.department ?? inferDepartment(j.title);
       if (deptFilter !== "all" && dept !== deptFilter) return false;
-      if (locationFilter !== "all" && j.location !== locationFilter) return false;
+      if (locationFilter !== "all" && !parseLocations(j.location).includes(locationFilter)) {
+        return false;
+      }
       return true;
     });
   }, [jobs, search, deptFilter, locationFilter]);
@@ -74,28 +79,11 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
   }
 
   return (
-    <div className="relative min-h-screen"
-      style={{ background: "#0c1529", color: "#f1f5f9", fontFamily: "var(--font-body)" }}>
-
-      {/* Background ambience */}
+    <div className="relative min-h-screen bg-ink-900 text-paper font-body">
       <div className="pointer-events-none fixed inset-0 z-0 opacity-35"
         style={{
           backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)",
           backgroundSize: "32px 32px",
-        }}
-      />
-      <div className="pointer-events-none fixed z-0"
-        style={{
-          top: "-200px", left: "-100px", width: "700px", height: "700px",
-          background: "radial-gradient(circle, rgba(27,44,193,0.35), rgba(27,44,193,0) 70%)",
-          filter: "blur(40px)",
-        }}
-      />
-      <div className="pointer-events-none fixed z-0"
-        style={{
-          top: "100px", right: "-200px", width: "600px", height: "600px",
-          background: "radial-gradient(circle, rgba(94,167,197,0.18), rgba(94,167,197,0) 70%)",
-          filter: "blur(40px)",
         }}
       />
 

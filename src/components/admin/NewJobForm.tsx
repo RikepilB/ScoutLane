@@ -199,12 +199,12 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
       ) : null}
 
       {templateName ? (
-        <div className="mx-6 mt-6 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+        <div className="mx-6 mt-6 rounded-xl border border-sky bg-info-soft px-4 py-3 text-sm text-sky">
           Starting from template: <span className="font-medium">{templateName}</span>
         </div>
       ) : (
-        <div className="mx-6 mt-6 rounded-xl border border-border/70 bg-slate-50 px-4 py-3">
-          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
+        <div className="mx-6 mt-6 rounded-xl border border-border/70 bg-paper px-4 py-3">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-ink-900">
             <Link2 className="h-4 w-4" />
             Import from a job posting URL
           </div>
@@ -218,7 +218,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
               value={importUrl}
               onChange={(e) => setImportUrl(e.target.value)}
               disabled={isImporting}
-              className="bg-white"
+              className="bg-surface"
             />
             <Button
               type="button"
@@ -237,8 +237,8 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
         <form onSubmit={handleSubmit}>
           <input type="hidden" {...form.register("templateId")} />
           <div className="grid gap-0 lg:grid-cols-[260px_1fr]">
-            <aside className="border-b border-border/70 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-              <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <aside className="border-b border-border/70 bg-paper p-5 lg:border-b-0 lg:border-r">
+              <div className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink-900">
                 <Settings2 className="h-4 w-4" />
                 Job setup
               </div>
@@ -253,16 +253,16 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
                       type="button"
                       onClick={() => setStep(index)}
                       className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
-                        isActive ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-white"
+                        isActive ? "bg-ink-950 text-paper" : "text-ink-700 hover:bg-surface"
                       }`}
                     >
                       <span
                         className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                           isActive
-                            ? "bg-white text-slate-950"
+                            ? "bg-surface text-ink-950"
                             : isDone
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-200 text-slate-600"
+                              ? "bg-success text-success"
+                              : "bg-mist text-ink-700"
                         }`}
                       >
                         {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
@@ -271,7 +271,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
                         <span className="block text-sm font-semibold">{item.title}</span>
                         <span
                           className={`mt-0.5 block text-xs leading-5 ${
-                            isActive ? "text-slate-300" : "text-slate-500"
+                            isActive ? "text-mist" : "text-steel"
                           }`}
                         >
                           {item.description}
@@ -285,7 +285,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
 
             <section className="min-h-[520px] p-6 sm:p-8">
               <div className="mb-6 flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-ink-950 text-paper">
                   <ActiveIcon className="h-5 w-5" />
                 </span>
                 <div>
@@ -318,7 +318,7 @@ export function NewJobForm({ initialValues, templateId, templateName }: NewJobFo
           <div className="flex items-center justify-between border-t border-border/70 px-6 py-4">
             <Link
               href={templateId ? "/admin/templates" : "/admin/jobs"}
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-slate-900"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-ink-900"
             >
               <ArrowLeft className="h-4 w-4" />
               {templateId ? "Back to templates" : "Back to jobs"}

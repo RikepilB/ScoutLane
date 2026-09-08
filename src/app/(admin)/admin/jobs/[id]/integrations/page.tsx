@@ -42,7 +42,7 @@ export default async function IntegrationsPage({ params }: IntegrationsPageProps
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold tracking-tight text-slate-900">
+          <h3 className="text-base font-semibold tracking-tight text-ink-900">
             External integrations
           </h3>
           <p className="text-sm text-muted-foreground">

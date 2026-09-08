@@ -8,7 +8,7 @@ export default function Loading() {
     >
       <div className="flex flex-col items-center gap-4">
         <div
-          className="inline-flex h-14 w-14 animate-pulse items-center justify-center rounded-[16px] text-white"
+          className="inline-flex h-14 w-14 animate-pulse items-center justify-center rounded-[16px] text-paper"
           style={{
             background: "linear-gradient(135deg, #1B2CC1, #161fa8)",
             fontFamily: "var(--font-display)",
@@ -19,7 +19,7 @@ export default function Loading() {
         >
           SL
         </div>
-        <p className="text-sm text-slate-400">Loading position…</p>
+        <p className="text-sm text-soft">Loading position…</p>
       </div>
     </div>
   );

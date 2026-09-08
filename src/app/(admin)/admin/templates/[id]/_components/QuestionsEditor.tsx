@@ -104,7 +104,7 @@ export function QuestionsEditor({ defaultValue, inputName = "questions" }: Quest
         {questions.map((question, index) => (
           <div
             key={index}
-            className="flex flex-col gap-2 rounded-xl border border-border/60 bg-white p-3"
+            className="flex flex-col gap-2 rounded-xl border border-border/60 bg-surface p-3"
           >
             <div className="flex items-start gap-2">
               <GripVertical className="mt-2 h-4 w-4 shrink-0 text-muted-foreground/50" />
@@ -136,7 +136,7 @@ export function QuestionsEditor({ defaultValue, inputName = "questions" }: Quest
                   onChange={(e) => handleDurationChange(index, e.target.value)}
                   min={10}
                   max={600}
-                  className="w-16 rounded-md border border-border/60 px-2 py-1 text-xs outline-none focus:border-sky-500"
+                  className="w-16 rounded-md border border-border/60 px-2 py-1 text-xs outline-none focus:border-sky"
                 />
                 s
               </label>
@@ -148,7 +148,7 @@ export function QuestionsEditor({ defaultValue, inputName = "questions" }: Quest
                   onChange={(e) => handleAttemptsChange(index, e.target.value)}
                   min={1}
                   max={10}
-                  className="w-14 rounded-md border border-border/60 px-2 py-1 text-xs outline-none focus:border-sky-500"
+                  className="w-14 rounded-md border border-border/60 px-2 py-1 text-xs outline-none focus:border-sky"
                 />
               </label>
             </div>

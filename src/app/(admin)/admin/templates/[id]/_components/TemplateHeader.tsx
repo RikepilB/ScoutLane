@@ -21,7 +21,7 @@ export function TemplateHeader({ template, deleteAction }: TemplateHeaderProps) 
         </Button>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+            <h1 className="text-3xl font-semibold tracking-tight text-ink-950">
               Edit template
             </h1>
             <p className="text-sm text-muted-foreground">
