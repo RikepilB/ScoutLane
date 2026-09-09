@@ -55,7 +55,7 @@ export function SignedInGate({
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-xl bg-sky px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
+            className="rounded-xl min-h-11 bg-brand-royal px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
           >
             Refresh page
           </button>
@@ -63,7 +63,7 @@ export function SignedInGate({
       );
     }
     return (
-      <div className="flex items-center justify-center py-12 text-sm text-steel">
+      <div className="flex items-center justify-center py-12 text-sm text-mist">
         Loading…
       </div>
     );
@@ -83,7 +83,7 @@ export function SignedInGate({
               router.push(callbackUrl);
               router.refresh();
             }}
-            className="w-full rounded-xl bg-sky px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
+            className="w-full rounded-xl min-h-11 bg-brand-royal px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky"
           >
             {continueLabel}
           </button>

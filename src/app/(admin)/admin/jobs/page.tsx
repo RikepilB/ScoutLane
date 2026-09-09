@@ -68,8 +68,8 @@ export default async function JobsListPage({ searchParams }: PageProps) {
   };
 
   return (
-    <main className="flex-1" style={{ background: "#f1f5f9" }}>
-      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+    <div className="min-w-0 flex-1 bg-paper">
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-4 py-6 sm:px-8 sm:py-8">
         {/* Page header */}
         <header className="animate-fade-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -104,7 +104,7 @@ export default async function JobsListPage({ searchParams }: PageProps) {
               key={f.value}
               href={f.value === "all" ? "/admin/jobs" : `/admin/jobs?status=${f.value}`}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-all duration-[0.16s]",
+                "inline-flex min-h-11 items-center gap-1.5 rounded-control border px-3.5 py-1.5 text-[13px] font-medium transition-colors",
                 filter === f.value
                   ? "border-ink-900 bg-ink-900 text-paper"
                   : "border-mist bg-surface text-steel hover:bg-paper hover:text-ink-900",
@@ -149,6 +149,6 @@ export default async function JobsListPage({ searchParams }: PageProps) {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

@@ -139,8 +139,8 @@ export function buildApplicationConfirmationEmail({
   return {
     subject: `Application received for ${jobTitle}`,
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">
-        <p style="font-size:14px;color:#4b5563;margin:0 0 16px">ScoutLane</p>
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#17151a">
+        <p style="font-size:14px;color:#514d57;margin:0 0 16px">ScoutLane</p>
         <h1 style="font-size:24px;line-height:1.2;margin:0 0 16px">Application received</h1>
         <p style="font-size:16px;line-height:1.6;margin:0 0 12px">Hi ${safeName},</p>
         <p style="font-size:16px;line-height:1.6;margin:0 0 12px">
@@ -172,7 +172,7 @@ export async function sendJobAlertConfirmation(
   const unsubUrl = `${APP_URL}/api/public/job-alerts?token=${token}`;
   const subject = "Job alert confirmed — ScoutLane";
   const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:20px;">
-      <h2 style="color:#1d4ed8;">ScoutLane Job Alert</h2>
+      <h2 style="color:#604368;">ScoutLane Job Alert</h2>
       <p>You are now subscribed to new job notifications from ScoutLane.</p>
       <p>We will email you when new positions are posted.</p>
       <p style="margin-top:20px;font-size:12px;color:#888;">
@@ -192,9 +192,9 @@ export async function sendNewJobNotification(
   const unsubUrl = `${APP_URL}/api/public/job-alerts?token=${token}`;
   const subject = `New job: ${jobTitle} — ScoutLane`;
   const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:20px;">
-      <h2 style="color:#1d4ed8;">New Position at ScoutLane</h2>
+      <h2 style="color:#604368;">New Position at ScoutLane</h2>
       <p><strong>${escapeHtml(jobTitle)}</strong></p>
-      <p><a href="${jobUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">View job</a></p>
+      <p><a href="${jobUrl}" style="display:inline-block;background:#604368;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">View job</a></p>
       <p style="margin-top:20px;font-size:12px;color:#888;">
         <a href="${unsubUrl}" style="color:#888;">Unsubscribe</a>
       </p>
@@ -237,12 +237,12 @@ export async function sendAdminNewApplicationEmail({
 }: AdminNewApplicationEmailInput): Promise<EmailSendResult> {
   const subject = `New application: ${applicantName} → ${jobTitle}`;
   const html = `
-      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">
-        <p style="font-size:14px;color:#4b5563;margin:0 0 16px">ScoutLane · New application</p>
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#17151a">
+        <p style="font-size:14px;color:#514d57;margin:0 0 16px">ScoutLane · New application</p>
         <h1 style="font-size:22px;line-height:1.3;margin:0 0 16px">${escapeHtml(applicantName)} applied for ${escapeHtml(jobTitle)}</h1>
         <p style="font-size:15px;line-height:1.6;margin:0 0 8px"><strong>Email:</strong> ${escapeHtml(applicantEmail)}</p>
         <p style="margin:18px 0 0">
-          <a href="${jobUrl}" style="display:inline-block;background:#1B2CC1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Open in dashboard</a>
+          <a href="${jobUrl}" style="display:inline-block;background:#604368;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Open in dashboard</a>
         </p>
       </div>
     `;

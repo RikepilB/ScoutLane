@@ -13,8 +13,8 @@ export default async function LegalPage() {
 
   return (
     <div
-      className="relative min-h-screen"
-      style={{ background: "#0c1529", color: "#f1f5f9", fontFamily: "var(--font-body)" }}
+      className="relative min-h-screen bg-ink-900 text-paper"
+      style={{ fontFamily: "var(--font-body)" }}
     >
       <div className="relative z-[1] mx-auto max-w-[820px] px-7 pb-20 pt-6">
         <PublicNav

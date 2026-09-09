@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { RoleSelectButton } from "./RoleSelectButton";
 
 const doors = [
@@ -14,7 +13,7 @@ const doors = [
       "Organization settings",
     ],
     selectLabel: "Choose Admin",
-    accent: "#1B2CC1",
+    accent: "var(--color-peri)",
   },
   {
     role: "RECRUITER" as const,
@@ -28,7 +27,7 @@ const doors = [
       "CSV export",
     ],
     selectLabel: "Choose Recruiter",
-    accent: "#5ea7c5",
+    accent: "var(--color-cyan)",
   },
 ];
 
@@ -52,8 +51,7 @@ export function RoleSelector() {
           <article
             key={door.role}
             role="listitem"
-            className="rounded-2xl border border-paper/[0.08] bg-ink-950/70 p-5 transition-colors hover:border-paper/[0.12]"
-            style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px ${door.accent}22` }}
+            className="border-t border-border-dark-strong py-5"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -72,7 +70,7 @@ export function RoleSelector() {
               </div>
             </div>
             <p className="mt-2 text-sm leading-6 text-soft">{door.body}</p>
-            <ul className="mt-3 space-y-1 text-xs text-steel" aria-label={`Features in ${door.title}`}>
+            <ul className="mt-3 space-y-1 text-xs text-text-inverse-muted" aria-label={`Features in ${door.title}`}>
               {door.items.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <span style={{ color: door.accent }}>→</span> {item}
@@ -92,13 +90,6 @@ export function RoleSelector() {
         ))}
       </div>
 
-      <div className="rounded-lg border border-ink-700/40 bg-ink-900/20 p-4">
-        <p className="text-xs font-medium text-mist">💡 Not sure which one?</p>
-        <p className="mt-1 text-xs leading-5 text-steel">
-          <strong>Admin:</strong> Full system setup, templates, integrations, team management.{" "}
-          <strong>Recruiter:</strong> Applicant review, AI scoring, pipeline moves.
-        </p>
-      </div>
     </div>
   );
 }

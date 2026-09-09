@@ -43,8 +43,8 @@ export default async function JobDetailLayout({ children, params }: LayoutProps)
             Jobs
           </Link>
           <span className="text-muted-foreground/40">/</span>
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold tracking-tight">{job.title}</h1>
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <h1 className="min-w-0 break-words text-lg font-semibold tracking-tight">{job.title}</h1>
             <span
               className={cn(
                 "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ring-1 ring-inset",

@@ -13,7 +13,7 @@ const doors = [
       "Team role management",
       "Organization settings",
     ],
-    accent: "#1B2CC1",
+    accent: "var(--color-peri)",
   },
   {
     href: "/signin?as=recruiter",
@@ -27,7 +27,7 @@ const doors = [
       "Kanban pipeline",
       "CSV export",
     ],
-    accent: "#5ea7c5",
+    accent: "var(--color-cyan)",
   },
 ];
 
@@ -51,8 +51,7 @@ export function RoleChooser({ callbackUrl }: { callbackUrl: string }) {
           <article
             key={door.role}
             role="listitem"
-            className="rounded-2xl border border-paper/[0.08] bg-ink-950/70 p-5 transition-colors hover:border-paper/[0.12]"
-            style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px ${door.accent}22` }}
+            className="border-t border-border-dark-strong py-5"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -71,7 +70,7 @@ export function RoleChooser({ callbackUrl }: { callbackUrl: string }) {
               </div>
             </div>
             <p className="mt-2 text-sm leading-6 text-soft">{door.body}</p>
-            <ul className="mt-3 space-y-1 text-xs text-steel" aria-label={`Features in ${door.title}`}>
+            <ul className="mt-3 space-y-1 text-xs text-text-inverse-muted" aria-label={`Features in ${door.title}`}>
               {door.items.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <span style={{ color: door.accent }}>→</span> {item}
@@ -80,11 +79,7 @@ export function RoleChooser({ callbackUrl }: { callbackUrl: string }) {
             </ul>
             <Link
               href={`${door.href}&redirect_url=${encodeURIComponent(callbackUrl)}`}
-              className="mt-5 inline-flex w-full items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-paper transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky sm:w-auto"
-              style={{
-                background: `linear-gradient(180deg, ${door.accent}, ${door.accent}cc)`,
-                boxShadow: `0 8px 20px ${door.accent}40`,
-              }}
+              className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky sm:w-auto"
             >
               Continue as {door.title.replace(" Workspace", "")}
             </Link>
@@ -92,13 +87,6 @@ export function RoleChooser({ callbackUrl }: { callbackUrl: string }) {
         ))}
       </div>
 
-      <div className="rounded-lg border border-ink-700/40 bg-ink-900/20 p-4">
-        <p className="text-xs font-medium text-mist">💡 Not sure which one?</p>
-        <p className="mt-1 text-xs leading-5 text-steel">
-          <strong>Admin:</strong> Full system setup, templates, integrations, team management.{" "}
-          <strong>Recruiter:</strong> Applicant review, AI scoring, pipeline moves.
-        </p>
-      </div>
     </div>
   );
 }

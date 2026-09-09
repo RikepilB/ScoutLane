@@ -4,7 +4,6 @@ import { ExternalLink, MapPin, Briefcase, DollarSign } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { getJobStatus } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/admin/StatusBadge";
 import { JobStatusActions } from "@/components/admin/JobStatusActions";
 import { DeleteJobButton } from "@/components/admin/DeleteJobButton";
 import { getCurrentUserWithOrganization } from "@/server/services/current-user";
@@ -131,10 +130,6 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-4 flex-1">
             <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-semibold tracking-tight">{job.title}</h2>
-                <StatusBadge status={status} />
-              </div>
               <p className="mt-1 text-sm text-muted-foreground">/{job.slug}</p>
             </div>
 
@@ -179,29 +174,26 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
         </div>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <dl aria-label="Applicants by stage" className="grid grid-cols-2 gap-x-6 gap-y-3 border-y border-border py-4 sm:grid-cols-3 lg:grid-cols-4">
         {stageCounts.map((stage: (typeof stageCounts)[number]) => (
           <div
             key={stage.id}
-            className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm"
+            className="flex items-center justify-between gap-3"
           >
-            <div className="flex items-center gap-2">
+            <dt className="flex items-center gap-2">
               <span
                 className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: stage.color ?? "#6366f1" }}
+                style={{ backgroundColor: stage.color ?? "var(--color-brand-royal)" }}
               />
               <span className="text-sm text-muted-foreground">{stage.name}</span>
-            </div>
-            <div className="mt-2 text-2xl font-semibold tracking-tight">{stage.count}</div>
+            </dt>
+            <dd className="text-lg font-semibold tabular-nums">{stage.count}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
-      <section className="space-y-4">
-        <div>
-          <h3 className="text-base font-semibold tracking-tight text-ink-900">Analytics (this job)</h3>
-          <p className="mt-1 text-sm text-muted-foreground">All metrics below are scoped to this role.</p>
-        </div>
+      <details className="space-y-4">
+        <summary className="min-h-11 cursor-pointer py-3 text-base font-semibold text-ink-900 focus-visible:outline-2 focus-visible:outline-offset-2">Explore this job’s analytics</summary>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground">Total applicants</p>
@@ -241,21 +233,7 @@ export default async function JobOverviewPage({ params }: OverviewPageProps) {
             labelKey="label"
           />
         </div>
-      </section>
-
-      <section className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">        <h3 className="text-base font-semibold tracking-tight">Quick actions</h3>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button variant="outline" asChild>
-            <Link href={`/admin/jobs/${id}/pipeline`}>View pipeline</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/admin/jobs/${id}/applicants`}>View applicants</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/admin/jobs/${id}/stages`}>Manage stages</Link>
-          </Button>
-        </div>
-      </section>
+      </details>
     </div>
   );
 }

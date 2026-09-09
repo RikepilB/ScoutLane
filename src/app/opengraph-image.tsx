@@ -2,9 +2,10 @@ import { ImageResponse } from "next/og";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "ScoutLane — the ATS that shows its work";
+export const alt = "ScoutLane — hiring decisions connected to evidence";
 
 export default function OpengraphImage() {
+  // ImageResponse renders outside the page stylesheet; mirror the public brand here.
   return new ImageResponse(
     (
       <div
@@ -14,8 +15,10 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#0c1529",
-          color: "#f1f5f9",
+          backgroundColor: "#f8f8fa",
+          backgroundImage:
+            "radial-gradient(circle at 14% 8%, rgba(214,204,223,0.9), transparent 32%), radial-gradient(circle at 88% 16%, rgba(56,189,248,0.24), transparent 29%), radial-gradient(circle at 72% 100%, rgba(99,102,241,0.2), transparent 38%)",
+          color: "#17151a",
           padding: 72,
         }}
       >
@@ -28,15 +31,15 @@ export default function OpengraphImage() {
               width: 72,
               height: 72,
               borderRadius: 12,
-              backgroundColor: "#1B2CC1",
-              color: "#f1f5f9",
+              backgroundImage: "linear-gradient(145deg, #765a77, #403b79 58%, #123f59)",
+              color: "#f8f8fa",
               fontSize: 34,
               fontWeight: 700,
             }}
           >
             SL
           </div>
-          <div style={{ fontSize: 34, fontWeight: 600, color: "#f1f5f9" }}>
+          <div style={{ fontSize: 34, fontWeight: 600, color: "#17151a" }}>
             ScoutLane
           </div>
         </div>
@@ -47,15 +50,15 @@ export default function OpengraphImage() {
               fontSize: 76,
               fontWeight: 600,
               letterSpacing: -2,
-              color: "#f1f5f9",
+              color: "#17151a",
               lineHeight: 1.05,
             }}
           >
-            The ATS that shows its work
+            Every hiring decision should leave a trail.
           </div>
-          <div style={{ fontSize: 30, color: "rgba(241,245,249,0.65)", lineHeight: 1.4 }}>
-            Resumes become structured data, scored against the role, staged in a
-            pipeline you can inspect step by step.
+          <div style={{ fontSize: 30, color: "#514d57", lineHeight: 1.4 }}>
+            Resumes, role evidence and hiring decisions stay connected in one
+            candidate record.
           </div>
         </div>
 
@@ -65,17 +68,17 @@ export default function OpengraphImage() {
             alignItems: "center",
             gap: 16,
             fontSize: 24,
-            color: "rgba(241,245,249,0.5)",
+            color: "#604368",
           }}
         >
           <div
             style={{
               width: 40,
               height: 2,
-              backgroundColor: "rgba(241,245,249,0.25)",
+              backgroundColor: "#604368",
             }}
           />
-          apply → extract → parse → score → stage → dispatch
+          resume → evidence → conversations → decision
         </div>
       </div>
     ),

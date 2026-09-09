@@ -28,8 +28,8 @@ export default async function TemplatesPage() {
     : [];
 
   return (
-    <main className="flex-1" style={{ background: "#f1f5f9" }}>
-      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-10 py-8">
+    <div className="min-w-0 flex-1 bg-paper">
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5 px-4 py-6 sm:px-8 sm:py-8">
         {/* Page header */}
         <header className="animate-fade-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -59,7 +59,7 @@ export default async function TemplatesPage() {
             </div>
           </div>
         ) : (
-          <div className="animate-fade-up animate-fade-up-delay-1 overflow-hidden rounded-2xl border border-mist bg-surface shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+          <div className="animate-fade-up animate-fade-up-delay-1 overflow-x-auto rounded-card border border-mist bg-surface shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
             <table className="w-full text-[13.5px]">
               <thead>
                 <tr className="border-b border-mist">
@@ -139,6 +139,6 @@ export default async function TemplatesPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
