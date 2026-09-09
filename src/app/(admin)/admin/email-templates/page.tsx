@@ -14,12 +14,12 @@ export default function EmailTemplatesPage() {
   });
 
   const adminNotificationHtml = `
-    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">
-      <p style="font-size:14px;color:#4b5563;margin:0 0 16px">ScoutLane · New application</p>
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#17151a">
+      <p style="font-size:14px;color:#514d57;margin:0 0 16px">ScoutLane · New application</p>
       <h1 style="font-size:22px;line-height:1.3;margin:0 0 16px">${sampleApplicant} applied for ${sampleJob}</h1>
       <p style="font-size:15px;line-height:1.6;margin:0 0 8px"><strong>Email:</strong> jordan.lee@example.com</p>
       <p style="margin:18px 0 0">
-        <a href="#" style="display:inline-block;background:#1B2CC1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Open in dashboard</a>
+        <a href="#" style="display:inline-block;background:#604368;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Open in dashboard</a>
       </p>
     </div>
   `;

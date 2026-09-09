@@ -75,8 +75,8 @@ export default async function SignInPage({ searchParams }: Props) {
             </SignedInGate>
           </div>
 
-          <p className="text-center text-xs text-ink-700">
-            <Link href="/" className="hover:text-soft">
+          <p className="text-center text-sm text-mist">
+            <Link href="/" className="inline-flex min-h-11 items-center hover:text-paper">
               Back to home
             </Link>
           </p>

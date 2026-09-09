@@ -26,6 +26,7 @@
 !/docs/STACK.md
 !/docs/TESTING.md
 !/docs/UX-TEST-PROTOCOL.md
+!/docs/DESIGN.md
 # Dependencies
 node_modules/
 .pnp/

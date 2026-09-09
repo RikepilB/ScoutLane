@@ -1,30 +1,22 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
-import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
+import { Geologica } from "next/font/google";
 import "./globals.css";
 
-// Self-hosted via next/font: no render-blocking Google Fonts <link>, no FOUT
-// on the display face, and the CSS variables below back the @theme font
-// tokens (--font-display / --font-body / --font-mono) already used tree-wide.
-const displayFont = Bricolage_Grotesque({
+// One variable family serves display, body and data surfaces. Geologica's
+// CRSV/SHRP axes create hierarchy without a second face or decorative italics.
+const brandFont = Geologica({
   subsets: ["latin"],
-  axes: ["opsz"],
-  variable: "--font-bricolage",
-  display: "swap",
-});
-const bodyFont = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-  display: "swap",
-});
-const monoFont = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
+  weight: "variable",
+  axes: ["CRSV", "SHRP", "slnt"],
+  variable: "--font-geologica",
   display: "swap",
 });
 
-const title = "ScoutLane — The ATS that shows its work";
+const colorThemeScript = `(()=>{try{const saved=localStorage.getItem("scoutlane-theme");const theme=saved==="light"||saved==="dark"?saved:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.scoutTheme=theme}catch{document.documentElement.dataset.scoutTheme="light"}})()`;
+
+const title = "ScoutLane — Hiring decisions connected to evidence";
 const description =
   "ScoutLane parses every resume into structured data, scores candidates against the role, and runs an inspectable hiring pipeline.";
 
@@ -67,8 +59,11 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
+      className={brandFont.variable}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: colorThemeScript }} />
+      </head>
       <body>
         {clerkPk ? (
           <ClerkProvider

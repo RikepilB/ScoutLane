@@ -1,112 +1,82 @@
 @import "tailwindcss";
 
-/* ── ScoutLane Design System ──
-   Direction (rev 2, 2026-09-08): warm the night back up — depth, not chrome.
+/* The hosted auth widget has a fixed 350px card; constrain its public slots,
+   not hashed internal classes, so nested mobile panels can reflow. */
+.scoutlane-signin .cl-rootBox,
+.scoutlane-signin .cl-cardBox,
+.scoutlane-signin .cl-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 
-   Rev 1 said "flat by direction; depth comes from a hairline border". That
-   read as white outlines on every surface, everything boxed, and a page that
-   felt sad and plain. Rev 2 keeps the brand and the restraint but restores
-   atmosphere:
-
-   · Borders on dark surfaces are PERI-TINTED and quiet (they belong to the
-     night, not to a wireframe). Paper-white hairlines are gone.
-   · Depth is real again: layered black shadows + lane-tinted glows on the
-     few elements that genuinely float (hero trace, workspace doors).
-   · Boxes are earned. A card wraps a product artifact or an entry point;
-     copy sections breathe with spacing and typography instead.
-   · Background is never one flat fill: layered royal/cyan/plum washes give
-     the page its tone.
-
-   Brand: #1B2CC1 (royal primary), #3D518C (slate-blue hover)
-   Ink: #091540 (midnight) → #0c1529 (ink-900) → #394050 (graphite)
-   Paper: #f1f5f9 (bg) → #ffffff (surface) → #d4d9df (mist/borders)
-   Accents: #7692FF (peri), #ABD2FA (sky), #5ea7c5 (cyan), #5f8ea0 (steel)
-
-   RULE: this file is the only place a colour literal may appear. A raw hex
-   or a raw Tailwind palette class in a component is a bug — the palette has
-   to stay changeable from one place.
-
-   Utilities to reach for, in preference order:
-     surfaces  bg-surface  bg-paper  bg-paper-2  bg-ink-900  bg-ink-800
-     text      text-ink-900  text-ink-700  text-steel  text-paper
-     brand     bg-brand-royal  text-brand-royal  hover:bg-brand-royal-hover
-     borders   border-mist  border-mist-strong  border-hairline
-               border-border-dark-subtle / -dark / -dark-strong (dark scenes)
-     status    text-success  bg-success-soft  (…warning / danger / info)
-     radius    rounded-card  rounded-control
-     elevation shadow-hairline  shadow-raised  shadow-overlay        (light)
-               shadow-card-dark  shadow-lift-dark                   (dark)
-               shadow-glow-royal  shadow-glow-cyan                  (lane glow)
-
-   Naming note: Tailwind v4 flattens a token into one class name, so
-   `--color-text-primary` becomes `text-text-primary`. The `text-*`,
-   `surface-*` and `border-*` groups below stay for CSS-level `var()` use and
-   for the shadcn aliases; components use the readable names above.
-*/
+/* ScoutLane rev 4: silver light, near-black ink and muted aubergine. See docs/DESIGN.md.
+   Palette literals live here. Legacy hue names remain compatibility aliases
+   for existing product surfaces; use semantic tokens for new code. */
 
 @theme {
   /* ── Brand ── */
-  --color-brand-royal: #1B2CC1;
-  --color-brand-slate: #3D518C;
-  --color-brand-royal-hover: #2238d6;
-  --color-brand-royal-dark: #161fa8;
+  --color-brand-royal: #604368;
+  --color-brand-slate: #686572;
+  --color-brand-royal-hover: #4d3455;
+  --color-brand-royal-dark: #3f2945;
 
   /* ── Ink (dark) ── */
-  --color-ink-950: #091540;
-  --color-ink-900: #0c1529;
-  --color-ink-800: #14213d;
-  --color-ink-700: #394050;
+  --color-ink-950: #100f12;
+  --color-ink-900: #17151a;
+  --color-ink-800: #2b282f;
+  --color-ink-700: #514d57;
 
   /* ── Paper (light) ── */
-  --color-paper: #f1f5f9;
-  --color-paper-2: #e6ecf2;
-  --color-paper-3: #d4d9df;
+  --color-paper: #f8f8fa;
+  --color-paper-2: #ebe9ef;
+  --color-paper-3: #d9d5de;
 
   /* ── Accents ── */
-  --color-peri: #7692FF;
-  --color-sky: #ABD2FA;
-  --color-cyan: #5ea7c5;
-  --color-plum: #473459;
-  --color-steel: #5f8ea0;
+  --color-peri: #d6ccdf;
+  --color-sky: #eceaf0;
+  --color-cyan: #c5c2ce;
+  --color-plum: #765a77;
+  --color-steel: #6c6872;
 
   /* ── Surfaces (semantic) ── */
   --color-surface: #ffffff;
-  --color-surface-secondary: #f1f5f9;
+  --color-surface-secondary: #f3f2f5;
   --color-surface-raised: #ffffff;
-  --color-surface-sunken: #e6ecf2;
-  --color-surface-inverse: #0c1529;
-  --color-surface-inverse-raised: #14213d;
+  --color-surface-sunken: #ebe9ef;
+  --color-surface-inverse: #17151a;
+  --color-surface-inverse-raised: #2b282f;
 
   /* ── Text ── */
-  --color-text-primary: #0c1529;
-  --color-text-secondary: #394050;
-  --color-text-muted: #5f8ea0;
-  --color-text-soft: #94a3b8;
-  --color-text-inverse: #f1f5f9;
-  --color-text-inverse-muted: #94a3b8;
-  --color-text-brand: #1B2CC1;
+  --color-text-primary: #17151a;
+  --color-text-secondary: #514d57;
+  --color-text-muted: #6c6872;
+  --color-text-soft: #918b96;
+  --color-text-inverse: #f8f8fa;
+  --color-text-inverse-muted: #b8b3bd;
+  --color-text-brand: #604368;
 
   /* ── Borders ── */
-  --color-border-default: #d4d9df;
-  --color-border-strong: #b8c2cc;
-  --color-border-subtle: rgba(9, 21, 64, 0.08);
+  --color-border-default: #d9d5de;
+  --color-border-strong: #b8b2bf;
+  --color-border-subtle: rgba(23, 21, 26, 0.08);
   /* Dark-scene borders are peri-tinted so they read as part of the night.
      Rev 1's paper-white hairlines (rgba(241,245,249,…)) read as bright
      outlines on ink and made every surface look wireframed. */
-  --color-border-dark-subtle: rgba(148, 163, 255, 0.06);
-  --color-border-dark: rgba(148, 163, 255, 0.11);
-  --color-border-dark-strong: rgba(148, 163, 255, 0.2);
-  --color-border-brand: #1B2CC1;
+  --color-border-dark-subtle: rgba(231, 226, 235, 0.06);
+  --color-border-dark: rgba(231, 226, 235, 0.11);
+  --color-border-dark-strong: rgba(231, 226, 235, 0.2);
+  --color-border-brand: #604368;
 
   /* Border aliases. Tailwind v4 flattens `--color-border-default` into the
      class `border-border-default`, which is why nothing adopted it. `mist`
      is the same value under a name that produces `border-mist`. */
-  --color-mist: #d4d9df;
-  --color-mist-strong: #b8c2cc;
-  --color-hairline: rgba(9, 21, 64, 0.08);
+  --color-mist: #d9d5de;
+  --color-mist-strong: #b8b2bf;
+  --color-hairline: rgba(23, 21, 26, 0.08);
 
   /* Same reason: `--color-text-soft` would produce `text-text-soft`. */
-  --color-soft: #94a3b8;
+  --color-soft: #918b96;
 
   /* ── Status ── */
   --color-success: #2d8a6a;
@@ -115,8 +85,8 @@
   --color-warning-soft: rgba(200, 140, 40, 0.12);
   --color-danger: #c93a3a;
   --color-danger-soft: rgba(201, 58, 58, 0.12);
-  --color-info: #2d6f8a;
-  --color-info-soft: rgba(45, 111, 138, 0.12);
+  --color-info: #686572;
+  --color-info-soft: rgba(104, 101, 114, 0.12);
 
   /* ── shadcn compat — aliases onto the semantic layer above.
      The 300+ existing `bg-card` / `text-muted-foreground` call sites inherit
@@ -150,32 +120,32 @@
      Rev 1 was "flat by direction", which left dark pages airless. The dark
      shadows are near-black (not grey) so they read as light falloff, and
      the glows carry the lane colour (royal/cyan) at whisper level. ── */
-  --shadow-hairline: 0 1px 0 0 rgba(9, 21, 64, 0.04);
-  --shadow-raised: 0 1px 2px 0 rgba(9, 21, 64, 0.06);
-  --shadow-overlay: 0 8px 24px -6px rgba(9, 21, 64, 0.16), 0 2px 6px -2px rgba(9, 21, 64, 0.08);
+  --shadow-hairline: 0 1px 0 0 rgba(23, 21, 26, 0.04);
+  --shadow-raised: 0 1px 2px 0 rgba(23, 21, 26, 0.06);
+  --shadow-overlay: 0 8px 24px -6px rgba(23, 21, 26, 0.16), 0 2px 6px -2px rgba(23, 21, 26, 0.08);
   --shadow-card-dark:
-    0 1px 2px rgba(2, 6, 23, 0.5),
-    0 16px 40px -16px rgba(2, 6, 23, 0.6);
+    0 1px 2px rgba(20, 23, 18, 0.5),
+    0 16px 40px -16px rgba(20, 23, 18, 0.6);
   --shadow-lift-dark:
-    0 2px 4px rgba(2, 6, 23, 0.45),
-    0 32px 64px -20px rgba(2, 6, 23, 0.7);
-  --shadow-glow-royal: 0 24px 90px -20px rgba(27, 44, 193, 0.5);
-  --shadow-glow-cyan: 0 24px 90px -20px rgba(94, 167, 197, 0.35);
+    0 2px 4px rgba(20, 23, 18, 0.45),
+    0 32px 64px -20px rgba(20, 23, 18, 0.7);
+  --shadow-glow-royal: 0 24px 90px -20px rgba(96, 67, 104, 0.42);
+  --shadow-glow-cyan: 0 24px 90px -20px rgba(197, 194, 206, 0.32);
   /* Lift + lane glow composed — Tailwind shadow utilities don't stack, so
      the doors use these single tokens. */
   --shadow-door-royal:
-    0 2px 4px rgba(2, 6, 23, 0.45),
-    0 32px 64px -20px rgba(2, 6, 23, 0.7),
-    0 24px 90px -20px rgba(27, 44, 193, 0.5);
+    0 2px 4px rgba(20, 23, 18, 0.45),
+    0 32px 64px -20px rgba(20, 23, 18, 0.7),
+    0 24px 90px -20px rgba(96, 67, 104, 0.42);
   --shadow-door-cyan:
-    0 2px 4px rgba(2, 6, 23, 0.45),
-    0 32px 64px -20px rgba(2, 6, 23, 0.7),
-    0 24px 90px -20px rgba(94, 167, 197, 0.35);
+    0 2px 4px rgba(20, 23, 18, 0.45),
+    0 32px 64px -20px rgba(20, 23, 18, 0.7),
+    0 24px 90px -20px rgba(197, 194, 206, 0.32);
 
   /* ── Font families ── */
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", serif;
-  --font-body: var(--font-geist), "Geist", system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --font-display: var(--font-geologica), "Geologica", sans-serif;
+  --font-body: var(--font-geologica), "Geologica", sans-serif;
+  --font-mono: var(--font-geologica), "Geologica", sans-serif;
 
   /* ── Type ramp — fixed steps. Fluid clamp() is reserved for the single
      hero size; every other heading picks a step deliberately. ── */
@@ -206,6 +176,7 @@ a, button, [role="button"], input, select, textarea, label {
 
 html {
   font-family: var(--font-body);
+  font-variation-settings: "CRSV" 0, "SHRP" 10, "slnt" 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -237,24 +208,24 @@ body {
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(171, 210, 250, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(171, 210, 250, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(214, 204, 223, 0.66); }
+  70% { box-shadow: 0 0 0 8px rgba(214, 204, 223, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(214, 204, 223, 0); }
 }
 
 @keyframes harness-station {
   0%, 12% {
-    background: rgba(148, 163, 255, 0.03);
+    background: rgba(248, 248, 250, 0.03);
     box-shadow: none;
   }
   18%, 30% {
-    background: rgba(27, 44, 193, 0.24);
+    background: rgba(96, 67, 104, 0.26);
     box-shadow:
-      0 0 32px rgba(27, 44, 193, 0.35),
-      inset 0 1px 0 rgba(171, 210, 250, 0.25);
+      0 0 32px rgba(99, 102, 241, 0.3),
+      inset 0 1px 0 rgba(56, 189, 248, 0.22);
   }
   38%, 100% {
-    background: rgba(148, 163, 255, 0.03);
+    background: rgba(248, 248, 250, 0.03);
     box-shadow: none;
   }
 }
@@ -332,13 +303,30 @@ body {
   font-family: var(--font-mono);
 }
 
-/* The dark page never sits on one flat fill. Layered lane-colour washes
-   (royal behind the hero, cyan to the right, plum pooling at the bottom)
+/* Dark pages never sit on one flat fill. Deep-ocean washes
+   (cyan near the hero, indigo to the right, aubergine pooling below)
    give the page tone — atmosphere, not blobs. Apply to an absolutely
    positioned, pointer-events-none layer behind the content (inset-0). */
 .bg-wash-dark {
   background:
-    radial-gradient(ellipse 60% 42% at 18% -4%, rgba(27, 44, 193, 0.30), transparent 68%),
-    radial-gradient(ellipse 46% 36% at 86% 22%, rgba(94, 167, 197, 0.17), transparent 70%),
-    radial-gradient(ellipse 70% 44% at 50% 108%, rgba(71, 52, 89, 0.34), transparent 72%);
+    radial-gradient(ellipse 60% 42% at 18% -4%, rgba(14, 165, 233, 0.23), transparent 68%),
+    radial-gradient(ellipse 46% 36% at 86% 22%, rgba(99, 102, 241, 0.2), transparent 70%),
+    radial-gradient(ellipse 70% 44% at 50% 108%, rgba(96, 67, 104, 0.32), transparent 72%);
+}
+
+
+/* Public chrome supports both the paper landing and existing dark pages. */
+.public-nav-paper .public-wordmark { color: var(--color-ink-900); }
+.public-nav-paper .public-nav-link { color: var(--color-ink-700); }
+.public-nav-paper .public-nav-link:hover,
+.public-nav-paper .public-nav-link[aria-current="page"] { color: var(--color-brand-royal); background: var(--color-paper-2); }
+.public-footer-paper { color: var(--color-ink-900); }
+.public-footer-paper p, .public-footer-paper a,
+.public-footer-paper > div:last-child { color: var(--color-steel); }
+.public-footer-paper span:not(:first-child) { color: var(--color-ink-900); }
+.public-footer-paper a { display: inline-flex; align-items: center; min-height: 44px; }
+.public-footer-paper a:hover { color: var(--color-brand-royal); text-decoration: underline; }
+@media (max-width: 680px) {
+  .public-nav { align-items: flex-start; }
+  .public-nav > div { width: 100%; flex-wrap: wrap; justify-content: space-between; gap: 0; }
 }

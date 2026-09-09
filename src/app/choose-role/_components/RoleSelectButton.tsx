@@ -10,11 +10,11 @@ const roleStyles: Record<UserRole, string> = {
   ADMIN:
     "bg-brand-royal transition-colors hover:bg-brand-royal-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   RECRUITER:
-    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-border-dark-strong bg-surface-inverse-raised hover:bg-ink-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   HIRING_MANAGER:
-    "border border-cyan/40 bg-ink-800 shadow-[0_8px_20px_rgba(94,167,197,0.18)] hover:bg-ink-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-border-dark-strong bg-surface-inverse-raised hover:bg-ink-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
   GUEST:
-    "border border-ink-700/40 bg-ink-800/40 shadow-[0_8px_20px_rgba(0,0,0,0.18)] hover:bg-ink-800/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
+    "border border-border-dark-strong bg-surface-inverse-raised hover:bg-ink-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
 };
 
 export function RoleSelectButton({
@@ -58,7 +58,7 @@ export function RoleSelectButton({
         aria-describedby={ariaDescribedby || errorId}
         aria-busy={pending}
         className={cn(
-          "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-paper transition disabled:opacity-60 disabled:cursor-not-allowed",
+          "inline-flex min-h-11 items-center justify-center rounded-control px-6 py-3 text-sm font-semibold text-paper transition-colors disabled:opacity-60 disabled:cursor-not-allowed",
           roleStyles[role],
           className,
         )}

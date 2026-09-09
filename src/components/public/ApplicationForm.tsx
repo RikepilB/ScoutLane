@@ -167,7 +167,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
   });
 
   return (
-    <div className="rounded-2xl border border-mist bg-surface p-6 text-ink-900 shadow-[0_18px_50px_rgba(9,21,64,0.14)] sm:p-7">
+    <div className="rounded-card border border-border bg-surface p-6 text-text-primary sm:p-7">
       <div className="mb-6 space-y-2">
         <h2 className="text-[24px] font-semibold tracking-[-0.015em] text-ink-900">
           Apply for this role
@@ -405,7 +405,7 @@ export function ApplicationForm({ jobSlug, customFields = [] }: ApplicationFormP
             </div>
           ))}
 
-          <Button className="h-11 w-full rounded-lg bg-brand-royal px-5 text-paper shadow-[0_10px_22px_rgba(27,44,193,0.24)] hover:bg-brand-royal-hover sm:w-auto" type="submit" disabled={isPending}>
+          <Button className="h-11 w-full rounded-control bg-primary px-5 text-primary-foreground hover:bg-brand-royal-hover sm:w-auto" type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Submit application
           </Button>

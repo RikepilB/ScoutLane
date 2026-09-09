@@ -10,16 +10,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const statusColors: Record<string, string> = {
-  NEW: "#6366f1",
-  REVIEWING: "#f59e0b",
-  SHORTLISTED: "#3b82f6",
-  INTERVIEW: "#8b5cf6",
-  OFFERED: "#10b981",
-  REJECTED: "#ef4444",
-  WITHDRAWN: "#94a3b8",
-};
-
 export function StageDistributionChart({ data }: { data: { status: string; count: number }[] }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
@@ -28,23 +18,19 @@ export function StageDistributionChart({ data }: { data: { status: string; count
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
               dataKey="status"
-              tick={{ fontSize: 12, fill: "#64748b" }}
+              tick={{ fontSize: 12, fill: "var(--color-text-muted)" }}
               tickLine={false}
               axisLine={false}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#64748b" }} tickLine={false} axisLine={false} allowDecimals={false} />
+            <YAxis tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip
-              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid var(--color-border-default)" }}
               formatter={(value: any) => [`${value} applicants`]}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={48}>
-              {data.map((entry) => (
-                <rect key={entry.status} fill={statusColors[entry.status] || "#94a3b8"} />
-              ))}
-            </Bar>
+            <Bar dataKey="count" fill="var(--color-brand-royal)" radius={[4, 4, 0, 0]} maxBarSize={48} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -68,19 +54,19 @@ export function ApplicantTrendChart({
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
               tickLine={false}
               axisLine={false}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#64748b" }} tickLine={false} axisLine={false} allowDecimals={false} />
+            <YAxis tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip
-              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid var(--color-border-default)" }}
               formatter={(value: any) => [`${value} applicants`, "Applications"]}
             />
-            <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={32} />
+            <Bar dataKey="count" fill="var(--color-brand-royal)" radius={[4, 4, 0, 0]} maxBarSize={32} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -96,10 +82,10 @@ export function PipelineStageDistributionChart({ data }: { data: { name: string;
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
               tickLine={false}
               axisLine={false}
               interval={0}
@@ -107,12 +93,12 @@ export function PipelineStageDistributionChart({ data }: { data: { name: string;
               textAnchor="end"
               height={60}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#64748b" }} tickLine={false} axisLine={false} allowDecimals={false} />
+            <YAxis tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip
-              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid var(--color-border-default)" }}
               formatter={(value: unknown) => [`${Number(value ?? 0)} applicants`]}
             />
-            <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+            <Bar dataKey="count" fill="var(--color-brand-royal)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -154,7 +140,7 @@ export function ConversionFunnelChart({
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-paper-2">
               <div
-                className="h-full rounded-full bg-peri"
+                className="h-full rounded-full bg-brand-royal"
                 style={{ width: `${(stage.count / maxCount) * 100}%` }}
               />
             </div>
@@ -192,10 +178,10 @@ export function TopLabelsBarChart({
       <div className="mt-4 h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
               dataKey={labelKey}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "var(--color-text-muted)" }}
               tickLine={false}
               axisLine={false}
               interval={0}
@@ -203,12 +189,12 @@ export function TopLabelsBarChart({
               textAnchor="end"
               height={70}
             />
-            <YAxis tick={{ fontSize: 12, fill: "#64748b" }} tickLine={false} axisLine={false} allowDecimals={false} />
+            <YAxis tick={{ fontSize: 12, fill: "var(--color-text-muted)" }} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip
-              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid #e2e8f0" }}
+              contentStyle={{ fontSize: 13, borderRadius: 8, border: "1px solid var(--color-border-default)" }}
               formatter={(value: unknown) => [`${Number(value ?? 0)} applicants`]}
             />
-            <Bar dataKey="count" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={36} />
+            <Bar dataKey="count" fill="var(--color-brand-slate)" radius={[4, 4, 0, 0]} maxBarSize={36} />
           </BarChart>
         </ResponsiveContainer>
       </div>

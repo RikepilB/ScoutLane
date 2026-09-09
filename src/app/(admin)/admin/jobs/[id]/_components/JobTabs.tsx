@@ -28,7 +28,7 @@ export function JobTabs({ jobId, role }: { jobId: string; role?: string }) {
   const tabs = role === "ADMIN" ? allTabs : restrictedTabs;
 
   return (
-    <nav className="flex gap-6 border-b border-border/70">
+    <nav aria-label="Job sections" className="flex max-w-full gap-6 overflow-x-auto border-b border-border/70">
       {tabs.map((tab) => {
         const href = `/admin/jobs/${jobId}${tab.href}`;
         const active = pathname === href;
@@ -36,8 +36,9 @@ export function JobTabs({ jobId, role }: { jobId: string; role?: string }) {
           <Link
             key={tab.href}
             href={href}
+            aria-current={active ? "page" : undefined}
             className={cn(
-              "border-b-2 pb-3 pt-4 text-sm font-medium transition-colors",
+              "min-h-11 shrink-0 whitespace-nowrap border-b-2 pb-3 pt-4 text-sm font-medium transition-colors",
               active
                 ? "border-ink-950 text-ink-950"
                 : "border-transparent text-muted-foreground hover:text-foreground",

@@ -1,4 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#0f172a"/>
-  <text x="16" y="22" text-anchor="middle" font-family="system-ui" font-weight="800" font-size="18" fill="white">SL</text>
+  <defs>
+    <linearGradient id="lane" x1="3" y1="2" x2="29" y2="31" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#765a77"/>
+      <stop offset="0.58" stop-color="#403b79"/>
+      <stop offset="1" stop-color="#123f59"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#lane)"/>
+  <text x="16" y="22" text-anchor="middle" font-family="system-ui" font-weight="800" font-size="17" fill="#f8f8fa">SL</text>
 </svg>

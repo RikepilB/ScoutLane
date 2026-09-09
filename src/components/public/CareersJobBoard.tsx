@@ -80,13 +80,6 @@ export function CareersJobBoard({ jobs, count, session }: Props) {
 
   return (
     <div className="relative min-h-screen bg-ink-900 text-paper font-body">
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-35"
-        style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-
       <div className="relative z-[1] mx-auto max-w-[1240px] px-7 pb-20 pt-6">
         <PublicNav session={session} className="mb-9" />
 
