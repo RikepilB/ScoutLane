@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useClerk, useSignIn } from "@clerk/nextjs";
 import { signInAsDemo } from "@/lib/auth/demo-sign-in";
@@ -34,7 +34,8 @@ export function DemoSignInButton({
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const errorId = error ? "demo-signin-error" : undefined;
+  const instanceId = useId();
+  const errorId = error ? `${instanceId}-error` : undefined;
   const [, startTransition] = useTransition();
   const { signIn } = useSignIn();
   const { signOut, user } = useClerk();
@@ -81,10 +82,8 @@ export function DemoSignInButton({
               }
 
               // Redeem the sign-in token directly on this origin via the
-              // ticket strategy. Clerk creates + activates the session and
-              // sets the first-party __session cookie here — no cross-origin
-              // account-portal redirect is involved (which dev instances
-              // restrict to localhost anyway).
+              // ticket strategy, then explicitly activate it. The installed
+              // Clerk API separates ticket verification from session activation.
               const { error: ticketError } = await signIn.ticket({ ticket: result.ticket });
               if (ticketError) {
                 throw new Error(
@@ -92,7 +91,13 @@ export function DemoSignInButton({
                 );
               }
 
-              if (timeoutRef.current) clearTimeout(timeoutRef.current);
+              const { error: activationError } = await signIn.finalize();
+              if (activationError) {
+                throw new Error(
+                  activationError.longMessage ?? activationError.message ?? "Session activation failed.",
+                );
+              }
+
               router.push(result.redirectTo);
               router.refresh();
               // Deliberately leave `pending` true here: the button is about to be
@@ -107,7 +112,7 @@ export function DemoSignInButton({
         }}
         disabled={pending}
         aria-label={ariaLabel}
-        aria-describedby={ariaDescribedby || errorId}
+        aria-describedby={[ariaDescribedby, errorId].filter(Boolean).join(" ") || undefined}
         aria-busy={pending}
         className={cn(
           "inline-flex items-center justify-center rounded-control px-6 py-3 text-sm font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed",
@@ -131,12 +136,12 @@ export function DemoSignInButton({
           role="alert"
           aria-live="polite"
         >
-          <p className="text-xs font-medium text-danger">Error:</p>
-          <p className="mt-1 text-xs text-danger">{error}</p>
+          <p className="text-sm font-semibold text-paper">Unable to enter workspace</p>
+          <p className="mt-1 text-sm text-paper">{error}</p>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="mt-2 text-xs font-medium text-danger underline hover:text-danger"
+            className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-paper underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Refresh page
           </button>

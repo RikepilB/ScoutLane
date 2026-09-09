@@ -17,6 +17,8 @@ test("admin sign-in is a dedicated workspace", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Sign in as Admin" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try demo as Admin" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try demo as Recruiter" })).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "Email address or username" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test("recruiter sign-in is a dedicated workspace", async ({ page }) => {
@@ -24,6 +26,8 @@ test("recruiter sign-in is a dedicated workspace", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Sign in as Recruiter" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try demo as Recruiter" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try demo as Admin" })).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "Email address or username" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test("unknown public job slug renders a terminal state", async ({ page }) => {
@@ -48,10 +52,25 @@ test("landing page shows demo entry points", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   // "Job board" appears both in the nav and the footer — scope to the nav link.
   await expect(page.getByRole("navigation").getByRole("link", { name: "Job board" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Try the demo" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Explore a candidate" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Enter as Admin" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Enter as Recruiter" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /shows its work/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Every hiring decision should leave a trail.",
+  );
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-scout-theme", "dark");
+  await expect(page.getByRole("button", { name: "Switch to light theme" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("main")).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole("link", { name: "Explore a candidate" }).click();
+  await expect(page).toHaveURL(/#candidate-demo$/);
+  await page.getByRole("button", { name: /Mina Patel/ }).click();
+  await page.getByRole("tab", { name: "Role evidence" }).click();
+  await expect(page.getByRole("tabpanel")).toContainText("Process design");
 });
 
 test.skip("admin demo login lands on dashboard", async ({ page }) => {

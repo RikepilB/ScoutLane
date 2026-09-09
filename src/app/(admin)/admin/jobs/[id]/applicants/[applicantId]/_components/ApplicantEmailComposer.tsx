@@ -241,7 +241,7 @@ export function ApplicantEmailComposer({
             <iframe
               title="Email preview"
               sandbox=""
-              srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#111827;font-size:14px;margin:0;padding:12px}</style></head><body>${previewHtml || "<em>Nothing to preview yet.</em>"}</body></html>`}
+              srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#17151a;font-size:14px;margin:0;padding:12px}</style></head><body>${previewHtml || "<em>Nothing to preview yet.</em>"}</body></html>`}
               className="min-h-48 w-full rounded-md border border-input bg-background"
             />
           ) : (

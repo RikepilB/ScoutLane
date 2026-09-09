@@ -11,8 +11,7 @@ interface CareersJobListProps {
 export function CareersJobList({ grouped, totalCount, count }: CareersJobListProps) {
   if (totalCount === 0) {
     return (
-      <section className="animate-fade-up animate-fade-up-delay-2 rounded-[24px] p-[60px_20px] text-center shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
-        style={{ background: "#f1f5f9", border: "1px dashed #d4d9df", color: "#0c1529" }}>
+      <section className="rounded-card border border-dashed border-border bg-surface-secondary p-[60px_20px] text-center text-text-primary">
         <h3 className="mb-2 text-[20px] text-ink-900" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
           No matching roles right now
         </h3>
@@ -24,8 +23,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
   }
 
   return (
-    <section className="animate-fade-up animate-fade-up-delay-2 rounded-[24px] p-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-sm:p-6"
-      style={{ background: "#f1f5f9", color: "#0c1529" }}>
+    <section className="rounded-card bg-surface-secondary p-10 text-text-primary max-sm:p-6">
       <div className="mb-7 flex items-end justify-between gap-4 border-b border-mist pb-6 max-sm:flex-col max-sm:items-stretch">
         <div>
           <h2 className="mb-1 text-[32px] tracking-[-0.02em] text-ink-900" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
@@ -47,7 +45,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
               <span className="text-[12px] font-medium uppercase tracking-[0.08em] text-ink-700">
                 {department}
               </span>
-              <span className="rounded-full bg-[rgba(94,167,197,0.10)] px-2 py-0.5 text-[11px] text-steel" style={{ fontFamily: "var(--font-mono)" }}>
+              <span className="px-2 py-0.5 text-xs text-text-muted" style={{ fontFamily: "var(--font-mono)" }}>
                 {deptJobs.length} {deptJobs.length === 1 ? "role" : "roles"}
               </span>
               <span className="h-px flex-1 bg-mist" />
@@ -56,7 +54,7 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
               <Link
                 key={job.id}
                 href={`/careers/${job.slug}`}
-                className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 rounded-[14px] border border-transparent px-5 py-[18px] text-inherit transition-[background-color,border-color,box-shadow,transform] duration-[0.2s] hover:translate-x-1 hover:border-mist hover:bg-surface hover:shadow-[0_8px_24px_rgba(9,21,64,0.06)] max-sm:grid-cols-1 max-sm:gap-2"
+                className="group grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-6 rounded-control border border-transparent px-5 py-[18px] text-inherit transition-colors hover:border-border hover:bg-surface max-sm:grid-cols-1 max-sm:gap-2"
               >
                 <div className="flex flex-col gap-1.5">
                   <div className="flex flex-wrap items-baseline gap-3">
@@ -72,13 +70,13 @@ export function CareersJobList({ grouped, totalCount, count }: CareersJobListPro
                   </p>
                 </div>
                 {job.type && (
-                  <span className={`inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-medium ${job.type?.toLowerCase().includes("remote") ? "bg-[rgba(94,167,197,0.15)] text-info" : "bg-[rgba(118,146,255,0.14)] text-brand-slate"}`}>
+                  <span className="inline-flex items-center text-xs font-medium text-text-secondary">
                     {job.type}
                   </span>
                 )}
                 {job.location && (
                   <span className="inline-flex items-center gap-1.5 text-[13px] text-ink-700" style={{ fontFamily: "var(--font-mono)" }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5f8ea0" strokeWidth="1.8">
+                    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                       <path d="M12 21s-7-7.6-7-12a7 7 0 0 1 14 0c0 4.4-7 12-7 12Z" />
                       <circle cx="12" cy="9" r="2.5" />
                     </svg>

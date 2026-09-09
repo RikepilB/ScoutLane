@@ -63,14 +63,14 @@ export default async function SignUpPage() {
                 // of `elements` class overrides (the latter were silent no-ops
                 // against this Clerk version's remote UI bundle).
                 variables: {
-                  colorPrimary: "#1B2CC1",
-                  colorBackground: "#0f172a",
-                  colorForeground: "#f1f5f9",
-                  colorMutedForeground: "#94a3b8",
-                  colorInput: "#1e293b",
-                  colorInputForeground: "#f1f5f9",
-                  colorNeutral: "#ffffff",
-                  colorBorder: "#334155",
+                  colorPrimary: "#765a77",
+                  colorBackground: "#17151a",
+                  colorForeground: "#f8f8fa",
+                  colorMutedForeground: "#b9b4c1",
+                  colorInput: "#232129",
+                  colorInputForeground: "#f8f8fa",
+                  colorNeutral: "#f8f8fa",
+                  colorBorder: "#57525e",
                 },
                 elements: {
                   rootBox: "w-full",

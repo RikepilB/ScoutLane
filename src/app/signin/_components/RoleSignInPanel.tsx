@@ -30,7 +30,7 @@ export function RoleSignInPanel({
   const text = copy[role];
 
   return (
-    <div className="space-y-6">
+    <div className="scoutlane-signin space-y-6">
       <div>
         <p
           className="text-[10px] font-medium uppercase tracking-[0.16em] text-sky"
@@ -54,20 +54,20 @@ export function RoleSignInPanel({
         forceRedirectUrl={callbackUrl}
         fallbackRedirectUrl="/admin"
         appearance={{
-          // Token-based theming — this Clerk version renders from a remote UI
+          // Explicit palette values mirror docs/DESIGN.md. This Clerk version renders from a remote UI
           // bundle whose internal DOM doesn't reliably match the classic
           // `elements` class-override keys (confirmed live: headerTitle/card
           // overrides were silently no-ops, card stayed white). `variables`
           // are read by every internal component regardless of DOM shape.
           variables: {
-            colorPrimary: "#1B2CC1",
-            colorBackground: "#0f172a",
-            colorForeground: "#f1f5f9",
-            colorMutedForeground: "#94a3b8",
-            colorInput: "#1e293b",
-            colorInputForeground: "#f1f5f9",
-            colorNeutral: "#ffffff",
-            colorBorder: "#334155",
+            colorPrimary: "#765a77",
+            colorBackground: "#17151a",
+            colorForeground: "#f8f8fa",
+            colorMutedForeground: "#b9b4c1",
+            colorInput: "#232129",
+            colorInputForeground: "#f8f8fa",
+            colorNeutral: "#f8f8fa",
+            colorBorder: "#57525e",
           },
           elements: {
             rootBox: "w-full",
@@ -87,7 +87,7 @@ export function RoleSignInPanel({
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-ink-700/60" />
-        <span className="text-xs text-steel">or</span>
+        <span className="text-xs text-text-inverse-muted">or</span>
         <div className="h-px flex-1 bg-ink-700/60" />
       </div>
 
@@ -95,7 +95,7 @@ export function RoleSignInPanel({
         <h2 id="demo-heading" className="text-xs font-semibold uppercase tracking-wider text-mist">
           Skip sign-in — try the demo
         </h2>
-        <p className="mt-1 text-xs text-steel">
+        <p className="mt-1 text-xs leading-5 text-text-inverse-muted">
           Not your own account. Signs everyone into the same shared demo data — don&rsquo;t use
           this for real invites.
         </p>
@@ -107,13 +107,13 @@ export function RoleSignInPanel({
         >
           {role === "admin" ? "Try demo as Admin" : "Try demo as Recruiter"}
         </DemoSignInButton>
-        <p id="demo-desc" className="mt-2 text-xs text-ink-700">
+        <p id="demo-desc" className="mt-2 text-xs leading-5 text-text-inverse-muted">
           Signs in as {account.email}. Pre-loaded with sample jobs and applicants.
         </p>
       </section>
 
-      <p className="text-center text-xs text-ink-700">
-        <Link href="/signin" className="hover:text-soft">
+      <p className="text-center text-xs text-text-inverse-muted">
+        <Link href="/signin" className="inline-flex min-h-11 items-center hover:text-paper">
           Choose a different workspace
         </Link>
       </p>

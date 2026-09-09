@@ -20,15 +20,16 @@ export function CareersFilterBar({
   locations,
 }: CareersFilterBarProps) {
   return (
-    <div className="relative z-[5] -mt-6 mb-8 px-9">
-      <div className="grid grid-cols-[1fr_auto_auto] gap-2 rounded-[18px] bg-surface p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,255,255,0.05)] max-sm:grid-cols-1">
+    <div className="my-6">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-3 rounded-control bg-surface-secondary p-3 max-sm:grid-cols-1">
         {/* Search */}
-        <div className="flex h-12 items-center gap-3 rounded-xl border border-mist bg-surface px-[18px] transition-[background-color,border-color,box-shadow] duration-[0.18s] focus-within:border-brand-royal focus-within:shadow-[0_0_0_3px_rgba(27,44,193,0.12)]">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5f8ea0" strokeWidth="1.7">
+        <div className="flex h-12 items-center gap-3 rounded-control border border-border bg-surface px-4 text-text-muted focus-within:ring-2 focus-within:ring-ring">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
             <circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" strokeLinecap="round" />
           </svg>
           <input
             type="search"
+            aria-label="Search roles"
             placeholder="Search by role, skill, or team..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -40,12 +41,8 @@ export function CareersFilterBar({
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
-          className="h-12 min-w-[160px] cursor-pointer appearance-none rounded-xl border border-mist bg-surface py-0 pl-4 pr-9 text-[14px] text-ink-900 focus:border-brand-royal focus:shadow-[0_0_0_3px_rgba(27,44,193,0.12)] focus:outline-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23394050' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 14px center",
-          }}
+          aria-label="Department"
+          className="h-12 min-w-[160px] cursor-pointer rounded-control border border-border bg-surface px-4 text-sm text-text-primary focus:ring-2 focus:ring-ring"
         >
           <option value="all">All departments</option>
           {DEPARTMENTS.map((d) => (
@@ -57,12 +54,8 @@ export function CareersFilterBar({
         <select
           value={locationFilter}
           onChange={(e) => setLocationFilter(e.target.value)}
-          className="h-12 min-w-[150px] cursor-pointer appearance-none rounded-xl border border-mist bg-surface py-0 pl-4 pr-9 text-[14px] text-ink-900 focus:border-brand-royal focus:shadow-[0_0_0_3px_rgba(27,44,193,0.12)] focus:outline-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23394050' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 14px center",
-          }}
+          aria-label="Location"
+          className="h-12 min-w-[150px] cursor-pointer rounded-control border border-border bg-surface px-4 text-sm text-text-primary focus:ring-2 focus:ring-ring"
         >
           <option value="all">All locations</option>
           {locations.map((l) => (

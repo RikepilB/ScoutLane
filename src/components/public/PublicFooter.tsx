@@ -6,7 +6,6 @@ const columns = [
     links: [
       { href: "/jobs", label: "Job board" },
       { href: "/signin", label: "Sign in" },
-      { href: "/signin", label: "Try the demo" },
     ],
   },
   {
@@ -22,9 +21,9 @@ const columns = [
   },
 ];
 
-export function PublicFooter() {
+export function PublicFooter({ tone = "dark" }: { tone?: "dark" | "paper" }) {
   return (
-    <footer className="border-t border-border-dark pb-8 pt-12">
+    <footer className={tone === "paper" ? "public-footer-paper border-t border-mist pb-8 pt-10" : "border-t border-border-dark pb-8 pt-12"}>
       <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-[320px]">
           <div className="flex items-center gap-3">
@@ -36,7 +35,7 @@ export function PublicFooter() {
             </span>
           </div>
           <p className="mt-4 text-[13px] leading-5 text-paper/55">
-            An applicant tracking system with an inspectable agent harness.
+            Resumes, role fit and hiring decisions in one place.
             Demo environment, sample data throughout.
           </p>
         </div>

@@ -21,13 +21,13 @@ const accentMap: Record<StatCardProps["accent"], { bg: string; fg: string }> = {
   green: { bg: "bg-success-soft", fg: "text-success" },
   amber: { bg: "bg-warning-soft", fg: "text-warning" },
   cyan: { bg: "bg-info-soft", fg: "text-info" },
-  peri: { bg: "bg-[rgba(118,146,255,0.14)]", fg: "text-brand-slate" },
+  peri: { bg: "bg-info-soft", fg: "text-brand-slate" },
 };
 
 function StatCard({ label, value, hint, icon: Icon, accent }: StatCardProps) {
   const a = accentMap[accent];
   return (
-    <article className="flex items-start gap-3.5 rounded-2xl border border-mist bg-surface p-[18px] shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)] transition-all hover:shadow-[0_4px_12px_rgba(9,21,64,0.08),0_2px_4px_rgba(9,21,64,0.04)]">
+    <article className="flex items-start gap-3.5 rounded-2xl border border-mist bg-surface p-[18px] ">
       <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] ${a.bg} ${a.fg}`}>
         <Icon className="h-[17px] w-[17px]" />
       </div>
@@ -86,39 +86,26 @@ export default async function AdminDashboardPage() {
   const applicantTrend = Array.from(dailyMap.entries()).map(([date, count]) => ({ date, count }));
 
   return (
-    <main className="flex-1" style={{ background: "#f1f5f9" }}>
+    <div className="min-w-0 flex-1 bg-paper">
       <OnboardingTour role={role} />
-      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-10 py-8">
-        {/* Hero */}
-        <section className="animate-fade-up relative overflow-hidden rounded-[24px] p-9 text-paper shadow-[0_12px_32px_rgba(9,21,64,0.10),0_4px_8px_rgba(9,21,64,0.06)]"
-          style={{
-            background: "radial-gradient(circle at 8% 20%, rgba(27,44,193,0.45), transparent 55%), linear-gradient(170deg, #091540 0%, #0c1529 70%)",
-          }}>
-          <div className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage: "linear-gradient(rgba(118,146,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(118,146,255,0.05) 1px, transparent 1px)",
-              backgroundSize: "56px 56px",
-              WebkitMaskImage: "radial-gradient(ellipse at 75% 50%, black 25%, transparent 75%)",
-              maskImage: "radial-gradient(ellipse at 75% 50%, black 25%, transparent 75%)",
-            }}
-          />
-
+      <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
+        <section className="rounded-card bg-ink-900 p-5 text-paper sm:p-8">
           <div className="relative flex flex-wrap items-end justify-between gap-6">
             <div>
               <div className="mb-3.5 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-sky"
                 style={{ fontFamily: "var(--font-mono)" }}>
                 <span className="h-px w-5 bg-sky" />
-                Recruitment cockpit
+                Hiring overview
               </div>
               <h1 className="mb-2.5 text-[40px] leading-none tracking-[-0.03em]"
                 style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
-                Admin dashboard
+                {role === "RECRUITER" ? "Recruiter dashboard" : "Admin dashboard"}
               </h1>
               <p className="max-w-[520px] text-[14px] leading-[1.55] text-paper/65">
                 Quick snapshot of hiring activity. Open the Jobs list to manage roles and review applicants by stage.
               </p>
             </div>
-            <div className="flex gap-2.5">
+            <div className="flex flex-wrap gap-2.5 [&_a]:min-h-11">
               <Button asChild className="rounded-lg border border-paper/[0.16] bg-paper/[0.06] text-paper hover:bg-paper/[0.12]">
                 <Link href="/admin/jobs">View jobs</Link>
               </Button>
@@ -138,7 +125,7 @@ export default async function AdminDashboardPage() {
         </section>
 
         {/* Stats */}
-        <section className="animate-fade-up animate-fade-up-delay-1 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Active jobs" value={activeJobs.length} hint="Published and open to applicants" icon={Briefcase} accent="green" />
           <StatCard label="Draft jobs" value={draftJobs.length} hint="Saved but not yet published" icon={FileEdit} accent="amber" />
           <StatCard label="Total applicants" value={totalApplicants} hint={`Across all ${jobs.length} jobs`} icon={Users} accent="cyan" />
@@ -146,7 +133,7 @@ export default async function AdminDashboardPage() {
         </section>
 
         {/* Charts */}
-        <section className="animate-fade-up animate-fade-up-delay-2 grid gap-4 lg:grid-cols-2">
+        <section className="grid gap-4 lg:grid-cols-2">
           <StageDistributionChart
             data={stageDistribution.map((s) => ({ status: s.status, count: s._count.id }))}
           />
@@ -154,7 +141,7 @@ export default async function AdminDashboardPage() {
         </section>
 
         {/* Manage card */}
-        <section className="animate-fade-up animate-fade-up-delay-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-mist bg-surface px-6 py-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
+        <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-mist bg-surface px-6 py-5 shadow-[0_1px_3px_rgba(9,21,64,0.06),0_1px_2px_rgba(9,21,64,0.04)]">
           <div>
             <h2 className="text-[15px] font-semibold text-ink-900" style={{ fontFamily: "var(--font-display)" }}>
               Manage all jobs
@@ -170,6 +157,6 @@ export default async function AdminDashboardPage() {
           </Button>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
