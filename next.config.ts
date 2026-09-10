@@ -14,6 +14,20 @@ const nextConfig: NextConfig = {
     "pdfjs-dist",
     "@napi-rs/canvas",
   ],
+  // Apex is canonical (NEXT_PUBLIC_APP_URL). Without this, www serves a full
+  // duplicate of the site on a second hostname. Kept temporary (307) rather
+  // than permanent — a 308 is cached by browsers indefinitely, and the domain
+  // is days old, so this stays reversible until the apex has settled.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.scoutlane.net" }],
+        destination: "https://scoutlane.net/:path*",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {
