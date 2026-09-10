@@ -234,3 +234,23 @@ record tab changes the rendered resume, role evidence and hiring-process content
 navigation fits without page overflow; candidate and tab rails scroll without persistent browser
 scrollbars. The favicon/social image and final production checks must use the new headline and
 palette before this direction is considered deployed.
+
+## Admin composition and loading review — 2026-09-10
+
+Verdict: PASS for the focused admin dashboard scope after revision.
+
+- Wide-screen composition: at 1920px the hero begins at x=252 and uses 1376px of the 1700px main
+  area. At 390, 768, 1192, 1440 and 1920px, document width does not exceed viewport width.
+- Product insight: the page starts with the direct “Hiring overview” heading. The decorative
+  eyebrow is gone, and the supporting sentence reports this week's intake plus the busiest stage
+  from live dashboard data, with safe empty and singular states.
+- Subtraction: the repeated “Manage all jobs” panel was removed; the hero keeps the single primary
+  route to the jobs workspace.
+- Brand continuity: Geologica, silver, graphite, aubergine and a restrained existing Deep Ocean
+  wash carry the approved landing system into the admin without adding another font or palette.
+- Loading and accessibility: each deferred chart reserves 354px, reduced-motion users do not get a
+  pulsing placeholder, and an IntersectionObserver boundary defers the dynamic Recharts bundle.
+  The daily trend is aggregated in PostgreSQL to at most 14 UTC-date rows. Chart headings and
+  region labels remain available when the charts render.
+- States checked: authenticated production build at wide and mobile widths; empty, singular and
+  plural insight copy; deferred and visible chart unit-test states.

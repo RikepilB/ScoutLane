@@ -16,7 +16,11 @@ export function StageDistributionChart({ data }: { data: { status: string; count
       <h3 className="text-sm font-semibold text-ink-900">Applicants by stage</h3>
       <p className="mt-1 text-xs text-muted-foreground">Distribution across all pipeline stages</p>
       <div className="mt-4 h-64">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 0, height: 256 }}
+        >
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
@@ -52,7 +56,11 @@ export function ApplicantTrendChart({
       <h3 className="text-sm font-semibold text-ink-900">{title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
       <div className="mt-4 h-64">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 0, height: 256 }}
+        >
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
@@ -80,7 +88,11 @@ export function PipelineStageDistributionChart({ data }: { data: { name: string;
       <h3 className="text-sm font-semibold text-ink-900">Applicants by pipeline stage</h3>
       <p className="mt-1 text-xs text-muted-foreground">Counts for this job&apos;s configured stages</p>
       <div className="mt-4 h-64">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 0, height: 256 }}
+        >
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
@@ -176,7 +188,11 @@ export function TopLabelsBarChart({
       <h3 className="text-sm font-semibold text-ink-900">{title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
       <div className="mt-4 h-64">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 0, height: 256 }}
+        >
           <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
             <XAxis
