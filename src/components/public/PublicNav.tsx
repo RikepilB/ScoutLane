@@ -20,8 +20,13 @@ const links = [
     match: (path: string) => path === "/jobs" || path.startsWith("/careers/"),
   },
   {
+    href: "/resume-match",
+    label: "Resume match",
+    match: (path: string) => path === "/resume-match",
+  },
+  {
     href: "/legal",
-    label: "Legal",
+    label: "Privacy & terms",
     match: (path: string) => path === "/legal",
   },
 ];
@@ -45,7 +50,7 @@ export function PublicNav({
         </span>
       </Link>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {links.map((link) => {
           const active = link.match(pathname);
           return (

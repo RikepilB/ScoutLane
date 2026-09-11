@@ -10,6 +10,7 @@ const APP_SINGLE_SEGMENT_ROOTS = [
   "api",
   "careers",
   "jobs",
+  "resume-match",
   "signin",
   "signup",
   "choose-role",
