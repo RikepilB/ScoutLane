@@ -74,6 +74,7 @@ export async function createOpenRouterJsonCompletion(input: {
   source: string;
   maxAttempts?: number;
   timeoutMs?: number;
+  validate?: (content: string) => void;
 }): Promise<string> {
   let attempts = 0;
   const maxAttempts = input.maxAttempts === undefined
@@ -86,13 +87,15 @@ export async function createOpenRouterJsonCompletion(input: {
       if (attempts >= maxAttempts) break;
       attempts += 1;
       try {
-        return await createChatCompletion({
+        const content = await createChatCompletion({
           client: input.client,
           model,
           messages: input.messages,
           useJsonMode,
           timeoutMs,
         });
+        input.validate?.(content);
+        return content;
       } catch {
         const mode = useJsonMode ? "json-mode" : "plain-json";
         console.warn(`[${input.source}] OpenRouter attempt ${attempts} failed: ${model} (${mode})`);
