@@ -64,6 +64,21 @@ describe("scoreResumeForJob", () => {
     await expect(scoreResumeForJob({ resumeText, job })).resolves.toMatchObject({ score: 0.5 });
   });
 
+  it("accepts short exact skill excerpts", async () => {
+    mocks.completion.mockResolvedValue(
+      JSON.stringify({
+        matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript" }],
+        missingRequirements: [{ jobExcerpt: "SQL" }],
+        improvements: [{ kind: "verify-before-adding", jobExcerpt: "SQL" }],
+      }),
+    );
+
+    await expect(scoreResumeForJob({ resumeText, job })).resolves.toMatchObject({
+      score: 0.5,
+      matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript" }],
+    });
+  });
+
   it("rejects a provider-invented resume excerpt", async () => {
     mocks.completion.mockResolvedValue(
       JSON.stringify({
