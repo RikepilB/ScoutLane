@@ -564,7 +564,6 @@
     justify-content: space-between;
     gap: 4px;
   }
-  .page :global(.public-nav-link[aria-current="page"]) { display: none; }
   .themeToggle { padding-right: 9px; padding-left: 9px; }
   .aura { top: -11rem; height: 64rem; filter: blur(16px); }
   .hero { padding: 46px 0 78px; }

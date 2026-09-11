@@ -46,6 +46,18 @@ describe("middleware — Clerk configured", () => {
     expect(isRedirect(res)).toBe(false);
   });
 
+  it("passes the bearer-protected cleanup cron through to its route handler", async () => {
+    const middleware = (await loadMiddleware("pk_test_123")) as (
+      auth: () => Promise<{ userId: string | null }>,
+      req: NextRequest,
+    ) => Promise<Response>;
+    const req = new NextRequest("http://localhost/api/cron/rate-limit-cleanup");
+
+    const res = await middleware(fakeAuth(null), req);
+
+    expect(isRedirect(res)).toBe(false);
+  });
+
   it("passes a job shortlink path through without checking auth", async () => {
     const middleware = (await loadMiddleware("pk_test_123")) as (
       auth: () => Promise<{ userId: string | null }>,

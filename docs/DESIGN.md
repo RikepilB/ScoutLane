@@ -254,3 +254,19 @@ Verdict: PASS for the focused admin dashboard scope after revision.
   region labels remain available when the charts render.
 - States checked: authenticated production build at wide and mobile widths; empty, singular and
   plural insight copy; deferred and visible chart unit-test states.
+
+## Resume match product-surface review — 2026-09-11
+
+Verdict: PASS after the evidence-output and mobile-navigation revisions.
+
+- The page stays inside the established Geologica, silver/graphite and aubergine system in light
+  and dark modes; it introduces no extra font, marketing gradient or generic feature-card wall.
+- The hierarchy starts with the task name, not an eyebrow or slogan. One upload, one comparison
+  source and one consent decision form the complete interaction.
+- Results quote short, source-verified resume excerpts beside the requirement they support. Missing
+  items remain “missing evidence,” and the page explicitly avoids presenting a hiring prediction.
+- The active Resume match link remains visible on Pixel 7 widths. Home, Job board, Resume match and
+  Privacy & terms retain their requested order and wrap without horizontal page overflow.
+- Rendered Chromium and Pixel 7 checks cover light and dark result states plus the unavailable-AI
+  error. The product form remains intentionally plain and document-like rather than adding
+  decorative containers around each field or result.

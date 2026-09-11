@@ -1,10 +1,19 @@
 import { z } from "zod";
 
-export const matchResultSchema = z.object({
+const boundedText = z.string().trim().min(1).max(240);
+
+export const resumeMatchResultSchema = z.object({
   score: z.number().min(0).max(1),
-  matchedSkills: z.array(z.string()).default([]),
-  missingSkills: z.array(z.string()).default([]),
-  rationale: z.string().max(800),
-  improvements: z.array(z.string().max(500)).max(6).optional(),
+  matchedEvidence: z
+    .array(
+      z.object({
+        requirement: boundedText,
+        resumeExcerpt: z.string().trim().min(12).max(300),
+      }),
+    )
+    .max(6),
+  missingRequirements: z.array(boundedText).max(6),
+  rationale: z.string().trim().min(1).max(800),
+  improvements: z.array(z.string().trim().min(1).max(500)).max(6),
 });
-export type MatchResult = z.infer<typeof matchResultSchema>;
+export type ResumeMatchResult = z.infer<typeof resumeMatchResultSchema>;
