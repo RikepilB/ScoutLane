@@ -50,6 +50,7 @@ describe("scoreResumeForJob", () => {
 
     const request = mocks.completion.mock.calls[0][0];
     expect(request).toMatchObject({ maxAttempts: 2, timeoutMs: 15_000 });
+    expect(request.validate).toEqual(expect.any(Function));
     const systemMessage = request.messages.find(
       (message: { role: string }) => message.role === "system",
     );
@@ -61,6 +62,21 @@ describe("scoreResumeForJob", () => {
     mocks.completion.mockResolvedValue(JSON.stringify({ ...validResult, score: 1 }));
 
     await expect(scoreResumeForJob({ resumeText, job })).resolves.toMatchObject({ score: 0.5 });
+  });
+
+  it("accepts short exact skill excerpts", async () => {
+    mocks.completion.mockResolvedValue(
+      JSON.stringify({
+        matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript" }],
+        missingRequirements: [{ jobExcerpt: "SQL" }],
+        improvements: [{ kind: "verify-before-adding", jobExcerpt: "SQL" }],
+      }),
+    );
+
+    await expect(scoreResumeForJob({ resumeText, job })).resolves.toMatchObject({
+      score: 0.5,
+      matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript" }],
+    });
   });
 
   it("rejects a provider-invented resume excerpt", async () => {
