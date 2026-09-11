@@ -21,6 +21,7 @@ describe("isJobShortlinkPath", () => {
       "/careers/frontend",
       "/jobs",
       "/jobs/new",
+      "/resume-match",
       "/signin",
       "/signin?as=admin",
       "/signup",

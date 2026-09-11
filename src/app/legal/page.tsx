@@ -84,12 +84,19 @@ export default async function LegalPage() {
 
           <div className="space-y-4 text-sm leading-6 text-paper/70">
             <p>
-              <strong className="text-paper/90">What we collect.</strong> When you apply to a job
-              or use the fit-check tool, ScoutLane stores the resume file you upload, any contact
+              <strong className="text-paper/90">What we collect.</strong> When you apply to a job,
+              ScoutLane stores the resume file you upload, any contact
               details and answers you submit on the application form, and the structured data an
               AI model extracts from your resume (name, work history, education, skills). When
               you sign in, Clerk (our authentication provider) issues a session and stores your
               account identity.
+            </p>
+            <p>
+              <strong className="text-paper/90">Comparisons before applying.</strong> Resume match
+              and fit checks process files temporarily without saving an applicant record or
+              submitting an application. Resume and job text are sent through OpenRouter to AI
+              providers; their own processing and retention policies apply. Comparison results
+              remain in the current browser page and disappear when you leave or reload it.
             </p>
             <p>
               <strong className="text-paper/90">How it&rsquo;s used.</strong> Resume text is sent

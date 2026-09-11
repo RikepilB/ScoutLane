@@ -6,6 +6,7 @@ import { isJobShortlinkPath } from "@/lib/auth/public-routes";
 const isPublicRoute = createRouteMatcher([
   "/",
   "/jobs",
+  "/resume-match",
   "/signin(.*)",
   "/signup",
   "/choose-role",

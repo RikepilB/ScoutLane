@@ -100,6 +100,7 @@
 .nav { position: relative; z-index: 2; }
 
 .page :global(.public-nav-paper .public-wordmark),
+.page :global(.public-footer-paper span:not(:first-child)),
 .page :global(.public-nav-paper .public-nav-link) { color: var(--landing-text); }
 .page :global(.public-nav-paper .public-nav-link:hover),
 .page :global(.public-nav-paper .public-nav-link[aria-current="page"]) {
