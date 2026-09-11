@@ -3,6 +3,16 @@ import { test, expect } from "@playwright/test";
 test("resume comparison shows evidence and handles unavailable AI", async ({ page }) => {
   await page.goto("/resume-match");
   await expect(page.getByRole("heading", { name: "Resume match", exact: true })).toBeVisible();
+  const visibleNavigationLabels = await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .locator("a:visible")
+    .allTextContents();
+  expect(visibleNavigationLabels.slice(1, 5)).toEqual([
+    "Home",
+    "Job board",
+    "Resume match",
+    "Privacy & terms",
+  ]);
   await page.getByLabel("Your resume").setInputFiles({ name: "resume.txt", mimeType: "text/plain", buffer: Buffer.from("TypeScript developer with five years building accessible applications.") });
   await page.getByLabel("Job description", { exact: true }).fill("Seeking an engineer experienced with TypeScript, SQL and accessible web applications.");
   await page.getByRole("checkbox").check();
