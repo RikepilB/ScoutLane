@@ -107,4 +107,32 @@ describe("createOpenRouterJsonCompletion", () => {
       expect(call[1].signal).toBeInstanceOf(AbortSignal);
     }
   });
+
+  it("retries when a successful provider response fails caller validation", async () => {
+    process.env.OPENROUTER_MODEL = "model-a";
+    delete process.env.OPENROUTER_FALLBACK_MODELS;
+    const create = vi
+      .fn()
+      .mockResolvedValueOnce({ choices: [{ message: { content: "{\"ok\":false}" } }] })
+      .mockResolvedValueOnce({ choices: [{ message: { content: "{\"ok\":true}" } }] });
+    const validate = vi.fn((content: string) => {
+      if (content !== "{\"ok\":true}") throw new Error("private validation detail");
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const client = { chat: { completions: { create } } };
+
+    await expect(
+      createOpenRouterJsonCompletion({
+        client: client as never,
+        source: "publicResumeMatch",
+        messages: [{ role: "user", content: "return json" }],
+        maxAttempts: 2,
+        validate,
+      }),
+    ).resolves.toBe("{\"ok\":true}");
+
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(validate).toHaveBeenCalledTimes(2);
+    expect(warn.mock.calls.flat().join(" ")).not.toContain("private validation detail");
+  });
 });

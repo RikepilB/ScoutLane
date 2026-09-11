@@ -5,7 +5,7 @@ const exactExcerpt = z.string().trim().min(2).max(300);
 const matchedEvidenceSchema = z
   .object({
     jobExcerpt: exactExcerpt,
-    resumeExcerpt: z.string().trim().min(12).max(300),
+    resumeExcerpt: exactExcerpt,
   })
   .strict();
 
@@ -14,7 +14,7 @@ const improvementSchema = z.discriminatedUnion("kind", [
     .object({
       kind: z.literal("clarify-existing-evidence"),
       jobExcerpt: exactExcerpt,
-      resumeExcerpt: z.string().trim().min(12).max(300),
+      resumeExcerpt: exactExcerpt,
     })
     .strict(),
   z
