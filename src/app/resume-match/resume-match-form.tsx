@@ -86,8 +86,8 @@ export function ResumeMatchForm() {
           <h3 className="mb-3 font-semibold">Matched evidence</h3>
           <ul className="space-y-4">
             {result.matchedEvidence.map((evidence, index) => (
-              <li key={`${evidence.requirement}-${index}`}>
-                <p className="font-medium">{evidence.requirement}</p>
+              <li key={`${evidence.jobExcerpt}-${index}`}>
+                <p className="font-medium">“{evidence.jobExcerpt}”</p>
                 <blockquote className="mt-1 border-l-2 border-[var(--landing-line-strong)] pl-3 text-sm text-[var(--landing-muted)]">
                   “{evidence.resumeExcerpt}”
                 </blockquote>
@@ -96,9 +96,9 @@ export function ResumeMatchForm() {
           </ul>
           {!result.matchedEvidence.length && <p>No clear overlap was identified in the resume text.</p>}
         </section>
-        <section><h3 className="mb-3 font-semibold">Missing evidence</h3><ul className="list-disc space-y-2 pl-5">{result.missingRequirements.map((requirement, i) => <li key={i}>{requirement}</li>)}</ul>{!result.missingRequirements.length && <p>No specific missing requirements were identified.</p>}</section>
+        <section><h3 className="mb-3 font-semibold">Missing evidence</h3><ul className="list-disc space-y-2 pl-5">{result.missingRequirements.map((requirement, i) => <li key={i}>“{requirement.jobExcerpt}”</li>)}</ul>{!result.missingRequirements.length && <p>No specific missing requirements were identified.</p>}</section>
       </div>
-      <section><h3 className="mb-3 font-semibold">Before you apply</h3>{result.improvements.length ? <ul className="list-disc space-y-2 pl-5">{result.improvements.map((tip, i) => <li key={i}>{tip}</li>)}</ul> : <p>For each missing requirement you actually meet, add a specific project, responsibility or result that demonstrates it. Keep claims truthful; discuss remaining gaps with the hiring team.</p>}</section>
+      <section><h3 className="mb-3 font-semibold">Before you apply</h3>{result.improvements.length ? <ul className="list-disc space-y-2 pl-5">{result.improvements.map((tip, i) => <li key={i}>{tip.kind === "clarify-existing-evidence" ? tip.guidance : tip.verificationQuestion}</li>)}</ul> : <p>For each missing requirement you actually meet, add a specific project, responsibility or result that demonstrates it. Keep claims truthful; discuss remaining gaps with the hiring team.</p>}</section>
       <button type="button" onClick={() => { setResult(null); document.getElementById("resume")?.focus(); }} className="inline-flex min-h-11 items-center gap-2 underline"><RotateCcw size={16} />Start another comparison</button>
     </div>}
   </>;

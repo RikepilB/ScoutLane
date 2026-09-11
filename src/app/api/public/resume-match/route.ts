@@ -3,7 +3,10 @@ import { prisma } from "@/lib/db/prisma";
 import { getOpenRouterClient } from "@/lib/llm/openrouter";
 import { scoreResumeForJob, type ResumeMatchJob } from "@/lib/match/scoreResumeForJob";
 import { clientIpFromHeaders, createRateLimiter } from "@/lib/rate-limit";
-import { checkResumeMatchRateLimits } from "@/lib/rate-limit-db";
+import {
+  checkResumeMatchRateLimits,
+  checkResumeMatchRequestRateLimits,
+} from "@/lib/rate-limit-db";
 import { assertSafeDocxArchive } from "@/lib/resume/docx-preflight";
 import { extractTextFromResumeBuffer } from "@/lib/resume/extractText";
 import { assertResumeUploadAllowed, MAX_RESUME_BYTES } from "@/lib/storage/upload-limits";
@@ -28,6 +31,18 @@ export async function POST(request: Request) {
         "Retry-After": String(Math.max(1, Math.ceil((requestRate.resetAt - Date.now()) / 1000))),
         "Cache-Control": "no-store",
       },
+    });
+  }
+  let parseRate;
+  try {
+    parseRate = await checkResumeMatchRequestRateLimits(clientIp);
+  } catch {
+    return reply({ error: "Resume matching is temporarily unavailable. Please try again later." }, 503);
+  }
+  if (!parseRate.allowed) {
+    return NextResponse.json({ error: "Too many comparisons. Please wait before trying again." }, {
+      status: 429,
+      headers: { "Retry-After": String(parseRate.retryAfter), "Cache-Control": "no-store" },
     });
   }
   if (Number(request.headers.get("content-length")) > MAX_REQUEST_BYTES) {

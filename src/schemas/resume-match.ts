@@ -1,19 +1,40 @@
 import { z } from "zod";
 
-const boundedText = z.string().trim().min(1).max(240);
+const exactExcerpt = z.string().trim().min(2).max(300);
+
+const matchedEvidenceSchema = z
+  .object({
+    jobExcerpt: exactExcerpt,
+    resumeExcerpt: z.string().trim().min(12).max(300),
+  })
+  .strict();
+
+const improvementSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("clarify-existing-evidence"),
+      jobExcerpt: exactExcerpt,
+      resumeExcerpt: z.string().trim().min(12).max(300),
+      guidance: z.string().trim().min(1).max(500),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("verify-before-adding"),
+      jobExcerpt: exactExcerpt,
+      verificationQuestion: z.string().trim().min(1).max(500),
+    })
+    .strict(),
+]);
 
 export const resumeMatchResultSchema = z.object({
   score: z.number().min(0).max(1),
-  matchedEvidence: z
-    .array(
-      z.object({
-        requirement: boundedText,
-        resumeExcerpt: z.string().trim().min(12).max(300),
-      }),
-    )
-    .max(6),
-  missingRequirements: z.array(boundedText).max(6),
+  matchedEvidence: z.array(matchedEvidenceSchema).max(6),
+  missingRequirements: z.array(z.object({ jobExcerpt: exactExcerpt }).strict()).max(6),
   rationale: z.string().trim().min(1).max(800),
-  improvements: z.array(z.string().trim().min(1).max(500)).max(6),
+  improvements: z.array(improvementSchema).max(6),
 });
 export type ResumeMatchResult = z.infer<typeof resumeMatchResultSchema>;
+
+export const resumeMatchProviderResultSchema = resumeMatchResultSchema.omit({ rationale: true });
+export type ResumeMatchProviderResult = z.infer<typeof resumeMatchProviderResultSchema>;

@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   score: vi.fn(),
   job: vi.fn(),
   check: vi.fn(),
+  checkRequest: vi.fn(),
   requestCheck: vi.fn(),
   docx: vi.fn(),
 }));
@@ -13,7 +14,10 @@ vi.mock("@/lib/db/prisma", () => ({ prisma: { job: { findFirst: mocks.job } } })
 vi.mock("@/lib/llm/openrouter", () => ({ getOpenRouterClient: mocks.client }));
 vi.mock("@/lib/resume/extractText", () => ({ extractTextFromResumeBuffer: mocks.extract }));
 vi.mock("@/lib/match/scoreResumeForJob", () => ({ scoreResumeForJob: mocks.score }));
-vi.mock("@/lib/rate-limit-db", () => ({ checkResumeMatchRateLimits: mocks.check }));
+vi.mock("@/lib/rate-limit-db", () => ({
+  checkResumeMatchRateLimits: mocks.check,
+  checkResumeMatchRequestRateLimits: mocks.checkRequest,
+}));
 vi.mock("@/lib/rate-limit", () => ({
   clientIpFromHeaders: () => "test",
   createRateLimiter: () => ({ check: mocks.requestCheck }),
@@ -29,20 +33,21 @@ function request(overrides: Record<string, string> = {}, file = new File(["%PDF-
 }
 beforeEach(() => {
   vi.clearAllMocks(); mocks.check.mockResolvedValue({ allowed: true, retryAfter: 0 }); mocks.client.mockReturnValue({});
+  mocks.checkRequest.mockResolvedValue({ allowed: true, retryAfter: 0 });
   mocks.requestCheck.mockReturnValue({ allowed: true, remaining: 9, resetAt: Date.now() + 60_000 });
   mocks.extract.mockResolvedValue("Experienced TypeScript engineer building accessible web applications.");
   mocks.score.mockResolvedValue({
     score: 0.7,
-    matchedEvidence: [{ requirement: "TypeScript", resumeExcerpt: "TypeScript engineer" }],
-    missingRequirements: ["SQL"],
-    rationale: "SQL is not demonstrated.",
+    matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript engineer" }],
+    missingRequirements: [{ jobExcerpt: "SQL" }],
+    rationale: "1 job requirement has supporting resume evidence; 1 remains unverified.",
     improvements: [],
   });
 });
 describe("public resume match", () => {
   it("returns missing evidence without creating an application", async () => {
     const response = await POST(request());
-    expect(response.status).toBe(200); expect(await response.json()).toMatchObject({ missingRequirements: ["SQL"] });
+    expect(response.status).toBe(200); expect(await response.json()).toMatchObject({ missingRequirements: [{ jobExcerpt: "SQL" }] });
     expect(response.headers.get("cache-control")).toBe("no-store"); expect(mocks.job).not.toHaveBeenCalled();
   });
   it("requires consent before any AI processing", async () => {
@@ -57,6 +62,14 @@ describe("public resume match", () => {
   it("only resolves published non-archived jobs", async () => {
     mocks.job.mockResolvedValue(null); expect((await POST(request({ jobSlug: "closed" }))).status).toBe(404);
     expect(mocks.job).toHaveBeenCalledWith(expect.objectContaining({ where: { slug: "closed", published: true, archived: false } }));
+  });
+  it("uses a distributed budget before reading or parsing the document", async () => {
+    mocks.checkRequest.mockResolvedValue({ allowed: false, retryAfter: 60 });
+    const response = await POST(request());
+
+    expect(response.status).toBe(429);
+    expect(mocks.extract).not.toHaveBeenCalled();
+    expect(mocks.check).not.toHaveBeenCalled();
   });
   it("passes a published job's labelled structured fields to the advisory scorer", async () => {
     const publishedJob = {

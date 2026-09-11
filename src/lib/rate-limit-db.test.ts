@@ -14,7 +14,11 @@ vi.mock("@/lib/db/prisma", () => ({
   },
 }));
 
-import { checkResumeMatchRateLimits, deleteExpiredRateLimitBuckets } from "./rate-limit-db";
+import {
+  checkResumeMatchRateLimits,
+  checkResumeMatchRequestRateLimits,
+  deleteExpiredRateLimitBuckets,
+} from "./rate-limit-db";
 
 const originalVercelEnv = process.env.VERCEL_ENV;
 const originalHashSecret = process.env.RATE_LIMIT_HASH_SECRET;
@@ -49,6 +53,20 @@ describe("checkResumeMatchRateLimits", () => {
       .map(([query]) => JSON.stringify(query))
       .join(" ");
     expect(serializedQueries).not.toContain("203.0.113.9");
+  });
+
+  it("atomically bounds distributed request and document-parsing work", async () => {
+    await expect(
+      checkResumeMatchRequestRateLimits("203.0.113.12", new Date("2026-09-11T04:05:00.000Z")),
+    ).resolves.toEqual({ allowed: true, retryAfter: 0 });
+
+    expect(mocks.transaction).toHaveBeenCalledOnce();
+    expect(mocks.queryRaw).toHaveBeenCalledTimes(3);
+    const serializedQueries = mocks.queryRaw.mock.calls
+      .map(([query]) => JSON.stringify(query))
+      .join(" ");
+    expect(serializedQueries).toContain("resume-match:request:global:day");
+    expect(serializedQueries).not.toContain("203.0.113.12");
   });
 
   it("denies before AI processing when any shared budget is exhausted", async () => {

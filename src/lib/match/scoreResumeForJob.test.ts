@@ -24,13 +24,18 @@ const validResult = {
   score: 0.72,
   matchedEvidence: [
     {
-      requirement: "TypeScript",
+      jobExcerpt: "TypeScript",
       resumeExcerpt: "Built accessible TypeScript applications",
     },
   ],
-  missingRequirements: ["SQL"],
-  rationale: "The resume documents relevant TypeScript delivery, while SQL is not shown.",
-  improvements: ["If you have used SQL in production, add the project and your responsibility."],
+  missingRequirements: [{ jobExcerpt: "SQL" }],
+  improvements: [
+    {
+      kind: "verify-before-adding",
+      jobExcerpt: "SQL",
+      verificationQuestion: "Have you used SQL in a project you can document?",
+    },
+  ],
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -39,7 +44,10 @@ describe("scoreResumeForJob", () => {
   it("returns only evidence whose excerpt exists in the submitted resume", async () => {
     mocks.completion.mockResolvedValue(JSON.stringify(validResult));
 
-    await expect(scoreResumeForJob({ resumeText, job })).resolves.toEqual(validResult);
+    await expect(scoreResumeForJob({ resumeText, job })).resolves.toEqual({
+      ...validResult,
+      rationale: "1 job requirement has supporting resume evidence; 1 remains unverified.",
+    });
 
     const request = mocks.completion.mock.calls[0][0];
     expect(request).toMatchObject({ maxAttempts: 2, timeoutMs: 15_000 });
@@ -56,7 +64,7 @@ describe("scoreResumeForJob", () => {
         ...validResult,
         matchedEvidence: [
           {
-            requirement: "Kubernetes",
+            jobExcerpt: "TypeScript",
             resumeExcerpt: "Led Kubernetes migrations for global infrastructure",
           },
         ],
@@ -65,6 +73,19 @@ describe("scoreResumeForJob", () => {
 
     await expect(scoreResumeForJob({ resumeText, job })).rejects.toThrow(
       "Resume evidence could not be verified",
+    );
+  });
+
+  it("rejects a provider-invented job requirement", async () => {
+    mocks.completion.mockResolvedValue(
+      JSON.stringify({
+        ...validResult,
+        missingRequirements: [{ jobExcerpt: "Kubernetes" }],
+      }),
+    );
+
+    await expect(scoreResumeForJob({ resumeText, job })).rejects.toThrow(
+      "Job evidence could not be verified",
     );
   });
 

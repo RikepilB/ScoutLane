@@ -3,10 +3,14 @@ import { test, expect } from "@playwright/test";
 test("resume comparison shows evidence and handles unavailable AI", async ({ page }) => {
   await page.route("**/api/public/resume-match", route => route.fulfill({ json: {
     score: 0.7,
-    matchedEvidence: [{ requirement: "TypeScript", resumeExcerpt: "TypeScript developer with five years" }],
-    missingRequirements: ["SQL"],
-    rationale: "TypeScript is supported; SQL needs evidence.",
-    improvements: ["If you have used SQL, add the project and your responsibility."],
+    matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript developer with five years" }],
+    missingRequirements: [{ jobExcerpt: "SQL" }],
+    rationale: "1 job requirement has supporting resume evidence; 1 remains unverified.",
+    improvements: [{
+      kind: "verify-before-adding",
+      jobExcerpt: "SQL",
+      verificationQuestion: "Have you used SQL in a project you can document?",
+    }],
   } }));
   await page.goto("/resume-match");
   await expect(page.getByRole("heading", { name: "Resume match", exact: true })).toBeVisible();

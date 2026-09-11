@@ -69,12 +69,26 @@ export async function checkResumeMatchRateLimits(
   now = new Date(),
 ): Promise<RateLimitResult> {
   const clientKey = hashedClientKey(ip);
-  const budgets: Budget[] = [
+  return consumeBudgets([
     { key: "resume-match:global:day", limit: 100, windowMs: ONE_DAY_MS },
     { key: "resume-match:global:minute", limit: 12, windowMs: ONE_MINUTE_MS },
     { key: `resume-match:ip:${clientKey}`, limit: 5, windowMs: TEN_MINUTES_MS },
-  ];
+  ], now);
+}
 
+export async function checkResumeMatchRequestRateLimits(
+  ip: string,
+  now = new Date(),
+): Promise<RateLimitResult> {
+  const clientKey = hashedClientKey(ip);
+  return consumeBudgets([
+    { key: "resume-match:request:global:day", limit: 500, windowMs: ONE_DAY_MS },
+    { key: "resume-match:request:global:minute", limit: 30, windowMs: ONE_MINUTE_MS },
+    { key: `resume-match:request:ip:${clientKey}`, limit: 10, windowMs: ONE_MINUTE_MS },
+  ], now);
+}
+
+async function consumeBudgets(budgets: Budget[], now: Date): Promise<RateLimitResult> {
   try {
     await prisma.$transaction(async (transaction) => {
       for (const budget of budgets) {
