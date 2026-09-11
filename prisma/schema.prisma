@@ -367,3 +367,15 @@ model JobAlert {
   token     String   @unique
   createdAt DateTime @default(now())
 }
+
+/// Short-lived shared counters for anonymous endpoint abuse protection.
+/// Keys derived from network addresses are HMAC pseudonyms, never raw addresses.
+model RateLimitBucket {
+  key         String   @db.VarChar(128)
+  windowStart DateTime @db.Timestamptz(3)
+  count       Int      @default(0)
+  expiresAt   DateTime @db.Timestamptz(3)
+
+  @@id([key, windowStart])
+  @@index([expiresAt])
+}

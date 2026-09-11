@@ -82,4 +82,29 @@ describe("createOpenRouterJsonCompletion", () => {
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
+
+  it("caps public attempts and never logs or rethrows provider content", async () => {
+    process.env.OPENROUTER_MODEL = "model-a";
+    process.env.OPENROUTER_FALLBACK_MODELS = "model-b";
+    const privateText = "private-candidate-content";
+    const create = vi.fn().mockRejectedValue(new Error(privateText));
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const client = { chat: { completions: { create } } };
+
+    await expect(
+      createOpenRouterJsonCompletion({
+        client: client as never,
+        source: "publicResumeMatch",
+        messages: [{ role: "user", content: "return json" }],
+        maxAttempts: 2,
+        timeoutMs: 1234,
+      }),
+    ).rejects.toThrow("OpenRouter request failed after trying configured models.");
+
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(warn.mock.calls.flat().join(" ")).not.toContain(privateText);
+    for (const call of create.mock.calls) {
+      expect(call[1].signal).toBeInstanceOf(AbortSignal);
+    }
+  });
 });

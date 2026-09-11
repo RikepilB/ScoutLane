@@ -96,7 +96,11 @@ export default async function LegalPage() {
               and fit checks process files temporarily without saving an applicant record or
               submitting an application. Resume and job text are sent through OpenRouter to AI
               providers; their own processing and retention policies apply. Comparison results
-              remain in the current browser page and disappear when you leave or reload it.
+              remain in the current browser page and disappear when you leave or reload it. For
+              abuse prevention, ScoutLane keeps short-lived request counters under a pseudonymous
+              identifier derived from the network address; those counters contain no resume or job
+              text. They become eligible for deletion when the rate-limit window ends and scheduled
+              daily maintenance removes them; a failed maintenance run may delay deletion.
             </p>
             <p>
               <strong className="text-paper/90">How it&rsquo;s used.</strong> Resume text is sent
