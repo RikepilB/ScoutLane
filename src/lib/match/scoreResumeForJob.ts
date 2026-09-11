@@ -69,6 +69,18 @@ function assertEvidenceIsGrounded(
   }
 
   if (!everyJobExcerptExists) throw new Error("Job evidence could not be verified.");
+
+  const matchedKeys = result.matchedEvidence.map(({ jobExcerpt }) => normalizeEvidence(jobExcerpt));
+  const missingKeys = result.missingRequirements.map(({ jobExcerpt }) => normalizeEvidence(jobExcerpt));
+  const uniqueMatched = new Set(matchedKeys);
+  const uniqueMissing = new Set(missingKeys);
+  if (
+    uniqueMatched.size !== matchedKeys.length ||
+    uniqueMissing.size !== missingKeys.length ||
+    [...uniqueMatched].some((key) => uniqueMissing.has(key))
+  ) {
+    throw new Error("Job evidence mapping is inconsistent.");
+  }
 }
 
 function resultRationale(result: ResumeMatchProviderResult): string {
@@ -78,6 +90,12 @@ function resultRationale(result: ResumeMatchProviderResult): string {
   const unverifiedVerb = unverified === 1 ? "remains" : "remain";
 
   return `${supported} ${supportedNoun} supporting resume evidence; ${unverified} ${unverifiedVerb} unverified.`;
+}
+
+function evidenceScore(result: ResumeMatchProviderResult): number {
+  const documented = result.matchedEvidence.length;
+  const total = documented + result.missingRequirements.length;
+  return total === 0 ? 0 : documented / total;
 }
 
 export async function scoreResumeForJob(input: {
@@ -114,23 +132,21 @@ For each matched item, copy a short exact excerpt that appears verbatim in resum
 For every matched or missing item, copy a short exact jobExcerpt that appears verbatim in the job evidence.
 Describe absent items as missing evidence, not missing ability.
 Each improvement must use one of two kinds:
-- clarify-existing-evidence: include exact jobExcerpt and resumeExcerpt plus truthful guidance.
-- verify-before-adding: include exact jobExcerpt and only a verificationQuestion; never state the candidate has it.
+- clarify-existing-evidence: include only exact jobExcerpt and resumeExcerpt.
+- verify-before-adding: include only exact jobExcerpt; never state that the candidate has it.
 Return only JSON in this shape:
 {
-  "score": 0.0,
   "matchedEvidence": [{ "jobExcerpt": "exact job text", "resumeExcerpt": "exact resume text" }],
   "missingRequirements": [{ "jobExcerpt": "exact job text" }],
   "improvements": [
-    { "kind": "clarify-existing-evidence", "jobExcerpt": "exact job text", "resumeExcerpt": "exact resume text", "guidance": "truthful edit" },
-    { "kind": "verify-before-adding", "jobExcerpt": "exact job text", "verificationQuestion": "question to verify" }
+    { "kind": "clarify-existing-evidence", "jobExcerpt": "exact job text", "resumeExcerpt": "exact resume text" },
+    { "kind": "verify-before-adding", "jobExcerpt": "exact job text" }
   ]
 }`,
       },
       {
         role: "user",
         content: `Compare the resume with the stated job requirements.
-Score documented overlap from 0 to 1 and bias toward 0.5 when the job is vague.
 Return at most six matched evidence items, six missing requirements and six truthful improvements.
 
 Untrusted evidence JSON:
@@ -142,5 +158,5 @@ ${JSON.stringify(evidencePayload)}`,
   const result = resumeMatchProviderResultSchema.parse(JSON.parse(stripFences(raw)));
   const jobText = JSON.stringify(evidencePayload.job);
   assertEvidenceIsGrounded(result, evidencePayload.resumeText, jobText);
-  return { ...result, rationale: resultRationale(result) };
+  return { ...result, score: evidenceScore(result), rationale: resultRationale(result) };
 }

@@ -10,6 +10,13 @@ import {
 
 const field = "w-full rounded-md border border-[var(--landing-line-strong)] bg-[var(--landing-surface)] p-3 text-[var(--landing-text)]";
 
+function improvementText(improvement: ResumeMatchResult["improvements"][number]) {
+  if (improvement.kind === "clarify-existing-evidence") {
+    return `Make the existing resume evidence “${improvement.resumeExcerpt}” easier to find for “${improvement.jobExcerpt}”.`;
+  }
+  return `Verify whether you can truthfully document “${improvement.jobExcerpt}”. If yes, add a concrete project, responsibility or result; otherwise leave it as a gap.`;
+}
+
 export function ResumeMatchForm() {
   const [mode, setMode] = useState("text");
   const [busy, setBusy] = useState(false);
@@ -98,7 +105,7 @@ export function ResumeMatchForm() {
         </section>
         <section><h3 className="mb-3 font-semibold">Missing evidence</h3><ul className="list-disc space-y-2 pl-5">{result.missingRequirements.map((requirement, i) => <li key={i}>“{requirement.jobExcerpt}”</li>)}</ul>{!result.missingRequirements.length && <p>No specific missing requirements were identified.</p>}</section>
       </div>
-      <section><h3 className="mb-3 font-semibold">Before you apply</h3>{result.improvements.length ? <ul className="list-disc space-y-2 pl-5">{result.improvements.map((tip, i) => <li key={i}>{tip.kind === "clarify-existing-evidence" ? tip.guidance : tip.verificationQuestion}</li>)}</ul> : <p>For each missing requirement you actually meet, add a specific project, responsibility or result that demonstrates it. Keep claims truthful; discuss remaining gaps with the hiring team.</p>}</section>
+      <section><h3 className="mb-3 font-semibold">Before you apply</h3>{result.improvements.length ? <ul className="list-disc space-y-2 pl-5">{result.improvements.map((tip, i) => <li key={i}>{improvementText(tip)}</li>)}</ul> : <p>For each missing requirement you actually meet, add a specific project, responsibility or result that demonstrates it. Keep claims truthful; discuss remaining gaps with the hiring team.</p>}</section>
       <button type="button" onClick={() => { setResult(null); document.getElementById("resume")?.focus(); }} className="inline-flex min-h-11 items-center gap-2 underline"><RotateCcw size={16} />Start another comparison</button>
     </div>}
   </>;

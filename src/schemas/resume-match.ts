@@ -15,14 +15,12 @@ const improvementSchema = z.discriminatedUnion("kind", [
       kind: z.literal("clarify-existing-evidence"),
       jobExcerpt: exactExcerpt,
       resumeExcerpt: z.string().trim().min(12).max(300),
-      guidance: z.string().trim().min(1).max(500),
     })
     .strict(),
   z
     .object({
       kind: z.literal("verify-before-adding"),
       jobExcerpt: exactExcerpt,
-      verificationQuestion: z.string().trim().min(1).max(500),
     })
     .strict(),
 ]);
@@ -36,5 +34,8 @@ export const resumeMatchResultSchema = z.object({
 });
 export type ResumeMatchResult = z.infer<typeof resumeMatchResultSchema>;
 
-export const resumeMatchProviderResultSchema = resumeMatchResultSchema.omit({ rationale: true });
+export const resumeMatchProviderResultSchema = resumeMatchResultSchema.omit({
+  score: true,
+  rationale: true,
+});
 export type ResumeMatchProviderResult = z.infer<typeof resumeMatchProviderResultSchema>;

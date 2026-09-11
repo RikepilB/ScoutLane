@@ -37,7 +37,7 @@ beforeEach(() => {
   mocks.requestCheck.mockReturnValue({ allowed: true, remaining: 9, resetAt: Date.now() + 60_000 });
   mocks.extract.mockResolvedValue("Experienced TypeScript engineer building accessible web applications.");
   mocks.score.mockResolvedValue({
-    score: 0.7,
+    score: 0.5,
     matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript engineer" }],
     missingRequirements: [{ jobExcerpt: "SQL" }],
     rationale: "1 job requirement has supporting resume evidence; 1 remains unverified.",
