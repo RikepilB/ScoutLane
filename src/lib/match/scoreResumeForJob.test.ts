@@ -50,6 +50,7 @@ describe("scoreResumeForJob", () => {
 
     const request = mocks.completion.mock.calls[0][0];
     expect(request).toMatchObject({ maxAttempts: 2, timeoutMs: 15_000 });
+    expect(request.validate).toEqual(expect.any(Function));
     const systemMessage = request.messages.find(
       (message: { role: string }) => message.role === "system",
     );

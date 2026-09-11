@@ -98,6 +98,16 @@ function evidenceScore(result: ResumeMatchProviderResult): number {
   return total === 0 ? 0 : documented / total;
 }
 
+function parseGroundedResult(
+  raw: string,
+  resumeText: string,
+  jobText: string,
+): ResumeMatchProviderResult {
+  const result = resumeMatchProviderResultSchema.parse(JSON.parse(stripFences(raw)));
+  assertEvidenceIsGrounded(result, resumeText, jobText);
+  return result;
+}
+
 export async function scoreResumeForJob(input: {
   resumeText: string;
   job: ResumeMatchJob;
@@ -116,11 +126,17 @@ export async function scoreResumeForJob(input: {
     resumeText: input.resumeText.trim().slice(0, MAX_RESUME_CHARS),
   };
 
+  const jobText = JSON.stringify(evidencePayload.job);
+  let validatedResult: ResumeMatchProviderResult | undefined;
+
   const raw = await createOpenRouterJsonCompletion({
     client,
     source: "scoreResumeForJob",
     maxAttempts: 2,
     timeoutMs: 15_000,
+    validate: (content) => {
+      validatedResult = parseGroundedResult(content, evidencePayload.resumeText, jobText);
+    },
     messages: [
       {
         role: "system",
@@ -155,8 +171,7 @@ ${JSON.stringify(evidencePayload)}`,
     ],
   });
 
-  const result = resumeMatchProviderResultSchema.parse(JSON.parse(stripFences(raw)));
-  const jobText = JSON.stringify(evidencePayload.job);
-  assertEvidenceIsGrounded(result, evidencePayload.resumeText, jobText);
+  const result = validatedResult
+    ?? parseGroundedResult(raw, evidencePayload.resumeText, jobText);
   return { ...result, score: evidenceScore(result), rationale: resultRationale(result) };
 }
