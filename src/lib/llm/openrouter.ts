@@ -48,16 +48,12 @@ function getOpenRouterTimeoutMs(): number {
   return Number.isFinite(value) && value > 0 ? value : DEFAULT_OPENROUTER_TIMEOUT_MS;
 }
 
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
-
 async function createChatCompletion(input: {
   client: OpenAI;
   model: string;
   messages: ChatMessage[];
   useJsonMode: boolean;
+  timeoutMs: number;
 }): Promise<string> {
   const completion = await input.client.chat.completions.create(
     {
@@ -66,7 +62,7 @@ async function createChatCompletion(input: {
       ...(input.useJsonMode ? { response_format: { type: "json_object" as const } } : {}),
       messages: input.messages,
     },
-    { signal: AbortSignal.timeout(getOpenRouterTimeoutMs()) },
+    { signal: AbortSignal.timeout(input.timeoutMs) },
   );
 
   return completion.choices[0]?.message?.content ?? "";
@@ -76,31 +72,36 @@ export async function createOpenRouterJsonCompletion(input: {
   client: OpenAI;
   messages: ChatMessage[];
   source: string;
+  maxAttempts?: number;
+  timeoutMs?: number;
 }): Promise<string> {
-  let lastError: unknown;
+  let attempts = 0;
+  const maxAttempts = input.maxAttempts === undefined
+    ? Number.POSITIVE_INFINITY
+    : Math.max(1, Math.floor(input.maxAttempts));
+  const timeoutMs = input.timeoutMs ?? getOpenRouterTimeoutMs();
 
   for (const model of getOpenRouterModels()) {
     for (const useJsonMode of [true, false]) {
+      if (attempts >= maxAttempts) break;
+      attempts += 1;
       try {
         return await createChatCompletion({
           client: input.client,
           model,
           messages: input.messages,
           useJsonMode,
+          timeoutMs,
         });
-      } catch (error) {
-        lastError = error;
+      } catch {
         const mode = useJsonMode ? "json-mode" : "plain-json";
-        console.warn(
-          `[${input.source}] OpenRouter model failed: ${model} (${mode}) - ${getErrorMessage(error)}`,
-        );
+        console.warn(`[${input.source}] OpenRouter attempt ${attempts} failed: ${model} (${mode})`);
       }
     }
+    if (attempts >= maxAttempts) break;
   }
 
-  throw lastError instanceof Error
-    ? new Error(`OpenRouter request failed after trying configured models: ${lastError.message}`)
-    : new Error("OpenRouter request failed after trying configured models.");
+  throw new Error("OpenRouter request failed after trying configured models.");
 }
 
 export function stripFences(text: string): string {

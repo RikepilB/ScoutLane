@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rate-limit-cleanup",
+      "schedule": "17 4 * * *"
+    }
+  ]
+}

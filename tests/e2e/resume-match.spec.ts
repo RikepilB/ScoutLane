@@ -1,6 +1,16 @@
 import { test, expect } from "@playwright/test";
 
 test("resume comparison shows evidence and handles unavailable AI", async ({ page }) => {
+  await page.route("**/api/public/resume-match", route => route.fulfill({ json: {
+    score: 0.5,
+    matchedEvidence: [{ jobExcerpt: "TypeScript", resumeExcerpt: "TypeScript developer with five years" }],
+    missingRequirements: [{ jobExcerpt: "SQL" }],
+    rationale: "1 job requirement has supporting resume evidence; 1 remains unverified.",
+    improvements: [{
+      kind: "verify-before-adding",
+      jobExcerpt: "SQL",
+    }],
+  } }));
   await page.goto("/resume-match");
   await expect(page.getByRole("heading", { name: "Resume match", exact: true })).toBeVisible();
   const visibleNavigationLabels = await page
@@ -16,9 +26,8 @@ test("resume comparison shows evidence and handles unavailable AI", async ({ pag
   await page.getByLabel("Your resume").setInputFiles({ name: "resume.txt", mimeType: "text/plain", buffer: Buffer.from("TypeScript developer with five years building accessible applications.") });
   await page.getByLabel("Job description", { exact: true }).fill("Seeking an engineer experienced with TypeScript, SQL and accessible web applications.");
   await page.getByRole("checkbox").check();
-  await page.route("**/api/public/resume-match", route => route.fulfill({ json: { score: 0.7, matchedSkills: ["TypeScript"], missingSkills: ["SQL"], rationale: "TypeScript is supported; SQL needs evidence." } }));
   await page.getByRole("button", { name: "Compare resume", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "70% evidence match" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "50% evidence match" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Missing evidence" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/resume-match-${test.info().project.name}.png`, fullPage: true, animations: "disabled" });

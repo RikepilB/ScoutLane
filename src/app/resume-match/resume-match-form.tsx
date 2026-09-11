@@ -3,15 +3,25 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { FileText, LoaderCircle, RotateCcw } from "lucide-react";
-import { matchResultSchema, type MatchResult } from "@/schemas/resume-match";
+import {
+  resumeMatchResultSchema,
+  type ResumeMatchResult,
+} from "@/schemas/resume-match";
 
 const field = "w-full rounded-md border border-[var(--landing-line-strong)] bg-[var(--landing-surface)] p-3 text-[var(--landing-text)]";
+
+function improvementText(improvement: ResumeMatchResult["improvements"][number]) {
+  if (improvement.kind === "clarify-existing-evidence") {
+    return `Make the existing resume evidence “${improvement.resumeExcerpt}” easier to find for “${improvement.jobExcerpt}”.`;
+  }
+  return `Verify whether you can truthfully document “${improvement.jobExcerpt}”. If yes, add a concrete project, responsibility or result; otherwise leave it as a gap.`;
+}
 
 export function ResumeMatchForm() {
   const [mode, setMode] = useState("text");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<MatchResult | null>(null);
+  const [result, setResult] = useState<ResumeMatchResult | null>(null);
   const output = useRef<HTMLDivElement>(null);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -24,13 +34,21 @@ export function ResumeMatchForm() {
     }
     setBusy(true); setError(""); setResult(null);
     try {
-      const response = await fetch("/api/public/resume-match", { method: "POST", body: data, signal: AbortSignal.timeout(120_000) });
+      const response = await fetch("/api/public/resume-match", {
+        method: "POST",
+        body: data,
+        signal: AbortSignal.timeout(45_000),
+      });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Comparison failed. Please try again.");
-      setResult(matchResultSchema.parse(body));
+      setResult(resumeMatchResultSchema.parse(body));
       setTimeout(() => output.current?.focus(), 0);
     } catch (failure) {
-      setError(failure instanceof Error && failure.name !== "ZodError" ? failure.message : "Unexpected response. Please try again.");
+      if (failure instanceof Error && ["AbortError", "TimeoutError"].includes(failure.name)) {
+        setError("The comparison took too long. Please try again.");
+      } else {
+        setError(failure instanceof Error && failure.name !== "ZodError" ? failure.message : "Unexpected response. Please try again.");
+      }
     } finally { setBusy(false); }
   }
 
@@ -71,10 +89,23 @@ export function ResumeMatchForm() {
       <p>{result.rationale}</p>
       <p className="text-sm text-[var(--landing-muted)]">This is an AI assessment of the submitted evidence, not a hiring prediction. Missing evidence does not mean you lack the skill.</p>
       <div className="grid gap-8 sm:grid-cols-2">
-        <section><h3 className="mb-3 font-semibold">Demonstrated skills</h3><ul className="list-disc space-y-2 pl-5">{result.matchedSkills.map((skill, i) => <li key={i}>{skill}</li>)}</ul>{!result.matchedSkills.length && <p>No clear skill overlap was identified.</p>}</section>
-        <section><h3 className="mb-3 font-semibold">Missing evidence</h3><ul className="list-disc space-y-2 pl-5">{result.missingSkills.map((skill, i) => <li key={i}>{skill}</li>)}</ul>{!result.missingSkills.length && <p>No specific missing skills were identified.</p>}</section>
+        <section>
+          <h3 className="mb-3 font-semibold">Matched evidence</h3>
+          <ul className="space-y-4">
+            {result.matchedEvidence.map((evidence, index) => (
+              <li key={`${evidence.jobExcerpt}-${index}`}>
+                <p className="font-medium">“{evidence.jobExcerpt}”</p>
+                <blockquote className="mt-1 border-l-2 border-[var(--landing-line-strong)] pl-3 text-sm text-[var(--landing-muted)]">
+                  “{evidence.resumeExcerpt}”
+                </blockquote>
+              </li>
+            ))}
+          </ul>
+          {!result.matchedEvidence.length && <p>No clear overlap was identified in the resume text.</p>}
+        </section>
+        <section><h3 className="mb-3 font-semibold">Missing evidence</h3><ul className="list-disc space-y-2 pl-5">{result.missingRequirements.map((requirement, i) => <li key={i}>“{requirement.jobExcerpt}”</li>)}</ul>{!result.missingRequirements.length && <p>No specific missing requirements were identified.</p>}</section>
       </div>
-      <section><h3 className="mb-3 font-semibold">Before you apply</h3>{result.improvements?.length ? <ul className="list-disc space-y-2 pl-5">{result.improvements.map((tip, i) => <li key={i}>{tip}</li>)}</ul> : <p>For each missing requirement you actually meet, add a specific project, responsibility or result that demonstrates it. Keep claims truthful; discuss remaining gaps with the recruiter.</p>}</section>
+      <section><h3 className="mb-3 font-semibold">Before you apply</h3>{result.improvements.length ? <ul className="list-disc space-y-2 pl-5">{result.improvements.map((tip, i) => <li key={i}>{improvementText(tip)}</li>)}</ul> : <p>For each missing requirement you actually meet, add a specific project, responsibility or result that demonstrates it. Keep claims truthful; discuss remaining gaps with the hiring team.</p>}</section>
       <button type="button" onClick={() => { setResult(null); document.getElementById("resume")?.focus(); }} className="inline-flex min-h-11 items-center gap-2 underline"><RotateCcw size={16} />Start another comparison</button>
     </div>}
   </>;
